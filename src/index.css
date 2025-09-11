@@ -1,0 +1,71 @@
+/* --- Tailwind directives must be FIRST and in this order --- */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* --- Local fonts (keep outside @layer) --- */
+@font-face { font-family: 'Cals-Sans'; src: url('/fonts/CalSans-SemiBold.ttf') format('truetype'); font-display: swap; }
+@font-face { font-family: 'Matter-Bold'; src: url('/fonts/Matter-Bold.ttf') format('truetype'); font-display: swap; }
+@font-face { font-family: 'Matter-Heavy'; src: url('/fonts/Matter-Heavy.ttf') format('truetype'); font-display: swap; }
+@font-face { font-family: 'Matter-Light'; src: url('/fonts/Matter-Light.ttf') format('truetype'); font-display: swap; }
+@font-face { font-family: 'Matter-Medium'; src: url('/fonts/Matter-Medium.ttf') format('truetype'); font-display: swap; }
+@font-face { font-family: 'Matter-Regular'; src: url('/fonts/Matter-Regular.ttf') format('truetype'); font-display: swap; }
+@font-face { font-family: 'Matter-SemiBold'; src: url('/fonts/Matter-SemiBold.ttf') format('truetype'); font-display: swap; }
+
+/* --- Base/global styles & headings --- */
+@layer base {
+  *, ::before, ::after { box-sizing: border-box; }
+  html, body, #root { height: 100%; }
+
+  /* If you really want a full reset, keep it here (after Tailwind) */
+  * { margin: 0; padding: 0; }
+
+  /* Headings & text */
+  h1 { @apply text-xl md:text-2xl lg:text-3xl font-Cals-Sans; }
+  h2 { @apply text-xl lg:text-2xl font-Cals-Sans; }
+  h3 { @apply text-xl; }
+  h4 { @apply text-md lg:text-lg font-Matter-Regular; }
+  h5 { @apply text-md font-Matter-Regular; }
+  h6 { @apply text-sm md:text-base font-Matter-Regular; }
+  p  { @apply text-sm font-Matter-Regular; }
+}
+
+/* --- Components (structured helpers) --- */
+@layer components {
+  /* Sticky helper */
+  .sticky-div {
+    margin-bottom: 85px;
+    position: sticky;
+    top: 20px;
+    bottom: 20px;
+    overflow-y: auto;
+    max-height: calc(100vh - 70vh);
+  }
+}
+
+/* --- Utilities (small, composable helpers) --- */
+@layer utilities {
+  /* Hide scrollbar helper (cross-browser) */
+  .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+  .scrollbar-hide::-webkit-scrollbar { display: none; }
+
+  /* Optional arbitrary size utility */
+  .lg\:text-\[54px\] { font-size: 54px; }
+}
+
+/* --- Scrollbar styles (use raw CSS, not @apply, for pseudo-elements) --- */
+.custom__sidebar__scrollbar { height: 100vh; }
+.custom__sidebar__scrollbar::-webkit-scrollbar { width: 8px; }
+.custom__sidebar__scrollbar::-webkit-scrollbar-track { background: transparent; }
+.custom__sidebar__scrollbar::-webkit-scrollbar-thumb {
+  background-color: rgba(21, 41, 75, 0.7);
+  border-radius: 4px;
+}
+@media (min-width: 768px) {
+  .custom__sidebar__scrollbar::-webkit-scrollbar-thumb { border-radius: 6px; }
+}
+
+/* Large screens: make sticky-div static like you had */
+@media (min-width: 1024px) {
+  .sticky-div { position: static; }
+}
