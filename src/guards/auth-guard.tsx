@@ -1,19 +1,10 @@
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "@/providers/auth-provider";
 
-/**
- * Route guard that protects routes requiring authentication.
- * Uses Outlet to render child routes when authorized.
- *
- * Flow:
- * - No auth → redirect to /login
- * - Authenticated → render child routes
- */
-export default function ProtectedRoute() {
+export function AuthGuard() {
   const { isAuthenticated, isLoading } = useAuth();
   const location = useLocation();
 
-  // Optional: Show loading state while checking auth
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -23,13 +14,7 @@ export default function ProtectedRoute() {
   }
 
   if (!isAuthenticated) {
-    return (
-      <Navigate
-        to="/login"
-        replace
-        state={{ from: location.pathname + location.search }}
-      />
-    );
+    return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
   return <Outlet />;
