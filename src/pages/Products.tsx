@@ -1,12 +1,16 @@
 import { useEffect, useMemo, useState } from "react";
-import Card, { CardHeader, CardBody } from "@/components/ui/Card";
-import Button from "@/components/ui/Button";
-import Input from "@/components/ui/Input";
-import Select from "@/components/ui/Select";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
 import api from "@/lib/api";
-import Badge from "@/components/ui/Badge";
-
-
 
 type Category = { _id: string; name: string; slug: string };
 type Product = {
@@ -28,11 +32,18 @@ export default function Products() {
   const [err, setErr] = useState("");
 
   const [q, setQ] = useState("");
-  const [status, setStatus] = useState<"" | "pending" | "approved" | "rejected">("");
+  const [status, setStatus] = useState<
+    "" | "pending" | "approved" | "rejected"
+  >("");
   const [cat, setCat] = useState<string>("");
 
   const [creating, setCreating] = useState(false);
-  const [form, setForm] = useState({ title: "", description: "", price: "", category: "" });
+  const [form, setForm] = useState({
+    title: "",
+    description: "",
+    price: "",
+    category: "",
+  });
 
   function toastSuccess(m: string) {
     setOk(m);
@@ -49,14 +60,18 @@ export default function Products() {
     setLoading(true);
     try {
       const pr = await api.get("/products");
-      const list: Product[] = pr.data?.data?.docs || pr.data?.data || pr.data || [];
+      const list: Product[] =
+        pr.data?.data?.docs || pr.data?.data || pr.data || [];
       setProducts(list);
 
       const cr = await api.get("/categories");
-      const cats: Category[] = cr.data?.data?.docs || cr.data?.data || cr.data || [];
+      const cats: Category[] =
+        cr.data?.data?.docs || cr.data?.data || cr.data || [];
       setCategories(cats);
     } catch (e: any) {
-      toastError(e?.response?.data?.message || e.message || "Failed to load products");
+      toastError(
+        e?.response?.data?.message || e.message || "Failed to load products"
+      );
     } finally {
       setLoading(false);
     }
@@ -76,7 +91,9 @@ export default function Products() {
       const byStatus = !status || p.status === status;
       const byCat =
         !cat ||
-        (typeof p.category === "string" ? p.category === cat : p.category?._id === cat);
+        (typeof p.category === "string"
+          ? p.category === cat
+          : p.category?._id === cat);
       return byQ && byStatus && byCat;
     });
   }, [products, q, status, cat]);
@@ -105,7 +122,10 @@ export default function Products() {
     }
   };
 
-  const updateStatus = async (id: string, newStatus: "approved" | "rejected" | "pending") => {
+  const updateStatus = async (
+    id: string,
+    newStatus: "approved" | "rejected" | "pending"
+  ) => {
     try {
       await api.patch(`/products/${id}/status`, { status: newStatus });
       toastSuccess(`Status set to ${newStatus}`);
@@ -113,13 +133,16 @@ export default function Products() {
         prev.map((p) => (p._id === id ? { ...p, status: newStatus } : p))
       );
     } catch (e: any) {
-      toastError(e?.response?.data?.message || e.message || "Failed to update status");
+      toastError(
+        e?.response?.data?.message || e.message || "Failed to update status"
+      );
     }
   };
 
   const deleteProduct = async (id: string) => {
     const p = products.find((x) => x._id === id);
-    if (!confirm(`Delete product "${p?.title || id}"? This cannot be undone.`)) return;
+    if (!confirm(`Delete product "${p?.title || id}"? This cannot be undone.`))
+      return;
     try {
       await api.delete(`/products/${id}`);
       toastSuccess("Product deleted");
@@ -129,14 +152,24 @@ export default function Products() {
     }
   };
 
+  const getStatusVariant = (status?: string) => {
+    if (status === "approved") return "default";
+    if (status === "rejected") return "destructive";
+    return "secondary";
+  };
+
   return (
     <div className="space-y-6">
-      {ok && <div className="badge-ok">{ok}</div>}
-      {err && <div className="badge-err">{err}</div>}
+      {ok && (
+        <div className="p-3 bg-green-100 text-green-800 rounded">{ok}</div>
+      )}
+      {err && <div className="p-3 bg-red-100 text-red-800 rounded">{err}</div>}
 
       <Card>
-        <CardHeader title="Create Product" />
-        <CardBody>
+        <CardHeader>
+          <CardTitle>Create Product</CardTitle>
+        </CardHeader>
+        <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mb-3">
             <Input
               placeholder="Title"
@@ -155,16 +188,20 @@ export default function Products() {
             />
             <Select
               value={form.category}
-              onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
-                setForm((f) => ({ ...f, category: e.target.value }))
+              onValueChange={(value) =>
+                setForm((f) => ({ ...f, category: value }))
               }
             >
-              <option value="">Select category…</option>
-              {categories.map((c) => (
-                <option key={c._id} value={c._id}>
-                  {c.name}
-                </option>
-              ))}
+              <SelectTrigger>
+                <SelectValue placeholder="Select category…" />
+              </SelectTrigger>
+              <SelectContent>
+                {categories.map((c) => (
+                  <SelectItem key={c._id} value={c._id}>
+                    {c.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
             </Select>
             <Input
               className="md:col-span-4"
@@ -178,92 +215,101 @@ export default function Products() {
           <Button onClick={createProduct} disabled={creating}>
             {creating ? "Creating…" : "Create"}
           </Button>
-        </CardBody>
+        </CardContent>
       </Card>
 
       <Card>
-        <CardHeader title="Filters" />
-        <CardBody>
+        <CardHeader>
+          <CardTitle>Filters</CardTitle>
+        </CardHeader>
+        <CardContent>
           <div className="flex flex-wrap gap-3 items-center">
             <Input
               placeholder="Search title/description…"
               value={q}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setQ(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                setQ(e.target.value)
+              }
+              className="w-64"
             />
             <Select
               value={status}
-              onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
-                setStatus(e.target.value as typeof status)
-              }
+              onValueChange={(value) => setStatus(value as typeof status)}
             >
-              <option value="">All statuses</option>
-              <option value="pending">Pending</option>
-              <option value="approved">Approved</option>
-              <option value="rejected">Rejected</option>
+              <SelectTrigger className="w-40">
+                <SelectValue placeholder="All statuses" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="">All statuses</SelectItem>
+                <SelectItem value="pending">Pending</SelectItem>
+                <SelectItem value="approved">Approved</SelectItem>
+                <SelectItem value="rejected">Rejected</SelectItem>
+              </SelectContent>
             </Select>
-            <Select
-              value={cat}
-              onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setCat(e.target.value)}
-            >
-              <option value="">All categories</option>
-              {categories.map((c) => (
-                <option key={c._id} value={c._id}>
-                  {c.name}
-                </option>
-              ))}
+            <Select value={cat} onValueChange={(value) => setCat(value)}>
+              <SelectTrigger className="w-40">
+                <SelectValue placeholder="All categories" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="">All categories</SelectItem>
+                {categories.map((c) => (
+                  <SelectItem key={c._id} value={c._id}>
+                    {c.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
             </Select>
           </div>
-        </CardBody>
+        </CardContent>
       </Card>
 
       <Card>
-        <CardHeader title="Products" />
-        <CardBody>
+        <CardHeader>
+          <CardTitle>Products</CardTitle>
+        </CardHeader>
+        <CardContent>
           {loading ? (
             <div>Loading…</div>
           ) : filtered.length === 0 ? (
-            <div className="text-[var(--mutd)]">No products found.</div>
+            <div className="text-muted-foreground">No products found.</div>
           ) : (
-            <div className="table-wrap">
+            <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
                   <tr>
-                    <th className="th">Title</th>
-                    <th className="th">Category</th>
-                    <th className="th">Price</th>
-                    <th className="th">Status</th>
-                    <th className="th">Created</th>
-                    <th className="th w-64">Actions</th>
+                    <th className="text-left p-2">Title</th>
+                    <th className="text-left p-2">Category</th>
+                    <th className="text-left p-2">Price</th>
+                    <th className="text-left p-2">Status</th>
+                    <th className="text-left p-2">Created</th>
+                    <th className="text-left p-2 w-64">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   {filtered.map((p) => {
                     const categoryName =
                       typeof p.category === "string"
-                        ? categories.find((c) => c._id === p.category)?.name || "—"
+                        ? categories.find((c) => c._id === p.category)?.name ||
+                          "—"
                         : p.category?.name || "—";
                     return (
-                      <tr key={p._id} className="row-hover">
-                        <td className="td">{p.title}</td>
-                        <td className="td">{categoryName}</td>
-                        <td className="td">{typeof p.price === "number" ? p.price : "—"}</td>
-                        <td className="td">
-                          <Badge
-                            tone={
-                              p.status === "approved"
-                                ? "ok"
-                                : p.status === "rejected"
-                                ? "err"
-                                : "warn"
-                            }
-                          >
+                      <tr key={p._id} className="border-t hover:bg-muted/50">
+                        <td className="p-2">{p.title}</td>
+                        <td className="p-2">{categoryName}</td>
+                        <td className="p-2">
+                          {typeof p.price === "number" ? p.price : "—"}
+                        </td>
+                        <td className="p-2">
+                          <Badge variant={getStatusVariant(p.status)}>
                             {p.status || "pending"}
                           </Badge>
                         </td>
-                        <td className="td">
-                          {p.createdAt ? new Date(p.createdAt).toLocaleString() : "—"}
+                        <td className="p-2">
+                          {p.createdAt
+                            ? new Date(p.createdAt).toLocaleString()
+                            : "—"}
                         </td>
-                        <td className="td">
+                        <td className="p-2">
                           <div className="flex flex-wrap gap-2">
                             <Button
                               size="sm"
@@ -302,7 +348,7 @@ export default function Products() {
               </table>
             </div>
           )}
-        </CardBody>
+        </CardContent>
       </Card>
     </div>
   );

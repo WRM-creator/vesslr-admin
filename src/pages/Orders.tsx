@@ -1,12 +1,9 @@
-// src/pages/Orders.tsx
+// src/pages/orders.tsx
 import { useEffect, useState } from "react";
-import Card, { CardHeader, CardBody } from "@/components/ui/Card";
-import Button from "@/components/ui/Button";
-import Badge from "@/components/ui/Badge";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import api from "@/lib/api";
-import Input from "@/components/ui/Input";
-import Select from "@/components/ui/Select";
-
 
 type Order = {
   _id: string;
@@ -69,105 +66,105 @@ export default function Orders() {
     }
   };
 
-  const getStatusTone = (status: Order["status"]) => {
+  const getStatusVariant = (status: Order["status"]) => {
     switch (status) {
       case "cancelled":
-        return "err";
+        return "destructive";
       case "pending":
-        return "warn";
+        return "secondary";
       case "paid":
-        return "info";
       case "shipped":
-        return "blue";
+        return "outline";
       case "completed":
-        return "ok";
+        return "default";
       default:
-        return "neutral";
+        return "secondary";
     }
   };
 
   return (
     <div className="space-y-6">
       <Card>
-        <CardHeader title="Orders" />
-        <CardBody>
-          {ok && <div className="mb-3 badge-ok">{ok}</div>}
-          {err && <div className="mb-3 badge-err">{err}</div>}
+        <CardHeader>
+          <CardTitle>Orders</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {ok && <div className="mb-3 text-green-600">{ok}</div>}
+          {err && <div className="mb-3 text-destructive">{err}</div>}
 
           {loading ? (
             <div>Loading…</div>
           ) : !data || data.docs.length === 0 ? (
-            <div className="text-[var(--mutd)]">No orders yet.</div>
+            <div className="text-muted-foreground">No orders yet.</div>
           ) : (
             <>
-              <div className="table-wrap">
+              <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
                     <tr>
-                      <th className="th">Order ID</th>
-                      <th className="th">Product</th>
-                      <th className="th">Buyer</th>
-                      <th className="th">Qty</th>
-                      <th className="th">Price</th>
-                      <th className="th">Status</th>
-                      <th className="th">Created</th>
-                      <th className="th">Actions</th>
+                      <th className="text-left p-2">Order ID</th>
+                      <th className="text-left p-2">Product</th>
+                      <th className="text-left p-2">Buyer</th>
+                      <th className="text-left p-2">Qty</th>
+                      <th className="text-left p-2">Price</th>
+                      <th className="text-left p-2">Status</th>
+                      <th className="text-left p-2">Created</th>
+                      <th className="text-left p-2">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
                     {data.docs.map((o) => (
-                      <tr key={o._id} className="row-hover">
-                        <td className="td">{o._id}</td>
-                        <td className="td">{o.product?.name || "—"}</td>
-                        <td className="td">
+                      <tr key={o._id} className="border-t hover:bg-muted/50">
+                        <td className="p-2">{o._id}</td>
+                        <td className="p-2">{o.product?.name || "—"}</td>
+                        <td className="p-2">
                           {[o.buyer?.firstName, o.buyer?.lastName]
                             .filter(Boolean)
                             .join(" ") ||
                             o.buyer?.email ||
                             "—"}
                         </td>
-                        <td className="td">{o.quantity ?? "—"}</td>
-                        <td className="td">
+                        <td className="p-2">{o.quantity ?? "—"}</td>
+                        <td className="p-2">
                           {typeof o.price === "number"
                             ? `$${o.price.toLocaleString()}`
                             : "—"}
                         </td>
-                        <td className="td capitalize">
-                          <Badge tone={getStatusTone(o.status)}>
+                        <td className="p-2 capitalize">
+                          <Badge variant={getStatusVariant(o.status)}>
                             {o.status || "pending"}
                           </Badge>
                         </td>
-                        <td className="td">
+                        <td className="p-2">
                           {o.createdAt
                             ? new Date(o.createdAt).toLocaleDateString()
                             : "—"}
                         </td>
-                        <td className="td space-x-2 whitespace-nowrap">
+                        <td className="p-2 space-x-2 whitespace-nowrap">
                           <Button
-                            size="xs"
+                            size="sm"
                             variant="outline"
                             onClick={() => setStatus(o._id, "paid")}
                           >
                             Mark Paid
                           </Button>
                           <Button
-                            size="xs"
+                            size="sm"
                             variant="outline"
                             onClick={() => setStatus(o._id, "shipped")}
                           >
                             Mark Shipped
                           </Button>
                           <Button
-                            size="xs"
+                            size="sm"
                             variant="outline"
                             onClick={() => setStatus(o._id, "completed")}
                           >
                             Complete
                           </Button>
                           <Button
-                            size="xs"
+                            size="sm"
                             variant="ghost"
-                            tone="err"
                             onClick={() => setStatus(o._id, "cancelled")}
                           >
                             Cancel
@@ -189,7 +186,7 @@ export default function Orders() {
                 >
                   Prev
                 </Button>
-                <div className="text-sm text-[var(--muted)]">
+                <div className="text-sm text-muted-foreground">
                   Page {data.page} / {data.totalPages}
                 </div>
                 <Button
@@ -203,7 +200,7 @@ export default function Orders() {
               </div>
             </>
           )}
-        </CardBody>
+        </CardContent>
       </Card>
     </div>
   );

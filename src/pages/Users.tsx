@@ -1,12 +1,15 @@
-// src/pages/Users.tsx
+// src/pages/users.tsx
 import { useEffect, useState } from "react";
-import Card, { CardHeader, CardBody } from "@/components/ui/Card";
-import Badge from "@/components/ui/Badge";
-import Button from "@/components/ui/Button";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardContent,
+  CardAction,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import api from "@/lib/api";
-import Input from "@/components/ui/Input";
-import Select from "@/components/ui/Select";
-
 
 type User = {
   _id: string;
@@ -48,52 +51,60 @@ export default function Users() {
     loadUsers();
   }, [page]);
 
+  const getStatusVariant = (status?: string) => {
+    if (status === "blocked") return "destructive";
+    if (status === "pending") return "secondary";
+    return "default";
+  };
+
   return (
     <div className="space-y-6">
       <Card>
-        <CardHeader title="Users" actions={<Button variant="ghost">Export</Button>} />
-        <CardBody>
-          {err && <div className="mb-3 badge-err">{err}</div>}
+        <CardHeader>
+          <CardTitle>Users</CardTitle>
+          <CardAction>
+            <Button variant="ghost">Export</Button>
+          </CardAction>
+        </CardHeader>
+        <CardContent>
+          {err && <div className="mb-3 text-destructive">{err}</div>}
 
           {loading ? (
             <div>Loading…</div>
           ) : rows.length === 0 ? (
-            <div className="text-[var(--mutd)]">No users yet.</div>
+            <div className="text-muted-foreground">No users yet.</div>
           ) : (
-            <div className="table-wrap">
+            <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
                   <tr>
-                    <th className="th">Name</th>
-                    <th className="th">Email</th>
-                    <th className="th">Phone</th>
-                    <th className="th">Type</th>
-                    <th className="th">Status</th>
-                    <th className="th">Created</th>
+                    <th className="text-left p-2">Name</th>
+                    <th className="text-left p-2">Email</th>
+                    <th className="text-left p-2">Phone</th>
+                    <th className="text-left p-2">Type</th>
+                    <th className="text-left p-2">Status</th>
+                    <th className="text-left p-2">Created</th>
                   </tr>
                 </thead>
                 <tbody>
                   {rows.map((u) => (
-                    <tr key={u._id} className="row-hover">
-                      <td className="td">{[u.firstName, u.lastName].filter(Boolean).join(" ") || "—"}</td>
-                      <td className="td">{u.email}</td>
-                      <td className="td">{u.phoneNumber || "—"}</td>
-                      <td className="td capitalize">{u.type || "—"}</td>
-                      <td className="td">
-                        <Badge
-                          tone={
-                            u.status === "blocked"
-                              ? "err"
-                              : u.status === "pending"
-                              ? "warn"
-                              : "ok"
-                          }
-                        >
+                    <tr key={u._id} className="border-t hover:bg-muted/50">
+                      <td className="p-2">
+                        {[u.firstName, u.lastName].filter(Boolean).join(" ") ||
+                          "—"}
+                      </td>
+                      <td className="p-2">{u.email}</td>
+                      <td className="p-2">{u.phoneNumber || "—"}</td>
+                      <td className="p-2 capitalize">{u.type || "—"}</td>
+                      <td className="p-2">
+                        <Badge variant={getStatusVariant(u.status)}>
                           {u.status || "active"}
                         </Badge>
                       </td>
-                      <td className="td">
-                        {u.createdAt ? new Date(u.createdAt).toLocaleDateString() : "—"}
+                      <td className="p-2">
+                        {u.createdAt
+                          ? new Date(u.createdAt).toLocaleDateString()
+                          : "—"}
                       </td>
                     </tr>
                   ))}
@@ -112,7 +123,7 @@ export default function Users() {
             >
               Prev
             </Button>
-            <div className="text-sm text-[var(--muted)]">
+            <div className="text-sm text-muted-foreground">
               Page {page} • Total {total}
             </div>
             <Button
@@ -124,7 +135,7 @@ export default function Users() {
               Next
             </Button>
           </div>
-        </CardBody>
+        </CardContent>
       </Card>
     </div>
   );
