@@ -1,102 +1,160 @@
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { Loader2 } from "lucide-react";
+
 import { useAuth } from "@/providers/auth-provider";
-import api from "@/lib/api";
+import { api } from "@/lib/api";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+
+const loginSchema = z.object({
+  email: z.string().email("Invalid email address"),
+  password: z.string().min(1, "Password is required"),
+});
+
+type LoginValues = z.infer<typeof loginSchema>;
 
 export default function Login() {
-  const [email, setEmail] = useState("dev@vesslr.com");
-  const [password, setPassword] = useState("password");
-  const [err, setErr] = useState("");
-  const [busy, setBusy] = useState(false);
-
   const { login } = useAuth();
   const nav = useNavigate();
   const loc = useLocation();
+  const [errorMsg, setErrorMsg] = useState("");
+
+  const form = useForm<LoginValues>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      email: "dev@vesslr.com",
+      password: "password",
+    },
+  });
+
+  const { mutate, isPending } = api.auth.login.useMutation({
+    onSuccess: (response) => {
+      // The generated client implementation returns the response body directly
+      const responseData = response?.data;
+      const token = responseData?.token;
+
+      if (!token) {
+        setErrorMsg("No token received from server");
+        return;
+      }
+
+      // We don't have refresh token or expiresAt in the type definition shown earlier clearly mapped
+      // but let's assume standard behavior or just pass what we have.
+      // The previous implementation tried to find refreshToken/expiresAt.
+      // Based on type definition: data: { token: string, admin: {...} }
+      // It seems we only get a token.
+      login(token);
+
+      const next = (loc.state as any)?.from || "/admin/dashboard";
+      nav(next, { replace: true });
+    },
+    onError: (error: any) => {
+      console.error("Login error", error);
+      const msg =
+        error.response?.data?.message ||
+        error.message ||
+        "Login failed. Please check your credentials.";
+      setErrorMsg(msg);
+    },
+  });
+
+  function onSubmit(values: LoginValues) {
+    setErrorMsg("");
+    mutate({
+      body: values,
+    });
+  }
 
   // for display only
   const base =
-    (api as any)?.defaults?.baseURL ||
-    (import.meta.env.VITE_API_BASE as string) ||
-    "http://localhost:8001/api/v1";
-
-  async function onSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setErr("");
-    setBusy(true);
-    try {
-      // Hit the admin login route relative to VITE_API_BASE
-      const resp = await api.post("/admin/auth/login", { email, password });
-
-      // Adjust these two lines if your response shape differs
-      const token =
-        resp?.data?.data?.token ??
-        resp?.data?.token ??
-        resp?.data?.access_token;
-      const refreshToken =
-        resp?.data?.data?.refreshToken ?? resp?.data?.refreshToken;
-      const expiresAt = resp?.data?.data?.expiresAt ?? resp?.data?.expiresAt;
-
-      if (!token) throw new Error("No token in response");
-
-      // Use AuthProvider's login to save tokens and update state
-      login(token, refreshToken, expiresAt);
-
-      // Go where user tried to go before login, else dashboard/home
-      const next = (loc.state as any)?.from || "/admin/dashboard";
-      nav(next, { replace: true });
-    } catch (e: any) {
-      setErr(e?.response?.data?.message || e.message || "Login failed");
-      console.error("login error", e);
-    } finally {
-      setBusy(false);
-    }
-  }
+    (import.meta.env.VITE_API_BASE as string) || "http://localhost:8001/api/v1";
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 p-6">
-      <form
-        onSubmit={onSubmit}
-        className="w-full max-w-sm bg-white shadow rounded p-6 space-y-4"
-      >
-        <h1 className="text-xl font-semibold">Admin Login</h1>
-
-        {!!err && (
-          <div className="rounded bg-red-100 text-red-800 px-3 py-2">{err}</div>
-        )}
-
-        <label className="flex flex-col gap-1">
-          <span className="text-sm text-gray-600">Email</span>
-          <input
-            className="border rounded px-3 py-2"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            autoComplete="username"
-          />
-        </label>
-
-        <label className="flex flex-col gap-1">
-          <span className="text-sm text-gray-600">Password</span>
-          <input
-            type="password"
-            className="border rounded px-3 py-2"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            autoComplete="current-password"
-          />
-        </label>
-
-        <button
-          type="submit"
-          disabled={busy}
-          className="w-full px-4 py-2 rounded bg-black text-white hover:opacity-90 disabled:opacity-60"
-        >
-          {busy ? "Signing in…" : "Sign in"}
-        </button>
-
-        <p className="text-xs text-gray-500">
-          API base: <code>{String(base)}</code>
-        </p>
-      </form>
+      <Card className="w-full max-w-sm shadow-lg">
+        <CardHeader className="space-y-1">
+          <CardTitle className="text-2xl font-bold">Admin Login</CardTitle>
+          <CardDescription>
+            Enter your credentials to access the dashboard
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              {!!errorMsg && (
+                <div className="rounded bg-red-100 text-red-800 px-3 py-2 text-sm font-medium">
+                  {errorMsg}
+                </div>
+              )}
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Email</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="admin@example.com"
+                        autoComplete="username"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Password</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="password"
+                        placeholder="••••••••"
+                        autoComplete="current-password"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <Button type="submit" className="w-full" disabled={isPending}>
+                {isPending ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Signing in...
+                  </>
+                ) : (
+                  "Sign in"
+                )}
+              </Button>
+            </form>
+          </Form>
+        </CardContent>
+      </Card>
     </div>
   );
 }

@@ -19,11 +19,12 @@ import "./client-config";
 // NOTE: These imports will be available after running `npm run generate:api`
 // Uncomment and add imports as you need them:
 //
-// import {
-//   getApiV1Products,
-//   postApiV1Products,
-//   // ... add more as needed
-// } from "./generated";
+import {
+  //   getApiV1Products,
+  //   postApiV1Products,
+  //   // ... add more as needed
+  postApiV1AdminAuthLogin,
+} from "./generated";
 
 export const api = {
   // Add endpoints as they are needed, following this pattern:
@@ -34,6 +35,9 @@ export const api = {
   //     invalidates: () => [["products", "list"]],
   //   }),
   // },
+  auth: {
+    login: createMutation(postApiV1AdminAuthLogin),
+  },
 };
 
 // Re-export factory utilities for advanced usage
