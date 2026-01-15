@@ -8,6 +8,8 @@ import {
   Tags,
   Settings,
   AudioWaveform,
+  Command,
+  GalleryVerticalEnd,
 } from "lucide-react";
 
 import { NavMain } from "@/components/nav-main";
@@ -31,6 +33,8 @@ const data = {
   teams: [
     {
       name: "Vesslr Admin",
+      logo: Command,
+      plan: "Enterprise",
     },
   ],
   navMain: [
