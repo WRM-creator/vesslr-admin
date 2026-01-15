@@ -1,14 +1,15 @@
 // src/services/axios.ts
+// DEPRECATED: Use @/lib/api/index.ts with generated client instead
 import Axios from "axios";
-import { getToken, clearToken } from "@/utils/auth";
+import { getAuthToken, clearAuthTokens } from "@/lib/api/auth";
 
 const api = Axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8001", // adjust as needed
+  baseURL: import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8001",
   withCredentials: false,
 });
 
 api.interceptors.request.use((config) => {
-  const token = getToken();
+  const token = getAuthToken();
   if (token) {
     config.headers = config.headers ?? {};
     config.headers.Authorization = `Bearer ${token}`;
@@ -19,10 +20,8 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (res) => res,
   (err) => {
-    // Optional: if unauthorized, clear token and bounce to login
     if (err?.response?.status === 401) {
-      clearToken();
-      // window.location.assign("/admin/auth/login");
+      clearAuthTokens();
     }
     return Promise.reject(err);
   }

@@ -1,6 +1,9 @@
 // src/lib/api.ts
+// DEPRECATED: Use @/lib/api/index.ts instead
+// This file is kept for backward compatibility during migration
+
 import axios from "axios";
-import { getToken, clearToken } from "@/lib/auth";
+import { getAuthToken, clearAuthTokens } from "@/lib/api/auth";
 
 const api = axios.create({
   // Set VITE_API_BASE to full base: e.g. http://localhost:8001/api/v1
@@ -10,7 +13,7 @@ const api = axios.create({
 
 // Attach Authorization: Bearer <token>
 api.interceptors.request.use((config) => {
-  const token = getToken();
+  const token = getAuthToken();
   config.headers = config.headers ?? {};
   if (token) {
     // axios v1 setter if available; fallback for older types
@@ -19,15 +22,6 @@ api.interceptors.request.use((config) => {
       (config.headers as any)["Authorization"] = `Bearer ${token}`;
     }
   }
-
-  // TEMP DEBUG — remove if noisy
-  console.log(
-    "[api] →",
-    (config.method || "get").toUpperCase(),
-    (config.baseURL || "") + (config.url || ""),
-    { hasToken: !!token }
-  );
-
   return config;
 });
 
@@ -37,9 +31,7 @@ api.interceptors.response.use(
   (err) => {
     if (err?.response?.status === 401) {
       console.warn("[api] 401:", err.response.data || err.message);
-      clearToken();
-      // Optionally redirect:
-      // window.location.href = "/admin/auth/login";
+      clearAuthTokens();
     }
     return Promise.reject(err);
   }

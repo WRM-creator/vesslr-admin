@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { saveToken } from "@/lib/auth";
-import  api  from "@/lib/api"; // <-- or `import api from "@/lib/api"`
+import { useAuth } from "@/providers/AuthProvider";
+import api from "@/lib/api";
 
 export default function Login() {
   const [email, setEmail] = useState("dev@vesslr.com");
@@ -9,6 +9,7 @@ export default function Login() {
   const [err, setErr] = useState("");
   const [busy, setBusy] = useState(false);
 
+  const { login } = useAuth();
   const nav = useNavigate();
   const loc = useLocation();
 
@@ -28,13 +29,17 @@ export default function Login() {
 
       // Adjust these two lines if your response shape differs
       const token =
-        resp?.data?.data?.token ?? resp?.data?.token ?? resp?.data?.access_token;
+        resp?.data?.data?.token ??
+        resp?.data?.token ??
+        resp?.data?.access_token;
+      const refreshToken =
+        resp?.data?.data?.refreshToken ?? resp?.data?.refreshToken;
+      const expiresAt = resp?.data?.data?.expiresAt ?? resp?.data?.expiresAt;
 
       if (!token) throw new Error("No token in response");
 
-      // Persist token (your saveToken can also set headers if it does that)
-      saveToken(token);
-      (api as any).defaults.headers.common.Authorization = `Bearer ${token}`;
+      // Use AuthProvider's login to save tokens and update state
+      login(token, refreshToken, expiresAt);
 
       // Go where user tried to go before login, else dashboard/home
       const next = (loc.state as any)?.from || "/admin/dashboard";
@@ -49,10 +54,15 @@ export default function Login() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 p-6">
-      <form onSubmit={onSubmit} className="w-full max-w-sm bg-white shadow rounded p-6 space-y-4">
+      <form
+        onSubmit={onSubmit}
+        className="w-full max-w-sm bg-white shadow rounded p-6 space-y-4"
+      >
         <h1 className="text-xl font-semibold">Admin Login</h1>
 
-        {!!err && <div className="rounded bg-red-100 text-red-800 px-3 py-2">{err}</div>}
+        {!!err && (
+          <div className="rounded bg-red-100 text-red-800 px-3 py-2">{err}</div>
+        )}
 
         <label className="flex flex-col gap-1">
           <span className="text-sm text-gray-600">Email</span>

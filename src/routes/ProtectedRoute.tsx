@@ -1,32 +1,36 @@
-// src/routes/ProtectedRoute.tsx
-import { Navigate, useLocation } from "react-router-dom";
-import type { ReactNode } from "react";            // type-only import ✅
-import { getToken, isExpired } from "@/lib/auth";
+import { Navigate, Outlet, useLocation } from "react-router-dom";
+import { useAuth } from "@/providers/AuthProvider";
 
-type Props = { children: ReactNode };              // ReactNode allows 1+ children
-
-export default function ProtectedRoute({ children }: Props) {
+/**
+ * Route guard that protects routes requiring authentication.
+ * Uses Outlet to render child routes when authorized.
+ *
+ * Flow:
+ * - No auth → redirect to /login
+ * - Authenticated → render child routes
+ */
+export default function ProtectedRoute() {
+  const { isAuthenticated, isLoading } = useAuth();
   const location = useLocation();
-  const token = getToken();
-  const valid = !!token && !isExpired(token);
 
-  console.log(
-    "[ProtectedRoute] hasToken?",
-    !!token,
-    "expired?",
-    token ? isExpired(token) : "n/a"
-  );
+  // Optional: Show loading state while checking auth
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900" />
+      </div>
+    );
+  }
 
-  if (!valid) {
+  if (!isAuthenticated) {
     return (
       <Navigate
-        to="/admin/auth/login"
+        to="/login"
         replace
         state={{ from: location.pathname + location.search }}
       />
     );
   }
 
-  // Return a single node even if multiple children were passed
-  return <>{children}</>;
+  return <Outlet />;
 }

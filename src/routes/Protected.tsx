@@ -1,16 +1,17 @@
 // src/routes/Protected.tsx
+// DEPRECATED: Use ProtectedRoute.tsx instead
 import { Navigate, useLocation, Outlet } from "react-router-dom";
-import { getToken, isExpired } from "@/lib/auth";
+import { getAuthToken, isTokenExpired } from "@/lib/api/auth";
 
 export default function Protected() {
   const location = useLocation();
-  const token = getToken();
-  const valid = !!token && !isExpired(token);
+  const token = getAuthToken();
+  const valid = !!token && !isTokenExpired(token);
 
   if (!valid) {
     return (
       <Navigate
-        to="/admin/auth/login"
+        to="/login"
         replace
         state={{ from: location.pathname + location.search }}
       />
