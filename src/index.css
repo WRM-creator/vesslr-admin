@@ -1,33 +1,143 @@
-/* --- Tailwind directives must be FIRST and in this order --- */
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/* Tailwind v4 CSS-first import */
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/* Custom theme configuration */
+@theme {
+  /* Custom Colors */
+  --color-primary-green: #40e0d0;
+  --color-primary-green-light: #b4f3ec;
+  --color-bg-light-green: #f5fdfc;
+  --color-secondary-black: #1a1a1a;
+  --color-text-grey: #b9b9b9;
+  --color-text-black: #2b2a2a;
+  --color-grey: #eef0f7;
+  --color-border-grey: #e4e7ec;
+  --color-grey-700: #344054;
+  --color-orange: #ff912b;
+  --color-text-grey-lighter: #98a2b3;
+  --color-text-black-lighter: #383030;
+
+  /* Custom Font Families */
+  --font-cals-sans: "Cals-Sans";
+  --font-matter-bold: "Matter-Bold";
+  --font-matter-heavy: "Matter-Heavy";
+  --font-matter-light: "Matter-Light";
+  --font-matter-medium: "Matter-Medium";
+  --font-matter-regular: "Matter-Regular";
+  --font-matter-semibold: "Matter-SemiBold";
+
+  /* Custom Border Radius */
+  --radius-10: 10px;
+}
 
 /* --- Local fonts (keep outside @layer) --- */
-@font-face { font-family: 'Cals-Sans'; src: url('/fonts/CalSans-SemiBold.ttf') format('truetype'); font-display: swap; }
-@font-face { font-family: 'Matter-Bold'; src: url('/fonts/Matter-Bold.ttf') format('truetype'); font-display: swap; }
-@font-face { font-family: 'Matter-Heavy'; src: url('/fonts/Matter-Heavy.ttf') format('truetype'); font-display: swap; }
-@font-face { font-family: 'Matter-Light'; src: url('/fonts/Matter-Light.ttf') format('truetype'); font-display: swap; }
-@font-face { font-family: 'Matter-Medium'; src: url('/fonts/Matter-Medium.ttf') format('truetype'); font-display: swap; }
-@font-face { font-family: 'Matter-Regular'; src: url('/fonts/Matter-Regular.ttf') format('truetype'); font-display: swap; }
-@font-face { font-family: 'Matter-SemiBold'; src: url('/fonts/Matter-SemiBold.ttf') format('truetype'); font-display: swap; }
+@font-face {
+  font-family: "Cals-Sans";
+  src: url("/fonts/CalSans-SemiBold.ttf") format("truetype");
+  font-display: swap;
+}
+@font-face {
+  font-family: "Matter-Bold";
+  src: url("/fonts/Matter-Bold.ttf") format("truetype");
+  font-display: swap;
+}
+@font-face {
+  font-family: "Matter-Heavy";
+  src: url("/fonts/Matter-Heavy.ttf") format("truetype");
+  font-display: swap;
+}
+@font-face {
+  font-family: "Matter-Light";
+  src: url("/fonts/Matter-Light.ttf") format("truetype");
+  font-display: swap;
+}
+@font-face {
+  font-family: "Matter-Medium";
+  src: url("/fonts/Matter-Medium.ttf") format("truetype");
+  font-display: swap;
+}
+@font-face {
+  font-family: "Matter-Regular";
+  src: url("/fonts/Matter-Regular.ttf") format("truetype");
+  font-display: swap;
+}
+@font-face {
+  font-family: "Matter-SemiBold";
+  src: url("/fonts/Matter-SemiBold.ttf") format("truetype");
+  font-display: swap;
+}
 
 /* --- Base/global styles & headings --- */
 @layer base {
-  *, ::before, ::after { box-sizing: border-box; }
-  html, body, #root { height: 100%; }
+  *,
+  ::before,
+  ::after {
+    box-sizing: border-box;
+  }
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
 
   /* If you really want a full reset, keep it here (after Tailwind) */
-  * { margin: 0; padding: 0; }
+  * {
+    margin: 0;
+    padding: 0;
+  }
 
   /* Headings & text */
-  h1 { @apply text-xl md:text-2xl lg:text-3xl font-Cals-Sans; }
-  h2 { @apply text-xl lg:text-2xl font-Cals-Sans; }
-  h3 { @apply text-xl; }
-  h4 { @apply text-md lg:text-lg font-Matter-Regular; }
-  h5 { @apply text-md font-Matter-Regular; }
-  h6 { @apply text-sm md:text-base font-Matter-Regular; }
-  p  { @apply text-sm font-Matter-Regular; }
+  h1 {
+    font-family: var(--font-cals-sans);
+    font-size: 32px;
+  }
+  h2 {
+    font-family: var(--font-cals-sans);
+    font-size: 32px;
+  }
+  h3 {
+    font-size: 32px;
+  }
+  h4 {
+    font-family: var(--font-matter-regular);
+    font-size: 18px;
+  }
+  h5 {
+    font-family: var(--font-matter-regular);
+    font-size: 18px;
+  }
+  h6 {
+    font-family: var(--font-matter-regular);
+    font-size: 14px;
+  }
+  p {
+    font-family: var(--font-matter-regular);
+    font-size: 14px;
+  }
+
+  @media (min-width: 768px) {
+    h1 {
+      font-size: 40px;
+    }
+    h6 {
+      font-size: 16px;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    h1 {
+      font-size: 64px;
+    }
+    h2 {
+      font-size: 40px;
+    }
+    h4 {
+      font-size: 20px;
+    }
+  }
 }
 
 /* --- Components (structured helpers) --- */
@@ -46,26 +156,162 @@
 /* --- Utilities (small, composable helpers) --- */
 @layer utilities {
   /* Hide scrollbar helper (cross-browser) */
-  .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
-  .scrollbar-hide::-webkit-scrollbar { display: none; }
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
 
   /* Optional arbitrary size utility */
-  .lg\:text-\[54px\] { font-size: 54px; }
+  .lg\:text-\[54px\] {
+    font-size: 54px;
+  }
 }
 
 /* --- Scrollbar styles (use raw CSS, not @apply, for pseudo-elements) --- */
-.custom__sidebar__scrollbar { height: 100vh; }
-.custom__sidebar__scrollbar::-webkit-scrollbar { width: 8px; }
-.custom__sidebar__scrollbar::-webkit-scrollbar-track { background: transparent; }
+.custom__sidebar__scrollbar {
+  height: 100vh;
+}
+.custom__sidebar__scrollbar::-webkit-scrollbar {
+  width: 8px;
+}
+.custom__sidebar__scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
 .custom__sidebar__scrollbar::-webkit-scrollbar-thumb {
   background-color: rgba(21, 41, 75, 0.7);
   border-radius: 4px;
 }
 @media (min-width: 768px) {
-  .custom__sidebar__scrollbar::-webkit-scrollbar-thumb { border-radius: 6px; }
+  .custom__sidebar__scrollbar::-webkit-scrollbar-thumb {
+    border-radius: 6px;
+  }
 }
 
 /* Large screens: make sticky-div static like you had */
 @media (min-width: 1024px) {
-  .sticky-div { position: static; }
+  .sticky-div {
+    position: static;
+  }
+}
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
+  --radius-4xl: calc(var(--radius) + 16px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+:root {
+  --radius: 0.625rem;
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --primary: oklch(0.205 0 0);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.97 0 0);
+  --secondary-foreground: oklch(0.205 0 0);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.205 0 0);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
+  --ring: oklch(0.708 0 0);
+  --chart-1: oklch(0.646 0.222 41.116);
+  --chart-2: oklch(0.6 0.118 184.704);
+  --chart-3: oklch(0.398 0.07 227.392);
+  --chart-4: oklch(0.828 0.189 84.429);
+  --chart-5: oklch(0.769 0.188 70.08);
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: oklch(0.205 0 0);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-ring: oklch(0.708 0 0);
+}
+
+.dark {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.205 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.922 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.556 0 0);
+  --chart-1: oklch(0.488 0.243 264.376);
+  --chart-2: oklch(0.696 0.17 162.48);
+  --chart-3: oklch(0.769 0.188 70.08);
+  --chart-4: oklch(0.627 0.265 303.9);
+  --chart-5: oklch(0.645 0.246 16.439);
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.556 0 0);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
 }
