@@ -1,17 +1,17 @@
-// src/App.tsx
+// src/app.tsx
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { AuthProvider } from "@/providers/AuthProvider";
-import ProtectedRoute from "./routes/ProtectedRoute";
-import DashboardLayout from "./components/DashboardLayout";
-import Login from "./pages/Login";
-import Dashboard from "./pages/Dashboard";
-import Admins from "./pages/Admins";
-import Users from "./pages/Users";
-import Products from "./pages/Products";
-import Settings from "./pages/Settings";
-import Orders from "./pages/Orders";
-import Categories from "./pages/Categories";
+import { AuthProvider } from "@/providers/auth-provider";
+import ProtectedRoute from "./routes/protected-route";
+import DashboardLayout from "./components/dashboard-layout";
+import Login from "./pages/login";
+import Dashboard from "./pages/dashboard";
+import Admins from "./pages/admins";
+import Users from "./pages/users";
+import Products from "./pages/products";
+import Settings from "./pages/settings";
+import Orders from "./pages/orders";
+import Categories from "./pages/categories";
 
 const queryClient = new QueryClient({
   defaultOptions: {
