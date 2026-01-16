@@ -505,6 +505,10 @@ export type GetApiV1AdminCategoriesResponses = {
             name?: string;
             slug?: string;
             image?: string;
+            /**
+             * Number of products in this category
+             */
+            productCount?: number;
         }>;
     };
 };

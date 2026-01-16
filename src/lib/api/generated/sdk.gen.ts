@@ -185,7 +185,7 @@ export const postApiV1AdminAuthTestEmail = <ThrowOnError extends boolean = false
 /**
  * List all categories
  *
- * Fetches all product categories.
+ * Fetches all product categories with product counts.
  */
 export const getApiV1AdminCategories = <ThrowOnError extends boolean = false>(options?: Options<GetApiV1AdminCategoriesData, ThrowOnError>) => (options?.client ?? client).get<GetApiV1AdminCategoriesResponses, GetApiV1AdminCategoriesErrors, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],

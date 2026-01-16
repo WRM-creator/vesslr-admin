@@ -24,6 +24,12 @@ import {
   //   postApiV1Products,
   //   // ... add more as needed
   postApiV1AdminAuthLogin,
+  getApiV1AdminCategories,
+  getApiV1CategoriesById,
+  postApiV1AdminCategories,
+  putApiV1AdminCategoriesById,
+  deleteApiV1AdminCategoriesById,
+  getApiV1Products,
 } from "./generated";
 
 export const api = {
@@ -37,6 +43,22 @@ export const api = {
   // },
   auth: {
     login: createMutation(postApiV1AdminAuthLogin),
+  },
+  categories: {
+    list: createQuery(getApiV1AdminCategories, ["categories", "list"]),
+    detail: createQuery(getApiV1CategoriesById, ["categories", "detail"]),
+    create: createMutation(postApiV1AdminCategories, {
+      invalidates: () => [["categories", "list"]],
+    }),
+    update: createMutation(putApiV1AdminCategoriesById, {
+      invalidates: () => [["categories", "list"]],
+    }),
+    delete: createMutation(deleteApiV1AdminCategoriesById, {
+      invalidates: () => [["categories", "list"]],
+    }),
+  },
+  products: {
+    list: createQuery(getApiV1Products, ["products", "list"]),
   },
 };
 
