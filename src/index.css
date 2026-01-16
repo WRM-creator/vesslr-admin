@@ -90,7 +90,7 @@
   }
 
   /* Headings & text */
-  h1 {
+  /* h1 {
     font-family: var(--font-cals-sans);
     font-size: 32px;
   }
@@ -116,28 +116,28 @@
   p {
     font-family: var(--font-matter-regular);
     font-size: 14px;
-  }
+  } */
 
-  @media (min-width: 768px) {
-    h1 {
-      font-size: 40px;
+    /* @media (min-width: 768px) {
+      h1 {
+        font-size: 40px;
+      }
+      h6 {
+        font-size: 16px;
+      }
     }
-    h6 {
-      font-size: 16px;
-    }
-  }
 
-  @media (min-width: 1024px) {
-    h1 {
-      font-size: 64px;
-    }
-    h2 {
-      font-size: 40px;
-    }
-    h4 {
-      font-size: 20px;
-    }
-  }
+    @media (min-width: 1024px) {
+      h1 {
+        font-size: 64px;
+      }
+      h2 {
+        font-size: 40px;
+      }
+      h4 {
+        font-size: 20px;
+      }
+    } */
 }
 
 /* --- Components (structured helpers) --- */
