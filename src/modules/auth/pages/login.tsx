@@ -65,7 +65,7 @@ export default function Login() {
       // It seems we only get a token.
       login(token);
 
-      const next = (loc.state as any)?.from || "/admin/dashboard";
+      const next = (loc.state as any)?.from || "/dashboard";
       nav(next, { replace: true });
     },
     onError: (error: any) => {

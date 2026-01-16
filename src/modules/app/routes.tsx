@@ -12,7 +12,7 @@ import { settingsRoutes } from "../settings/routes";
 
 export const appRoutes: RouteObject[] = [
   {
-    path: "/admin",
+    path: "/",
     element: <AuthGuard />,
     children: [
       {

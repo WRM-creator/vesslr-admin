@@ -32,22 +32,23 @@ export function AppHeader() {
             {/* Home / Admin Root */}
             {/* Assumes /admin is the root for this layout */}
             {pathSegments.length === 0 ||
-            (pathSegments.length === 1 && pathSegments[0] === "admin") ? (
+            (pathSegments.length === 1 && pathSegments[0] === "dashboard") ? (
               <BreadcrumbItem>
                 <BreadcrumbPage>Vesslr Admin</BreadcrumbPage>
               </BreadcrumbItem>
             ) : (
               <BreadcrumbItem className="hidden md:block">
                 <BreadcrumbLink asChild>
-                  <Link to="/admin">Vesslr Admin</Link>
+                  <Link to="/">Vesslr Admin</Link>
                 </BreadcrumbLink>
               </BreadcrumbItem>
             )}
 
             {/* Dynamic Segments */}
             {pathSegments.map((segment, index) => {
-              // Skip "admin" if it's the first segment, as we handled it above
-              if (index === 0 && segment === "admin") return null;
+              // Skip "admin" if it's the first segment - now unnecessary check but safe to keep or remove.
+              // We'll remove it to be clean.
+              if (segment === "admin") return null;
 
               const path = `/${pathSegments.slice(0, index + 1).join("/")}`;
               const isLast = index === pathSegments.length - 1;

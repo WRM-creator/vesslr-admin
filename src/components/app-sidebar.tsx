@@ -40,37 +40,37 @@ const data = {
   navMain: [
     {
       title: "Dashboard",
-      url: "/admin/dashboard",
+      url: "/dashboard",
       icon: LayoutDashboard,
     },
     {
       title: "Manage Admins",
-      url: "/admin/admins",
+      url: "/admins",
       icon: Shield,
     },
     {
       title: "Users",
-      url: "/admin/users",
+      url: "/users",
       icon: Users,
     },
     {
       title: "Products",
-      url: "/admin/products",
+      url: "/products",
       icon: Package,
     },
     {
       title: "Orders",
-      url: "/admin/orders",
+      url: "/orders",
       icon: ShoppingCart,
     },
     {
       title: "Categories",
-      url: "/admin/categories",
+      url: "/categories",
       icon: Tags,
     },
     {
       title: "Settings",
-      url: "/admin/settings",
+      url: "/settings",
       icon: Settings,
     },
   ],

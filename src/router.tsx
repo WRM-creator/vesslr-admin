@@ -5,7 +5,7 @@ import { appRoutes } from "./modules/app/routes";
 export const router = createBrowserRouter([
   {
     path: "/",
-    element: <Navigate to="/admin" replace />,
+    element: <Navigate to="/dashboard" replace />,
   },
   ...authRoutes,
   ...appRoutes,
