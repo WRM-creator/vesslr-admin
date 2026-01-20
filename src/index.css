@@ -4,199 +4,222 @@
 
 @custom-variant dark (&:is(.dark *));
 
-/* Custom theme configuration */
 @theme {
-  /* Custom Colors */
+  /* --- Frontend Custom Colors --- */
   --color-primary-green: #40e0d0;
   --color-primary-green-light: #b4f3ec;
   --color-bg-light-green: #f5fdfc;
   --color-secondary-black: #1a1a1a;
+  --color-white: #ffffff;
   --color-text-grey: #b9b9b9;
   --color-text-black: #2b2a2a;
+  --color-black: #141414;
   --color-grey: #eef0f7;
   --color-border-grey: #e4e7ec;
+  --color-grey-dark: #344054;
   --color-grey-700: #344054;
   --color-orange: #ff912b;
   --color-text-grey-lighter: #98a2b3;
   --color-text-black-lighter: #383030;
 
-  /* Custom Font Families */
-  --font-cals-sans: "Cals-Sans";
-  --font-matter-bold: "Matter-Bold";
-  --font-matter-heavy: "Matter-Heavy";
-  --font-matter-light: "Matter-Light";
-  --font-matter-medium: "Matter-Medium";
-  --font-matter-regular: "Matter-Regular";
-  --font-matter-semibold: "Matter-SemiBold";
+  /* --- Fonts (Merged Admin + Frontend) --- */
+  /* Frontend-style families */
+  --font-Cals-Sans: "Cals-Sans";
+  --font-Matter-Bold: "Matter-Bold";
+  --font-Matter-Heavy: "Matter-Heavy";
+  --font-Matter-Light: "Matter-Light";
+  --font-Matter-Medium: "Matter-Medium";
+  --font-Matter-Regular: "Matter-Regular";
+  --font-Matter-SemiBold: "Matter-SemiBold";
+  
+  /* Admin-style standard families */
+  --font-cals-sans: "Cals-Sans", sans-serif;
+  --font-sans: "Matter", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 
-  /* Custom Border Radius */
+  /* --- Radius --- */
   --radius-10: 10px;
 }
 
-/* --- Local fonts (keep outside @layer) --- */
+/* --- Font Face Definitions --- */
+
+/* Cals Sans */
 @font-face {
   font-family: "Cals-Sans";
   src: url("/fonts/CalSans-SemiBold.ttf") format("truetype");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Matter - Standard Family (for font-sans) */
+@font-face {
+  font-family: "Matter";
+  src: url("/fonts/Matter-Light.ttf") format("truetype");
+  font-weight: 300;
+  font-style: normal;
   font-display: swap;
 }
 @font-face {
+  font-family: "Matter";
+  src: url("/fonts/Matter-LightItalic.ttf") format("truetype");
+  font-weight: 300;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Matter";
+  src: url("/fonts/Matter-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Matter";
+  src: url("/fonts/Matter-RegularItalic.ttf") format("truetype");
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Matter";
+  src: url("/fonts/Matter-Medium.ttf") format("truetype");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Matter";
+  src: url("/fonts/Matter-MediumItalic.ttf") format("truetype");
+  font-weight: 500;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Matter";
+  src: url("/fonts/Matter-SemiBold.ttf") format("truetype");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Matter";
+  src: url("/fonts/Matter-SemiBoldItalic.ttf") format("truetype");
+  font-weight: 600;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Matter";
+  src: url("/fonts/Matter-Bold.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Matter";
+  src: url("/fonts/Matter-BoldItalic.ttf") format("truetype");
+  font-weight: 700;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Matter";
+  src: url("/fonts/Matter-Heavy.ttf") format("truetype");
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Matter";
+  src: url("/fonts/Matter-HeavyItalic.ttf") format("truetype");
+  font-weight: 800;
+  font-style: italic;
+  font-display: swap;
+}
+
+/* Matter - Specific Families (matching Frontend) */
+@font-face {
   font-family: "Matter-Bold";
   src: url("/fonts/Matter-Bold.ttf") format("truetype");
-  font-display: swap;
 }
 @font-face {
   font-family: "Matter-Heavy";
   src: url("/fonts/Matter-Heavy.ttf") format("truetype");
-  font-display: swap;
 }
 @font-face {
   font-family: "Matter-Light";
   src: url("/fonts/Matter-Light.ttf") format("truetype");
-  font-display: swap;
 }
 @font-face {
   font-family: "Matter-Medium";
   src: url("/fonts/Matter-Medium.ttf") format("truetype");
-  font-display: swap;
 }
 @font-face {
   font-family: "Matter-Regular";
   src: url("/fonts/Matter-Regular.ttf") format("truetype");
-  font-display: swap;
 }
 @font-face {
   font-family: "Matter-SemiBold";
   src: url("/fonts/Matter-SemiBold.ttf") format("truetype");
-  font-display: swap;
 }
 
-/* --- Base/global styles & headings --- */
-@layer base {
-  *,
-  ::before,
-  ::after {
-    box-sizing: border-box;
-  }
-  html,
-  body,
-  #root {
-    height: 100%;
-  }
 
-  /* If you really want a full reset, keep it here (after Tailwind) */
-  * {
-    margin: 0;
-    padding: 0;
-  }
+/* --- Base Styles --- */
+/* h1, h2, etc commented out in frontend, omitting here too */
 
-  /* Headings & text */
-  /* h1 {
-    font-family: var(--font-cals-sans);
-    font-size: 32px;
-  }
-  h2 {
-    font-family: var(--font-cals-sans);
-    font-size: 32px;
-  }
-  h3 {
-    font-size: 32px;
-  }
-  h4 {
-    font-family: var(--font-matter-regular);
-    font-size: 18px;
-  }
-  h5 {
-    font-family: var(--font-matter-regular);
-    font-size: 18px;
-  }
-  h6 {
-    font-family: var(--font-matter-regular);
-    font-size: 14px;
-  }
-  p {
-    font-family: var(--font-matter-regular);
-    font-size: 14px;
-  } */
-
-    /* @media (min-width: 768px) {
-      h1 {
-        font-size: 40px;
-      }
-      h6 {
-        font-size: 16px;
-      }
-    }
-
-    @media (min-width: 1024px) {
-      h1 {
-        font-size: 64px;
-      }
-      h2 {
-        font-size: 40px;
-      }
-      h4 {
-        font-size: 20px;
-      }
-    } */
+p {
+  @apply text-sm font-Matter-Regular;
 }
 
-/* --- Components (structured helpers) --- */
-@layer components {
-  /* Sticky helper */
+.custom__sidebar__scrollbar {
+  @apply h-screen;
+}
+
+.custom__sidebar__scrollbar::-webkit-scrollbar {
+  @apply w-[8px];
+}
+
+.custom__sidebar__scrollbar::-webkit-scrollbar-track {
+  @apply bg-transparent;
+}
+
+.custom__sidebar__scrollbar::-webkit-scrollbar-thumb {
+  @apply bg-[#15294b]/70 hover:bg-[#15294b]/70 rounded-[4px] md:rounded-sm;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* For IE, Edge and Firefox */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  /* IE and Edge */
+  scrollbar-width: none;
+  /* Firefox */
+}
+
+.sticky-div {
+  margin-bottom: 85px;
+  position: sticky;
+  top: 20px;
+  bottom: 20px;
+  overflow-y: auto;
+  max-height: calc(100vh - 70vh);
+}
+
+@media (min-width: 1024px) {
   .sticky-div {
-    margin-bottom: 85px;
-    position: sticky;
-    top: 20px;
-    bottom: 20px;
-    overflow-y: auto;
-    max-height: calc(100vh - 70vh);
-  }
-}
-
-/* --- Utilities (small, composable helpers) --- */
-@layer utilities {
-  /* Hide scrollbar helper (cross-browser) */
-  .scrollbar-hide {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-  }
-  .scrollbar-hide::-webkit-scrollbar {
-    display: none;
+    position: static; /* Makes it non-sticky */
   }
 
-  /* Optional arbitrary size utility */
   .lg\:text-\[54px\] {
+    /* Used in frontend? Keeping it */
     font-size: 54px;
   }
 }
 
-/* --- Scrollbar styles (use raw CSS, not @apply, for pseudo-elements) --- */
-.custom__sidebar__scrollbar {
-  height: 100vh;
-}
-.custom__sidebar__scrollbar::-webkit-scrollbar {
-  width: 8px;
-}
-.custom__sidebar__scrollbar::-webkit-scrollbar-track {
-  background: transparent;
-}
-.custom__sidebar__scrollbar::-webkit-scrollbar-thumb {
-  background-color: rgba(21, 41, 75, 0.7);
-  border-radius: 4px;
-}
-@media (min-width: 768px) {
-  .custom__sidebar__scrollbar::-webkit-scrollbar-thumb {
-    border-radius: 6px;
-  }
-}
-
-/* Large screens: make sticky-div static like you had */
-@media (min-width: 1024px) {
-  .sticky-div {
-    position: static;
-  }
-}
-
+/* --- Inline Theme (Shadcn) --- */
 @theme inline {
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
@@ -236,8 +259,15 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+  
+  /* Additional frontend vars */
+  --sidebar-width: 280px;
+  --h-input-sm: 3rem; /* 48px / h-12 */
+  --h-input-default: 3.5rem; /* 56px / h-14 */
+  --h-input-lg: 4rem; /* 64px / h-16 */
 }
 
+/* --- CSS Variables --- */
 :root {
   --radius: 0.625rem;
   --background: oklch(1 0 0);
@@ -246,8 +276,8 @@
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.82 0.13 185.08);
+  --primary-foreground: oklch(0.22 0 0);
   --secondary: oklch(0.97 0 0);
   --secondary-foreground: oklch(0.205 0 0);
   --muted: oklch(0.97 0 0);
@@ -263,14 +293,17 @@
   --chart-3: oklch(0.398 0.07 227.392);
   --chart-4: oklch(0.828 0.189 84.429);
   --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  /* Sidebar themed for black background with green accents */
+  --sidebar: oklch(0.1913 0 0); /* black #141414 */
+  --sidebar-foreground: oklch(
+    0.7098 0.0274 261.13
+  ); /* textGreyLighter #98a2b3 */
+  --sidebar-primary: oklch(0.8223 0.1308 185.12); /* primaryGreen #40e0d0 */
+  --sidebar-primary-foreground: oklch(0.1913 0 0); /* black for text on green */
+  --sidebar-accent: oklch(0.2722 0.0366 261.82); /* dark blue #1D2739 */
+  --sidebar-accent-foreground: oklch(1 0 0); /* white for text on dark bg */
+  --sidebar-border: oklch(0.3 0 0); /* subtle dark border */
+  --sidebar-ring: oklch(0.8223 0.1308 185.12); /* primaryGreen for focus */
 }
 
 .dark {
@@ -308,6 +341,13 @@
 }
 
 @layer base {
+  *, ::before, ::after {
+     box-sizing: border-box;
+  }
+  html, body, #root {
+     height: 100%;
+  }
+
   * {
     @apply border-border outline-ring/50;
   }

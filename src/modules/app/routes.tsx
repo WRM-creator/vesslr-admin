@@ -3,12 +3,8 @@ import { AuthGuard } from "@/guards/auth-guard";
 import AppLayout from "./_layout";
 
 import { dashboardRoutes } from "../dashboard/routes";
-import { adminRoutes } from "../admins/routes";
-import { usersRoutes } from "../users/routes";
-import { productRoutes } from "../products/routes";
-import { orderRoutes } from "../orders/routes";
 import { categoryRoutes } from "../categories/routes";
-import { settingsRoutes } from "../settings/routes";
+// Removed unused module imports
 
 export const appRoutes: RouteObject[] = [
   {
@@ -23,12 +19,7 @@ export const appRoutes: RouteObject[] = [
             element: <Navigate to="dashboard" replace />,
           },
           ...dashboardRoutes,
-          ...adminRoutes,
-          ...usersRoutes,
-          ...productRoutes,
-          ...orderRoutes,
           ...categoryRoutes,
-          ...settingsRoutes,
         ],
       },
     ],
