@@ -1,9 +1,10 @@
-import { Navigate, type RouteObject } from "react-router-dom";
 import { AuthGuard } from "@/guards/auth-guard";
+import { Navigate, type RouteObject } from "react-router-dom";
 import AppLayout from "./_layout";
 
-import { dashboardRoutes } from "../dashboard/routes";
 import { categoryRoutes } from "../categories/routes";
+import { dashboardRoutes } from "../dashboard/routes";
+import { transactionRoutes } from "../transactions/routes";
 // Removed unused module imports
 
 export const appRoutes: RouteObject[] = [
@@ -20,6 +21,7 @@ export const appRoutes: RouteObject[] = [
           },
           ...dashboardRoutes,
           ...categoryRoutes,
+          ...transactionRoutes,
         ],
       },
     ],

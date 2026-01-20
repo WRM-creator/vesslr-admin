@@ -1,19 +1,22 @@
-import * as React from "react";
 import { cn } from "@/lib/utils";
 import {
-  LayoutDashboard,
-  Shield,
-  Users,
-  Package,
-  ShoppingCart,
-  Tags,
-  Settings,
-  AudioWaveform,
+  ArrowRightLeft,
+  BarChart3,
+  Bell,
   Command,
-  GalleryVerticalEnd,
+  LayoutDashboard,
+  Package,
+  Scale,
+  Settings,
+  Store,
+  Tags,
+  Truck,
+  Users,
+  Wallet,
 } from "lucide-react";
+import * as React from "react";
 
-import { NavMain } from "@/components/nav-main";
+import { NavMain, type NavGroup } from "@/components/nav-main";
 import { NavUser } from "@/components/nav-user";
 
 import {
@@ -23,6 +26,9 @@ import {
   SidebarHeader,
   SidebarRail,
 } from "@/components/ui/sidebar";
+
+import { Badge } from "@/components/ui/badge";
+import { useSidebar } from "@/components/ui/sidebar";
 
 // This is sample data.
 const data = {
@@ -38,31 +44,118 @@ const data = {
       plan: "Enterprise",
     },
   ],
-  navMain: [
-    {
-      title: "Dashboard",
-      url: "/dashboard",
-      icon: LayoutDashboard,
-    },
-    {
-      title: "Categories",
-      url: "/categories",
-      icon: Tags,
-    },
-  ],
 };
 
-import { Badge } from "@/components/ui/badge";
-import { useSidebar } from "@/components/ui/sidebar";
+const navGroups: NavGroup[] = [
+  {
+    label: "Overview",
+    items: [
+      {
+        title: "Dashboard",
+        url: "/dashboard",
+        icon: LayoutDashboard,
+      },
+      {
+        title: "Analytics",
+        url: "/analytics",
+        icon: BarChart3,
+      },
+    ],
+  },
+  {
+    label: "Users",
+    items: [
+      {
+        title: "Merchants",
+        url: "/merchants",
+        icon: Store,
+      },
+      {
+        title: "Customers",
+        url: "/customers",
+        icon: Users,
+      },
+    ],
+  },
+  {
+    label: "Catalog",
+    items: [
+      {
+        title: "Products",
+        url: "/products",
+        icon: Package,
+      },
+      {
+        title: "Categories",
+        url: "/categories",
+        icon: Tags,
+      },
+    ],
+  },
+  {
+    label: "Operations",
+    items: [
+      {
+        title: "Transactions",
+        url: "/transactions",
+        icon: ArrowRightLeft,
+      },
+      {
+        title: "Payments & Escrow",
+        url: "/payments",
+        icon: Wallet,
+      },
+      {
+        title: "Disputes",
+        url: "/disputes",
+        icon: Scale,
+      },
+      {
+        title: "Logistics & Fulfilments",
+        url: "/logistics",
+        icon: Truck,
+      },
+    ],
+  },
+  {
+    label: "System",
+    items: [
+      {
+        title: "Notifications",
+        url: "/notifications",
+        icon: Bell,
+      },
+      {
+        title: "Admin & System Settings",
+        url: "/settings",
+        icon: Settings,
+      },
+    ],
+  },
+];
 
-export function AppSidebar({ className, ...props }: React.ComponentProps<typeof Sidebar>) {
+export function AppSidebar({
+  className,
+  ...props
+}: React.ComponentProps<typeof Sidebar>) {
   const { state } = useSidebar();
   const isCollapsed = state === "collapsed";
 
   return (
-    <Sidebar variant="inset" collapsible="icon" className={cn(className, isCollapsed && "ml-1")} {...props}>
-      <SidebarHeader className={isCollapsed ? "p-4 items-center justify-center" : "pt-[30px] px-[32px] mb-[27px]"}>
-        <div className="flex flex-col items-center gap-2 w-fit mx-auto">
+    <Sidebar
+      variant="inset"
+      collapsible="icon"
+      className={cn(className, isCollapsed && "ml-1")}
+      {...props}
+    >
+      <SidebarHeader
+        className={
+          isCollapsed
+            ? "items-center justify-center p-4"
+            : "mb-[27px] px-[32px] pt-[30px]"
+        }
+      >
+        <div className="mx-auto flex w-fit flex-col items-center gap-2">
           <img
             src="/logo.svg"
             alt="Vesslr"
@@ -71,7 +164,7 @@ export function AppSidebar({ className, ...props }: React.ComponentProps<typeof 
           {!isCollapsed && (
             <Badge
               variant="secondary"
-              className="px-2 min-w-[auto] bg-sidebar-accent text-sidebar-foreground border border-primary/20 text-[10px] tracking-widest font-medium animate-in fade-in zoom-in duration-200"
+              className="bg-sidebar-accent text-sidebar-foreground border-primary/20 animate-in fade-in zoom-in min-w-[auto] border px-2 text-[10px] font-medium tracking-widest duration-200"
             >
               ADMIN
             </Badge>
@@ -79,7 +172,7 @@ export function AppSidebar({ className, ...props }: React.ComponentProps<typeof 
         </div>
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={data.navMain} />
+        <NavMain groups={navGroups} />
       </SidebarContent>
       <SidebarFooter>
         <NavUser />
