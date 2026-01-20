@@ -1,18 +1,17 @@
-import * as React from "react";
-import {
-  useReactTable,
-  getCoreRowModel,
-  getSortedRowModel,
-  getPaginationRowModel,
-  flexRender,
-} from "@tanstack/react-table";
 import type {
   ColumnDef,
-  SortingState,
-  RowSelectionState,
   OnChangeFn,
   Row,
+  RowSelectionState,
+  SortingState,
 } from "@tanstack/react-table";
+import {
+  flexRender,
+  getCoreRowModel,
+  getSortedRowModel,
+  useReactTable,
+} from "@tanstack/react-table";
+import * as React from "react";
 
 import {
   Table,
@@ -31,7 +30,7 @@ interface DataTableProps<TData, TValue> {
   isLoading?: boolean;
   loadingRowCount?: number;
   emptyContent?: React.ReactNode;
-  
+
   // Customization
   renderAboveTable?: React.ReactNode;
   renderBelowTable?: React.ReactNode;
@@ -68,7 +67,8 @@ export function DataTable<TData, TValue>({
   onRowSelectionChange,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
-  const [internalRowSelection, setInternalRowSelection] = React.useState<RowSelectionState>({});
+  const [internalRowSelection, setInternalRowSelection] =
+    React.useState<RowSelectionState>({});
 
   const table = useReactTable({
     data,
@@ -87,14 +87,14 @@ export function DataTable<TData, TValue>({
   return (
     <div className={cn("space-y-4", classNames?.container)}>
       {renderAboveTable}
-      
+
       <div className="rounded-md border">
         <Table className={classNames?.table}>
           {!isLoading ? (
             <>
               <TableHeader className={classNames?.header}>
                 {table.getHeaderGroups().map((headerGroup) => (
-                  <TableRow key={headerGroup.id}>
+                  <TableRow key={headerGroup.id} className="bg-muted px-3">
                     {headerGroup.headers.map((header) => {
                       return (
                         <TableHead key={header.id} className={classNames?.cell}>
@@ -102,7 +102,7 @@ export function DataTable<TData, TValue>({
                             ? null
                             : flexRender(
                                 header.column.columnDef.header,
-                                header.getContext()
+                                header.getContext(),
                               )}
                         </TableHead>
                       );
@@ -119,15 +119,18 @@ export function DataTable<TData, TValue>({
                       className={cn(
                         onRowClick && "cursor-pointer",
                         getRowClassName?.(row),
-                        classNames?.row
+                        classNames?.row,
                       )}
                       onClick={() => onRowClick?.(row)}
                     >
                       {row.getVisibleCells().map((cell) => (
-                        <TableCell key={cell.id} className={classNames?.cell}>
+                        <TableCell
+                          key={cell.id}
+                          className={cn("px-3", classNames?.cell)}
+                        >
                           {flexRender(
                             cell.column.columnDef.cell,
-                            cell.getContext()
+                            cell.getContext(),
                           )}
                         </TableCell>
                       ))}
@@ -146,9 +149,9 @@ export function DataTable<TData, TValue>({
               </TableBody>
             </>
           ) : (
-            <DataTableSkeleton 
-              columnCount={columns.length} 
-              rowCount={loadingRowCount} 
+            <DataTableSkeleton
+              columnCount={columns.length}
+              rowCount={loadingRowCount}
             />
           )}
         </Table>

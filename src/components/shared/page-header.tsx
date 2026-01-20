@@ -6,11 +6,15 @@ interface PageHeaderProps {
   endContent?: ReactNode;
 }
 
-export function PageHeader({ title, description, endContent }: PageHeaderProps) {
+export function PageHeader({
+  title,
+  description,
+  endContent,
+}: PageHeaderProps) {
   return (
     <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">{title}</h1>
+        <h1 className="text-2xl font-bold tracking-tight">{title}</h1>
         {description && (
           <div className="text-muted-foreground mt-2 text-base">
             {description}
@@ -18,9 +22,7 @@ export function PageHeader({ title, description, endContent }: PageHeaderProps) 
         )}
       </div>
       {endContent && (
-        <div className="flex items-center gap-2 mt-2 sm:mt-0">
-          {endContent}
-        </div>
+        <div className="mt-2 flex items-center gap-2 sm:mt-0">{endContent}</div>
       )}
     </div>
   );
