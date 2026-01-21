@@ -81,14 +81,14 @@ const navGroups: NavGroup[] = [
     label: "Catalog",
     items: [
       {
-        title: "Products",
-        url: "/products",
-        icon: Package,
-      },
-      {
         title: "Categories",
         url: "/categories",
         icon: Tags,
+      },
+      {
+        title: "Products",
+        url: "/products",
+        icon: Package,
       },
     ],
   },
@@ -101,8 +101,8 @@ const navGroups: NavGroup[] = [
         icon: ArrowRightLeft,
       },
       {
-        title: "Payments & Escrow",
-        url: "/payments",
+        title: "Escrows",
+        url: "/escrows",
         icon: Wallet,
       },
       {
