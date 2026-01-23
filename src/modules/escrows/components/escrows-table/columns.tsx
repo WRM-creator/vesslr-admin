@@ -18,6 +18,7 @@ import {
 import type { ColumnDef } from "@tanstack/react-table";
 import { formatDistanceToNow } from "date-fns";
 import { AlertTriangle, Flag, MoreHorizontal } from "lucide-react";
+import { Link } from "react-router-dom";
 import type { Escrow } from "../../lib/escrow-model";
 
 const statusStyles: Record<
@@ -35,9 +36,12 @@ export const escrowsColumns: ColumnDef<Escrow>[] = [
     accessorKey: "id",
     header: "Escrow ID",
     cell: ({ row }) => (
-      <span className="text-muted-foreground font-mono text-xs">
+      <Link
+        to={`/escrows/${row.original.id}`}
+        className="hover:text-primary font-mono text-xs font-medium hover:underline"
+      >
         {row.original.id}
-      </span>
+      </Link>
     ),
   },
   {
@@ -143,7 +147,9 @@ export const escrowsColumns: ColumnDef<Escrow>[] = [
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              <DropdownMenuItem>View details</DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link to={`/escrows/${row.original.id}`}>View details</Link>
+              </DropdownMenuItem>
               <DropdownMenuItem>Release funds</DropdownMenuItem>
               <DropdownMenuItem className="text-destructive">
                 Open dispute

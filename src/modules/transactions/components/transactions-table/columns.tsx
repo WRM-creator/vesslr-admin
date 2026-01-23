@@ -3,13 +3,23 @@
 import { Badge } from "@/components/ui/badge";
 import { type ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
+import { Link } from "react-router-dom";
 
 export interface Transaction {
   id: string;
   createdAt: string;
   updatedAt: string;
   type: "purchase" | "refund" | "transfer" | "payout";
-  state: "pending" | "processing" | "completed" | "cancelled";
+  state:
+    | "initiated"
+    | "documents_submitted"
+    | "compliance_review"
+    | "escrow_funded"
+    | "logistics_assigned"
+    | "in_transit"
+    | "delivery_confirmed"
+    | "settlement_released"
+    | "closed";
   paymentStatus: "paid" | "unpaid" | "partial" | "refunded";
   complianceStatus: "approved" | "pending_review" | "flagged" | "rejected";
   merchant: {
@@ -45,10 +55,15 @@ const stateStyles: Record<
   Transaction["state"],
   "default" | "secondary" | "outline" | "destructive"
 > = {
-  pending: "secondary",
-  processing: "outline",
-  completed: "default",
-  cancelled: "destructive",
+  initiated: "secondary",
+  documents_submitted: "secondary",
+  compliance_review: "outline",
+  escrow_funded: "default",
+  logistics_assigned: "outline",
+  in_transit: "outline",
+  delivery_confirmed: "default",
+  settlement_released: "default",
+  closed: "secondary",
 };
 
 export const transactionsColumns: ColumnDef<Transaction>[] = [
@@ -56,7 +71,12 @@ export const transactionsColumns: ColumnDef<Transaction>[] = [
     accessorKey: "id",
     header: "Transaction ID",
     cell: ({ row }) => (
-      <span className="font-mono text-sm">{row.original.id}</span>
+      <Link
+        to={`/transactions/${row.original.id}`}
+        className="text-primary font-mono text-sm hover:underline"
+      >
+        {row.original.id}
+      </Link>
     ),
   },
   {

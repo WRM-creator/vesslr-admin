@@ -8,15 +8,6 @@ import { ArrowRight } from "lucide-react";
 import type { NavigateFunction } from "react-router-dom";
 import type { Customer } from "../../lib/customer-model";
 
-const roleStyles: Record<
-  Customer["role"],
-  "default" | "secondary" | "destructive" | "outline"
-> = {
-  buyer: "outline",
-  seller: "default",
-  admin: "destructive",
-};
-
 const statusStyles: Record<
   Customer["status"],
   "default" | "secondary" | "destructive" | "outline"
@@ -41,22 +32,7 @@ export const getCustomersColumns = (
       </div>
     ),
   },
-  {
-    accessorKey: "company",
-    header: "Company",
-  },
-  {
-    accessorKey: "role",
-    header: "Role",
-    cell: ({ row }) => {
-      const role = row.original.role;
-      return (
-        <Badge variant={roleStyles[role]} className="capitalize">
-          {role}
-        </Badge>
-      );
-    },
-  },
+
   {
     accessorKey: "status",
     header: "Status",

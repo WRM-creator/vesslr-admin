@@ -1,4 +1,3 @@
-import { ShieldAlert } from "lucide-react";
 import type { Category } from "../lib/category-details-model";
 
 interface TradeEligibilityCardProps {
@@ -50,7 +49,9 @@ export function TradeEligibilityCard({ data }: TradeEligibilityCardProps) {
               Minimum Trust Score
             </h4>
             <div className="flex items-baseline gap-2">
-              <span className="text-2xl font-bold">{data.minTrustScore}</span>
+              <span className="text-2xl font-bold">
+                {data.minSellerTrustScore}
+              </span>
               <span className="text-muted-foreground text-xs">/ 100</span>
             </div>
           </div>
@@ -94,27 +95,17 @@ export function TradeEligibilityCard({ data }: TradeEligibilityCardProps) {
             </div>
           </div>
 
-          {data.geographicConstraints.restrictedDeliveryCountries.length >
-            0 && (
-            <div>
-              <h4 className="text-muted-foreground mb-2 flex items-center gap-1.5 text-sm font-medium">
-                <ShieldAlert className="h-3.5 w-3.5" />
-                Restricted Delivery
-              </h4>
-              <div className="flex flex-wrap gap-1.5">
-                {data.geographicConstraints.restrictedDeliveryCountries.map(
-                  (country) => (
-                    <span
-                      key={country}
-                      className="rounded-md border border-red-200 bg-red-100 px-2.5 py-1 text-xs font-medium text-red-800 dark:border-red-900 dark:bg-red-900/30 dark:text-red-400"
-                    >
-                      {country}
-                    </span>
-                  ),
-                )}
-              </div>
+          <div>
+            <h4 className="text-muted-foreground mb-1 text-sm font-medium">
+              Minimum Trust Score
+            </h4>
+            <div className="flex items-baseline gap-2">
+              <span className="text-2xl font-bold">
+                {data.minBuyerTrustScore}
+              </span>
+              <span className="text-muted-foreground text-xs">/ 100</span>
             </div>
-          )}
+          </div>
         </div>
       </div>
     </div>

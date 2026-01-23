@@ -12,6 +12,7 @@ import {
 import type { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
 import { MoreHorizontal } from "lucide-react";
+import { Link } from "react-router-dom";
 import type { Product } from "../../lib/product-model";
 
 const statusStyles: Record<
@@ -20,8 +21,9 @@ const statusStyles: Record<
 > = {
   active: "default",
   draft: "secondary",
-  archived: "outline",
-  out_of_stock: "destructive",
+  reserved: "outline",
+  in_transaction: "default",
+  fulfilled: "secondary",
 };
 
 export const productsColumns: ColumnDef<Product>[] = [
@@ -108,7 +110,9 @@ export const productsColumns: ColumnDef<Product>[] = [
               >
                 Copy product ID
               </DropdownMenuItem>
-              <DropdownMenuItem>View details</DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link to={`/products/${product.id}`}>View details</Link>
+              </DropdownMenuItem>
               <DropdownMenuItem>Edit product</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

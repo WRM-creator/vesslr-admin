@@ -2,7 +2,9 @@
 
 import { DataPagination } from "@/components/shared/data-pagination";
 import { DataTable } from "@/components/shared/data-table";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { endOfDay, isWithinInterval, startOfDay } from "date-fns";
+import { parseAsString, useQueryState } from "nuqs";
 import { useState } from "react";
 import type { DateRange } from "react-day-picker";
 import { useNavigate } from "react-router-dom";
@@ -24,16 +26,19 @@ export function CustomersTable({ data, isLoading }: CustomersTableProps) {
 
   // Filter states
   const [searchQuery, setSearchQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState("all");
-  const [roleFilter, setRoleFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useQueryState(
+    "status",
+    parseAsString.withDefault("all"),
+  );
+
   const [trustRange, setTrustRange] = useState("all");
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
 
   // Handler to reset all filters
   const handleReset = () => {
     setSearchQuery("");
-    setStatusFilter("all");
-    setRoleFilter("all");
+    setStatusFilter(null);
+
     setTrustRange("all");
     setDateRange(undefined);
     setCurrentPage(1);
@@ -46,8 +51,7 @@ export function CustomersTable({ data, isLoading }: CustomersTableProps) {
       const query = searchQuery.toLowerCase();
       const matchesName = customer.name.toLowerCase().includes(query);
       const matchesEmail = customer.email.toLowerCase().includes(query);
-      const matchesCompany = customer.company.toLowerCase().includes(query);
-      if (!matchesName && !matchesEmail && !matchesCompany) return false;
+      if (!matchesName && !matchesEmail) return false;
     }
 
     // Status filter
@@ -55,8 +59,8 @@ export function CustomersTable({ data, isLoading }: CustomersTableProps) {
       return false;
     }
 
-    // Role filter
-    if (roleFilter !== "all" && customer.role !== roleFilter) {
+    // Role filter - Strict check for buyers
+    if (customer.role !== "buyer") {
       return false;
     }
 
@@ -106,7 +110,6 @@ export function CustomersTable({ data, isLoading }: CustomersTableProps) {
       <p className="text-muted-foreground mt-1 max-w-sm text-sm">
         {searchQuery ||
         statusFilter !== "all" ||
-        roleFilter !== "all" ||
         trustRange !== "all" ||
         dateRange
           ? "No customers match your current filters."
@@ -114,7 +117,6 @@ export function CustomersTable({ data, isLoading }: CustomersTableProps) {
       </p>
       {(searchQuery ||
         statusFilter !== "all" ||
-        roleFilter !== "all" ||
         trustRange !== "all" ||
         dateRange) && (
         <button
@@ -129,20 +131,23 @@ export function CustomersTable({ data, isLoading }: CustomersTableProps) {
 
   return (
     <div className="space-y-4">
+      <Tabs
+        defaultValue="all"
+        value={statusFilter}
+        onValueChange={setStatusFilter}
+      >
+        <TabsList className="h-auto flex-wrap justify-start">
+          <TabsTrigger value="all">All</TabsTrigger>
+          <TabsTrigger value="active">Active</TabsTrigger>
+          <TabsTrigger value="pending">Pending</TabsTrigger>
+          <TabsTrigger value="suspended">Suspended</TabsTrigger>
+        </TabsList>
+      </Tabs>
+
       <CustomersTableFilters
         searchQuery={searchQuery}
         onSearchChange={(val) => {
           setSearchQuery(val);
-          setCurrentPage(1);
-        }}
-        statusFilter={statusFilter}
-        onStatusChange={(val) => {
-          setStatusFilter(val);
-          setCurrentPage(1);
-        }}
-        roleFilter={roleFilter}
-        onRoleChange={(val) => {
-          setRoleFilter(val);
           setCurrentPage(1);
         }}
         trustRange={trustRange}

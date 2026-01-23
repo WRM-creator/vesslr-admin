@@ -1,4 +1,5 @@
 import type { RouteObject } from "react-router-dom";
+import CustomerDetailsPage from "./pages/customer-details";
 import { CustomersPage } from "./pages/customers-page";
 
 export const customersRoutes: RouteObject[] = [
@@ -8,11 +9,6 @@ export const customersRoutes: RouteObject[] = [
   },
   {
     path: "customers/:id",
-    element: (
-      <div>
-        Customer Details Page (Access via ID:{" "}
-        {window.location.pathname.split("/").pop()})
-      </div>
-    ), // Placeholder
+    element: <CustomerDetailsPage />,
   },
 ];

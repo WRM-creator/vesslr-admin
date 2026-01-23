@@ -23,10 +23,7 @@ import type { DateRange } from "react-day-picker";
 interface CustomersTableFiltersProps {
   searchQuery: string;
   onSearchChange: (value: string) => void;
-  statusFilter: string;
-  onStatusChange: (value: string) => void;
-  roleFilter: string;
-  onRoleChange: (value: string) => void;
+
   trustRange: string;
   onTrustRangeChange: (value: string) => void;
   dateRange: DateRange | undefined;
@@ -37,10 +34,7 @@ interface CustomersTableFiltersProps {
 export function CustomersTableFilters({
   searchQuery,
   onSearchChange,
-  statusFilter,
-  onStatusChange,
-  roleFilter,
-  onRoleChange,
+
   trustRange,
   onTrustRangeChange,
   dateRange,
@@ -48,43 +42,17 @@ export function CustomersTableFilters({
   onReset,
 }: CustomersTableFiltersProps) {
   const isFiltered =
-    searchQuery ||
-    statusFilter !== "all" ||
-    roleFilter !== "all" ||
-    trustRange !== "all" ||
-    dateRange !== undefined;
+    searchQuery || trustRange !== "all" || dateRange !== undefined;
 
   return (
     <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
       <div className="flex flex-1 flex-col gap-2 sm:flex-row sm:items-center lg:flex-wrap">
         <Input
-          placeholder="Filter by name, email or company..."
+          placeholder="Filter by name or email..."
           value={searchQuery}
           onChange={(e) => onSearchChange(e.target.value)}
           className="h-9 w-full sm:w-[250px]"
         />
-        <Select value={statusFilter} onValueChange={onStatusChange}>
-          <SelectTrigger className="h-9 w-full sm:w-[130px]">
-            <SelectValue placeholder="Status" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Statuses</SelectItem>
-            <SelectItem value="active">Active</SelectItem>
-            <SelectItem value="pending">Pending</SelectItem>
-            <SelectItem value="suspended">Suspended</SelectItem>
-          </SelectContent>
-        </Select>
-        <Select value={roleFilter} onValueChange={onRoleChange}>
-          <SelectTrigger className="h-9 w-full sm:w-[130px]">
-            <SelectValue placeholder="Role" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Roles</SelectItem>
-            <SelectItem value="buyer">Buyer</SelectItem>
-            <SelectItem value="seller">Seller</SelectItem>
-            <SelectItem value="admin">Admin</SelectItem>
-          </SelectContent>
-        </Select>
         <Select value={trustRange} onValueChange={onTrustRangeChange}>
           <SelectTrigger className="h-9 w-full sm:w-[130px]">
             <SelectValue placeholder="Trust Score" />

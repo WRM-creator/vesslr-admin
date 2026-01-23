@@ -11,37 +11,89 @@ export function ComplianceRequirementsCard({
 }: ComplianceRequirementsCardProps) {
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+      <div className="space-y-8">
+        {/* Required Documents Section */}
         <div>
-          <h4 className="text-muted-foreground mb-3 text-sm font-medium">
+          <h4 className="text-muted-foreground mb-4 text-sm font-medium">
             Required Documents
           </h4>
-          <div className="space-y-3">
-            {data.documents.map((doc, idx) => (
-              <div
-                key={idx}
-                className="bg-secondary/50 border-border/50 flex items-start gap-3 rounded-md border p-3"
-              >
-                <FileText className="text-muted-foreground mt-0.5 h-5 w-5" />
-                <div className="flex-1">
-                  <p className="text-sm font-medium">{doc.name}</p>
-                  <div className="mt-1 flex gap-2">
-                    <Badge variant="outline" className="h-5 text-[10px]">
-                      {doc.level}
-                    </Badge>
-                    {doc.required && (
-                      <Badge className="h-5 border-0 bg-red-100 text-[10px] text-red-800 hover:bg-red-100 dark:bg-red-900/40 dark:text-red-300 dark:hover:bg-red-900/40">
-                        Required
-                      </Badge>
-                    )}
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+            {/* Merchant Column (Product + Seller) */}
+            <div className="space-y-3">
+              <h5 className="text-xs font-semibold tracking-wider uppercase">
+                Merchant
+              </h5>
+              {data.documents
+                .filter((d) => d.level === "product" || d.level === "seller")
+                .map((doc, idx) => (
+                  <div
+                    key={idx}
+                    className="bg-secondary/50 border-border/50 flex items-start gap-3 rounded-md border p-3"
+                  >
+                    <FileText className="text-muted-foreground mt-0.5 h-5 w-5" />
+                    <div className="flex-1">
+                      <p className="text-sm font-medium">{doc.name}</p>
+                      <div className="mt-1 flex gap-2">
+                        <Badge variant="outline" className="h-5 text-[10px]">
+                          {doc.level}
+                        </Badge>
+                        {doc.required && (
+                          <Badge className="h-5 border-0 bg-red-100 text-[10px] text-red-800 hover:bg-red-100 dark:bg-red-900/40 dark:text-red-300 dark:hover:bg-red-900/40">
+                            Required
+                          </Badge>
+                        )}
+                      </div>
+                    </div>
                   </div>
-                </div>
-              </div>
-            ))}
+                ))}
+              {data.documents.filter(
+                (d) => d.level === "product" || d.level === "seller",
+              ).length === 0 && (
+                <p className="text-muted-foreground text-sm italic">
+                  No merchant documents required.
+                </p>
+              )}
+            </div>
+
+            {/* Customer Column (Buyer) */}
+            <div className="space-y-3">
+              <h5 className="text-xs font-semibold tracking-wider uppercase">
+                Customer
+              </h5>
+              {data.documents
+                .filter((d) => d.level === "buyer")
+                .map((doc, idx) => (
+                  <div
+                    key={idx}
+                    className="bg-secondary/50 border-border/50 flex items-start gap-3 rounded-md border p-3"
+                  >
+                    <FileText className="text-muted-foreground mt-0.5 h-5 w-5" />
+                    <div className="flex-1">
+                      <p className="text-sm font-medium">{doc.name}</p>
+                      <div className="mt-1 flex gap-2">
+                        <Badge variant="outline" className="h-5 text-[10px]">
+                          {doc.level}
+                        </Badge>
+                        {doc.required && (
+                          <Badge className="h-5 border-0 bg-red-100 text-[10px] text-red-800 hover:bg-red-100 dark:bg-red-900/40 dark:text-red-300 dark:hover:bg-red-900/40">
+                            Required
+                          </Badge>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              {data.documents.filter((d) => d.level === "buyer").length ===
+                0 && (
+                <p className="text-muted-foreground text-sm italic">
+                  No customer documents required.
+                </p>
+              )}
+            </div>
           </div>
         </div>
 
-        <div className="space-y-6">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
           <div>
             <h4 className="text-muted-foreground mb-3 text-sm font-medium">
               Validation Rules

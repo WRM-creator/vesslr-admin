@@ -13,8 +13,6 @@ import type { DateRange } from "react-day-picker";
 interface MerchantsTableFiltersProps {
   searchQuery: string;
   onSearchChange: (value: string) => void;
-  statusFilter: string;
-  onStatusChange: (value: string) => void;
   trustRange: string;
   onTrustRangeChange: (value: string) => void;
   dateRange: DateRange | undefined;
@@ -25,8 +23,6 @@ interface MerchantsTableFiltersProps {
 export function MerchantsTableFilters({
   searchQuery,
   onSearchChange,
-  statusFilter,
-  onStatusChange,
   trustRange,
   onTrustRangeChange,
   dateRange,
@@ -34,10 +30,7 @@ export function MerchantsTableFilters({
   onReset,
 }: MerchantsTableFiltersProps) {
   const isFiltered =
-    searchQuery ||
-    statusFilter !== "all" ||
-    trustRange !== "all" ||
-    dateRange !== undefined;
+    searchQuery || trustRange !== "all" || dateRange !== undefined;
 
   return (
     <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -48,17 +41,6 @@ export function MerchantsTableFilters({
           onChange={(e) => onSearchChange(e.target.value)}
           className="h-9 w-full"
         />
-        <Select value={statusFilter} onValueChange={onStatusChange}>
-          <SelectTrigger className="h-8 w-full sm:w-[150px]">
-            <SelectValue placeholder="Status" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Statuses</SelectItem>
-            <SelectItem value="active">Active</SelectItem>
-            <SelectItem value="pending">Pending</SelectItem>
-            <SelectItem value="suspended">Suspended</SelectItem>
-          </SelectContent>
-        </Select>
         <Select value={trustRange} onValueChange={onTrustRangeChange}>
           <SelectTrigger className="h-8 w-full sm:w-[150px]">
             <SelectValue placeholder="Trust Score" />

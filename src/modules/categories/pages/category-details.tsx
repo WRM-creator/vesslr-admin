@@ -10,7 +10,6 @@ import { CategorySection } from "../components/category-section";
 import { ComplianceRequirementsCard } from "../components/compliance-requirements-card";
 import { LogisticsRulesCard } from "../components/logistics-rules-card";
 import { RiskControlsCard } from "../components/risk-controls-card";
-import { RuntimeImpactCard } from "../components/runtime-impact-card";
 import { TradeEligibilityCard } from "../components/trade-eligibility-card";
 import { TransactionConfigCard } from "../components/transaction-config-card";
 import { MOCK_CATEGORY_DATA } from "../lib/category-details-model";
@@ -94,7 +93,7 @@ export default function CategoryDetailsPage() {
             <CategorySection
               value="transaction"
               title="Transaction Configuration"
-              description="Define how products in this category can be transacted."
+              description="Review allowed transaction types and value limits."
               onEdit={() => console.log("Edit transaction")}
             >
               <TransactionConfigCard data={data.transactionConfig} />
@@ -127,7 +126,7 @@ export default function CategoryDetailsPage() {
               <RiskControlsCard data={data.risk} />
             </CategorySection>
 
-            <CategorySection
+            {/* <CategorySection
               value="runtime"
               title={
                 <span className="text-blue-700 dark:text-blue-400">
@@ -139,7 +138,7 @@ export default function CategoryDetailsPage() {
               onEdit={() => console.log("Edit runtime")}
             >
               <RuntimeImpactCard data={data.runtime} />
-            </CategorySection>
+            </CategorySection> */}
 
             <CategorySection
               value="audit"

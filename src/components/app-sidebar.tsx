@@ -1,16 +1,12 @@
 import { cn } from "@/lib/utils";
 import {
   ArrowRightLeft,
-  BarChart3,
-  Bell,
   Command,
   LayoutDashboard,
   Package,
   Scale,
-  Settings,
   Store,
   Tags,
-  Truck,
   Users,
   Wallet,
 } from "lucide-react";
@@ -55,11 +51,11 @@ const navGroups: NavGroup[] = [
         url: "/dashboard",
         icon: LayoutDashboard,
       },
-      {
-        title: "Analytics",
-        url: "/analytics",
-        icon: BarChart3,
-      },
+      // {
+      //   title: "Analytics",
+      //   url: "/analytics",
+      //   icon: BarChart3,
+      // },
     ],
   },
   {
@@ -110,28 +106,28 @@ const navGroups: NavGroup[] = [
         url: "/disputes",
         icon: Scale,
       },
-      {
-        title: "Logistics & Fulfilments",
-        url: "/logistics",
-        icon: Truck,
-      },
+      // {
+      //   title: "Logistics & Fulfilments",
+      //   url: "/logistics",
+      //   icon: ContainerIcon,
+      // },
     ],
   },
-  {
-    label: "System",
-    items: [
-      {
-        title: "Notifications",
-        url: "/notifications",
-        icon: Bell,
-      },
-      {
-        title: "Admin & System Settings",
-        url: "/settings",
-        icon: Settings,
-      },
-    ],
-  },
+  // {
+  //   label: "System",
+  //   items: [
+  //     {
+  //       title: "Notifications",
+  //       url: "/notifications",
+  //       icon: Bell,
+  //     },
+  //     {
+  //       title: "Admin & System Settings",
+  //       url: "/settings",
+  //       icon: Settings,
+  //     },
+  //   ],
+  // },
 ];
 
 export function AppSidebar({

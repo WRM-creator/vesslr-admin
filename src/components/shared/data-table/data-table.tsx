@@ -88,7 +88,7 @@ export function DataTable<TData, TValue>({
     <div className={cn("space-y-4", classNames?.container)}>
       {renderAboveTable}
 
-      <div className="rounded-md border">
+      <div className="overflow-hidden rounded-md border">
         <Table className={classNames?.table}>
           {!isLoading ? (
             <>

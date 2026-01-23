@@ -8,56 +8,63 @@ import { MOCK_CATEGORY_DATA } from "../lib/category-details-model";
 const MOCK_CATEGORIES: CategoryTableItem[] = [
   {
     ...MOCK_CATEGORY_DATA,
-    id: "cat_chemical",
+    id: "cat_commodities",
     productCount: 1243,
   },
   {
     ...MOCK_CATEGORY_DATA,
-    id: "cat_electronics",
+    id: "cat_equipment",
     identity: {
       ...MOCK_CATEGORY_DATA.identity,
-      name: "Consumer Electronics",
-      description: "Mobile phones, laptops, and accessories",
-      tags: ["tech", "consumer", "high-value"],
+      name: "Heavy Machinery & Equipment",
+      description:
+        "Drilling rigs, pumps, generators, and exploration equipment.",
+      parentId: "Equipment",
+      tags: ["machinery", "high-value", "logistics-heavy"],
       status: "active",
     },
-    productCount: 4521,
+    productCount: 452,
   },
   {
     ...MOCK_CATEGORY_DATA,
-    id: "cat_textiles",
+    id: "cat_logistics",
     identity: {
       ...MOCK_CATEGORY_DATA.identity,
-      name: "Textiles & Fabrics",
-      description: "Raw fabrics and finished textile products",
-      tags: ["raw material", "fashion"],
+      name: "Logistics & Chartering",
+      description:
+        "Vessel charters, pipeline capacity, and specialized freight services.",
+      parentId: "Services",
+      tags: ["services", "transport", "time-sensitive"],
       status: "active",
     },
-    productCount: 890,
+    productCount: 189,
   },
   {
     ...MOCK_CATEGORY_DATA,
-    id: "cat_machinery",
+    id: "cat_safety",
     identity: {
       ...MOCK_CATEGORY_DATA.identity,
-      name: "Heavy Machinery",
-      description: "Industrial equipment and heavy machinery",
-      tags: ["industrial", "heavy"],
+      name: "Safety & Compliance (HSE)",
+      description:
+        "Personal protective equipment, hazard control, and environmental safety.",
+      parentId: "Supplies",
+      tags: ["safety", "consumables", "regulated"],
+      status: "active",
+    },
+    productCount: 3500,
+  },
+  {
+    ...MOCK_CATEGORY_DATA,
+    id: "cat_data",
+    identity: {
+      ...MOCK_CATEGORY_DATA.identity,
+      name: "Data & Intelligence",
+      description: "Seismic data, market reports, and geological surveys.",
+      parentId: "Digital Products",
+      tags: ["digital", "intellectual-property"],
       status: "draft",
     },
-    productCount: 0,
-  },
-  {
-    ...MOCK_CATEGORY_DATA,
-    id: "cat_pharma",
-    identity: {
-      ...MOCK_CATEGORY_DATA.identity,
-      name: "Pharmaceuticals",
-      description: "Medical drugs and supplements",
-      tags: ["medical", "regulated"],
-      status: "deprecated",
-    },
-    productCount: 120,
+    productCount: 56,
   },
 ];
 

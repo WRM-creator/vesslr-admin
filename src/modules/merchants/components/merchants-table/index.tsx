@@ -2,7 +2,9 @@
 
 import { DataPagination } from "@/components/shared/data-pagination";
 import { DataTable } from "@/components/shared/data-table";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { endOfDay, isWithinInterval, startOfDay } from "date-fns";
+import { parseAsString, useQueryState } from "nuqs";
 import { useState } from "react";
 import type { DateRange } from "react-day-picker";
 import { useNavigate } from "react-router-dom";
@@ -24,14 +26,17 @@ export function MerchantsTable({ data, isLoading }: MerchantsTableProps) {
 
   // Filter states
   const [searchQuery, setSearchQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useQueryState(
+    "status",
+    parseAsString.withDefault("all"),
+  );
   const [trustRange, setTrustRange] = useState("all");
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
 
   // Handler to reset all filters
   const handleReset = () => {
     setSearchQuery("");
-    setStatusFilter("all");
+    setStatusFilter(null); // Reset to default (all)
     setTrustRange("all");
     setDateRange(undefined);
     setCurrentPage(1);
@@ -120,15 +125,23 @@ export function MerchantsTable({ data, isLoading }: MerchantsTableProps) {
 
   return (
     <div className="space-y-4">
+      <Tabs
+        defaultValue="all"
+        value={statusFilter}
+        onValueChange={setStatusFilter}
+      >
+        <TabsList className="h-auto flex-wrap justify-start">
+          <TabsTrigger value="all">All</TabsTrigger>
+          <TabsTrigger value="active">Active</TabsTrigger>
+          <TabsTrigger value="pending">Pending</TabsTrigger>
+          <TabsTrigger value="suspended">Suspended</TabsTrigger>
+        </TabsList>
+      </Tabs>
+
       <MerchantsTableFilters
         searchQuery={searchQuery}
         onSearchChange={(val) => {
           setSearchQuery(val);
-          setCurrentPage(1);
-        }}
-        statusFilter={statusFilter}
-        onStatusChange={(val) => {
-          setStatusFilter(val);
           setCurrentPage(1);
         }}
         trustRange={trustRange}

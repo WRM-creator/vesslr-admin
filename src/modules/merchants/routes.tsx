@@ -1,9 +1,16 @@
 import type { RouteObject } from "react-router-dom";
-import MerchantsPage from "./pages/merchants-page";
 
 export const merchantsRoutes: RouteObject[] = [
   {
     path: "merchants",
-    element: <MerchantsPage />,
+    lazy: async () => ({
+      Component: (await import("./pages/merchants-page")).default,
+    }),
+  },
+  {
+    path: "merchants/:id",
+    lazy: async () => ({
+      Component: (await import("./pages/merchant-details")).default,
+    }),
   },
 ];

@@ -32,6 +32,32 @@ export function RiskControlsCard({ data }: RiskControlsCardProps) {
         </div>
         <div className="flex-1">
           <h4 className="text-muted-foreground text-sm font-medium">
+            Min Merchant Score
+          </h4>
+          <div className="mt-1 flex items-baseline gap-2">
+            <span
+              className={`rounded-md px-3 py-1 text-2xl font-bold ${getRiskColor(data.minMerchantRiskScore)}`}
+            >
+              {data.minMerchantRiskScore}
+            </span>
+            <span className="text-muted-foreground text-sm">/ 100</span>
+          </div>
+        </div>
+        <div className="flex-1">
+          <h4 className="text-muted-foreground text-sm font-medium">
+            Min Customer Score
+          </h4>
+          <div className="mt-1 flex items-baseline gap-2">
+            <span
+              className={`rounded-md px-3 py-1 text-2xl font-bold ${getRiskColor(data.minCustomerRiskScore)}`}
+            >
+              {data.minCustomerRiskScore}
+            </span>
+            <span className="text-muted-foreground text-sm">/ 100</span>
+          </div>
+        </div>
+        <div className="flex-1">
+          <h4 className="text-muted-foreground text-sm font-medium">
             Dispute Handling
           </h4>
           <div className="mt-2 flex items-center gap-2">

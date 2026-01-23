@@ -12,6 +12,7 @@ import {
 import type { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
 import { MoreHorizontal } from "lucide-react";
+import { Link } from "react-router-dom";
 import type { Dispute } from "../../lib/dispute-model";
 
 const statusStyles: Record<
@@ -29,9 +30,12 @@ export const disputesColumns: ColumnDef<Dispute>[] = [
     accessorKey: "id",
     header: "Dispute ID",
     cell: ({ row }) => (
-      <span className="text-muted-foreground font-mono text-xs">
+      <Link
+        to={`/disputes/${row.original.id}`}
+        className="text-muted-foreground hover:text-primary font-mono text-xs hover:underline"
+      >
         {row.original.id}
-      </span>
+      </Link>
     ),
   },
   {
@@ -103,7 +107,9 @@ export const disputesColumns: ColumnDef<Dispute>[] = [
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem>View details</DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link to={`/disputes/${row.original.id}`}>View details</Link>
+            </DropdownMenuItem>
             <DropdownMenuItem>Resolve dispute</DropdownMenuItem>
             <DropdownMenuItem className="text-destructive">
               Escalate

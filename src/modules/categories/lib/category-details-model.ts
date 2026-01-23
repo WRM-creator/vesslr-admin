@@ -10,7 +10,8 @@ export interface Category {
   eligibility: {
     allowedSellerTypes: string[];
     allowedBuyerTypes: string[];
-    minTrustScore: number;
+    minSellerTrustScore: number;
+    minBuyerTrustScore: number;
     geographicConstraints: {
       allowedSellerCountries: string[];
       allowedBuyerCountries: string[];
@@ -19,13 +20,8 @@ export interface Category {
   };
   transactionConfig: {
     allowedTransactionTypes: string[];
-    escrow: {
-      required: boolean;
-      structure: "full" | "milestone" | "partial";
-    };
     minValue: number;
     maxValue: number;
-    tradingType: "spot" | "contract" | "both";
   };
   compliance: {
     documents: {
@@ -41,15 +37,15 @@ export interface Category {
   };
   logistics: {
     required: boolean;
-    allowedModes: string[];
-    trackingMethod: string[];
-    deliveryConfirmation: string[];
+    allowedProviders: string[];
   };
   risk: {
     baseRiskScore: number;
     manualReviewTriggers: string[];
     escalationRules: string[];
     disputeHandling: "standard" | "strict" | "expedited";
+    minMerchantRiskScore: number;
+    minCustomerRiskScore: number;
   };
   runtime: {
     blockedActions: string[];
@@ -68,62 +64,81 @@ export interface Category {
 }
 
 export const MOCK_CATEGORY_DATA: Category = {
-  id: "cat_123",
+  id: "cat_commodities_001",
   identity: {
-    name: "Industrial Chemicals",
-    description: "Raw chemical materials for industrial manufacturing processes.",
-    parentId: "Chemicals & Plastics",
+    name: "Crude Oil & Petroleum Products",
+    description:
+      "Raw crude oil, refined petroleum products, and petrochemical feedstocks.",
+    parentId: "Commodities",
     status: "active",
-    tags: ["hazardous", "industrial", "regulated"],
+    tags: ["commodities", "hazardous", "regulated", "high-volume"],
   },
   eligibility: {
-    allowedSellerTypes: ["Verified Manufacturer", "Authorized Distributor"],
-    allowedBuyerTypes: ["Industrial Enterprise", "Verified Processor"],
-    minTrustScore: 85,
+    allowedSellerTypes: [
+      "Verified Producer",
+      "National Oil Company",
+      "Major Trader",
+    ],
+    allowedBuyerTypes: ["Refinery", "Distributor", "Strategic Reserve"],
+    minSellerTrustScore: 90,
+    minBuyerTrustScore: 85,
     geographicConstraints: {
-      allowedSellerCountries: ["US", "DE", "CN", "JP"],
+      allowedSellerCountries: ["US", "SA", "AE", "NO", "NG", "BR"],
       allowedBuyerCountries: ["Global"],
       restrictedDeliveryCountries: ["KP", "IR", "SY"],
     },
   },
   transactionConfig: {
-    allowedTransactionTypes: ["purchase", "bulk supply"],
-    escrow: {
-      required: true,
-      structure: "milestone",
-    },
-    minValue: 5000,
-    maxValue: 1000000,
-    tradingType: "contract",
+    allowedTransactionTypes: ["spot_trade", "bulk_supply", "contract"],
+    minValue: 100000,
+    maxValue: 500000000,
   },
   compliance: {
     documents: [
       { level: "product", name: "Safety Data Sheet (SDS)", required: true },
-      { level: "product", name: "Certificate of Analysis", required: true },
+      { level: "product", name: "Certificate of Origin", required: true },
+      {
+        level: "product",
+        name: "Quality Analysis Report (Assay)",
+        required: true,
+      },
       { level: "seller", name: "Export License", required: true },
+      { level: "buyer", name: "Import License", required: true },
     ],
     validation: {
       expiryEnforced: true,
-      requiredIssuer: "ISO Accredited Body",
+      requiredIssuer: "SGS / Intertek / BV",
     },
     reviewFlow: "hybrid",
   },
   logistics: {
     required: true,
-    allowedModes: ["vessel", "truck", "rail"],
-    trackingMethod: ["GPS Real-time", "Checkpoint Scanning"],
-    deliveryConfirmation: ["Bill of Lading", "Proof of Delivery (Digital)"],
+    allowedProviders: [
+      "Maersk",
+      "DHL Global Forwarding",
+      "Kuehne+Nagel",
+      "MSC",
+    ],
   },
   risk: {
-    baseRiskScore: 75,
-    manualReviewTriggers: ["Value > $500k", "New Route"],
+    baseRiskScore: 65,
+    manualReviewTriggers: ["Value > $5M", "New Route", "Sanctioned Proximity"],
     escalationRules: ["Compliance mismatch triggers immediate block"],
     disputeHandling: "strict",
+    minMerchantRiskScore: 80,
+    minCustomerRiskScore: 70,
   },
   runtime: {
-    blockedActions: ["Instant Checkout", "Unverified Address"],
-    requiredSteps: ["Compliance Check -> Escrow Fund -> Logistics Book"],
-    exampleFlow: "Seller lists -> Buyer Requests -> Auto Compliance Check -> Manual Review -> Approved",
+    blockedActions: [
+      "Instant Checkout",
+      "Unverified Address",
+      "Crypto Payment (above threshold)",
+    ],
+    requiredSteps: [
+      "Compliance Check -> Contract Sign -> Escrow Fund -> Logistics Nominate",
+    ],
+    exampleFlow:
+      "Seller Lists -> Buyer Bids -> KYC/AML Check -> Deal Agreed -> Operations",
   },
   audit: {
     changes: [
@@ -131,7 +146,7 @@ export const MOCK_CATEGORY_DATA: Category = {
         id: "evt_1",
         timestamp: "2024-01-15T10:00:00Z",
         actor: "Admin User",
-        change: "Increased min trust score to 85",
+        change: "Updated restricted countries list",
         reason: "Compliance policy update Q1",
       },
       {
