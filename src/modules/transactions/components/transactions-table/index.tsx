@@ -28,18 +28,6 @@ export function TransactionsTable({ data, isLoading }: TransactionsTableProps) {
     return data.filter((transaction) => transaction.state === activeTab);
   }, [data, activeTab]);
 
-  const emptyContent = (
-    <div className="flex flex-col items-center justify-center py-12 text-center">
-      <div className="bg-muted/50 mb-3 rounded-full p-4">
-        <div className="bg-muted size-8 rounded"></div>
-      </div>
-      <h3 className="text-lg font-semibold">No transactions found</h3>
-      <p className="text-muted-foreground mt-1 max-w-sm text-sm">
-        Transactions will appear here once they are processed.
-      </p>
-    </div>
-  );
-
   return (
     <div className="space-y-4">
       <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab}>
@@ -60,7 +48,6 @@ export function TransactionsTable({ data, isLoading }: TransactionsTableProps) {
         columns={transactionsColumns}
         data={filteredData}
         isLoading={isLoading}
-        emptyContent={emptyContent}
         onRowClick={(row) => navigate(`/transactions/${row.original.id}`)}
       />
     </div>

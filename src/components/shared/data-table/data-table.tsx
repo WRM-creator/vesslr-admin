@@ -22,6 +22,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
+import { InboxIcon } from "lucide-react";
 import { DataTableSkeleton } from "./data-table-skeleton";
 
 interface DataTableProps<TData, TValue> {
@@ -142,7 +143,22 @@ export function DataTable<TData, TValue>({
                       colSpan={columns.length}
                       className="h-24 text-center"
                     >
-                      {emptyContent || "No results."}
+                      {emptyContent || (
+                        <div className="flex flex-col items-center justify-center py-12 text-center">
+                          <div className="bg-muted/50 mb-3 rounded-full p-4">
+                            <InboxIcon
+                              className="text-muted-foreground size-8"
+                              strokeWidth={1.2}
+                            />
+                          </div>
+                          <h3 className="text-lg font-semibold">
+                            No results found
+                          </h3>
+                          <p className="text-muted-foreground mt-1 max-w-sm text-sm">
+                            There are no items to display at this time.
+                          </p>
+                        </div>
+                      )}
                     </TableCell>
                   </TableRow>
                 )}
