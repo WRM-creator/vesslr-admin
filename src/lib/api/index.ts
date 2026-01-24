@@ -24,10 +24,12 @@ import {
   deleteApiV1AdminOrganizationsById,
   getApiV1AdminCategories,
   getApiV1AdminCategoriesById,
+  getApiV1AdminOrders,
   getApiV1AdminOrganizations,
   getApiV1AdminOrganizationsById,
   getApiV1Products,
-  //   getApiV1Products,
+  getApiV1ProductsById,
+  patchApiV1AdminOrdersByIdStatus,
   //   postApiV1Products,
   //   // ... add more as needed
   postApiV1AdminAuthLogin,
@@ -35,6 +37,7 @@ import {
   postApiV1AdminOrganizations,
   putApiV1AdminCategoriesById,
   putApiV1AdminOrganizationsById,
+  putApiV1ProductsById,
 } from "./generated";
 
 export const api = {
@@ -48,6 +51,14 @@ export const api = {
   // },
   auth: {
     login: createMutation(postApiV1AdminAuthLogin),
+  },
+  admin: {
+    orders: {
+      list: createQuery(getApiV1AdminOrders, ["admin", "orders", "list"]),
+      updateStatus: createMutation(patchApiV1AdminOrdersByIdStatus, {
+        invalidates: () => [["admin", "orders", "list"]],
+      }),
+    },
   },
   categories: {
     list: createQuery(getApiV1AdminCategories, ["categories", "list"]),
@@ -80,6 +91,13 @@ export const api = {
   },
   products: {
     list: createQuery(getApiV1Products, ["products", "list"]),
+    detail: createQuery(getApiV1ProductsById, ["products", "detail"]),
+    update: createMutation(putApiV1ProductsById, {
+      invalidates: () => [
+        ["products", "list"],
+        ["products", "detail"],
+      ],
+    }),
   },
 };
 

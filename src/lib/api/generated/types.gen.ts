@@ -868,6 +868,15 @@ export type GetApiV1AdminOrganizationsData = {
      */
     type?: "merchant" | "customer" | "all";
     /**
+     * Filter by verification status
+     */
+    verificationStatus?:
+      | "unverified"
+      | "pending"
+      | "verified"
+      | "rejected"
+      | "all";
+    /**
      * Search by name, email, or trading name
      */
     search?: string;
