@@ -3,7 +3,13 @@ export interface Product {
   name: string;
   category: string;
   merchant: string;
-  status: "draft" | "active" | "reserved" | "in_transaction" | "fulfilled";
+  status:
+    | "draft"
+    | "active"
+    | "reserved"
+    | "in_transaction"
+    | "fulfilled"
+    | "pending_approval";
   created: string; // ISO date string
   price: number;
   transactionType:
@@ -13,6 +19,10 @@ export interface Product {
     | "bulk_supply"
     | "spot_trade";
   currency: string;
+  // UI helper fields
+  image?: string;
+  availableQuantity?: number;
+  unitOfMeasurement?: string;
 }
 
 export const MOCK_PRODUCTS: Product[] = [

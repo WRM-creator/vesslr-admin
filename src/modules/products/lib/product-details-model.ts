@@ -12,7 +12,8 @@ export interface ProductDetails {
       | "reserved"
       | "in_transaction"
       | "fulfilled"
-      | "suspended";
+      | "suspended"
+      | "pending_approval";
     transactionType: "buy" | "lease" | "rental" | "auction" | "charter";
     price: number;
     currency: string;

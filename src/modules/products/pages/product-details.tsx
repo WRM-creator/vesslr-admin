@@ -1,7 +1,8 @@
 import { Page } from "@/components/shared/page";
 import { PageHeader } from "@/components/shared/page-header";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Edit2, FileText, Flag } from "lucide-react";
+import { api } from "@/lib/api";
+import { ArrowLeft, Check, Edit2, FileText, Flag, X } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { MOCK_PRODUCT_DETAILS } from "../lib/product-details-model";
 
@@ -14,13 +15,76 @@ import { ProductDetailsCard } from "../components/product-details-card";
 import { ProductLogisticsCard } from "../components/product-logistics-card";
 import { ProductOverviewCard } from "../components/product-overview-card";
 import { ProductTransactionHistoryCard } from "../components/product-transaction-history-card";
+import type { ProductDetails } from "../lib/product-details-model";
 
 export default function ProductDetailsPage() {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  // In a real app we'd fetch based on ID
-  const data = MOCK_PRODUCT_DETAILS;
+  const { data: productData, isLoading } = api.products.detail.useQuery({
+    path: { id: id! },
+  });
+
+  const { mutate: updateProduct, isPending } =
+    api.products.update.useMutation();
+
+  const product = (productData as any)?.data;
+  // Fallback to mock if API returns nothing (or during dev), but ideally we map API -> UI model
+  // For now, we mix the API data into the Mock structure to populate the UI without breaking it
+  // In a real app, we'd have a proper mapper
+  const data: ProductDetails = product
+    ? {
+        ...MOCK_PRODUCT_DETAILS,
+        id: product._id,
+        overview: {
+          name: product.name,
+          images: product.images || [],
+          thumbnail: product.thumbnail || product.images?.[0] || "",
+          status: product.status as any, // Cast to match UI model if needed
+          transactionType: MOCK_PRODUCT_DETAILS.overview.transactionType, // Fallback for missing API fields
+          price: product.price,
+          currency: product.currency,
+          created: product.created,
+          lastUpdated: product.created,
+        },
+        merchant: {
+          ...MOCK_PRODUCT_DETAILS.merchant,
+          id: product.seller, // Assuming seller ID is returned
+        },
+      }
+    : MOCK_PRODUCT_DETAILS;
+
+  const isPendingApproval = data.overview.status === "pending_approval";
+
+  const handleApprove = () => {
+    if (!id) return;
+    updateProduct(
+      {
+        path: { id },
+        body: { status: "active" },
+      },
+      {
+        onSuccess: () => {
+          navigate("/product-approvals");
+        },
+      },
+    );
+  };
+
+  const handleReject = () => {
+    if (!id) return;
+    updateProduct(
+      {
+        path: { id },
+        body: { status: "draft" },
+      },
+      {
+        onSuccess: () => {
+          navigate("/product-approvals");
+        },
+      },
+    );
+  };
 
   return (
     <Page>
@@ -28,12 +92,46 @@ export default function ProductDetailsPage() {
         <Button
           variant="ghost"
           className="hover:text-primary pl-0 hover:bg-transparent"
-          onClick={() => navigate("/products")}
+          onClick={() =>
+            navigate(isPendingApproval ? "/product-approvals" : "/products")
+          }
         >
           <ArrowLeft className="mr-2 h-4 w-4" />
-          Back to Products
+          {isPendingApproval ? "Back to Approvals" : "Back to Products"}
         </Button>
       </div>
+
+      {isPendingApproval && (
+        <div className="mb-6 flex items-center justify-between rounded-xl border border-amber-200 bg-amber-50 p-4 dark:border-amber-900 dark:bg-amber-950/30">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-amber-100 text-amber-600 dark:bg-amber-900 dark:text-amber-400">
+              <Flag className="h-5 w-5" />
+            </div>
+            <div>
+              <h3 className="font-semibold text-amber-900 dark:text-amber-100">
+                Pending Approval
+              </h3>
+              <p className="text-sm text-amber-700 dark:text-amber-300">
+                This product requires admin verification before it can be
+                listed.
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button variant="destructive" onClick={handleReject}>
+              <X className="mr-2 h-4 w-4" />
+              Reject
+            </Button>
+            <Button
+              className="bg-green-600 text-white hover:bg-green-700"
+              onClick={handleApprove}
+            >
+              <Check className="mr-2 h-4 w-4" />
+              Approve
+            </Button>
+          </div>
+        </div>
+      )}
 
       <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
         <PageHeader

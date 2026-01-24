@@ -23,6 +23,7 @@ const statusStyles: Record<
   reserved: "outline",
   in_transaction: "default",
   fulfilled: "secondary",
+  pending_approval: "outline", // Orange/Warning style could be better but outline is safe for now
 };
 
 export const productsColumns: ColumnDef<Product>[] = [

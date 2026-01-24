@@ -27,6 +27,7 @@ import type { DateRange } from "react-day-picker";
 export interface ProductFilters {
   search: string;
   category: string;
+  merchantId: string;
   status: string;
   transactionType: string;
   minPrice: string;
@@ -36,18 +37,28 @@ export interface ProductFilters {
 
 interface FiltersProps {
   filters: ProductFilters;
+  merchantOptions?: { label: string; value: string }[];
+  hiddenFilters?: (keyof ProductFilters)[];
   onFilterChange: (key: keyof ProductFilters, value: any) => void;
   onReset: () => void;
 }
 
-export function Filters({ filters, onFilterChange, onReset }: FiltersProps) {
+export function Filters({
+  filters,
+  merchantOptions = [],
+  hiddenFilters = [],
+  onFilterChange,
+  onReset,
+}: FiltersProps) {
   const hasActiveFilters =
-    filters.category !== "all" ||
-    filters.status !== "all" ||
-    filters.transactionType !== "all" ||
-    filters.minPrice ||
-    filters.maxPrice ||
-    filters.dateRange;
+    (filters.category !== "all" && !hiddenFilters.includes("category")) ||
+    (filters.merchantId !== "all" && !hiddenFilters.includes("merchantId")) ||
+    (filters.status !== "all" && !hiddenFilters.includes("status")) ||
+    (filters.transactionType !== "all" &&
+      !hiddenFilters.includes("transactionType")) ||
+    (filters.minPrice && !hiddenFilters.includes("minPrice")) ||
+    (filters.maxPrice && !hiddenFilters.includes("maxPrice")) ||
+    (filters.dateRange && !hiddenFilters.includes("dateRange"));
 
   return (
     <div className="flex items-center gap-2">
@@ -73,7 +84,7 @@ export function Filters({ filters, onFilterChange, onReset }: FiltersProps) {
             )}
           </Button>
         </SheetTrigger>
-        <SheetContent className="m-2 max-h-[calc(100vh_-_0.5rem)] rounded-xl">
+        <SheetContent className="m-2 max-h-[calc(100vh_-_1rem)] rounded-xl">
           <SheetHeader>
             <SheetTitle>Filter Products</SheetTitle>
             <SheetDescription>
@@ -83,12 +94,32 @@ export function Filters({ filters, onFilterChange, onReset }: FiltersProps) {
 
           <div className="grid gap-6 px-4">
             <div className="space-y-2">
+              <Label>Merchant</Label>
+              <Select
+                value={filters.merchantId}
+                onValueChange={(value) => onFilterChange("merchantId", value)}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="All Merchants" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Merchants</SelectItem>
+                  {merchantOptions.map((merchant) => (
+                    <SelectItem key={merchant.value} value={merchant.value}>
+                      {merchant.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
               <Label>Category</Label>
               <Select
                 value={filters.category}
                 onValueChange={(value) => onFilterChange("category", value)}
               >
-                <SelectTrigger>
+                <SelectTrigger className="w-full">
                   <SelectValue placeholder="All Categories" />
                 </SelectTrigger>
                 <SelectContent>
@@ -105,25 +136,29 @@ export function Filters({ filters, onFilterChange, onReset }: FiltersProps) {
               </Select>
             </div>
 
-            <div className="space-y-2">
-              <Label>Status</Label>
-              <Select
-                value={filters.status}
-                onValueChange={(value) => onFilterChange("status", value)}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="All Statuses" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Statuses</SelectItem>
-                  <SelectItem value="active">Active</SelectItem>
-                  <SelectItem value="draft">Draft</SelectItem>
-                  <SelectItem value="reserved">Reserved</SelectItem>
-                  <SelectItem value="in_transaction">In Transaction</SelectItem>
-                  <SelectItem value="fulfilled">Fulfilled</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+            {!hiddenFilters.includes("status") && (
+              <div className="space-y-2">
+                <Label>Status</Label>
+                <Select
+                  value={filters.status}
+                  onValueChange={(value) => onFilterChange("status", value)}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="All Statuses" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Statuses</SelectItem>
+                    <SelectItem value="active">Active</SelectItem>
+                    <SelectItem value="draft">Draft</SelectItem>
+                    <SelectItem value="reserved">Reserved</SelectItem>
+                    <SelectItem value="in_transaction">
+                      In Transaction
+                    </SelectItem>
+                    <SelectItem value="fulfilled">Fulfilled</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
 
             <div className="space-y-2">
               <Label>Transaction Type</Label>
@@ -133,7 +168,7 @@ export function Filters({ filters, onFilterChange, onReset }: FiltersProps) {
                   onFilterChange("transactionType", value)
                 }
               >
-                <SelectTrigger>
+                <SelectTrigger className="w-full">
                   <SelectValue placeholder="All Transactions" />
                 </SelectTrigger>
                 <SelectContent>
