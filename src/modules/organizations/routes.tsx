@@ -13,4 +13,16 @@ export const organizationsRoutes: RouteObject[] = [
       Component: (await import("./pages/customers")).default,
     }),
   },
+  {
+    path: "registrations",
+    lazy: async () => ({
+      Component: (await import("./pages/registrations")).default,
+    }),
+  },
+  {
+    path: "merchants/:id",
+    lazy: async () => ({
+      Component: (await import("./pages/merchant-details")).default,
+    }),
+  },
 ];
