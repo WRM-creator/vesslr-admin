@@ -21,15 +21,20 @@ import "./client-config";
 //
 import {
   deleteApiV1AdminCategoriesById,
+  deleteApiV1AdminOrganizationsById,
   getApiV1AdminCategories,
   getApiV1AdminCategoriesById,
+  getApiV1AdminOrganizations,
+  getApiV1AdminOrganizationsById,
   getApiV1Products,
   //   getApiV1Products,
   //   postApiV1Products,
   //   // ... add more as needed
   postApiV1AdminAuthLogin,
   postApiV1AdminCategories,
+  postApiV1AdminOrganizations,
   putApiV1AdminCategoriesById,
+  putApiV1AdminOrganizationsById,
 } from "./generated";
 
 export const api = {
@@ -55,6 +60,22 @@ export const api = {
     }),
     delete: createMutation(deleteApiV1AdminCategoriesById, {
       invalidates: () => [["categories", "list"]],
+    }),
+  },
+  organizations: {
+    list: createQuery(getApiV1AdminOrganizations, ["organizations", "list"]),
+    detail: createQuery(getApiV1AdminOrganizationsById, [
+      "organizations",
+      "detail",
+    ]),
+    create: createMutation(postApiV1AdminOrganizations, {
+      invalidates: () => [["organizations", "list"]],
+    }),
+    update: createMutation(putApiV1AdminOrganizationsById, {
+      invalidates: () => [["organizations", "list"]],
+    }),
+    delete: createMutation(deleteApiV1AdminOrganizationsById, {
+      invalidates: () => [["organizations", "list"]],
     }),
   },
   products: {

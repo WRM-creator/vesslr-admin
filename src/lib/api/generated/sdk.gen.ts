@@ -9,6 +9,9 @@ import type {
   DeleteApiV1AdminCategoriesByIdData,
   DeleteApiV1AdminCategoriesByIdErrors,
   DeleteApiV1AdminCategoriesByIdResponses,
+  DeleteApiV1AdminOrganizationsByIdData,
+  DeleteApiV1AdminOrganizationsByIdErrors,
+  DeleteApiV1AdminOrganizationsByIdResponses,
   DeleteApiV1CategoriesByIdData,
   DeleteApiV1CategoriesByIdErrors,
   DeleteApiV1CategoriesByIdResponses,
@@ -43,6 +46,12 @@ import type {
   GetApiV1AdminOrdersData,
   GetApiV1AdminOrdersErrors,
   GetApiV1AdminOrdersResponses,
+  GetApiV1AdminOrganizationsByIdData,
+  GetApiV1AdminOrganizationsByIdErrors,
+  GetApiV1AdminOrganizationsByIdResponses,
+  GetApiV1AdminOrganizationsData,
+  GetApiV1AdminOrganizationsErrors,
+  GetApiV1AdminOrganizationsResponses,
   GetApiV1AdminProfileData,
   GetApiV1AdminProfileErrors,
   GetApiV1AdminProfileResponses,
@@ -144,6 +153,9 @@ import type {
   PostApiV1AdminChangePasswordResponses,
   PostApiV1AdminData,
   PostApiV1AdminErrors,
+  PostApiV1AdminOrganizationsData,
+  PostApiV1AdminOrganizationsErrors,
+  PostApiV1AdminOrganizationsResponses,
   PostApiV1AdminResponses,
   PostApiV1CategoriesData,
   PostApiV1CategoriesErrors,
@@ -194,6 +206,9 @@ import type {
   PutApiV1AdminCategoriesByIdData,
   PutApiV1AdminCategoriesByIdErrors,
   PutApiV1AdminCategoriesByIdResponses,
+  PutApiV1AdminOrganizationsByIdData,
+  PutApiV1AdminOrganizationsByIdErrors,
+  PutApiV1AdminOrganizationsByIdResponses,
   PutApiV1AdminProfileData,
   PutApiV1AdminProfileErrors,
   PutApiV1AdminProfileResponses,
@@ -651,6 +666,114 @@ export const patchApiV1AdminOrdersByIdStatus = <
   >({
     security: [{ scheme: "bearer", type: "http" }],
     url: "/api/v1/admin/orders/{id}/status",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * List all organizations
+ *
+ * Fetches organizations with pagination, search, and type filtering.
+ */
+export const getApiV1AdminOrganizations = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<GetApiV1AdminOrganizationsData, ThrowOnError>,
+) =>
+  (options?.client ?? client).get<
+    GetApiV1AdminOrganizationsResponses,
+    GetApiV1AdminOrganizationsErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/organizations",
+    ...options,
+  });
+
+/**
+ * Create an organization
+ *
+ * Creates a new organization.
+ */
+export const postApiV1AdminOrganizations = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<PostApiV1AdminOrganizationsData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    PostApiV1AdminOrganizationsResponses,
+    PostApiV1AdminOrganizationsErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/organizations",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Delete an organization
+ *
+ * Deletes an organization by ID.
+ */
+export const deleteApiV1AdminOrganizationsById = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<DeleteApiV1AdminOrganizationsByIdData, ThrowOnError>,
+) =>
+  (options.client ?? client).delete<
+    DeleteApiV1AdminOrganizationsByIdResponses,
+    DeleteApiV1AdminOrganizationsByIdErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/organizations/{id}",
+    ...options,
+  });
+
+/**
+ * Get an organization
+ *
+ * Fetches an organization by ID.
+ */
+export const getApiV1AdminOrganizationsById = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<GetApiV1AdminOrganizationsByIdData, ThrowOnError>,
+) =>
+  (options.client ?? client).get<
+    GetApiV1AdminOrganizationsByIdResponses,
+    GetApiV1AdminOrganizationsByIdErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/organizations/{id}",
+    ...options,
+  });
+
+/**
+ * Update an organization
+ *
+ * Updates an existing organization by ID.
+ */
+export const putApiV1AdminOrganizationsById = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<PutApiV1AdminOrganizationsByIdData, ThrowOnError>,
+) =>
+  (options.client ?? client).put<
+    PutApiV1AdminOrganizationsByIdResponses,
+    PutApiV1AdminOrganizationsByIdErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/organizations/{id}",
     ...options,
     headers: {
       "Content-Type": "application/json",

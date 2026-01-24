@@ -4,6 +4,32 @@ export type ClientOptions = {
   baseUrl: `${string}://${string}/api/v1` | (string & {});
 };
 
+export type Organization = {
+  _id?: string;
+  name?: string;
+  email?: string;
+  type?: "merchant" | "customer" | "both";
+  verificationStatus?: "unverified" | "pending" | "verified" | "rejected";
+  industrySectors?: Array<string>;
+  createdAt?: string;
+};
+
+export type OrganizationBody = {
+  name: string;
+  email: string;
+  type?: "merchant" | "customer" | "both";
+  tradingName?: string;
+  phoneNumber?: string;
+  businessStructure?: string;
+  address?: {
+    houseNumber?: string;
+    street?: string;
+    city?: string;
+    state?: string;
+    country?: string;
+  };
+};
+
 export type Invoice = {
   _id?: string;
   invoiceNumber?: string;
@@ -824,6 +850,196 @@ export type PatchApiV1AdminOrdersByIdStatusResponses = {
 
 export type PatchApiV1AdminOrdersByIdStatusResponse =
   PatchApiV1AdminOrdersByIdStatusResponses[keyof PatchApiV1AdminOrdersByIdStatusResponses];
+
+export type GetApiV1AdminOrganizationsData = {
+  body?: never;
+  path?: never;
+  query?: {
+    /**
+     * Page number
+     */
+    page?: number;
+    /**
+     * Items per page
+     */
+    limit?: number;
+    /**
+     * Filter by organization type
+     */
+    type?: "merchant" | "customer" | "all";
+    /**
+     * Search by name, email, or trading name
+     */
+    search?: string;
+  };
+  url: "/api/v1/admin/organizations";
+};
+
+export type GetApiV1AdminOrganizationsErrors = {
+  /**
+   * Unauthorized
+   */
+  401: unknown;
+};
+
+export type GetApiV1AdminOrganizationsResponses = {
+  /**
+   * List of organizations
+   */
+  200: {
+    message?: string;
+    data?: {
+      docs?: Array<Organization>;
+      totalDocs?: number;
+      limit?: number;
+      page?: number;
+      totalPages?: number;
+      hasNextPage?: boolean;
+      hasPreviousPage?: boolean;
+    };
+  };
+};
+
+export type GetApiV1AdminOrganizationsResponse =
+  GetApiV1AdminOrganizationsResponses[keyof GetApiV1AdminOrganizationsResponses];
+
+export type PostApiV1AdminOrganizationsData = {
+  body: OrganizationBody;
+  path?: never;
+  query?: never;
+  url: "/api/v1/admin/organizations";
+};
+
+export type PostApiV1AdminOrganizationsErrors = {
+  /**
+   * Validation error
+   */
+  400: unknown;
+  /**
+   * Unauthorized
+   */
+  401: unknown;
+};
+
+export type PostApiV1AdminOrganizationsResponses = {
+  /**
+   * Organization created
+   */
+  201: {
+    message?: string;
+    data?: Organization;
+  };
+};
+
+export type PostApiV1AdminOrganizationsResponse =
+  PostApiV1AdminOrganizationsResponses[keyof PostApiV1AdminOrganizationsResponses];
+
+export type DeleteApiV1AdminOrganizationsByIdData = {
+  body?: never;
+  path: {
+    /**
+     * Organization ID
+     */
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/admin/organizations/{id}";
+};
+
+export type DeleteApiV1AdminOrganizationsByIdErrors = {
+  /**
+   * Unauthorized
+   */
+  401: unknown;
+  /**
+   * Organization not found
+   */
+  404: unknown;
+};
+
+export type DeleteApiV1AdminOrganizationsByIdResponses = {
+  /**
+   * Organization deleted
+   */
+  200: {
+    message?: string;
+  };
+};
+
+export type DeleteApiV1AdminOrganizationsByIdResponse =
+  DeleteApiV1AdminOrganizationsByIdResponses[keyof DeleteApiV1AdminOrganizationsByIdResponses];
+
+export type GetApiV1AdminOrganizationsByIdData = {
+  body?: never;
+  path: {
+    /**
+     * Organization ID
+     */
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/admin/organizations/{id}";
+};
+
+export type GetApiV1AdminOrganizationsByIdErrors = {
+  /**
+   * Unauthorized
+   */
+  401: unknown;
+  /**
+   * Organization not found
+   */
+  404: unknown;
+};
+
+export type GetApiV1AdminOrganizationsByIdResponses = {
+  /**
+   * Organization details
+   */
+  200: {
+    message?: string;
+    data?: Organization;
+  };
+};
+
+export type GetApiV1AdminOrganizationsByIdResponse =
+  GetApiV1AdminOrganizationsByIdResponses[keyof GetApiV1AdminOrganizationsByIdResponses];
+
+export type PutApiV1AdminOrganizationsByIdData = {
+  body: OrganizationBody;
+  path: {
+    /**
+     * Organization ID
+     */
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/admin/organizations/{id}";
+};
+
+export type PutApiV1AdminOrganizationsByIdErrors = {
+  /**
+   * Unauthorized
+   */
+  401: unknown;
+  /**
+   * Organization not found
+   */
+  404: unknown;
+};
+
+export type PutApiV1AdminOrganizationsByIdResponses = {
+  /**
+   * Organization updated
+   */
+  200: {
+    message?: string;
+    data?: Organization;
+  };
+};
+
+export type PutApiV1AdminOrganizationsByIdResponse =
+  PutApiV1AdminOrganizationsByIdResponses[keyof PutApiV1AdminOrganizationsByIdResponses];
 
 export type GetApiV1AdminUsersData = {
   body?: never;
