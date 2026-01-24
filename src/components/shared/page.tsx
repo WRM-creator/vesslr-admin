@@ -6,7 +6,7 @@ interface PageProps extends React.HTMLAttributes<HTMLDivElement> {
 
 export function Page({ children, className, ...props }: PageProps) {
   return (
-    <div className={cn("container mx-auto space-y-6", className)} {...props}>
+    <div className={cn("container space-y-6", className)} {...props}>
       {children}
     </div>
   );

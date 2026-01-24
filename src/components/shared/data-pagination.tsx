@@ -1,5 +1,7 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Pagination,
   PaginationContent,
@@ -9,6 +11,7 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import { useState } from "react";
 
 interface DataPaginationProps {
   currentPage: number;
@@ -26,6 +29,16 @@ export const DataPagination = ({
   className,
 }: DataPaginationProps) => {
   const totalPages = Math.ceil(totalItems / itemsPerPage);
+  const [pageInput, setPageInput] = useState("");
+
+  const handleGoToPage = (e: React.FormEvent) => {
+    e.preventDefault();
+    const page = parseInt(pageInput);
+    if (page >= 1 && page <= totalPages) {
+      onPageChange(page);
+      setPageInput("");
+    }
+  };
 
   const renderPaginationItems = () => {
     const items = [];
@@ -120,8 +133,10 @@ export const DataPagination = ({
   }
 
   return (
-    <div className={className}>
-      <Pagination>
+    <div
+      className={`flex flex-col items-center gap-4 sm:flex-row ${className}`}
+    >
+      <Pagination className="justify-start">
         <PaginationContent>
           <PaginationItem>
             <PaginationPrevious
@@ -148,6 +163,26 @@ export const DataPagination = ({
           </PaginationItem>
         </PaginationContent>
       </Pagination>
+
+      <div className="flex items-center gap-2">
+        <span className="text-muted-foreground text-sm whitespace-nowrap">
+          Go to page
+        </span>
+        <form onSubmit={handleGoToPage} className="flex items-center gap-2">
+          <Input
+            type="number"
+            min={1}
+            max={totalPages}
+            value={pageInput}
+            onChange={(e) => setPageInput(e.target.value)}
+            className="h-8 w-16"
+            placeholder={String(currentPage)}
+          />
+          <Button type="submit" variant="outline" size="sm" className="h-8">
+            Go
+          </Button>
+        </form>
+      </div>
     </div>
   );
 };
