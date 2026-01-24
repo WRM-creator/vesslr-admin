@@ -1,13 +1,15 @@
 import { cn } from "@/lib/utils";
 import {
   ArrowRightLeft,
+  Building2Icon,
+  BuildingIcon,
+  ClipboardCheck,
   Command,
   LayoutDashboard,
   Package,
   Scale,
-  Store,
+  Settings,
   Tags,
-  Users,
   Wallet,
 } from "lucide-react";
 import * as React from "react";
@@ -64,12 +66,17 @@ const navGroups: NavGroup[] = [
       {
         title: "Merchants",
         url: "/merchants",
-        icon: Store,
+        icon: Building2Icon,
       },
       {
         title: "Customers",
         url: "/customers",
-        icon: Users,
+        icon: BuildingIcon,
+      },
+      {
+        title: "Registrations",
+        url: "/registrations",
+        icon: ClipboardCheck,
       },
     ],
   },
@@ -85,6 +92,11 @@ const navGroups: NavGroup[] = [
         title: "Products",
         url: "/products",
         icon: Package,
+      },
+      {
+        title: "Product Approvals",
+        url: "/product-approvals",
+        icon: ClipboardCheck,
       },
     ],
   },
@@ -113,21 +125,21 @@ const navGroups: NavGroup[] = [
       // },
     ],
   },
-  // {
-  //   label: "System",
-  //   items: [
-  //     {
-  //       title: "Notifications",
-  //       url: "/notifications",
-  //       icon: Bell,
-  //     },
-  //     {
-  //       title: "Admin & System Settings",
-  //       url: "/settings",
-  //       icon: Settings,
-  //     },
-  //   ],
-  // },
+  {
+    label: "System",
+    items: [
+      // {
+      //   title: "Notifications",
+      //   url: "/notifications",
+      //   icon: Bell,
+      // },
+      {
+        title: "System Settings",
+        url: "/settings",
+        icon: Settings,
+      },
+    ],
+  },
 ];
 
 export function AppSidebar({
