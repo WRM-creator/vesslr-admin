@@ -10,7 +10,7 @@
  *   const { data } = api.products.list.useSuspenseQuery({});
  */
 
-import { createQuery, createMutation } from "./factory";
+import { createMutation, createQuery } from "./factory";
 
 // Import client config to initialize interceptors
 import "./client-config";
@@ -20,16 +20,16 @@ import "./client-config";
 // Uncomment and add imports as you need them:
 //
 import {
+  deleteApiV1AdminCategoriesById,
+  getApiV1AdminCategories,
+  getApiV1AdminCategoriesById,
+  getApiV1Products,
   //   getApiV1Products,
   //   postApiV1Products,
   //   // ... add more as needed
   postApiV1AdminAuthLogin,
-  getApiV1AdminCategories,
-  getApiV1CategoriesById,
   postApiV1AdminCategories,
   putApiV1AdminCategoriesById,
-  deleteApiV1AdminCategoriesById,
-  getApiV1Products,
 } from "./generated";
 
 export const api = {
@@ -46,7 +46,7 @@ export const api = {
   },
   categories: {
     list: createQuery(getApiV1AdminCategories, ["categories", "list"]),
-    detail: createQuery(getApiV1CategoriesById, ["categories", "detail"]),
+    detail: createQuery(getApiV1AdminCategoriesById, ["categories", "detail"]),
     create: createMutation(postApiV1AdminCategories, {
       invalidates: () => [["categories", "list"]],
     }),
@@ -64,8 +64,8 @@ export const api = {
 
 // Re-export factory utilities for advanced usage
 export {
-  createQuery,
   createMutation,
+  createQuery,
   shallowMergeApiResponse,
 } from "./factory";
 export type {
@@ -74,4 +74,4 @@ export type {
   OptimisticUpdateConfig,
 } from "./factory";
 
-export { logout, isAuthenticated, getAuthToken, clearAuthTokens } from "./auth";
+export { clearAuthTokens, getAuthToken, isAuthenticated, logout } from "./auth";
