@@ -2,10 +2,14 @@
 
 import { Page } from "@/components/shared/page";
 import { PageHeader } from "@/components/shared/page-header";
+import { api } from "@/lib/api";
+import { useMemo } from "react";
+import { useSearchParams } from "react-router-dom";
 import {
   type Transaction,
   TransactionsTable,
 } from "../components/transactions-table";
+import type { TransactionFilters } from "../components/transactions-table/filters";
 
 const MOCK_TRANSACTIONS: Transaction[] = [
   {
@@ -47,6 +51,67 @@ const MOCK_TRANSACTIONS: Transaction[] = [
 ];
 
 export default function TransactionsPage() {
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const filters: TransactionFilters = useMemo(
+    () => ({
+      search: searchParams.get("search") || "",
+      status: searchParams.get("status") || "all",
+    }),
+    [searchParams],
+  );
+
+  const queryParams = useMemo(() => {
+    const params: Record<string, any> = {};
+    if (filters.search) params.search = filters.search;
+    if (filters.status && filters.status !== "all")
+      params.status = filters.status;
+    return params;
+  }, [filters]);
+
+  const { data: transactionsData, isLoading } =
+    api.admin.orders.list.useQuery(queryParams);
+
+  const transactions: Transaction[] = (transactionsData?.data?.docs || []).map(
+    (doc: any) => ({
+      id: doc.id,
+      createdAt: doc.createdAt,
+      updatedAt: doc.updatedAt,
+      type: "purchase", // Defaulting as API might not have this yet
+      state: doc.status as Transaction["state"],
+      paymentStatus: doc.paymentStatus as Transaction["paymentStatus"],
+      complianceStatus: doc.complianceStatus as Transaction["complianceStatus"],
+      merchant: { name: doc.merchant?.name || "Unknown" },
+      customer: { name: doc.user?.email || "Unknown" },
+      value: doc.total,
+    }),
+  );
+
+  const handleFilterChange = (key: keyof TransactionFilters, value: any) => {
+    setSearchParams((prev) => {
+      if (!value) {
+        prev.delete(key);
+      } else {
+        prev.set(key, String(value));
+      }
+      return prev;
+    });
+  };
+
+  const handleReset = () => {
+    setSearchParams((prev) => {
+      // Keep status/tab if needed, or clear everything.
+      // Based on ProductsPage, it clears everything.
+      // But here `status` is managed by `nuqs` in the table (as per my read of table code),
+      // or wait, table uses `useQueryState("status")`.
+      // If I clear searchParams here, it might clear "status" too if it's in the URL.
+      // Let's just clear the filters we know about for now to be safe, or just empty object if we want full reset.
+      // ProductsPage does `setSearchParams({})`.
+      // Let's do the same for consistency, assuming "status" might be reset to default "all".
+      return {};
+    });
+  };
+
   return (
     <Page>
       <PageHeader
@@ -54,7 +119,14 @@ export default function TransactionsPage() {
         description="View and manage customer transactions."
       />
 
-      <TransactionsTable data={MOCK_TRANSACTIONS} />
+      <TransactionsTable
+        data={transactions}
+        isLoading={isLoading}
+        filters={filters}
+        merchantOptions={[]} // TODO: Fetch merchants from API
+        onFilterChange={handleFilterChange}
+        onReset={handleReset}
+      />
     </Page>
   );
 }

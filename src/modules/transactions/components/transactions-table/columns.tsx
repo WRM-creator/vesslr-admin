@@ -73,35 +73,10 @@ export const transactionsColumns: ColumnDef<Transaction>[] = [
     cell: ({ row }) => (
       <Link
         to={`/transactions/${row.original.id}`}
-        className="text-primary font-mono text-sm hover:underline"
+        className="font-mono text-sm hover:underline"
       >
         {row.original.id}
       </Link>
-    ),
-  },
-  {
-    accessorKey: "type",
-    header: "Type",
-    cell: ({ row }) => (
-      <span className="text-sm capitalize">{row.original.type}</span>
-    ),
-  },
-  {
-    accessorKey: "createdAt",
-    header: "Date Created",
-    cell: ({ row }) => (
-      <div className="text-sm">
-        {format(new Date(row.original.createdAt), "MMM d, yyyy")}
-      </div>
-    ),
-  },
-  {
-    accessorKey: "updatedAt",
-    header: "Last Updated",
-    cell: ({ row }) => (
-      <div className="text-sm">
-        {format(new Date(row.original.updatedAt), "MMM d, yyyy")}
-      </div>
     ),
   },
   {
@@ -130,6 +105,13 @@ export const transactionsColumns: ColumnDef<Transaction>[] = [
 
       return <div className="font-medium">{formatted}</div>;
     },
+  },
+  {
+    accessorKey: "type",
+    header: "Type",
+    cell: ({ row }) => (
+      <span className="text-sm capitalize">{row.original.type}</span>
+    ),
   },
   {
     accessorKey: "state",
@@ -166,5 +148,14 @@ export const transactionsColumns: ColumnDef<Transaction>[] = [
         </Badge>
       );
     },
+  },
+  {
+    accessorKey: "createdAt",
+    header: "Date Created",
+    cell: ({ row }) => (
+      <div className="text-sm">
+        {format(new Date(row.original.createdAt), "MMM d, yyyy")}
+      </div>
+    ),
   },
 ];
