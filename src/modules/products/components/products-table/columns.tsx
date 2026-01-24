@@ -1,5 +1,4 @@
-"use client";
-
+import { Thumbnail } from "@/components/shared/thumbnail";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -28,26 +27,69 @@ const statusStyles: Record<
 
 export const productsColumns: ColumnDef<Product>[] = [
   {
-    accessorKey: "id",
-    header: "Product ID",
-    cell: ({ row }) => (
-      <span className="text-muted-foreground font-mono text-xs">
-        {row.original.id}
-      </span>
-    ),
-  },
-  {
     accessorKey: "name",
-    header: "Name",
-    cell: ({ row }) => <span className="font-medium">{row.original.name}</span>,
-  },
-  {
-    accessorKey: "category",
-    header: "Category",
+    header: "Product",
+    cell: ({ row }) => {
+      const image = row.original.image;
+      return (
+        <div className="flex items-center gap-3">
+          <Thumbnail src={image} alt={row.original.name} />
+          <div className="flex flex-col">
+            <span className="font-medium">{row.original.name}</span>
+            <span className="text-muted-foreground text-xs">
+              ID: {row.original.id}
+            </span>
+          </div>
+        </div>
+      );
+    },
   },
   {
     accessorKey: "merchant",
     header: "Merchant",
+    cell: ({ row }) => (
+      <div className="font-medium">{row.original.merchant}</div>
+    ),
+  },
+  {
+    accessorKey: "category",
+    header: "Category",
+    cell: ({ row }) => (
+      <Badge variant="outline" className="font-normal">
+        {row.original.category}
+      </Badge>
+    ),
+  },
+  {
+    accessorKey: "availableQuantity",
+    header: "Stock",
+    cell: ({ row }) => {
+      const qty = row.original.availableQuantity || 0;
+      return (
+        <div className="flex items-center gap-2">
+          <span
+            className={`h-2 w-2 rounded-full ${
+              qty > 0 ? "bg-green-500" : "bg-red-500"
+            }`}
+          />
+          <span>
+            {qty} {row.original.unitOfMeasurement || "units"}
+          </span>
+        </div>
+      );
+    },
+  },
+  {
+    accessorKey: "price",
+    header: "Price",
+    cell: ({ row }) => {
+      const amount = parseFloat(row.original.price.toString());
+      const formatted = new Intl.NumberFormat("en-US", {
+        style: "currency",
+        currency: row.original.currency,
+      }).format(amount);
+      return <div className="font-medium">{formatted}</div>;
+    },
   },
   {
     accessorKey: "status",
@@ -67,27 +109,10 @@ export const productsColumns: ColumnDef<Product>[] = [
   {
     accessorKey: "created",
     header: "Created",
-    cell: ({ row }) => format(new Date(row.original.created), "MMM d, yyyy"),
-  },
-  {
-    accessorKey: "price",
-    header: "Price",
-    cell: ({ row }) => {
-      const amount = parseFloat(row.original.price.toString());
-      const formatted = new Intl.NumberFormat("en-US", {
-        style: "currency",
-        currency: row.original.currency,
-      }).format(amount);
-      return <div className="font-medium">{formatted}</div>;
-    },
-  },
-  {
-    accessorKey: "transactionType",
-    header: "Type",
     cell: ({ row }) => (
-      <Badge variant="outline" className="capitalize">
-        {row.original.transactionType}
-      </Badge>
+      <span className="text-muted-foreground text-sm">
+        {format(new Date(row.original.created), "MMM d, yyyy")}
+      </span>
     ),
   },
   {
@@ -105,11 +130,11 @@ export const productsColumns: ColumnDef<Product>[] = [
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              <DropdownMenuItem
+              {/* <DropdownMenuItem
                 onClick={() => navigator.clipboard.writeText(product.id)}
               >
                 Copy product ID
-              </DropdownMenuItem>
+              </DropdownMenuItem> */}
               <DropdownMenuItem asChild>
                 <Link to={`/products/${product.id}`}>View details</Link>
               </DropdownMenuItem>

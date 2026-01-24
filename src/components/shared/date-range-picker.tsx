@@ -1,6 +1,7 @@
 /* eslint-disable max-lines */
 "use client";
 
+import { cn } from "@/lib/utils";
 import { CalendarIcon, ChevronDownIcon, ChevronUpIcon } from "lucide-react";
 import { type FC, type JSX, useEffect, useRef, useState } from "react";
 import { Button } from "../ui/button";
@@ -27,6 +28,7 @@ export interface DateRangePickerProps {
   align?: "start" | "center" | "end";
   /** Option for locale */
   locale?: string;
+  className?: string;
 }
 
 const formatDate = (date: Date, locale: string = "en-us"): string => {
@@ -128,6 +130,7 @@ export const DateRangePicker: FC<DateRangePickerProps> = ({
   onUpdate,
   align = "end",
   locale = "en-US",
+  className,
 }): JSX.Element => {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -216,7 +219,9 @@ export const DateRangePicker: FC<DateRangePickerProps> = ({
   }, [isOpen]);
 
   return (
-    <div className="flex flex-wrap items-center justify-end gap-2">
+    <div
+      className={cn("flex flex-wrap items-center justify-end gap-2", className)}
+    >
       <Select value={selectedPreset} onValueChange={setPreset}>
         <SelectTrigger className="min-h-9 min-w-[110px]">
           <SelectValue placeholder="Select range" />
