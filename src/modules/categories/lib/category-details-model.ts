@@ -1,5 +1,6 @@
 export interface Category {
   id: string;
+  type: "equipment-and-products" | "services";
   identity: {
     name: string;
     description: string;
@@ -65,6 +66,7 @@ export interface Category {
 
 export const MOCK_CATEGORY_DATA: Category = {
   id: "cat_commodities_001",
+  type: "equipment-and-products",
   identity: {
     name: "Crude Oil & Petroleum Products",
     description:

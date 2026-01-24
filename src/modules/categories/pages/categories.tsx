@@ -1,82 +1,85 @@
+import { DataPagination } from "@/components/shared/data-pagination";
 import { Page } from "@/components/shared/page";
 import { PageHeader } from "@/components/shared/page-header";
-import { CategoriesTable } from "../components/categories-table";
-import type { CategoryTableItem } from "../components/categories-table/columns";
-import { MOCK_CATEGORY_DATA } from "../lib/category-details-model";
+import { Button } from "@/components/ui/button";
 
-// Generate some mock data for the list view
-const MOCK_CATEGORIES: CategoryTableItem[] = [
-  {
-    ...MOCK_CATEGORY_DATA,
-    id: "cat_commodities",
-    productCount: 1243,
-  },
-  {
-    ...MOCK_CATEGORY_DATA,
-    id: "cat_equipment",
-    identity: {
-      ...MOCK_CATEGORY_DATA.identity,
-      name: "Heavy Machinery & Equipment",
-      description:
-        "Drilling rigs, pumps, generators, and exploration equipment.",
-      parentId: "Equipment",
-      tags: ["machinery", "high-value", "logistics-heavy"],
-      status: "active",
-    },
-    productCount: 452,
-  },
-  {
-    ...MOCK_CATEGORY_DATA,
-    id: "cat_logistics",
-    identity: {
-      ...MOCK_CATEGORY_DATA.identity,
-      name: "Logistics & Chartering",
-      description:
-        "Vessel charters, pipeline capacity, and specialized freight services.",
-      parentId: "Services",
-      tags: ["services", "transport", "time-sensitive"],
-      status: "active",
-    },
-    productCount: 189,
-  },
-  {
-    ...MOCK_CATEGORY_DATA,
-    id: "cat_safety",
-    identity: {
-      ...MOCK_CATEGORY_DATA.identity,
-      name: "Safety & Compliance (HSE)",
-      description:
-        "Personal protective equipment, hazard control, and environmental safety.",
-      parentId: "Supplies",
-      tags: ["safety", "consumables", "regulated"],
-      status: "active",
-    },
-    productCount: 3500,
-  },
-  {
-    ...MOCK_CATEGORY_DATA,
-    id: "cat_data",
-    identity: {
-      ...MOCK_CATEGORY_DATA.identity,
-      name: "Data & Intelligence",
-      description: "Seismic data, market reports, and geological surveys.",
-      parentId: "Digital Products",
-      tags: ["digital", "intellectual-property"],
-      status: "draft",
-    },
-    productCount: 56,
-  },
-];
+import { api } from "@/lib/api";
+import { PlusIcon } from "lucide-react";
+import { parseAsString, useQueryState } from "nuqs";
+import { useState } from "react";
+import { Link } from "react-router-dom";
+import { CategoriesTable } from "../components/categories-table";
 
 export default function CategoriesPage() {
+  const [page, setPage] = useState(1);
+  const [type, setType] = useQueryState(
+    "type",
+    parseAsString.withDefault("all"),
+  );
+  const [search, setSearch] = useQueryState(
+    "search",
+    parseAsString.withDefault("").withOptions({ throttleMs: 500 }),
+  );
+
+  const { data, isLoading } = api.categories.list.useQuery({
+    query: {
+      page,
+      limit: 10,
+      type: type === "all" ? undefined : (type as any),
+      search: search || undefined,
+    },
+  });
+
+  const categories = data?.data?.docs ?? [];
+  const totalItems = data?.data?.totalDocs ?? 0;
+  const itemsPerPage = data?.data?.limit ?? 10;
+
   return (
     <Page>
       <PageHeader
         title="Categories"
         description="Manage product categories and their configuration rules."
+        endContent={
+          <Button asChild>
+            <Link to="/categories/new">
+              <PlusIcon /> Create Category
+            </Link>
+          </Button>
+        }
       />
 
-      <CategoriesTable data={MOCK_CATEGORIES} />
+      <div className="space-y-4">
+        <CategoriesTable
+          data={categories.map((item) => ({
+            _id: item._id || "",
+            name: item.name || "Unknown",
+            slug: item.slug || "",
+            image: item.image,
+            productCount: item.productCount || 0,
+            type: (item.type as any) || "equipment-and-products",
+          }))}
+          isLoading={isLoading}
+          activeTab={type}
+          onTabChange={(val) => {
+            setType(val);
+            setPage(1); // Reset page on tab change
+          }}
+          search={search}
+          onSearchChange={(val) => {
+            setSearch(val);
+            setPage(1);
+          }}
+        />
+
+        {!isLoading && totalItems > 0 && (
+          <DataPagination
+            currentPage={page}
+            totalItems={totalItems}
+            itemsPerPage={itemsPerPage}
+            onPageChange={setPage}
+          />
+        )}
+      </div>
     </Page>
   );
 }
