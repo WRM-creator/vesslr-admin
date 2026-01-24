@@ -59,7 +59,7 @@ const navGroups: NavGroup[] = [
     ],
   },
   {
-    label: "Users",
+    label: "Organizations",
     items: [
       {
         title: "Merchants",
