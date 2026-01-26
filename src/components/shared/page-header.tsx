@@ -22,7 +22,9 @@ export function PageHeader({
         )}
       </div>
       {endContent && (
-        <div className="mt-2 flex items-center gap-2 sm:mt-0">{endContent}</div>
+        <div className="mt-2 flex items-center gap-2 text-sm! sm:mt-0">
+          {endContent}
+        </div>
       )}
     </div>
   );

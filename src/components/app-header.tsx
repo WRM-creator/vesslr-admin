@@ -1,4 +1,3 @@
-import { useLocation, Link } from "react-router-dom";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -10,10 +9,14 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Fragment } from "react";
+import { Link, useLocation } from "react-router-dom";
+
+import { useBreadcrumb } from "@/contexts/breadcrumb-context";
 
 export function AppHeader() {
   const location = useLocation();
   const pathSegments = location.pathname.split("/").filter(Boolean);
+  const { overrides } = useBreadcrumb();
 
   // Helper to capitalize and format segment
   const formatSegment = (segment: string) => {
@@ -23,7 +26,7 @@ export function AppHeader() {
   };
 
   return (
-    <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12 px-4">
+    <header className="flex h-16 shrink-0 items-center gap-2 px-4 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
       <div className="flex items-center">
         <SidebarTrigger className="-ml-1" />
         <Separator orientation="vertical" className="mr-2 h-4" />
@@ -52,17 +55,21 @@ export function AppHeader() {
 
               const path = `/${pathSegments.slice(0, index + 1).join("/")}`;
               const isLast = index === pathSegments.length - 1;
-              const title = formatSegment(segment);
+              const title = overrides[segment] || formatSegment(segment);
 
               return (
                 <Fragment key={path}>
                   <BreadcrumbSeparator className="hidden md:block" />
                   <BreadcrumbItem>
                     {isLast ? (
-                      <BreadcrumbPage>{title}</BreadcrumbPage>
+                      <BreadcrumbPage className="capitalize">
+                        {title}
+                      </BreadcrumbPage>
                     ) : (
                       <BreadcrumbLink asChild>
-                        <Link to={path}>{title}</Link>
+                        <Link to={path} className="capitalize">
+                          {title}
+                        </Link>
                       </BreadcrumbLink>
                     )}
                   </BreadcrumbItem>

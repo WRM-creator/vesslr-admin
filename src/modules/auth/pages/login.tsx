@@ -1,17 +1,14 @@
-import { useState } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
-import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { useLocation, useNavigate } from "react-router-dom";
 import * as z from "zod";
-import { Loader2 } from "lucide-react";
 
-import { useAuth } from "@/providers/auth-provider";
-import { api } from "@/lib/api";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -24,7 +21,9 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
+import { api } from "@/lib/api";
+import { useAuth } from "@/providers/auth-provider";
 
 const loginSchema = z.object({
   email: z.string().email("Invalid email address"),
@@ -63,7 +62,8 @@ export default function Login() {
       // The previous implementation tried to find refreshToken/expiresAt.
       // Based on type definition: data: { token: string, admin: {...} }
       // It seems we only get a token.
-      login(token);
+      const refreshToken = (responseData as any)?.refreshToken;
+      login(token, refreshToken);
 
       const next = (loc.state as any)?.from || "/dashboard";
       nav(next, { replace: true });
@@ -90,7 +90,7 @@ export default function Login() {
     (import.meta.env.VITE_API_BASE as string) || "http://localhost:8001/api/v1";
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 p-6">
+    <div className="flex min-h-screen items-center justify-center bg-gray-50 p-6">
       <Card className="w-full max-w-sm shadow-lg">
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl font-bold">Admin Login</CardTitle>
@@ -102,7 +102,7 @@ export default function Login() {
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
               {!!errorMsg && (
-                <div className="rounded bg-red-100 text-red-800 px-3 py-2 text-sm font-medium">
+                <div className="rounded bg-red-100 px-3 py-2 text-sm font-medium text-red-800">
                   {errorMsg}
                 </div>
               )}
@@ -144,7 +144,7 @@ export default function Login() {
               <Button type="submit" className="w-full" disabled={isPending}>
                 {isPending ? (
                   <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    <Spinner />
                     Signing in...
                   </>
                 ) : (

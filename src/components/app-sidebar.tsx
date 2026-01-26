@@ -6,11 +6,11 @@ import {
   ClipboardCheck,
   Command,
   LayoutDashboard,
+  Lock,
   Package,
   Scale,
   Settings,
   Tags,
-  Wallet,
 } from "lucide-react";
 import * as React from "react";
 
@@ -111,7 +111,7 @@ const navGroups: NavGroup[] = [
       {
         title: "Escrows",
         url: "/escrows",
-        icon: Wallet,
+        icon: Lock,
       },
       {
         title: "Disputes",
@@ -165,9 +165,9 @@ export function AppSidebar({
       >
         <div className="mx-auto flex w-fit flex-col items-center gap-2">
           <img
-            src="/logo.svg"
+            src="/logo-full-white.svg"
             alt="Vesslr"
-            className={`transition-all duration-200 ${isCollapsed ? "w-8" : "w-[72px]"}`}
+            className={`transition-all duration-200 ${isCollapsed ? "w-8" : "w-20"}`}
           />
           {!isCollapsed && (
             <Badge
