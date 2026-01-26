@@ -9,6 +9,8 @@ const TOKEN_KEYS = {
   expiresAt: "admin_expires_at",
 } as const;
 
+export const AUTH_LOGOUT_EVENT = "auth:logout";
+
 /**
  * Get the current auth token
  */
@@ -50,7 +52,7 @@ export function isAuthenticated(): boolean {
 export function saveAuthTokens(
   accessToken: string,
   refreshToken?: string,
-  expiresAt?: string
+  expiresAt?: string,
 ): void {
   if (typeof window === "undefined") return;
   localStorage.setItem(TOKEN_KEYS.accessToken, accessToken);

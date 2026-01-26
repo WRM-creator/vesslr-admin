@@ -30,14 +30,14 @@ client.interceptors.response.use(async (response, request, options) => {
         try {
           // Use fetch directly to avoid infinite loops with the client interceptors
           const refreshResponse = await fetch(
-            `${baseUrl}/api/v1/user/auth/refresh-token`,
+            `${baseUrl}/api/v1/admin/auth/refresh-token`,
             {
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
               },
               body: JSON.stringify({ refreshToken }),
-            }
+            },
           );
 
           const data = await refreshResponse.json();
@@ -46,9 +46,6 @@ client.interceptors.response.use(async (response, request, options) => {
             // Update stored tokens
             localStorage.setItem("admin_auth_token", data.data.accessToken);
             localStorage.setItem("admin_refresh_token", data.data.refreshToken);
-            if (data.data.expiresAt) {
-              localStorage.setItem("admin_expires_at", data.data.expiresAt);
-            }
 
             // Update Authorization header for the retry
             const newHeaders = new Headers(options.headers as HeadersInit);
@@ -65,12 +62,15 @@ client.interceptors.response.use(async (response, request, options) => {
           }
         } catch (refreshError) {
           console.error("Token refresh failed:", refreshError);
-          // Clear auth state on refresh failure
-          localStorage.removeItem("admin_auth_token");
-          localStorage.removeItem("admin_refresh_token");
-          localStorage.removeItem("admin_expires_at");
         }
       }
+
+      // If we get here, refresh failed or no refresh token exists
+      // Clear auth state and dispatch logout event
+      localStorage.removeItem("admin_auth_token");
+      localStorage.removeItem("admin_refresh_token");
+      localStorage.removeItem("admin_expires_at");
+      window.dispatchEvent(new Event("auth:logout"));
     }
   }
 

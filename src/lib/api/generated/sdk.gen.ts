@@ -18,12 +18,12 @@ import type {
   DeleteApiV1InvoicesByIdData,
   DeleteApiV1InvoicesByIdErrors,
   DeleteApiV1InvoicesByIdResponses,
-  DeleteApiV1OrdersByIdData,
-  DeleteApiV1OrdersByIdErrors,
-  DeleteApiV1OrdersByIdResponses,
   DeleteApiV1ProductsByIdData,
   DeleteApiV1ProductsByIdErrors,
   DeleteApiV1ProductsByIdResponses,
+  DeleteApiV1TransactionsByIdData,
+  DeleteApiV1TransactionsByIdErrors,
+  DeleteApiV1TransactionsByIdResponses,
   DeleteApiV1VendorsByIdData,
   DeleteApiV1VendorsByIdErrors,
   DeleteApiV1VendorsByIdResponses,
@@ -43,9 +43,13 @@ import type {
   GetApiV1AdminCategoriesResponses,
   GetApiV1AdminData,
   GetApiV1AdminErrors,
-  GetApiV1AdminOrdersData,
-  GetApiV1AdminOrdersErrors,
-  GetApiV1AdminOrdersResponses,
+  GetApiV1AdminEscrowsByIdData,
+  GetApiV1AdminEscrowsByIdErrors,
+  GetApiV1AdminEscrowsByIdResponses,
+  GetApiV1AdminEscrowsData,
+  GetApiV1AdminEscrowsResponses,
+  GetApiV1AdminEscrowsStatsData,
+  GetApiV1AdminEscrowsStatsResponses,
   GetApiV1AdminOrganizationsByIdData,
   GetApiV1AdminOrganizationsByIdErrors,
   GetApiV1AdminOrganizationsByIdResponses,
@@ -56,9 +60,9 @@ import type {
   GetApiV1AdminProfileErrors,
   GetApiV1AdminProfileResponses,
   GetApiV1AdminResponses,
-  GetApiV1AdminUsersData,
-  GetApiV1AdminUsersErrors,
-  GetApiV1AdminUsersResponses,
+  GetApiV1AdminTransactionsData,
+  GetApiV1AdminTransactionsErrors,
+  GetApiV1AdminTransactionsResponses,
   GetApiV1CategoriesByIdData,
   GetApiV1CategoriesByIdErrors,
   GetApiV1CategoriesByIdResponses,
@@ -82,15 +86,6 @@ import type {
   GetApiV1InvoicesByIdResponses,
   GetApiV1InvoicesData,
   GetApiV1InvoicesResponses,
-  GetApiV1OrdersByIdData,
-  GetApiV1OrdersByIdErrors,
-  GetApiV1OrdersByIdResponses,
-  GetApiV1OrdersData,
-  GetApiV1OrdersErrors,
-  GetApiV1OrdersMineData,
-  GetApiV1OrdersMineErrors,
-  GetApiV1OrdersMineResponses,
-  GetApiV1OrdersResponses,
   GetApiV1ProductsByIdData,
   GetApiV1ProductsByIdErrors,
   GetApiV1ProductsByIdResponses,
@@ -108,6 +103,15 @@ import type {
   GetApiV1RequestsByIdResponses,
   GetApiV1RequestsData,
   GetApiV1RequestsResponses,
+  GetApiV1TransactionsByIdData,
+  GetApiV1TransactionsByIdErrors,
+  GetApiV1TransactionsByIdResponses,
+  GetApiV1TransactionsData,
+  GetApiV1TransactionsErrors,
+  GetApiV1TransactionsMineData,
+  GetApiV1TransactionsMineErrors,
+  GetApiV1TransactionsMineResponses,
+  GetApiV1TransactionsResponses,
   GetApiV1UserOnboardingData,
   GetApiV1UserOnboardingErrors,
   GetApiV1UserOnboardingResponses,
@@ -125,12 +129,15 @@ import type {
   GetVerifyEmailByTokenData,
   GetVerifyEmailByTokenErrors,
   GetVerifyEmailByTokenResponses,
-  PatchApiV1AdminOrdersByIdStatusData,
-  PatchApiV1AdminOrdersByIdStatusErrors,
-  PatchApiV1AdminOrdersByIdStatusResponses,
+  PatchApiV1AdminTransactionsByIdStatusData,
+  PatchApiV1AdminTransactionsByIdStatusErrors,
+  PatchApiV1AdminTransactionsByIdStatusResponses,
   PatchApiV1InvoicesByIdPayData,
   PatchApiV1InvoicesByIdPayErrors,
   PatchApiV1InvoicesByIdPayResponses,
+  PatchApiV1ProductsByIdStatusData,
+  PatchApiV1ProductsByIdStatusErrors,
+  PatchApiV1ProductsByIdStatusResponses,
   PatchApiV1RequestsByIdStatusData,
   PatchApiV1RequestsByIdStatusResponses,
   PostApiV1AdminAuthDevMintTokenData,
@@ -139,6 +146,9 @@ import type {
   PostApiV1AdminAuthLoginData,
   PostApiV1AdminAuthLoginErrors,
   PostApiV1AdminAuthLoginResponses,
+  PostApiV1AdminAuthRefreshTokenData,
+  PostApiV1AdminAuthRefreshTokenErrors,
+  PostApiV1AdminAuthRefreshTokenResponses,
   PostApiV1AdminAuthTestEmailData,
   PostApiV1AdminAuthTestEmailErrors,
   PostApiV1AdminAuthTestEmailRawData,
@@ -162,9 +172,6 @@ import type {
   PostApiV1CategoriesResponses,
   PostApiV1InvoicesData,
   PostApiV1InvoicesResponses,
-  PostApiV1OrdersData,
-  PostApiV1OrdersErrors,
-  PostApiV1OrdersResponses,
   PostApiV1ProductsData,
   PostApiV1ProductsErrors,
   PostApiV1ProductsResponses,
@@ -173,6 +180,9 @@ import type {
   PostApiV1RequestsByIdAcceptResponses,
   PostApiV1RequestsData,
   PostApiV1RequestsResponses,
+  PostApiV1TransactionsData,
+  PostApiV1TransactionsErrors,
+  PostApiV1TransactionsResponses,
   PostApiV1UploadData,
   PostApiV1UploadErrors,
   PostApiV1UploadResponses,
@@ -218,12 +228,12 @@ import type {
   PutApiV1InvoicesByIdData,
   PutApiV1InvoicesByIdErrors,
   PutApiV1InvoicesByIdResponses,
-  PutApiV1OrdersByIdData,
-  PutApiV1OrdersByIdErrors,
-  PutApiV1OrdersByIdResponses,
   PutApiV1ProductsByIdData,
   PutApiV1ProductsByIdErrors,
   PutApiV1ProductsByIdResponses,
+  PutApiV1TransactionsByIdData,
+  PutApiV1TransactionsByIdErrors,
+  PutApiV1TransactionsByIdResponses,
   PutApiV1UserOnboardingCompanyDocumentsData,
   PutApiV1UserOnboardingCompanyDocumentsErrors,
   PutApiV1UserOnboardingCompanyDocumentsResponses,
@@ -442,6 +452,29 @@ export const postApiV1AdminAuthLogin = <ThrowOnError extends boolean = false>(
   });
 
 /**
+ * Refresh admin token
+ *
+ * Refreshes the admin access token using a refresh token.
+ */
+export const postApiV1AdminAuthRefreshToken = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<PostApiV1AdminAuthRefreshTokenData, ThrowOnError>,
+) =>
+  (options?.client ?? client).post<
+    PostApiV1AdminAuthRefreshTokenResponses,
+    PostApiV1AdminAuthRefreshTokenErrors,
+    ThrowOnError
+  >({
+    url: "/api/v1/admin/auth/refresh-token",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options?.headers,
+    },
+  });
+
+/**
  * Get current admin info
  *
  * Returns the authenticated admin's information from the JWT token.
@@ -632,45 +665,57 @@ export const putApiV1AdminCategoriesById = <
   });
 
 /**
- * List all orders
+ * List all escrows
  *
- * Fetches a paginated list of all orders for admin management.
+ * Fetches a paginated list of all escrows for admin management.
  */
-export const getApiV1AdminOrders = <ThrowOnError extends boolean = false>(
-  options?: Options<GetApiV1AdminOrdersData, ThrowOnError>,
+export const getApiV1AdminEscrows = <ThrowOnError extends boolean = false>(
+  options?: Options<GetApiV1AdminEscrowsData, ThrowOnError>,
 ) =>
   (options?.client ?? client).get<
-    GetApiV1AdminOrdersResponses,
-    GetApiV1AdminOrdersErrors,
+    GetApiV1AdminEscrowsResponses,
+    unknown,
     ThrowOnError
   >({
     security: [{ scheme: "bearer", type: "http" }],
-    url: "/api/v1/admin/orders",
+    url: "/api/v1/admin/escrows",
     ...options,
   });
 
 /**
- * Update order status
+ * Get escrow details
  *
- * Updates the status of an order.
+ * Fetches details of a single escrow by ID.
  */
-export const patchApiV1AdminOrdersByIdStatus = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<PatchApiV1AdminOrdersByIdStatusData, ThrowOnError>,
+export const getApiV1AdminEscrowsById = <ThrowOnError extends boolean = false>(
+  options: Options<GetApiV1AdminEscrowsByIdData, ThrowOnError>,
 ) =>
-  (options.client ?? client).patch<
-    PatchApiV1AdminOrdersByIdStatusResponses,
-    PatchApiV1AdminOrdersByIdStatusErrors,
+  (options.client ?? client).get<
+    GetApiV1AdminEscrowsByIdResponses,
+    GetApiV1AdminEscrowsByIdErrors,
     ThrowOnError
   >({
     security: [{ scheme: "bearer", type: "http" }],
-    url: "/api/v1/admin/orders/{id}/status",
+    url: "/api/v1/admin/escrows/{id}",
     ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options.headers,
-    },
+  });
+
+/**
+ * Get escrow statistics
+ *
+ * Fetches aggregated statistics for escrows.
+ */
+export const getApiV1AdminEscrowsStats = <ThrowOnError extends boolean = false>(
+  options?: Options<GetApiV1AdminEscrowsStatsData, ThrowOnError>,
+) =>
+  (options?.client ?? client).get<
+    GetApiV1AdminEscrowsStatsResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/escrows/stats",
+    ...options,
   });
 
 /**
@@ -782,21 +827,45 @@ export const putApiV1AdminOrganizationsById = <
   });
 
 /**
- * List all users
+ * List all transactions
  *
- * Fetches a paginated list of all users.
+ * Fetches a paginated list of all transactions for admin management.
  */
-export const getApiV1AdminUsers = <ThrowOnError extends boolean = false>(
-  options?: Options<GetApiV1AdminUsersData, ThrowOnError>,
+export const getApiV1AdminTransactions = <ThrowOnError extends boolean = false>(
+  options?: Options<GetApiV1AdminTransactionsData, ThrowOnError>,
 ) =>
   (options?.client ?? client).get<
-    GetApiV1AdminUsersResponses,
-    GetApiV1AdminUsersErrors,
+    GetApiV1AdminTransactionsResponses,
+    GetApiV1AdminTransactionsErrors,
     ThrowOnError
   >({
     security: [{ scheme: "bearer", type: "http" }],
-    url: "/api/v1/admin/users",
+    url: "/api/v1/admin/transactions",
     ...options,
+  });
+
+/**
+ * Update transaction status
+ *
+ * Updates the status of a transaction.
+ */
+export const patchApiV1AdminTransactionsByIdStatus = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<PatchApiV1AdminTransactionsByIdStatusData, ThrowOnError>,
+) =>
+  (options.client ?? client).patch<
+    PatchApiV1AdminTransactionsByIdStatusResponses,
+    PatchApiV1AdminTransactionsByIdStatusErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/transactions/{id}/status",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
   });
 
 /**
@@ -1304,111 +1373,137 @@ export const putApiV1CategoriesById = <ThrowOnError extends boolean = false>(
   });
 
 /**
- * Get all orders
+ * Get all transactions
  *
- * Fetch a list of all orders for the currently authenticated user.
+ * Fetch a list of all transactions for the currently authenticated user.
  */
-export const getApiV1Orders = <ThrowOnError extends boolean = false>(
-  options?: Options<GetApiV1OrdersData, ThrowOnError>,
+export const getApiV1Transactions = <ThrowOnError extends boolean = false>(
+  options?: Options<GetApiV1TransactionsData, ThrowOnError>,
 ) =>
   (options?.client ?? client).get<
-    GetApiV1OrdersResponses,
-    GetApiV1OrdersErrors,
+    GetApiV1TransactionsResponses,
+    GetApiV1TransactionsErrors,
     ThrowOnError
   >({
     security: [{ scheme: "bearer", type: "http" }],
-    url: "/api/v1/orders",
+    url: "/api/v1/transactions",
     ...options,
   });
 
 /**
- * Create a new order
+ * Create a new transaction
  *
- * Allows a user to create a new order.
+ * Allows a user to create a new transaction (deal).
  */
-export const postApiV1Orders = <ThrowOnError extends boolean = false>(
-  options?: Options<PostApiV1OrdersData, ThrowOnError>,
+export const postApiV1Transactions = <ThrowOnError extends boolean = false>(
+  options?: Options<PostApiV1TransactionsData, ThrowOnError>,
 ) =>
   (options?.client ?? client).post<
-    PostApiV1OrdersResponses,
-    PostApiV1OrdersErrors,
+    PostApiV1TransactionsResponses,
+    PostApiV1TransactionsErrors,
     ThrowOnError
   >({
     security: [{ scheme: "bearer", type: "http" }],
-    url: "/api/v1/orders",
+    url: "/api/v1/transactions",
     ...options,
   });
 
 /**
- * Get the user's orders
+ * Get the user's transactions
  *
- * Fetch the list of orders for the currently authenticated user.
+ * Fetch the list of transactions for the currently authenticated user.
  */
-export const getApiV1OrdersMine = <ThrowOnError extends boolean = false>(
-  options?: Options<GetApiV1OrdersMineData, ThrowOnError>,
+export const getApiV1TransactionsMine = <ThrowOnError extends boolean = false>(
+  options?: Options<GetApiV1TransactionsMineData, ThrowOnError>,
 ) =>
   (options?.client ?? client).get<
-    GetApiV1OrdersMineResponses,
-    GetApiV1OrdersMineErrors,
+    GetApiV1TransactionsMineResponses,
+    GetApiV1TransactionsMineErrors,
     ThrowOnError
   >({
     security: [{ scheme: "bearer", type: "http" }],
-    url: "/api/v1/orders/mine",
+    url: "/api/v1/transactions/mine",
     ...options,
   });
 
 /**
- * Delete an order by ID
+ * Delete a transaction by ID
  *
- * Delete an order by its ID.
+ * Delete a transaction by its ID.
  */
-export const deleteApiV1OrdersById = <ThrowOnError extends boolean = false>(
-  options: Options<DeleteApiV1OrdersByIdData, ThrowOnError>,
+export const deleteApiV1TransactionsById = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<DeleteApiV1TransactionsByIdData, ThrowOnError>,
 ) =>
   (options.client ?? client).delete<
-    DeleteApiV1OrdersByIdResponses,
-    DeleteApiV1OrdersByIdErrors,
+    DeleteApiV1TransactionsByIdResponses,
+    DeleteApiV1TransactionsByIdErrors,
     ThrowOnError
   >({
     security: [{ scheme: "bearer", type: "http" }],
-    url: "/api/v1/orders/{id}",
+    url: "/api/v1/transactions/{id}",
     ...options,
   });
 
 /**
- * Get order by ID
+ * Get a transaction by ID
  *
- * Fetch a single order by its ID.
+ * Fetch a single transaction by its ID.
  */
-export const getApiV1OrdersById = <ThrowOnError extends boolean = false>(
-  options: Options<GetApiV1OrdersByIdData, ThrowOnError>,
+export const getApiV1TransactionsById = <ThrowOnError extends boolean = false>(
+  options: Options<GetApiV1TransactionsByIdData, ThrowOnError>,
 ) =>
   (options.client ?? client).get<
-    GetApiV1OrdersByIdResponses,
-    GetApiV1OrdersByIdErrors,
+    GetApiV1TransactionsByIdResponses,
+    GetApiV1TransactionsByIdErrors,
     ThrowOnError
   >({
     security: [{ scheme: "bearer", type: "http" }],
-    url: "/api/v1/orders/{id}",
+    url: "/api/v1/transactions/{id}",
     ...options,
   });
 
 /**
- * Update an order by ID
+ * Update a transaction by ID
  *
- * Update order details by its ID.
+ * Update transaction details by its ID.
  */
-export const putApiV1OrdersById = <ThrowOnError extends boolean = false>(
-  options: Options<PutApiV1OrdersByIdData, ThrowOnError>,
+export const putApiV1TransactionsById = <ThrowOnError extends boolean = false>(
+  options: Options<PutApiV1TransactionsByIdData, ThrowOnError>,
 ) =>
   (options.client ?? client).put<
-    PutApiV1OrdersByIdResponses,
-    PutApiV1OrdersByIdErrors,
+    PutApiV1TransactionsByIdResponses,
+    PutApiV1TransactionsByIdErrors,
     ThrowOnError
   >({
     security: [{ scheme: "bearer", type: "http" }],
-    url: "/api/v1/orders/{id}",
+    url: "/api/v1/transactions/{id}",
     ...options,
+  });
+
+/**
+ * Update product status
+ *
+ * Update the status of a product (approve/reject).
+ */
+export const patchApiV1ProductsByIdStatus = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<PatchApiV1ProductsByIdStatusData, ThrowOnError>,
+) =>
+  (options.client ?? client).patch<
+    PatchApiV1ProductsByIdStatusResponses,
+    PatchApiV1ProductsByIdStatusErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/products/{id}/status",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
   });
 
 /**

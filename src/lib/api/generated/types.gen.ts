@@ -397,6 +397,38 @@ export type PostApiV1AdminAuthLoginResponses = {
 export type PostApiV1AdminAuthLoginResponse =
   PostApiV1AdminAuthLoginResponses[keyof PostApiV1AdminAuthLoginResponses];
 
+export type PostApiV1AdminAuthRefreshTokenData = {
+  body?: {
+    refreshToken: string;
+  };
+  path?: never;
+  query?: never;
+  url: "/api/v1/admin/auth/refresh-token";
+};
+
+export type PostApiV1AdminAuthRefreshTokenErrors = {
+  /**
+   * Invalid refresh token
+   */
+  401: unknown;
+};
+
+export type PostApiV1AdminAuthRefreshTokenResponses = {
+  /**
+   * Token refreshed
+   */
+  200: {
+    success?: boolean;
+    data?: {
+      accessToken?: string;
+      refreshToken?: string;
+    };
+  };
+};
+
+export type PostApiV1AdminAuthRefreshTokenResponse =
+  PostApiV1AdminAuthRefreshTokenResponses[keyof PostApiV1AdminAuthRefreshTokenResponses];
+
 export type GetApiV1AdminAuthWhoamiData = {
   body?: never;
   path?: never;
@@ -741,115 +773,108 @@ export type PutApiV1AdminCategoriesByIdResponses = {
 export type PutApiV1AdminCategoriesByIdResponse =
   PutApiV1AdminCategoriesByIdResponses[keyof PutApiV1AdminCategoriesByIdResponses];
 
-export type GetApiV1AdminOrdersData = {
+export type GetApiV1AdminEscrowsData = {
   body?: never;
   path?: never;
   query?: {
-    /**
-     * Page number
-     */
     page?: number;
-    /**
-     * Items per page (max 100)
-     */
     limit?: number;
+    status?: string;
   };
-  url: "/api/v1/admin/orders";
+  url: "/api/v1/admin/escrows";
 };
 
-export type GetApiV1AdminOrdersErrors = {
+export type GetApiV1AdminEscrowsResponses = {
   /**
-   * Unauthorized
-   */
-  401: unknown;
-};
-
-export type GetApiV1AdminOrdersResponses = {
-  /**
-   * List of orders
+   * List of escrows
    */
   200: {
-    message?: string;
+    success?: boolean;
     data?: {
       docs?: Array<{
         _id?: string;
-        product?: {
-          [key: string]: unknown;
-        };
+        totalAmountExpected?: number;
+        totalAmountHeld?: number;
+        status?: string;
         buyer?: {
           [key: string]: unknown;
         };
         seller?: {
           [key: string]: unknown;
         };
-        quantity?: number;
-        totalPrice?: number;
-        status?: string;
-        createdAt?: string;
-        updatedAt?: string;
+        transaction?: {
+          [key: string]: unknown;
+        };
       }>;
       totalDocs?: number;
-      page?: number;
-      limit?: number;
+      totalPages?: number;
     };
   };
 };
 
-export type GetApiV1AdminOrdersResponse =
-  GetApiV1AdminOrdersResponses[keyof GetApiV1AdminOrdersResponses];
+export type GetApiV1AdminEscrowsResponse =
+  GetApiV1AdminEscrowsResponses[keyof GetApiV1AdminEscrowsResponses];
 
-export type PatchApiV1AdminOrdersByIdStatusData = {
-  body: {
-    status: "pending" | "paid" | "shipped" | "completed" | "cancelled";
-  };
+export type GetApiV1AdminEscrowsByIdData = {
+  body?: never;
   path: {
-    /**
-     * Order ID
-     */
     id: string;
   };
   query?: never;
-  url: "/api/v1/admin/orders/{id}/status";
+  url: "/api/v1/admin/escrows/{id}";
 };
 
-export type PatchApiV1AdminOrdersByIdStatusErrors = {
+export type GetApiV1AdminEscrowsByIdErrors = {
   /**
-   * Invalid status
-   */
-  400: {
-    message?: string;
-    data?: {
-      allowed?: Array<string>;
-    };
-  };
-  /**
-   * Unauthorized
-   */
-  401: unknown;
-  /**
-   * Order not found
+   * Escrow not found
    */
   404: unknown;
 };
 
-export type PatchApiV1AdminOrdersByIdStatusError =
-  PatchApiV1AdminOrdersByIdStatusErrors[keyof PatchApiV1AdminOrdersByIdStatusErrors];
-
-export type PatchApiV1AdminOrdersByIdStatusResponses = {
+export type GetApiV1AdminEscrowsByIdResponses = {
   /**
-   * Order status updated
+   * Escrow details
    */
   200: {
-    message?: string;
+    success?: boolean;
     data?: {
       _id?: string;
       status?: string;
+      transaction?: {
+        [key: string]: unknown;
+      };
     };
   };
 };
 
-export type PatchApiV1AdminOrdersByIdStatusResponse =
-  PatchApiV1AdminOrdersByIdStatusResponses[keyof PatchApiV1AdminOrdersByIdStatusResponses];
+export type GetApiV1AdminEscrowsByIdResponse =
+  GetApiV1AdminEscrowsByIdResponses[keyof GetApiV1AdminEscrowsByIdResponses];
+
+export type GetApiV1AdminEscrowsStatsData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: "/api/v1/admin/escrows/stats";
+};
+
+export type GetApiV1AdminEscrowsStatsResponses = {
+  /**
+   * Escrow statistics
+   */
+  200: {
+    success?: boolean;
+    data?: {
+      totalHeld?: number;
+      totalTransacted?: number;
+      activeCount?: number;
+      disputedCount?: number;
+      completedCount?: number;
+    };
+  };
+};
+
+export type GetApiV1AdminEscrowsStatsResponse =
+  GetApiV1AdminEscrowsStatsResponses[keyof GetApiV1AdminEscrowsStatsResponses];
 
 export type GetApiV1AdminOrganizationsData = {
   body?: never;
@@ -1050,7 +1075,7 @@ export type PutApiV1AdminOrganizationsByIdResponses = {
 export type PutApiV1AdminOrganizationsByIdResponse =
   PutApiV1AdminOrganizationsByIdResponses[keyof PutApiV1AdminOrganizationsByIdResponses];
 
-export type GetApiV1AdminUsersData = {
+export type GetApiV1AdminTransactionsData = {
   body?: never;
   path?: never;
   query?: {
@@ -1059,42 +1084,39 @@ export type GetApiV1AdminUsersData = {
      */
     page?: number;
     /**
-     * Items per page
+     * Items per page (max 100)
      */
     limit?: number;
   };
-  url: "/api/v1/admin/users";
+  url: "/api/v1/admin/transactions";
 };
 
-export type GetApiV1AdminUsersErrors = {
+export type GetApiV1AdminTransactionsErrors = {
   /**
    * Unauthorized
    */
   401: unknown;
 };
 
-export type GetApiV1AdminUsersResponses = {
+export type GetApiV1AdminTransactionsResponses = {
   /**
-   * List of users
+   * List of transactions
    */
   200: {
     message?: string;
     data?: {
       docs?: Array<{
         _id?: string;
-        firstName?: string;
-        lastName?: string;
-        email?: string;
-        emailVerified?: boolean;
-        phoneNumber?: string;
-        type?: "customer" | "merchant";
-        onboardingStep?:
-          | "residential"
-          | "company_info"
-          | "company_documents"
-          | "review"
-          | "complete";
-        onboardingCompleted?: boolean;
+        product?: {
+          [key: string]: unknown;
+        };
+        buyer?: {
+          [key: string]: unknown;
+        };
+        seller?: {
+          [key: string]: unknown;
+        };
+        status?: string;
         createdAt?: string;
         updatedAt?: string;
       }>;
@@ -1105,8 +1127,53 @@ export type GetApiV1AdminUsersResponses = {
   };
 };
 
-export type GetApiV1AdminUsersResponse =
-  GetApiV1AdminUsersResponses[keyof GetApiV1AdminUsersResponses];
+export type GetApiV1AdminTransactionsResponse =
+  GetApiV1AdminTransactionsResponses[keyof GetApiV1AdminTransactionsResponses];
+
+export type PatchApiV1AdminTransactionsByIdStatusData = {
+  body: {
+    status: string;
+  };
+  path: {
+    /**
+     * Transaction ID
+     */
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/admin/transactions/{id}/status";
+};
+
+export type PatchApiV1AdminTransactionsByIdStatusErrors = {
+  /**
+   * Invalid status
+   */
+  400: unknown;
+  /**
+   * Unauthorized
+   */
+  401: unknown;
+  /**
+   * Transaction not found
+   */
+  404: unknown;
+};
+
+export type PatchApiV1AdminTransactionsByIdStatusResponses = {
+  /**
+   * Transaction status updated
+   */
+  200: {
+    message?: string;
+    data?: {
+      _id?: string;
+      status?: string;
+    };
+  };
+};
+
+export type PatchApiV1AdminTransactionsByIdStatusResponse =
+  PatchApiV1AdminTransactionsByIdStatusResponses[keyof PatchApiV1AdminTransactionsByIdStatusResponses];
 
 export type GetApiV1DataCountriesData = {
   body?: never;
@@ -2210,23 +2277,23 @@ export type PutApiV1CategoriesByIdResponses = {
   200: unknown;
 };
 
-export type GetApiV1OrdersData = {
+export type GetApiV1TransactionsData = {
   body?: never;
   path?: never;
   query?: never;
-  url: "/api/v1/orders";
+  url: "/api/v1/transactions";
 };
 
-export type GetApiV1OrdersErrors = {
+export type GetApiV1TransactionsErrors = {
   /**
    * Unauthorized
    */
   401: unknown;
 };
 
-export type GetApiV1OrdersResponses = {
+export type GetApiV1TransactionsResponses = {
   /**
-   * List of orders
+   * List of transactions
    */
   200: {
     success?: boolean;
@@ -2266,17 +2333,17 @@ export type GetApiV1OrdersResponses = {
   };
 };
 
-export type GetApiV1OrdersResponse =
-  GetApiV1OrdersResponses[keyof GetApiV1OrdersResponses];
+export type GetApiV1TransactionsResponse =
+  GetApiV1TransactionsResponses[keyof GetApiV1TransactionsResponses];
 
-export type PostApiV1OrdersData = {
+export type PostApiV1TransactionsData = {
   body?: never;
   path?: never;
   query?: never;
-  url: "/api/v1/orders";
+  url: "/api/v1/transactions";
 };
 
-export type PostApiV1OrdersErrors = {
+export type PostApiV1TransactionsErrors = {
   /**
    * Bad request
    */
@@ -2287,33 +2354,33 @@ export type PostApiV1OrdersErrors = {
   401: unknown;
 };
 
-export type PostApiV1OrdersResponses = {
+export type PostApiV1TransactionsResponses = {
   /**
-   * Order created successfully
+   * Transaction created successfully
    */
   201: unknown;
 };
 
-export type GetApiV1OrdersMineData = {
+export type GetApiV1TransactionsMineData = {
   body?: never;
   path?: never;
   query?: {
     page?: number;
     limit?: number;
   };
-  url: "/api/v1/orders/mine";
+  url: "/api/v1/transactions/mine";
 };
 
-export type GetApiV1OrdersMineErrors = {
+export type GetApiV1TransactionsMineErrors = {
   /**
    * Unauthorized
    */
   401: unknown;
 };
 
-export type GetApiV1OrdersMineResponses = {
+export type GetApiV1TransactionsMineResponses = {
   /**
-   * List of user's orders
+   * List of user's transactions
    */
   200: {
     success?: boolean;
@@ -2359,54 +2426,54 @@ export type GetApiV1OrdersMineResponses = {
   };
 };
 
-export type GetApiV1OrdersMineResponse =
-  GetApiV1OrdersMineResponses[keyof GetApiV1OrdersMineResponses];
+export type GetApiV1TransactionsMineResponse =
+  GetApiV1TransactionsMineResponses[keyof GetApiV1TransactionsMineResponses];
 
-export type DeleteApiV1OrdersByIdData = {
+export type DeleteApiV1TransactionsByIdData = {
   body?: never;
   path: {
     /**
-     * The ID of the order
+     * The ID of the transaction
      */
     id: string;
   };
   query?: never;
-  url: "/api/v1/orders/{id}";
+  url: "/api/v1/transactions/{id}";
 };
 
-export type DeleteApiV1OrdersByIdErrors = {
+export type DeleteApiV1TransactionsByIdErrors = {
   /**
    * Unauthorized
    */
   401: unknown;
   /**
-   * Order not found
+   * Transaction not found
    */
   404: unknown;
 };
 
-export type DeleteApiV1OrdersByIdResponses = {
+export type DeleteApiV1TransactionsByIdResponses = {
   /**
-   * Order deleted successfully
+   * Transaction deleted successfully
    */
   200: unknown;
 };
 
-export type GetApiV1OrdersByIdData = {
+export type GetApiV1TransactionsByIdData = {
   body?: never;
   path: {
     /**
-     * The ID of the order
+     * The ID of the transaction
      */
     id: string;
   };
   query?: never;
-  url: "/api/v1/orders/{id}";
+  url: "/api/v1/transactions/{id}";
 };
 
-export type GetApiV1OrdersByIdErrors = {
+export type GetApiV1TransactionsByIdErrors = {
   /**
-   * Order not found
+   * Transaction not found
    */
   404: unknown;
   /**
@@ -2415,66 +2482,26 @@ export type GetApiV1OrdersByIdErrors = {
   500: unknown;
 };
 
-export type GetApiV1OrdersByIdResponses = {
+export type GetApiV1TransactionsByIdResponses = {
   /**
-   * Order details
+   * Transaction fetched successfully
    */
-  200: {
-    success?: boolean;
-    message?: string;
-    data?: {
-      _id?: string;
-      product?: {
-        _id?: string;
-        title?: string;
-        price?: number;
-      };
-      seller?: {
-        _id?: string;
-        email?: string;
-      };
-      buyer?: {
-        _id?: string;
-        email?: string;
-      };
-      quantity?: number;
-      unitOfMeasurement?: string;
-      totalPrice?: number;
-      currency?: string;
-      status?:
-        | "initiated"
-        | "documents_submitted"
-        | "compliance_review"
-        | "escrow_funded"
-        | "logistics_assigned"
-        | "in_transit"
-        | "delivery_confirmed"
-        | "settlement_released"
-        | "closed"
-        | "disputed"
-        | "cancelled";
-      createdAt?: string;
-      updatedAt?: string;
-    };
-  };
+  200: unknown;
 };
 
-export type GetApiV1OrdersByIdResponse =
-  GetApiV1OrdersByIdResponses[keyof GetApiV1OrdersByIdResponses];
-
-export type PutApiV1OrdersByIdData = {
+export type PutApiV1TransactionsByIdData = {
   body?: never;
   path: {
     /**
-     * The ID of the order
+     * The ID of the transaction
      */
     id: string;
   };
   query?: never;
-  url: "/api/v1/orders/{id}";
+  url: "/api/v1/transactions/{id}";
 };
 
-export type PutApiV1OrdersByIdErrors = {
+export type PutApiV1TransactionsByIdErrors = {
   /**
    * Bad request
    */
@@ -2484,14 +2511,46 @@ export type PutApiV1OrdersByIdErrors = {
    */
   401: unknown;
   /**
-   * Order not found
+   * Transaction not found
    */
   404: unknown;
 };
 
-export type PutApiV1OrdersByIdResponses = {
+export type PutApiV1TransactionsByIdResponses = {
   /**
-   * Order updated successfully
+   * Transaction updated successfully
+   */
+  200: unknown;
+};
+
+export type PatchApiV1ProductsByIdStatusData = {
+  body: {
+    status?: "approved" | "rejected" | "pending";
+  };
+  path: {
+    /**
+     * The ID of the product
+     */
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/products/{id}/status";
+};
+
+export type PatchApiV1ProductsByIdStatusErrors = {
+  /**
+   * Invalid status
+   */
+  400: unknown;
+  /**
+   * Product not found
+   */
+  404: unknown;
+};
+
+export type PatchApiV1ProductsByIdStatusResponses = {
+  /**
+   * Status updated successfully
    */
   200: unknown;
 };
