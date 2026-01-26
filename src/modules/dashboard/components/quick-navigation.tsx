@@ -11,9 +11,9 @@ import {
   FolderTree,
   Package,
   ScrollText,
+  ShipIcon,
   ShoppingCart,
   Store,
-  Truck,
   Users,
 } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -66,7 +66,7 @@ const navigationItems: NavigationItem[] = [
     id: "logistics",
     label: "Logistics",
     description: "Track fulfillments",
-    icon: <Truck className="h-5 w-5" />,
+    icon: <ShipIcon className="h-5 w-5" />,
     href: "/logistics",
   },
   {

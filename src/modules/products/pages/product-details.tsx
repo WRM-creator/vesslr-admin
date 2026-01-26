@@ -25,8 +25,8 @@ export default function ProductDetailsPage() {
     path: { id: id! },
   });
 
-  const { mutate: updateProduct, isPending } =
-    api.products.update.useMutation();
+  const { mutate: updateProductStatus, isPending } =
+    api.products.updateStatus.useMutation();
 
   const product = (productData as any)?.data;
   // Fallback to mock if API returns nothing (or during dev), but ideally we map API -> UI model
@@ -58,10 +58,10 @@ export default function ProductDetailsPage() {
 
   const handleApprove = () => {
     if (!id) return;
-    updateProduct(
+    updateProductStatus(
       {
         path: { id },
-        body: { status: "active" },
+        body: { status: "approved" },
       },
       {
         onSuccess: () => {
@@ -73,10 +73,10 @@ export default function ProductDetailsPage() {
 
   const handleReject = () => {
     if (!id) return;
-    updateProduct(
+    updateProductStatus(
       {
         path: { id },
-        body: { status: "draft" },
+        body: { status: "rejected" },
       },
       {
         onSuccess: () => {

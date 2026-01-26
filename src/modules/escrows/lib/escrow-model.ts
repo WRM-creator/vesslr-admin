@@ -7,7 +7,6 @@ export interface Escrow {
   currency: string;
   status: "held" | "released" | "disputed" | "refunded";
   createdAt: string; // ISO date string
-  riskFlags: ("high_value" | "new_account" | "velocity_check" | "mismatch")[];
 }
 
 export const MOCK_ESCROWS: Escrow[] = [
@@ -20,7 +19,6 @@ export const MOCK_ESCROWS: Escrow[] = [
     currency: "USD",
     status: "held",
     createdAt: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(), // 2 hours ago
-    riskFlags: [],
   },
   {
     id: "esc_02",
@@ -31,7 +29,6 @@ export const MOCK_ESCROWS: Escrow[] = [
     currency: "USD",
     status: "disputed",
     createdAt: new Date(Date.now() - 1000 * 60 * 60 * 48).toISOString(), // 2 days ago
-    riskFlags: ["high_value", "mismatch"],
   },
   {
     id: "esc_03",
@@ -42,7 +39,6 @@ export const MOCK_ESCROWS: Escrow[] = [
     currency: "USD",
     status: "released",
     createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 5).toISOString(), // 5 days ago
-    riskFlags: ["new_account"],
   },
   {
     id: "esc_04",
@@ -53,7 +49,6 @@ export const MOCK_ESCROWS: Escrow[] = [
     currency: "USD",
     status: "refunded",
     createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 1).toISOString(), // 1 day ago
-    riskFlags: [],
   },
   {
     id: "esc_05",
@@ -64,6 +59,5 @@ export const MOCK_ESCROWS: Escrow[] = [
     currency: "USD",
     status: "held",
     createdAt: new Date(Date.now() - 1000 * 60 * 30).toISOString(), // 30 mins ago
-    riskFlags: ["high_value", "velocity_check"],
   },
 ];

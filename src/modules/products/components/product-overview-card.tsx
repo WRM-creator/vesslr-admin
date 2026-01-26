@@ -16,6 +16,7 @@ const statusStyles: Record<
   in_transaction: "default",
   fulfilled: "outline",
   suspended: "destructive",
+  pending_approval: "secondary",
 };
 
 export function ProductOverviewCard({ data }: ProductOverviewCardProps) {

@@ -1,7 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { format, formatDistanceToNow } from "date-fns";
-import { ArrowRight, Box, CalendarClock, MapPin, Truck } from "lucide-react";
+import { ArrowRight, Box, CalendarClock, MapPin, ShipIcon } from "lucide-react";
 import type { FulfillmentDetails } from "../lib/fulfillment-details-model";
 
 interface FulfillmentOverviewCardProps {
@@ -31,7 +31,7 @@ export function FulfillmentOverviewCard({
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-sm font-medium">Shipment Overview</CardTitle>
-        <Truck className="text-muted-foreground h-4 w-4" />
+        <ShipIcon className="text-muted-foreground h-4 w-4" />
       </CardHeader>
       <CardContent className="space-y-6 pt-4">
         {/* Status & Tracking */}

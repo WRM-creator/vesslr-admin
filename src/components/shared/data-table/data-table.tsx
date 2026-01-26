@@ -50,6 +50,7 @@ interface DataTableProps<TData, TValue> {
   // State control
   rowSelection?: RowSelectionState;
   onRowSelectionChange?: OnChangeFn<RowSelectionState>;
+  hiddenColumns?: string[];
 }
 
 export function DataTable<TData, TValue>({
@@ -66,10 +67,16 @@ export function DataTable<TData, TValue>({
   classNames,
   rowSelection,
   onRowSelectionChange,
+  hiddenColumns,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [internalRowSelection, setInternalRowSelection] =
     React.useState<RowSelectionState>({});
+
+  const columnVisibility = React.useMemo(() => {
+    if (!hiddenColumns) return {};
+    return hiddenColumns.reduce((acc, col) => ({ ...acc, [col]: false }), {});
+  }, [hiddenColumns]);
 
   const table = useReactTable({
     data,
@@ -82,6 +89,7 @@ export function DataTable<TData, TValue>({
     state: {
       sorting,
       rowSelection: rowSelection || internalRowSelection,
+      columnVisibility,
     },
   });
 

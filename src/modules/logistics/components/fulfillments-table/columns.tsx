@@ -24,7 +24,7 @@ import {
   Shield,
   ShieldAlert,
   ShieldQuestion,
-  Truck,
+  ShipIcon,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import type {
@@ -155,7 +155,7 @@ export const fulfillmentsColumns: ColumnDef<Fulfillment>[] = [
       const style = logisticsStateStyles[state];
       return (
         <div className="flex items-center gap-2">
-          <Truck className="text-muted-foreground h-4 w-4" />
+          <ShipIcon className="text-muted-foreground h-4 w-4" />
           <Badge variant={style.variant}>{style.label}</Badge>
         </div>
       );

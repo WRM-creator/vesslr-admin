@@ -16,6 +16,7 @@ export function ProductsTable({
   filters,
   onFilterChange,
   onReset,
+  ...filterProps
 }: ProductsTableProps &
   React.ComponentProps<typeof Filters> & { children?: React.ReactNode }) {
   return (
@@ -24,6 +25,7 @@ export function ProductsTable({
         filters={filters}
         onFilterChange={onFilterChange}
         onReset={onReset}
+        {...filterProps}
       />
       <DataTable
         columns={productsColumns}

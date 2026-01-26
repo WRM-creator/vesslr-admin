@@ -9,64 +9,78 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import type { ColumnDef } from "@tanstack/react-table";
 import { formatDistanceToNow } from "date-fns";
-import { AlertTriangle, Flag, MoreHorizontal } from "lucide-react";
+import { MoreHorizontal } from "lucide-react";
 import { Link } from "react-router-dom";
-import type { Escrow } from "../../lib/escrow-model";
 
 const statusStyles: Record<
-  Escrow["status"],
+  string,
   "default" | "secondary" | "destructive" | "outline"
 > = {
-  held: "secondary",
+  unfunded: "secondary",
+  partially_funded: "secondary",
+  funded: "default",
+  releasing: "default",
   released: "default",
   disputed: "destructive",
   refunded: "outline",
 };
 
-export const escrowsColumns: ColumnDef<Escrow>[] = [
+export const escrowsColumns: ColumnDef<any>[] = [
   {
     accessorKey: "id",
     header: "Escrow ID",
     cell: ({ row }) => (
       <Link
-        to={`/escrows/${row.original.id}`}
+        to={`/escrows/${row.original._id}`}
         className="hover:text-primary font-mono text-xs font-medium hover:underline"
       >
-        {row.original.id}
+        {row.original._id.substring(0, 8)}...
       </Link>
     ),
   },
   {
-    accessorKey: "transactionReference",
+    accessorKey: "transaction",
     header: "Transaction",
     cell: ({ row }) => (
-      <div className="font-medium">{row.original.transactionReference}</div>
+      <div className="font-medium">
+        {row.original.transaction?._id
+          ? row.original.transaction._id.substring(0, 8) + "..."
+          : "N/A"}
+      </div>
     ),
   },
   {
-    accessorKey: "merchantName",
+    id: "merchantName",
     header: "Merchant",
+    cell: ({ row }) => (
+      <div>
+        {row.original.seller
+          ? `${row.original.seller.firstName} ${row.original.seller.lastName}`
+          : "Unknown"}
+      </div>
+    ),
   },
   {
-    accessorKey: "customerName",
+    id: "customerName",
     header: "Customer",
+    cell: ({ row }) => (
+      <div>
+        {row.original.buyer
+          ? `${row.original.buyer.firstName} ${row.original.buyer.lastName}`
+          : "Unknown"}
+      </div>
+    ),
   },
   {
-    accessorKey: "amount",
+    accessorKey: "totalAmountExpected",
     header: "Value",
     cell: ({ row }) => {
-      const amount = parseFloat(row.original.amount.toString());
+      const amount = row.original.totalAmountExpected || 0;
       const formatted = new Intl.NumberFormat("en-US", {
         style: "currency",
-        currency: row.original.currency,
+        currency: row.original.currency || "NGN",
       }).format(amount);
       return <div className="font-mono font-medium">{formatted}</div>;
     },
@@ -75,13 +89,13 @@ export const escrowsColumns: ColumnDef<Escrow>[] = [
     accessorKey: "status",
     header: "Status",
     cell: ({ row }) => {
-      const status = row.original.status;
+      const status = row.original.status as string;
       return (
         <Badge
           variant={statusStyles[status] || "outline"}
           className="capitalize"
         >
-          {status}
+          {status.replace(/_/g, " ")}
         </Badge>
       );
     },
@@ -97,42 +111,7 @@ export const escrowsColumns: ColumnDef<Escrow>[] = [
       </span>
     ),
   },
-  {
-    accessorKey: "riskFlags",
-    header: "Risk Flags",
-    cell: ({ row }) => {
-      const flags = row.original.riskFlags;
-      if (flags.length === 0) return null;
 
-      return (
-        <div className="flex gap-1">
-          {flags.map((flag) => (
-            <TooltipProvider key={flag}>
-              <Tooltip>
-                <TooltipTrigger>
-                  {flag === "high_value" && (
-                    <Flag className="h-4 w-4 text-blue-500" />
-                  )}
-                  {flag === "mismatch" && (
-                    <AlertTriangle className="h-4 w-4 text-red-500" />
-                  )}
-                  {flag === "new_account" && (
-                    <Flag className="h-4 w-4 text-yellow-500" />
-                  )}
-                  {flag === "velocity_check" && (
-                    <AlertTriangle className="h-4 w-4 text-orange-500" />
-                  )}
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p className="capitalize">{flag.replace(/_/g, " ")}</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          ))}
-        </div>
-      );
-    },
-  },
   {
     id: "actions",
     cell: ({ row }) => {

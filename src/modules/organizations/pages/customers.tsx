@@ -51,6 +51,9 @@ export default function CustomersPage() {
         onSearchChange={setSearch}
         isLoading={isLoading}
         title="Customers"
+        onRowClick={(row) =>
+          window.open(`/customers/${row.original._id}`, "_self")
+        }
       />
     </Page>
   );

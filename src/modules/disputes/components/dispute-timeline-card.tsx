@@ -6,7 +6,17 @@ import {
   LayoutDashboard,
   MessageSquare,
 } from "lucide-react";
-import type { TimelineEvent } from "../lib/dispute-details-model";
+
+// Simplified timeline concept until API supports it fully
+export interface TimelineEvent {
+  id: string;
+  type: "message" | "system" | "admin" | "evidence";
+  title: string;
+  description?: string;
+  timestamp: string;
+  actor?: string;
+  actorRole?: "initiator" | "respondent" | "admin" | "system";
+}
 
 interface DisputeTimelineCardProps {
   timeline: TimelineEvent[];
@@ -35,7 +45,7 @@ export function DisputeTimelineCard({ timeline }: DisputeTimelineCardProps) {
     if (type === "admin")
       return "bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400";
 
-    if (role === "claimant")
+    if (role === "initiator")
       return "bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400";
 
     if (role === "respondent")
@@ -48,6 +58,12 @@ export function DisputeTimelineCard({ timeline }: DisputeTimelineCardProps) {
     <div className="relative space-y-0">
       {/* Vertical Line */}
       <div className="bg-border absolute top-2 bottom-2 left-4 w-px" />
+
+      {timeline.length === 0 && (
+        <div className="py-4 text-center text-sm text-gray-500">
+          No timeline events yet.
+        </div>
+      )}
 
       {timeline.map((event) => (
         <div key={event.id} className="relative flex gap-4 pb-8 last:pb-0">

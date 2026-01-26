@@ -1,9 +1,10 @@
 import { Page } from "@/components/shared/page";
 import { PageHeader } from "@/components/shared/page-header";
 import { Button } from "@/components/ui/button";
+import { getDispute } from "@/lib/api/disputes";
+import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft, Flag, MoreVertical } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
-import { MOCK_DISPUTE_DETAILS } from "../lib/dispute-details-model";
 
 // Components
 import { DisputeContextCard } from "../components/dispute-context-card";
@@ -17,8 +18,19 @@ export default function DisputeDetailsPage() {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  // In a real app we'd fetch based on ID
-  const data = MOCK_DISPUTE_DETAILS;
+  const { data, isLoading } = useQuery({
+    queryKey: ["disputes", id],
+    queryFn: () => getDispute(id!),
+    enabled: !!id,
+  });
+
+  if (isLoading || !data) {
+    return (
+      <Page>
+        <div>Loading...</div>
+      </Page>
+    );
+  }
 
   return (
     <Page>
@@ -38,7 +50,7 @@ export default function DisputeDetailsPage() {
       <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
         <div>
           <PageHeader
-            title={`Dispute #${data.id}`}
+            title={`Dispute #${data._id}`}
             description={`Last updated ${new Date(data.updatedAt).toLocaleDateString()}`}
           />
         </div>
@@ -64,7 +76,11 @@ export default function DisputeDetailsPage() {
           <DisputeContextCard data={data} />
 
           {/* Evidence */}
-          <DisputeEvidenceCard evidence={data.evidence} />
+          <DisputeEvidenceCard
+            evidence={data.evidence || []}
+            initiatorId={data.initiator._id}
+            respondentId={data.respondent._id}
+          />
 
           {/* Timeline / Chat */}
           <div className="bg-card rounded-xl border shadow-sm">
@@ -75,7 +91,19 @@ export default function DisputeDetailsPage() {
               </Button>
             </div>
             <div className="p-6">
-              <DisputeTimelineCard timeline={data.timeline} />
+              <DisputeTimelineCard
+                timeline={[
+                  {
+                    id: "1",
+                    type: "system",
+                    title: "Dispute Opened",
+                    timestamp: data.createdAt,
+                    description: "Dispute was initiated automatically.",
+                    actor: "System",
+                    actorRole: "system",
+                  },
+                ]}
+              />
             </div>
           </div>
         </div>
@@ -88,7 +116,7 @@ export default function DisputeDetailsPage() {
 
             {/* Parties */}
             <DisputePartiesCard
-              claimant={data.claimant}
+              claimant={data.initiator}
               respondent={data.respondent}
             />
           </div>

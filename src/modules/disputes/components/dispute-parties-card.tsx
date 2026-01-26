@@ -1,13 +1,16 @@
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import type { Dispute } from "@/lib/api/disputes";
 import { ExternalLink, Gavel, ShieldCheck } from "lucide-react";
 import { Link } from "react-router-dom";
-import type { PartyInfo } from "../lib/dispute-details-model";
+
+// Helper type for party, derived from Dispute initiator/respondent
+type Party = Dispute["initiator"];
 
 interface DisputePartiesCardProps {
-  claimant: PartyInfo;
-  respondent: PartyInfo;
+  claimant: Party;
+  respondent: Party;
 }
 
 function PartyProfile({
@@ -15,10 +18,12 @@ function PartyProfile({
   label,
   roleColor,
 }: {
-  party: PartyInfo;
+  party: Party;
   label: string;
   roleColor: string;
 }) {
+  if (!party) return null;
+
   return (
     <div className="flex flex-col items-center text-center">
       <div
@@ -27,34 +32,34 @@ function PartyProfile({
         {label}
       </div>
       <Avatar className="border-background h-16 w-16 border-2 shadow-sm">
-        <AvatarImage src={party.avatar} alt={party.name} />
+        {/* <AvatarImage src={party.avatar} alt={party.firstName} /> */}
         <AvatarFallback>
-          {party.name
-            .split(" ")
-            .map((n) => n[0])
-            .join("")}
+          {party.firstName?.[0]}
+          {party.lastName?.[0]}
         </AvatarFallback>
       </Avatar>
 
       <div className="mt-3">
         <div className="flex items-center justify-center gap-1.5">
-          <h3 className="text-lg font-semibold">{party.name}</h3>
-          {party.verificationStatus === "verified" && (
-            <ShieldCheck className="h-4 w-4 text-emerald-500" />
-          )}
+          <h3 className="text-lg font-semibold">
+            {party.firstName} {party.lastName}
+          </h3>
+          {/* Mock verification check */}
+          <ShieldCheck className="h-4 w-4 text-emerald-500" />
         </div>
-        <p className="text-muted-foreground text-sm">{party.companyName}</p>
+        <p className="text-muted-foreground text-sm">{party.email}</p>
       </div>
 
+      {/* Trust Score Mock UI */}
       <div className="mt-4 flex w-full max-w-[140px] flex-col gap-2">
         <div className="flex items-center justify-between text-xs">
           <span className="text-muted-foreground">Trust Score</span>
-          <span className="font-semibold">{party.trustScore}/100</span>
+          <span className="font-semibold">85/100</span>
         </div>
         <div className="bg-secondary h-1.5 w-full overflow-hidden rounded-full">
           <div
-            className={`h-full rounded-full ${party.trustScore > 80 ? "bg-emerald-500" : "bg-amber-500"}`}
-            style={{ width: `${party.trustScore}%` }}
+            className="h-full rounded-full bg-emerald-500"
+            style={{ width: `85%` }}
           />
         </div>
       </div>
@@ -65,7 +70,7 @@ function PartyProfile({
         className="mt-2 h-auto p-0 text-xs"
         asChild
       >
-        <Link to={party.profileUrl} className="flex items-center gap-1">
+        <Link to={`/users/${party._id}`} className="flex items-center gap-1">
           View Profile <ExternalLink className="h-3 w-3" />
         </Link>
       </Button>
@@ -88,7 +93,7 @@ export function DisputePartiesCard({
           <div className="grid grid-cols-[1fr,auto,1fr] items-start gap-4">
             <PartyProfile
               party={claimant}
-              label="Claimant"
+              label="Initiator"
               roleColor="bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400"
             />
 

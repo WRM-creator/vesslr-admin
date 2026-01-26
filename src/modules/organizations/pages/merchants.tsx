@@ -51,6 +51,9 @@ export default function MerchantsPage() {
         onSearchChange={setSearch}
         isLoading={isLoading}
         title="Merchants"
+        onRowClick={(row) =>
+          window.open(`/merchants/${row.original._id}`, "_self")
+        }
       />
     </Page>
   );

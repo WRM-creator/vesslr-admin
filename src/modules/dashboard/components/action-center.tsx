@@ -1,4 +1,5 @@
-
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -6,8 +7,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { AlertCircle, FileText, UserCheck } from "lucide-react";
 
 interface ActionItem {
@@ -36,17 +35,17 @@ const actionItems: ActionItem[] = [
   {
     id: "DIS-041",
     title: "Q&Q Dispute Report",
-    subtitle: "Order #442: Quantity Mismatch detected",
+    subtitle: "Transaction #442: Quantity Mismatch detected",
     type: "dispute",
     priority: "high",
   },
   {
-     id: "USR-999",
-     title: "Merchant Verification",
-     subtitle: "Global Logistics Co. submitted KYC docs",
-     type: "verification",
-     priority: "medium",
-  }
+    id: "USR-999",
+    title: "Merchant Verification",
+    subtitle: "Global Logistics Co. submitted KYC docs",
+    type: "verification",
+    priority: "medium",
+  },
 ];
 
 export function ActionCenter() {
@@ -56,11 +55,11 @@ export function ActionCenter() {
         <CardTitle>Action Center</CardTitle>
         <CardDescription>Pending tasks requiring attention.</CardDescription>
       </CardHeader>
-      <CardContent className="grid gap-4 mt-auto">
+      <CardContent className="mt-auto grid gap-4">
         {actionItems.map((item) => (
           <div
             key={item.id}
-            className="flex items-start justify-between space-x-4 rounded-md border p-3 hover:bg-muted/50 transition-colors"
+            className="hover:bg-muted/50 flex items-start justify-between space-x-4 rounded-md border p-3 transition-colors"
           >
             <div className="flex items-start space-x-3">
               <div className="mt-1">
@@ -71,14 +70,21 @@ export function ActionCenter() {
                   <UserCheck className="h-5 w-5 text-blue-500" />
                 )}
                 {item.type === "dispute" && (
-                  <FileText className="h-5 w-5 text-destructive" />
+                  <FileText className="text-destructive h-5 w-5" />
                 )}
               </div>
               <div className="space-y-1">
-                <p className="text-sm font-medium leading-none">{item.title}</p>
-                <p className="text-xs text-muted-foreground">{item.subtitle}</p>
+                <p className="text-sm leading-none font-medium">{item.title}</p>
+                <p className="text-muted-foreground text-xs">{item.subtitle}</p>
                 <div className="flex gap-2 pt-1">
-                     {item.priority === "high" && <Badge variant="destructive" className="text-[10px] h-5 px-1.5">Urgent</Badge>}
+                  {item.priority === "high" && (
+                    <Badge
+                      variant="destructive"
+                      className="h-5 px-1.5 text-[10px]"
+                    >
+                      Urgent
+                    </Badge>
+                  )}
                 </div>
               </div>
             </div>

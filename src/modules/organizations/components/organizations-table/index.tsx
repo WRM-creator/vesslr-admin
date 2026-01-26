@@ -13,6 +13,7 @@ interface OrganizationsTableProps {
   search?: string;
   onSearchChange?: (value: string) => void;
   title?: string;
+  onRowClick?: (row: any) => void;
 }
 
 export function OrganizationsTable({
@@ -21,6 +22,7 @@ export function OrganizationsTable({
   search,
   onSearchChange,
   title,
+  onRowClick,
 }: OrganizationsTableProps) {
   const navigate = useNavigate();
 
@@ -46,10 +48,7 @@ export function OrganizationsTable({
         columns={columns}
         data={data}
         isLoading={isLoading}
-        onRowClick={(row) => {
-          // Future: navigate to details
-          // navigate(`/organizations/${row.original._id}`)
-        }}
+        onRowClick={onRowClick}
       />
     </div>
   );

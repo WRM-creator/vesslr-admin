@@ -1,18 +1,22 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import type { Dispute } from "@/lib/api/disputes";
 import { FileText, Image as ImageIcon, Scale, Video } from "lucide-react";
-import type { EvidenceItem } from "../lib/dispute-details-model";
+
+type EvidenceItem = Dispute["evidence"][number];
 
 interface DisputeEvidenceCardProps {
   evidence: EvidenceItem[];
+  initiatorId: string;
+  respondentId: string;
 }
 
 function EvidenceFile({ item }: { item: EvidenceItem }) {
   const Icon =
-    item.fileType === "image"
+    item.type === "image"
       ? ImageIcon
-      : item.fileType === "video"
+      : item.type === "video"
         ? Video
         : FileText;
 
@@ -21,10 +25,10 @@ function EvidenceFile({ item }: { item: EvidenceItem }) {
       <DialogTrigger asChild>
         <div className="group bg-card relative cursor-pointer overflow-hidden rounded-lg border transition-all hover:shadow-md">
           <div className="bg-muted flex aspect-video w-full items-center justify-center">
-            {item.fileType === "image" ? (
+            {item.type === "image" ? (
               <img
-                src={item.fileUrl}
-                alt={item.title}
+                src={item.url}
+                alt="Evidence"
                 className="h-full w-full object-cover"
               />
             ) : (
@@ -32,13 +36,10 @@ function EvidenceFile({ item }: { item: EvidenceItem }) {
             )}
           </div>
           <div className="p-3">
-            <h4 className="truncate text-sm font-medium">{item.title}</h4>
-            <p className="text-muted-foreground mt-1 line-clamp-2 text-xs">
-              {item.description}
-            </p>
+            <h4 className="truncate text-sm font-medium">Evidence File</h4>
             <div className="text-muted-foreground mt-2 flex items-center justify-between text-[10px]">
-              <span className="capitalize">{item.fileType}</span>
-              <span>{new Date(item.submittedAt).toLocaleDateString()}</span>
+              <span className="capitalize">{item.type}</span>
+              <span>{new Date(item.uploadedAt).toLocaleDateString()}</span>
             </div>
           </div>
         </div>
@@ -46,10 +47,10 @@ function EvidenceFile({ item }: { item: EvidenceItem }) {
       <DialogContent className="max-w-3xl">
         <div className="space-y-4">
           <div className="flex aspect-video w-full items-center justify-center overflow-hidden rounded-lg bg-black/5">
-            {item.fileType === "image" ? (
+            {item.type === "image" ? (
               <img
-                src={item.fileUrl}
-                alt={item.title}
+                src={item.url}
+                alt="Evidence"
                 className="h-full w-full object-contain"
               />
             ) : (
@@ -63,8 +64,10 @@ function EvidenceFile({ item }: { item: EvidenceItem }) {
             )}
           </div>
           <div>
-            <h3 className="text-lg font-semibold">{item.title}</h3>
-            <p className="text-muted-foreground mt-1">{item.description}</p>
+            <h3 className="text-lg font-semibold">Evidence Details</h3>
+            <p className="text-muted-foreground mt-1">
+              Uploaded on {new Date(item.uploadedAt).toLocaleString()}
+            </p>
           </div>
         </div>
       </DialogContent>
@@ -72,10 +75,14 @@ function EvidenceFile({ item }: { item: EvidenceItem }) {
   );
 }
 
-export function DisputeEvidenceCard({ evidence }: DisputeEvidenceCardProps) {
-  const claimantEvidence = evidence.filter((e) => e.submittedBy === "claimant");
+export function DisputeEvidenceCard({
+  evidence,
+  initiatorId,
+  respondentId,
+}: DisputeEvidenceCardProps) {
+  const claimantEvidence = evidence.filter((e) => e.uploadedBy === initiatorId);
   const respondentEvidence = evidence.filter(
-    (e) => e.submittedBy === "respondent",
+    (e) => e.uploadedBy === respondentId,
   );
 
   return (
@@ -91,13 +98,13 @@ export function DisputeEvidenceCard({ evidence }: DisputeEvidenceCardProps) {
         <div>
           <h4 className="mb-3 flex items-center gap-2 text-xs font-bold tracking-wider text-blue-600 uppercase dark:text-blue-400">
             <span className="rounded-full bg-blue-100 px-2 py-0.5 dark:bg-blue-900/30">
-              Claimant Proof
+              Initiator Proof
             </span>
           </h4>
           {claimantEvidence.length > 0 ? (
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              {claimantEvidence.map((item) => (
-                <EvidenceFile key={item.id} item={item} />
+              {claimantEvidence.map((item, idx) => (
+                <EvidenceFile key={idx} item={item} />
               ))}
             </div>
           ) : (
@@ -116,8 +123,8 @@ export function DisputeEvidenceCard({ evidence }: DisputeEvidenceCardProps) {
           </h4>
           {respondentEvidence.length > 0 ? (
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              {respondentEvidence.map((item) => (
-                <EvidenceFile key={item.id} item={item} />
+              {respondentEvidence.map((item, idx) => (
+                <EvidenceFile key={idx} item={item} />
               ))}
             </div>
           ) : (

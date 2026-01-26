@@ -1,8 +1,9 @@
+import { AUTH_LOGOUT_EVENT } from "@/lib/api/auth";
 import {
   createContext,
   useContext,
-  useState,
   useEffect,
+  useState,
   type ReactNode,
 } from "react";
 
@@ -12,7 +13,7 @@ interface AuthContextType {
   login: (
     accessToken: string,
     refreshToken?: string,
-    expiresAt?: string
+    expiresAt?: string,
   ) => void;
   logout: () => void;
 }
@@ -48,15 +49,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
       }
       setIsAuthenticated(true);
-    } else {
-      setIsAuthenticated(false);
     }
+
+    const handleLogoutEvent = () => {
+      logout();
+    };
+
+    window.addEventListener(AUTH_LOGOUT_EVENT, handleLogoutEvent);
+
+    return () => {
+      window.removeEventListener(AUTH_LOGOUT_EVENT, handleLogoutEvent);
+    };
   }, []);
 
   const login = (
     accessToken: string,
     refreshToken?: string,
-    expiresAt?: string
+    expiresAt?: string,
   ) => {
     localStorage.setItem(TOKEN_KEYS.accessToken, accessToken);
     if (refreshToken) {

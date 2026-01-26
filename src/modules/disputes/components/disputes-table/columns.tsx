@@ -9,64 +9,83 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import type { Dispute } from "@/lib/api/disputes";
 import type { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
 import { MoreHorizontal } from "lucide-react";
 import { Link } from "react-router-dom";
-import type { Dispute } from "../../lib/dispute-model";
 
 const statusStyles: Record<
   Dispute["status"],
   "default" | "secondary" | "destructive" | "outline"
 > = {
   open: "default",
-  resolved: "outline",
-  escalated: "destructive",
-  closed: "secondary",
+  under_review: "secondary",
+  resolved_release: "outline",
+  resolved_refund: "outline",
+  dismissed: "default",
 };
 
 export const disputesColumns: ColumnDef<Dispute>[] = [
   {
-    accessorKey: "id",
+    accessorKey: "_id",
     header: "Dispute ID",
     cell: ({ row }) => (
       <Link
-        to={`/disputes/${row.original.id}`}
+        to={`/disputes/${row.original._id}`}
         className="text-muted-foreground hover:text-primary font-mono text-xs hover:underline"
       >
-        {row.original.id}
+        {row.original._id.slice(-6)}
       </Link>
     ),
   },
   {
-    accessorKey: "transactionReference",
+    accessorKey: "transaction",
     header: "Transaction",
     cell: ({ row }) => (
-      <span className="font-medium">{row.original.transactionReference}</span>
+      <span className="font-mono text-xs font-medium">
+        {row.original.transaction?._id?.slice(-6) || "N/A"}
+      </span>
     ),
   },
   {
-    accessorKey: "productName",
-    header: "Product",
+    accessorKey: "reason",
+    header: "Reason",
     cell: ({ row }) => (
       <div className="flex flex-col">
-        <span className="font-medium">{row.original.productName}</span>
-        <span className="text-muted-foreground text-xs">
-          {row.original.category}
+        <span className="font-medium capitalize">
+          {row.original.reason.replace(/_/g, " ")}
         </span>
       </div>
     ),
   },
   {
-    accessorKey: "raisedBy",
-    header: "Raised By",
+    accessorKey: "initiator",
+    header: "Initiator",
+    cell: ({ row }) => {
+      const initiator = row.original.initiator;
+      return (
+        <div className="flex flex-col">
+          <span className="text-sm font-medium">
+            {initiator?.firstName} {initiator?.lastName}
+          </span>
+          <span className="text-muted-foreground text-xs">
+            {initiator?.email}
+          </span>
+        </div>
+      );
+    },
+  },
+  {
+    accessorKey: "amount",
+    header: "Amount",
     cell: ({ row }) => (
-      <div className="flex items-center gap-2">
-        <span>{row.original.raisedBy.name}</span>
-        <Badge variant="outline" className="h-5 text-xs">
-          {row.original.raisedBy.type}
-        </Badge>
-      </div>
+      <span className="font-medium">
+        {new Intl.NumberFormat("en-NG", {
+          style: "currency",
+          currency: "NGN",
+        }).format(row.original.amount)}
+      </span>
     ),
   },
   {
@@ -79,7 +98,7 @@ export const disputesColumns: ColumnDef<Dispute>[] = [
           variant={statusStyles[status] || "outline"}
           className="capitalize"
         >
-          {status}
+          {status.replace(/_/g, " ")}
         </Badge>
       );
     },
@@ -88,11 +107,6 @@ export const disputesColumns: ColumnDef<Dispute>[] = [
     accessorKey: "createdAt",
     header: "Created At",
     cell: ({ row }) => format(new Date(row.original.createdAt), "MMM d, yyyy"),
-  },
-  {
-    accessorKey: "updatedAt",
-    header: "Last Updated",
-    cell: ({ row }) => format(new Date(row.original.updatedAt), "MMM d, HH:mm"),
   },
   {
     id: "actions",
@@ -108,11 +122,7 @@ export const disputesColumns: ColumnDef<Dispute>[] = [
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
             <DropdownMenuItem asChild>
-              <Link to={`/disputes/${row.original.id}`}>View details</Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem>Resolve dispute</DropdownMenuItem>
-            <DropdownMenuItem className="text-destructive">
-              Escalate
+              <Link to={`/disputes/${row.original._id}`}>View details</Link>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

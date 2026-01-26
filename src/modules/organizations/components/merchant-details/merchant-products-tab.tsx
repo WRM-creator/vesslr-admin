@@ -1,12 +1,14 @@
-import { Page } from "@/components/shared/page";
-import { PageHeader } from "@/components/shared/page-header";
 import { api } from "@/lib/api";
+import { ProductsTable } from "@/modules/products/components/products-table";
+import type { ProductFilters } from "@/modules/products/components/products-table/filters";
 import { useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
-import { ProductsTable } from "../components/products-table";
-import type { ProductFilters } from "../components/products-table/filters";
 
-export default function ProductsPage() {
+interface MerchantProductsTabProps {
+  merchantId: string;
+}
+
+export function MerchantProductsTab({ merchantId }: MerchantProductsTabProps) {
   const [searchParams, setSearchParams] = useSearchParams();
 
   const filters: ProductFilters = useMemo(() => {
@@ -16,7 +18,7 @@ export default function ProductsPage() {
     return {
       search: searchParams.get("search") || "",
       category: searchParams.get("category") || "all",
-      merchantId: searchParams.get("merchantId") || "all",
+      merchantId: merchantId,
       status: searchParams.get("status") || "all",
       transactionType: searchParams.get("transactionType") || "all",
       minPrice: searchParams.get("minPrice") || "",
@@ -28,15 +30,16 @@ export default function ProductsPage() {
             ? { from: new Date(from), to: undefined }
             : undefined,
     };
-  }, [searchParams]);
+  }, [searchParams, merchantId]);
 
   // Transform UI filters to API query params
   const queryParams = useMemo(() => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const params: Record<string, any> = {};
 
-    if (filters.search) params.name = filters.search; // Assuming backend searches by name
+    if (filters.search) params.name = filters.search;
     if (filters.category !== "all") params.category = filters.category;
-    if (filters.merchantId !== "all") params.merchant = filters.merchantId;
+    params.seller = merchantId;
     if (filters.status !== "all") params.status = filters.status;
     if (filters.transactionType !== "all")
       params.transactionType = filters.transactionType;
@@ -54,38 +57,19 @@ export default function ProductsPage() {
     }
 
     return params;
-  }, [filters]);
+  }, [filters, merchantId]);
 
   const { data: productsData, isLoading } =
     api.products.list.useQuery(queryParams);
-  const rawProducts = productsData?.data?.docs || [];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const products = (productsData as any)?.data || [];
 
-  const products: any[] = rawProducts.map((p: any) => ({
-    id: p._id,
-    name: p.title || "Untitled",
-    category: p.category?.name || "Uncategorized", // Assuming category population or modify as needed
-    merchant: p.seller || "Unknown", // Assuming seller ID or name
-    status: p.status || "draft",
-    created: p.createdAt,
-    price: p.price || 0,
-    transactionType: p.transactionType || "purchase",
-    currency: p.currency || "USD",
-    availableQuantity: p.availableQuantity || 0,
-    unitOfMeasurement: p.unitOfMeasurement || "unit",
-  }));
-
-  // Fetch merchants for filter
-  const { data: merchantsData } = api.organizations.list.useQuery({
-    query: { type: "merchant", limit: 100 },
-  });
-  const merchantOptions =
-    (merchantsData?.data?.docs ?? []).map((m) => ({
-      label: m.name || "Unknown",
-      value: m._id || "",
-    })) || [];
-
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleFilterChange = (key: keyof ProductFilters, value: any) => {
     setSearchParams((prev) => {
+      // Don't allow changing merchantId via UI just in case
+      if (key === "merchantId") return prev;
+
       if (key === "dateRange") {
         if (value?.from) {
           prev.set("from", value.from.toISOString());
@@ -111,19 +95,16 @@ export default function ProductsPage() {
   };
 
   return (
-    <Page>
-      <PageHeader
-        title="Products"
-        description="Manage your product inventory."
-      />
+    <div className="space-y-4">
       <ProductsTable
         data={products}
         isLoading={isLoading}
         filters={filters}
-        merchantOptions={merchantOptions}
+        merchantOptions={[]}
+        hiddenFilters={["merchantId"]}
         onFilterChange={handleFilterChange}
         onReset={handleReset}
       />
-    </Page>
+    </div>
   );
 }
