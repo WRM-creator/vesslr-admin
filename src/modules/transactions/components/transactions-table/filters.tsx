@@ -38,6 +38,7 @@ export interface TransactionFilters {
 interface FiltersProps {
   filters: TransactionFilters;
   merchantOptions?: { label: string; value: string }[];
+  hiddenFilters?: (keyof TransactionFilters)[];
   onFilterChange: (key: keyof TransactionFilters, value: any) => void;
   onReset: () => void;
 }
@@ -45,6 +46,7 @@ interface FiltersProps {
 export function Filters({
   filters,
   merchantOptions = [],
+  hiddenFilters = [],
   onFilterChange,
   onReset,
 }: FiltersProps) {
@@ -90,105 +92,121 @@ export function Filters({
           </SheetHeader>
 
           <div className="grid gap-6 px-4">
-            <div className="space-y-2">
-              <Label>Merchant</Label>
-              <Select
-                value={filters.merchantId}
-                onValueChange={(value) => onFilterChange("merchantId", value)}
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="All Merchants" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Merchants</SelectItem>
-                  {merchantOptions.map((merchant) => (
-                    <SelectItem key={merchant.value} value={merchant.value}>
-                      {merchant.label}
+            {!hiddenFilters.includes("merchantId") && (
+              <div className="space-y-2">
+                <Label>Merchant</Label>
+                <Select
+                  value={filters.merchantId}
+                  onValueChange={(value) => onFilterChange("merchantId", value)}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="All Merchants" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Merchants</SelectItem>
+                    {merchantOptions.map((merchant) => (
+                      <SelectItem key={merchant.value} value={merchant.value}>
+                        {merchant.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+
+            {!hiddenFilters.includes("customerId") && (
+              <div className="space-y-2">
+                <Label>Customer</Label>
+                <Input
+                  placeholder="Filter by customer..."
+                  value={filters.customerId || ""}
+                  onChange={(e) => onFilterChange("customerId", e.target.value)}
+                />
+              </div>
+            )}
+
+            {!hiddenFilters.includes("type") && (
+              <div className="space-y-2">
+                <Label>Transaction Type</Label>
+                <Select
+                  value={filters.type}
+                  onValueChange={(value) => onFilterChange("type", value)}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="All Types" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Types</SelectItem>
+                    <SelectItem value="purchase">Purchase</SelectItem>
+                    <SelectItem value="refund">Refund</SelectItem>
+                    <SelectItem value="transfer">Transfer</SelectItem>
+                    <SelectItem value="payout">Payout</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+
+            {!hiddenFilters.includes("paymentStatus") && (
+              <div className="space-y-2">
+                <Label>Payment Status</Label>
+                <Select
+                  value={filters.paymentStatus}
+                  onValueChange={(value) =>
+                    onFilterChange("paymentStatus", value)
+                  }
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="All Payment Statuses" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Payment Statuses</SelectItem>
+                    <SelectItem value="paid">Paid</SelectItem>
+                    <SelectItem value="unpaid">Unpaid</SelectItem>
+                    <SelectItem value="partial">Partial</SelectItem>
+                    <SelectItem value="refunded">Refunded</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+
+            {!hiddenFilters.includes("complianceStatus") && (
+              <div className="space-y-2">
+                <Label>Compliance Status</Label>
+                <Select
+                  value={filters.complianceStatus}
+                  onValueChange={(value) =>
+                    onFilterChange("complianceStatus", value)
+                  }
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="All Compliance Statuses" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Compliance Statuses</SelectItem>
+                    <SelectItem value="approved">Approved</SelectItem>
+                    <SelectItem value="pending_review">
+                      Pending Review
                     </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+                    <SelectItem value="flagged">Flagged</SelectItem>
+                    <SelectItem value="rejected">Rejected</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
 
-            <div className="space-y-2">
-              <Label>Customer</Label>
-              <Input
-                placeholder="Filter by customer..."
-                value={filters.customerId || ""}
-                onChange={(e) => onFilterChange("customerId", e.target.value)}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label>Transaction Type</Label>
-              <Select
-                value={filters.type}
-                onValueChange={(value) => onFilterChange("type", value)}
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="All Types" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Types</SelectItem>
-                  <SelectItem value="purchase">Purchase</SelectItem>
-                  <SelectItem value="refund">Refund</SelectItem>
-                  <SelectItem value="transfer">Transfer</SelectItem>
-                  <SelectItem value="payout">Payout</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label>Payment Status</Label>
-              <Select
-                value={filters.paymentStatus}
-                onValueChange={(value) =>
-                  onFilterChange("paymentStatus", value)
-                }
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="All Payment Statuses" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Payment Statuses</SelectItem>
-                  <SelectItem value="paid">Paid</SelectItem>
-                  <SelectItem value="unpaid">Unpaid</SelectItem>
-                  <SelectItem value="partial">Partial</SelectItem>
-                  <SelectItem value="refunded">Refunded</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label>Compliance Status</Label>
-              <Select
-                value={filters.complianceStatus}
-                onValueChange={(value) =>
-                  onFilterChange("complianceStatus", value)
-                }
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="All Compliance Statuses" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Compliance Statuses</SelectItem>
-                  <SelectItem value="approved">Approved</SelectItem>
-                  <SelectItem value="pending_review">Pending Review</SelectItem>
-                  <SelectItem value="flagged">Flagged</SelectItem>
-                  <SelectItem value="rejected">Rejected</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label>Date Created</Label>
-              <DateRangePicker
-                initialDateFrom={filters.dateRange?.from}
-                initialDateTo={filters.dateRange?.to}
-                onUpdate={(values) => onFilterChange("dateRange", values.range)}
-                className="justify-start"
-              />
-            </div>
+            {!hiddenFilters.includes("dateRange") && (
+              <div className="space-y-2">
+                <Label>Date Created</Label>
+                <DateRangePicker
+                  initialDateFrom={filters.dateRange?.from}
+                  initialDateTo={filters.dateRange?.to}
+                  onUpdate={(values) =>
+                    onFilterChange("dateRange", values.range)
+                  }
+                  className="justify-start"
+                />
+              </div>
+            )}
           </div>
 
           <SheetFooter className="gap-2 sm:justify-start">

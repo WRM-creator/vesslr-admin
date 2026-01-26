@@ -118,8 +118,9 @@ export const transactionsColumns: ColumnDef<Transaction>[] = [
     header: "State",
     cell: ({ row }) => {
       const state = row.original.state;
+      if (!state) return <Badge variant="outline">Unknown</Badge>;
       return (
-        <Badge variant={stateStyles[state]} className="capitalize">
+        <Badge variant={stateStyles[state] || "outline"} className="capitalize">
           {state.replace("_", " ")}
         </Badge>
       );
@@ -130,8 +131,12 @@ export const transactionsColumns: ColumnDef<Transaction>[] = [
     header: "Payment Status",
     cell: ({ row }) => {
       const status = row.original.paymentStatus;
+      if (!status) return <Badge variant="outline">Unknown</Badge>;
       return (
-        <Badge variant={paymentStatusStyles[status]} className="capitalize">
+        <Badge
+          variant={paymentStatusStyles[status] || "outline"}
+          className="capitalize"
+        >
           {status.replace("_", " ")}
         </Badge>
       );
@@ -142,8 +147,12 @@ export const transactionsColumns: ColumnDef<Transaction>[] = [
     header: "Compliance Status",
     cell: ({ row }) => {
       const status = row.original.complianceStatus;
+      if (!status) return <Badge variant="outline">Unknown</Badge>;
       return (
-        <Badge variant={complianceStatusStyles[status]} className="capitalize">
+        <Badge
+          variant={complianceStatusStyles[status] || "outline"}
+          className="capitalize"
+        >
           {status.replace("_", " ")}
         </Badge>
       );

@@ -70,20 +70,28 @@ export default function TransactionsPage() {
   }, [filters]);
 
   const { data: transactionsData, isLoading } =
-    api.admin.orders.list.useQuery(queryParams);
+    api.admin.transactions.list.useQuery(queryParams);
 
   const transactions: Transaction[] = (transactionsData?.data?.docs || []).map(
     (doc: any) => ({
-      id: doc.id,
+      id: doc._id || doc.id,
       createdAt: doc.createdAt,
       updatedAt: doc.updatedAt,
       type: "purchase", // Defaulting as API might not have this yet
       state: doc.status as Transaction["state"],
       paymentStatus: doc.paymentStatus as Transaction["paymentStatus"],
       complianceStatus: doc.complianceStatus as Transaction["complianceStatus"],
-      merchant: { name: doc.merchant?.name || "Unknown" },
-      customer: { name: doc.user?.email || "Unknown" },
-      value: doc.total,
+      merchant: {
+        name: doc.seller?.firstName
+          ? `${doc.seller.firstName} ${doc.seller.lastName}`
+          : "Unknown",
+      },
+      customer: {
+        name: doc.buyer?.firstName
+          ? `${doc.buyer.firstName} ${doc.buyer.lastName}`
+          : "Unknown",
+      },
+      value: doc.specs?.totalPrice || 0,
     }),
   );
 

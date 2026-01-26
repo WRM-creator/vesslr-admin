@@ -13,9 +13,11 @@ import { Filters } from "./filters";
 export { transactionsColumns };
 export type { Transaction };
 
+// ...
 interface TransactionsTableProps {
   data: Transaction[];
   isLoading?: boolean;
+  hiddenColumns?: string[];
 }
 
 export function TransactionsTable({
@@ -23,6 +25,7 @@ export function TransactionsTable({
   isLoading,
   filters,
   merchantOptions,
+  hiddenColumns,
   onFilterChange,
   onReset,
 }: TransactionsTableProps & React.ComponentProps<typeof Filters>) {
@@ -63,6 +66,7 @@ export function TransactionsTable({
         columns={transactionsColumns}
         data={filteredData}
         isLoading={isLoading}
+        hiddenColumns={hiddenColumns}
         onRowClick={(row) => navigate(`/transactions/${row.original.id}`)}
       />
     </div>
