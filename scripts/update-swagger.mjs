@@ -1,13 +1,13 @@
+import dotenv from "dotenv";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
-import dotenv from "dotenv";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 dotenv.config({ path: path.join(__dirname, "../.env") });
 
 const SWAGGER_URL =
-  process.env.VITE_SWAGGER_URL || "http://localhost:8001/api/v1/swagger.json";
+  process.env.VITE_SWAGGER_URL || "http://localhost:3000/api/docs-json";
 const OUTPUT_FILE = path.join(__dirname, "../swagger.json");
 
 console.log(`Fetching swagger.json from ${SWAGGER_URL}...`);

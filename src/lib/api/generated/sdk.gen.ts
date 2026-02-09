@@ -3,249 +3,135 @@
 import type { Client, Options as Options2, TDataShape } from "./client";
 import { client } from "./client.gen";
 import type {
-  DeleteApiV1AdminByIdData,
-  DeleteApiV1AdminByIdErrors,
-  DeleteApiV1AdminByIdResponses,
-  DeleteApiV1AdminCategoriesByIdData,
-  DeleteApiV1AdminCategoriesByIdErrors,
-  DeleteApiV1AdminCategoriesByIdResponses,
-  DeleteApiV1AdminOrganizationsByIdData,
-  DeleteApiV1AdminOrganizationsByIdErrors,
-  DeleteApiV1AdminOrganizationsByIdResponses,
-  DeleteApiV1CategoriesByIdData,
-  DeleteApiV1CategoriesByIdErrors,
-  DeleteApiV1CategoriesByIdResponses,
-  DeleteApiV1InvoicesByIdData,
-  DeleteApiV1InvoicesByIdErrors,
-  DeleteApiV1InvoicesByIdResponses,
-  DeleteApiV1ProductsByIdData,
-  DeleteApiV1ProductsByIdErrors,
-  DeleteApiV1ProductsByIdResponses,
-  DeleteApiV1TransactionsByIdData,
-  DeleteApiV1TransactionsByIdErrors,
-  DeleteApiV1TransactionsByIdResponses,
-  DeleteApiV1VendorsByIdData,
-  DeleteApiV1VendorsByIdErrors,
-  DeleteApiV1VendorsByIdResponses,
-  GetApiV1AdminAuthTestEmailDiagData,
-  GetApiV1AdminAuthTestEmailDiagResponses,
-  GetApiV1AdminAuthWhoamiData,
-  GetApiV1AdminAuthWhoamiErrors,
-  GetApiV1AdminAuthWhoamiResponses,
-  GetApiV1AdminByIdData,
-  GetApiV1AdminByIdErrors,
-  GetApiV1AdminByIdResponses,
-  GetApiV1AdminCategoriesByIdData,
-  GetApiV1AdminCategoriesByIdErrors,
-  GetApiV1AdminCategoriesByIdResponses,
-  GetApiV1AdminCategoriesData,
-  GetApiV1AdminCategoriesErrors,
-  GetApiV1AdminCategoriesResponses,
-  GetApiV1AdminData,
-  GetApiV1AdminErrors,
-  GetApiV1AdminEscrowsByIdData,
-  GetApiV1AdminEscrowsByIdErrors,
-  GetApiV1AdminEscrowsByIdResponses,
-  GetApiV1AdminEscrowsData,
-  GetApiV1AdminEscrowsResponses,
-  GetApiV1AdminEscrowsStatsData,
-  GetApiV1AdminEscrowsStatsResponses,
-  GetApiV1AdminOrganizationsByIdData,
-  GetApiV1AdminOrganizationsByIdErrors,
-  GetApiV1AdminOrganizationsByIdResponses,
-  GetApiV1AdminOrganizationsData,
-  GetApiV1AdminOrganizationsErrors,
-  GetApiV1AdminOrganizationsResponses,
-  GetApiV1AdminProfileData,
-  GetApiV1AdminProfileErrors,
-  GetApiV1AdminProfileResponses,
-  GetApiV1AdminResponses,
-  GetApiV1AdminTransactionsData,
-  GetApiV1AdminTransactionsErrors,
-  GetApiV1AdminTransactionsResponses,
-  GetApiV1CategoriesByIdData,
-  GetApiV1CategoriesByIdErrors,
-  GetApiV1CategoriesByIdResponses,
-  GetApiV1CategoriesData,
-  GetApiV1CategoriesErrors,
-  GetApiV1CategoriesResponses,
-  GetApiV1DataCitiesAllData,
-  GetApiV1DataCitiesAllErrors,
-  GetApiV1DataCitiesAllResponses,
-  GetApiV1DataCountriesData,
-  GetApiV1DataCountriesErrors,
-  GetApiV1DataCountriesResponses,
-  GetApiV1DataStatesAllData,
-  GetApiV1DataStatesAllErrors,
-  GetApiV1DataStatesAllResponses,
-  GetApiV1DataStatesData,
-  GetApiV1DataStatesErrors,
-  GetApiV1DataStatesResponses,
-  GetApiV1InvoicesByIdData,
-  GetApiV1InvoicesByIdErrors,
-  GetApiV1InvoicesByIdResponses,
-  GetApiV1InvoicesData,
-  GetApiV1InvoicesResponses,
-  GetApiV1ProductsByIdData,
-  GetApiV1ProductsByIdErrors,
-  GetApiV1ProductsByIdResponses,
-  GetApiV1ProductsCategoryData,
-  GetApiV1ProductsCategoryErrors,
-  GetApiV1ProductsCategoryResponses,
-  GetApiV1ProductsData,
-  GetApiV1ProductsErrors,
-  GetApiV1ProductsMineData,
-  GetApiV1ProductsMineErrors,
-  GetApiV1ProductsMineResponses,
-  GetApiV1ProductsResponses,
-  GetApiV1RequestsByIdData,
-  GetApiV1RequestsByIdErrors,
-  GetApiV1RequestsByIdResponses,
-  GetApiV1RequestsData,
-  GetApiV1RequestsResponses,
-  GetApiV1TransactionsByIdData,
-  GetApiV1TransactionsByIdErrors,
-  GetApiV1TransactionsByIdResponses,
-  GetApiV1TransactionsData,
-  GetApiV1TransactionsErrors,
-  GetApiV1TransactionsMineData,
-  GetApiV1TransactionsMineErrors,
-  GetApiV1TransactionsMineResponses,
-  GetApiV1TransactionsResponses,
-  GetApiV1UserOnboardingData,
-  GetApiV1UserOnboardingErrors,
-  GetApiV1UserOnboardingResponses,
-  GetApiV1VendorsByIdData,
-  GetApiV1VendorsByIdErrors,
-  GetApiV1VendorsByIdPaymentsData,
-  GetApiV1VendorsByIdPaymentsResponses,
-  GetApiV1VendorsByIdResponses,
-  GetApiV1VendorsData,
-  GetApiV1VendorsErrors,
-  GetApiV1VendorsResponses,
-  GetSendVerificationEmailData,
-  GetSendVerificationEmailErrors,
-  GetSendVerificationEmailResponses,
-  GetVerifyEmailByTokenData,
-  GetVerifyEmailByTokenErrors,
-  GetVerifyEmailByTokenResponses,
-  PatchApiV1AdminTransactionsByIdStatusData,
-  PatchApiV1AdminTransactionsByIdStatusErrors,
-  PatchApiV1AdminTransactionsByIdStatusResponses,
-  PatchApiV1InvoicesByIdPayData,
-  PatchApiV1InvoicesByIdPayErrors,
-  PatchApiV1InvoicesByIdPayResponses,
-  PatchApiV1ProductsByIdStatusData,
-  PatchApiV1ProductsByIdStatusErrors,
-  PatchApiV1ProductsByIdStatusResponses,
-  PatchApiV1RequestsByIdStatusData,
-  PatchApiV1RequestsByIdStatusResponses,
-  PostApiV1AdminAuthDevMintTokenData,
-  PostApiV1AdminAuthDevMintTokenErrors,
-  PostApiV1AdminAuthDevMintTokenResponses,
-  PostApiV1AdminAuthLoginData,
-  PostApiV1AdminAuthLoginErrors,
-  PostApiV1AdminAuthLoginResponses,
-  PostApiV1AdminAuthRefreshTokenData,
-  PostApiV1AdminAuthRefreshTokenErrors,
-  PostApiV1AdminAuthRefreshTokenResponses,
-  PostApiV1AdminAuthTestEmailData,
-  PostApiV1AdminAuthTestEmailErrors,
-  PostApiV1AdminAuthTestEmailRawData,
-  PostApiV1AdminAuthTestEmailRawErrors,
-  PostApiV1AdminAuthTestEmailRawResponses,
-  PostApiV1AdminAuthTestEmailResponses,
-  PostApiV1AdminCategoriesData,
-  PostApiV1AdminCategoriesErrors,
-  PostApiV1AdminCategoriesResponses,
-  PostApiV1AdminChangePasswordData,
-  PostApiV1AdminChangePasswordErrors,
-  PostApiV1AdminChangePasswordResponses,
-  PostApiV1AdminData,
-  PostApiV1AdminErrors,
-  PostApiV1AdminOrganizationsData,
-  PostApiV1AdminOrganizationsErrors,
-  PostApiV1AdminOrganizationsResponses,
-  PostApiV1AdminResponses,
-  PostApiV1CategoriesData,
-  PostApiV1CategoriesErrors,
-  PostApiV1CategoriesResponses,
-  PostApiV1InvoicesData,
-  PostApiV1InvoicesResponses,
-  PostApiV1ProductsData,
-  PostApiV1ProductsErrors,
-  PostApiV1ProductsResponses,
-  PostApiV1RequestsByIdAcceptData,
-  PostApiV1RequestsByIdAcceptErrors,
-  PostApiV1RequestsByIdAcceptResponses,
-  PostApiV1RequestsData,
-  PostApiV1RequestsResponses,
-  PostApiV1TransactionsData,
-  PostApiV1TransactionsErrors,
-  PostApiV1TransactionsResponses,
-  PostApiV1UploadData,
-  PostApiV1UploadErrors,
-  PostApiV1UploadResponses,
-  PostApiV1UserOnboardingCompleteData,
-  PostApiV1UserOnboardingCompleteErrors,
-  PostApiV1UserOnboardingCompleteResponses,
-  PostApiV1VendorsByIdPaymentsData,
-  PostApiV1VendorsByIdPaymentsErrors,
-  PostApiV1VendorsByIdPaymentsResponses,
-  PostApiV1VendorsData,
-  PostApiV1VendorsErrors,
-  PostApiV1VendorsResponses,
-  PostLoginData,
-  PostLoginErrors,
-  PostLoginResponses,
-  PostPasswordResetData,
-  PostPasswordResetErrors,
-  PostPasswordResetResponses,
-  PostRegisterData,
-  PostRegisterErrors,
-  PostRegisterResponses,
-  PostSendPasswordResetData,
-  PostSendPasswordResetErrors,
-  PostSendPasswordResetResponses,
-  PostVerifyOtpData,
-  PostVerifyOtpErrors,
-  PostVerifyOtpResponses,
-  PutApiV1AdminByIdData,
-  PutApiV1AdminByIdErrors,
-  PutApiV1AdminByIdResponses,
-  PutApiV1AdminCategoriesByIdData,
-  PutApiV1AdminCategoriesByIdErrors,
-  PutApiV1AdminCategoriesByIdResponses,
-  PutApiV1AdminOrganizationsByIdData,
-  PutApiV1AdminOrganizationsByIdErrors,
-  PutApiV1AdminOrganizationsByIdResponses,
-  PutApiV1AdminProfileData,
-  PutApiV1AdminProfileErrors,
-  PutApiV1AdminProfileResponses,
-  PutApiV1CategoriesByIdData,
-  PutApiV1CategoriesByIdErrors,
-  PutApiV1CategoriesByIdResponses,
-  PutApiV1InvoicesByIdData,
-  PutApiV1InvoicesByIdErrors,
-  PutApiV1InvoicesByIdResponses,
-  PutApiV1ProductsByIdData,
-  PutApiV1ProductsByIdErrors,
-  PutApiV1ProductsByIdResponses,
-  PutApiV1TransactionsByIdData,
-  PutApiV1TransactionsByIdErrors,
-  PutApiV1TransactionsByIdResponses,
-  PutApiV1UserOnboardingCompanyDocumentsData,
-  PutApiV1UserOnboardingCompanyDocumentsErrors,
-  PutApiV1UserOnboardingCompanyDocumentsResponses,
-  PutApiV1UserOnboardingCompanyInfoData,
-  PutApiV1UserOnboardingCompanyInfoErrors,
-  PutApiV1UserOnboardingCompanyInfoResponses,
-  PutApiV1UserOnboardingResidentialData,
-  PutApiV1UserOnboardingResidentialErrors,
-  PutApiV1UserOnboardingResidentialResponses,
-  PutApiV1VendorsByIdData,
-  PutApiV1VendorsByIdErrors,
-  PutApiV1VendorsByIdResponses,
+  AdminAuthControllerChangePasswordData,
+  AdminAuthControllerChangePasswordResponses,
+  AdminAuthControllerCreateAdminData,
+  AdminAuthControllerCreateAdminResponses,
+  AdminAuthControllerGetProfileData,
+  AdminAuthControllerGetProfileResponses,
+  AdminAuthControllerLoginData,
+  AdminAuthControllerLoginResponses,
+  AdminAuthControllerVerifyOtpData,
+  AdminAuthControllerVerifyOtpResponses,
+  AdminCategoriesControllerCreateData,
+  AdminCategoriesControllerCreateResponses,
+  AdminCategoriesControllerRemoveData,
+  AdminCategoriesControllerRemoveResponses,
+  AdminCategoriesControllerUpdateData,
+  AdminCategoriesControllerUpdateResponses,
+  AdminProductsControllerCreateData,
+  AdminProductsControllerCreateResponses,
+  AdminProductsControllerRemoveData,
+  AdminProductsControllerRemoveResponses,
+  AdminProductsControllerUpdateData,
+  AdminProductsControllerUpdateResponses,
+  AdminRequestsControllerAcceptRequestData,
+  AdminRequestsControllerAcceptRequestResponses,
+  AdminRequestsControllerFindAllData,
+  AdminRequestsControllerFindAllResponses,
+  AdminRequestsControllerFindOneData,
+  AdminRequestsControllerFindOneResponses,
+  AdminRequestsControllerUpdateStatusData,
+  AdminRequestsControllerUpdateStatusResponses,
+  AppControllerGetHelloData,
+  AppControllerGetHelloResponses,
+  CategoriesControllerFindAllData,
+  CategoriesControllerFindAllResponses,
+  CategoriesControllerFindOneData,
+  CategoriesControllerFindOneResponses,
+  LocationsControllerGetCitiesData,
+  LocationsControllerGetCitiesResponses,
+  LocationsControllerGetCountriesData,
+  LocationsControllerGetCountriesResponses,
+  LocationsControllerGetRegionsData,
+  LocationsControllerGetRegionsResponses,
+  LocationsControllerGetStatesData,
+  LocationsControllerGetStatesResponses,
+  MyProductsControllerCreateData,
+  MyProductsControllerCreateResponses,
+  MyProductsControllerFindAllData,
+  MyProductsControllerFindAllResponses,
+  MyProductsControllerFindOneData,
+  MyProductsControllerFindOneResponses,
+  MyProductsControllerRemoveData,
+  MyProductsControllerRemoveResponses,
+  MyProductsControllerUpdateData,
+  MyProductsControllerUpdateResponses,
+  OnboardingControllerCompleteOnboardingData,
+  OnboardingControllerCompleteOnboardingResponses,
+  OnboardingControllerGetOnboardingStatusData,
+  OnboardingControllerGetOnboardingStatusResponses,
+  OnboardingControllerUpdateCompanyDocumentsData,
+  OnboardingControllerUpdateCompanyDocumentsResponses,
+  OnboardingControllerUpdateCompanyInfoData,
+  OnboardingControllerUpdateCompanyInfoResponses,
+  OnboardingControllerUpdateResidentialData,
+  OnboardingControllerUpdateResidentialResponses,
+  OrdersControllerCancelData,
+  OrdersControllerCancelResponses,
+  OrdersControllerConfirmData,
+  OrdersControllerConfirmResponses,
+  OrdersControllerFindAllData,
+  OrdersControllerFindAllResponses,
+  OrdersControllerFindOneData,
+  OrdersControllerFindOneResponses,
+  OrdersControllerGetLogsData,
+  OrdersControllerGetLogsResponses,
+  OrdersControllerPurchaseData,
+  OrdersControllerPurchaseResponses,
+  OrdersControllerUpdateData,
+  OrdersControllerUpdateResponses,
+  OrgProductsControllerCreateData,
+  OrgProductsControllerCreateResponses,
+  OrgProductsControllerFindAllData,
+  OrgProductsControllerFindAllResponses,
+  OrgProductsControllerFindOneData,
+  OrgProductsControllerFindOneResponses,
+  OrgProductsControllerRemoveData,
+  OrgProductsControllerRemoveResponses,
+  OrgProductsControllerUpdateData,
+  OrgProductsControllerUpdateResponses,
+  ProductsControllerFindAllData,
+  ProductsControllerFindAllResponses,
+  ProductsControllerFindOneData,
+  ProductsControllerFindOneResponses,
+  RequestsControllerCreateData,
+  RequestsControllerCreateResponses,
+  RequestsControllerFindAllData,
+  RequestsControllerFindAllResponses,
+  RequestsControllerFindOneData,
+  RequestsControllerFindOneResponses,
+  RequestsControllerUpdateData,
+  RequestsControllerUpdateResponses,
+  StorageControllerGeneratePresignedUrlsData,
+  StorageControllerGeneratePresignedUrlsResponses,
+  TransactionsControllerAddDocumentData,
+  TransactionsControllerAddDocumentResponses,
+  TransactionsControllerCreateData,
+  TransactionsControllerCreateResponses,
+  TransactionsControllerFindByIdData,
+  TransactionsControllerFindByIdResponses,
+  TransactionsControllerFindByOrderIdData,
+  TransactionsControllerFindByOrderIdResponses,
+  TransactionsControllerGetLogsData,
+  TransactionsControllerGetLogsResponses,
+  TransactionsControllerUpdateStatusData,
+  TransactionsControllerUpdateStatusResponses,
+  UsersAuthControllerForgotPasswordData,
+  UsersAuthControllerForgotPasswordResponses,
+  UsersAuthControllerGetProfileData,
+  UsersAuthControllerGetProfileResponses,
+  UsersAuthControllerLoginData,
+  UsersAuthControllerLoginResponses,
+  UsersAuthControllerRegisterData,
+  UsersAuthControllerRegisterResponses,
+  UsersAuthControllerResetPasswordData,
+  UsersAuthControllerResetPasswordResponses,
+  UsersAuthControllerVerifyEmailData,
+  UsersAuthControllerVerifyEmailErrors,
+  UsersAuthControllerVerifyEmailResponses,
+  UsersAuthControllerVerifyOtpData,
+  UsersAuthControllerVerifyOtpResponses,
 } from "./types.gen";
 
 export type Options<
@@ -265,141 +151,152 @@ export type Options<
   meta?: Record<string, unknown>;
 };
 
-/**
- * Fetch a list of all admins
- *
- * This endpoint allows an authenticated admin to fetch all existing admin accounts.
- */
-export const getApiV1Admin = <ThrowOnError extends boolean = false>(
-  options?: Options<GetApiV1AdminData, ThrowOnError>,
+export const appControllerGetHello = <ThrowOnError extends boolean = false>(
+  options?: Options<AppControllerGetHelloData, ThrowOnError>,
 ) =>
   (options?.client ?? client).get<
-    GetApiV1AdminResponses,
-    GetApiV1AdminErrors,
+    AppControllerGetHelloResponses,
+    unknown,
     ThrowOnError
-  >({ url: "/api/v1/admin", ...options });
+  >({ url: "/api/v1", ...options });
 
 /**
- * Create a new admin
- *
- * This endpoint allows an authenticated admin to create a new admin account.
+ * Get all regions
  */
-export const postApiV1Admin = <ThrowOnError extends boolean = false>(
-  options: Options<PostApiV1AdminData, ThrowOnError>,
-) =>
-  (options.client ?? client).post<
-    PostApiV1AdminResponses,
-    PostApiV1AdminErrors,
-    ThrowOnError
-  >({
-    url: "/api/v1/admin",
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options.headers,
-    },
-  });
-
-/**
- * Fetch the profile of the current admin
- *
- * This endpoint allows an authenticated admin to fetch their profile information.
- */
-export const getApiV1AdminProfile = <ThrowOnError extends boolean = false>(
-  options?: Options<GetApiV1AdminProfileData, ThrowOnError>,
-) =>
-  (options?.client ?? client).get<
-    GetApiV1AdminProfileResponses,
-    GetApiV1AdminProfileErrors,
-    ThrowOnError
-  >({ url: "/api/v1/admin/profile", ...options });
-
-/**
- * Update the current admin's profile
- *
- * This endpoint allows an authenticated admin to update their own profile.
- */
-export const putApiV1AdminProfile = <ThrowOnError extends boolean = false>(
-  options: Options<PutApiV1AdminProfileData, ThrowOnError>,
-) =>
-  (options.client ?? client).put<
-    PutApiV1AdminProfileResponses,
-    PutApiV1AdminProfileErrors,
-    ThrowOnError
-  >({
-    url: "/api/v1/admin/profile",
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options.headers,
-    },
-  });
-
-/**
- * Change admin password
- *
- * This endpoint allows an authenticated admin to change their password.
- */
-export const postApiV1AdminChangePassword = <
+export const locationsControllerGetRegions = <
   ThrowOnError extends boolean = false,
 >(
-  options: Options<PostApiV1AdminChangePasswordData, ThrowOnError>,
+  options?: Options<LocationsControllerGetRegionsData, ThrowOnError>,
 ) =>
-  (options.client ?? client).post<
-    PostApiV1AdminChangePasswordResponses,
-    PostApiV1AdminChangePasswordErrors,
+  (options?.client ?? client).get<
+    LocationsControllerGetRegionsResponses,
+    unknown,
     ThrowOnError
-  >({
-    url: "/api/v1/admin/change-password",
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options.headers,
-    },
-  });
+  >({ url: "/api/v1/locations/regions", ...options });
 
 /**
- * Delete an admin by ID
- *
- * This endpoint allows an authenticated admin to delete an admin account by ID.
+ * Get all countries
  */
-export const deleteApiV1AdminById = <ThrowOnError extends boolean = false>(
-  options: Options<DeleteApiV1AdminByIdData, ThrowOnError>,
+export const locationsControllerGetCountries = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<LocationsControllerGetCountriesData, ThrowOnError>,
 ) =>
-  (options.client ?? client).delete<
-    DeleteApiV1AdminByIdResponses,
-    DeleteApiV1AdminByIdErrors,
+  (options?.client ?? client).get<
+    LocationsControllerGetCountriesResponses,
+    unknown,
     ThrowOnError
-  >({ url: "/api/v1/admin/{id}", ...options });
+  >({ url: "/api/v1/locations/countries", ...options });
 
 /**
- * Fetch admin by ID
- *
- * This endpoint allows an authenticated admin to fetch an admin's details by ID.
+ * Get states by country ID or ISO Code
  */
-export const getApiV1AdminById = <ThrowOnError extends boolean = false>(
-  options: Options<GetApiV1AdminByIdData, ThrowOnError>,
+export const locationsControllerGetStates = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<LocationsControllerGetStatesData, ThrowOnError>,
 ) =>
   (options.client ?? client).get<
-    GetApiV1AdminByIdResponses,
-    GetApiV1AdminByIdErrors,
+    LocationsControllerGetStatesResponses,
+    unknown,
     ThrowOnError
-  >({ url: "/api/v1/admin/{id}", ...options });
+  >({ url: "/api/v1/locations/states/{identifier}", ...options });
 
 /**
- * Update admin by ID
- *
- * This endpoint allows an authenticated admin to update another admin's details by ID.
+ * Get cities by state ID or ISO Code
  */
-export const putApiV1AdminById = <ThrowOnError extends boolean = false>(
-  options: Options<PutApiV1AdminByIdData, ThrowOnError>,
+export const locationsControllerGetCities = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<LocationsControllerGetCitiesData, ThrowOnError>,
 ) =>
-  (options.client ?? client).put<
-    PutApiV1AdminByIdResponses,
-    PutApiV1AdminByIdErrors,
+  (options.client ?? client).get<
+    LocationsControllerGetCitiesResponses,
+    unknown,
+    ThrowOnError
+  >({ url: "/api/v1/locations/cities/{identifier}", ...options });
+
+export const usersAuthControllerRegister = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<UsersAuthControllerRegisterData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    UsersAuthControllerRegisterResponses,
+    unknown,
     ThrowOnError
   >({
-    url: "/api/v1/admin/{id}",
+    url: "/api/v1/auth/register",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+export const usersAuthControllerLogin = <ThrowOnError extends boolean = false>(
+  options: Options<UsersAuthControllerLoginData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    UsersAuthControllerLoginResponses,
+    unknown,
+    ThrowOnError
+  >({
+    url: "/api/v1/auth/login",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+export const usersAuthControllerVerifyOtp = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<UsersAuthControllerVerifyOtpData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    UsersAuthControllerVerifyOtpResponses,
+    unknown,
+    ThrowOnError
+  >({
+    url: "/api/v1/auth/verify-otp",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+export const usersAuthControllerForgotPassword = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<UsersAuthControllerForgotPasswordData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    UsersAuthControllerForgotPasswordResponses,
+    unknown,
+    ThrowOnError
+  >({
+    url: "/api/v1/auth/forgot-password",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+export const usersAuthControllerResetPassword = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<UsersAuthControllerResetPasswordData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    UsersAuthControllerResetPasswordResponses,
+    unknown,
+    ThrowOnError
+  >({
+    url: "/api/v1/auth/reset-password",
     ...options,
     headers: {
       "Content-Type": "application/json",
@@ -408,39 +305,667 @@ export const putApiV1AdminById = <ThrowOnError extends boolean = false>(
   });
 
 /**
- * Mint a dev token (non-production only)
- *
- * Creates a JWT token for development/testing purposes. Only available in non-production environments.
+ * Verify user email address
  */
-export const postApiV1AdminAuthDevMintToken = <
+export const usersAuthControllerVerifyEmail = <
   ThrowOnError extends boolean = false,
 >(
-  options?: Options<PostApiV1AdminAuthDevMintTokenData, ThrowOnError>,
+  options: Options<UsersAuthControllerVerifyEmailData, ThrowOnError>,
 ) =>
-  (options?.client ?? client).post<
-    PostApiV1AdminAuthDevMintTokenResponses,
-    PostApiV1AdminAuthDevMintTokenErrors,
+  (options.client ?? client).get<
+    UsersAuthControllerVerifyEmailResponses,
+    UsersAuthControllerVerifyEmailErrors,
+    ThrowOnError
+  >({ url: "/api/v1/auth/verify-email/{token}", ...options });
+
+export const usersAuthControllerGetProfile = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<UsersAuthControllerGetProfileData, ThrowOnError>,
+) =>
+  (options?.client ?? client).get<
+    UsersAuthControllerGetProfileResponses,
+    unknown,
     ThrowOnError
   >({
-    url: "/api/v1/admin/auth/dev-mint-token",
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/auth/me",
+    ...options,
+  });
+
+export const productsControllerFindAll = <ThrowOnError extends boolean = false>(
+  options?: Options<ProductsControllerFindAllData, ThrowOnError>,
+) =>
+  (options?.client ?? client).get<
+    ProductsControllerFindAllResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/products",
+    ...options,
+  });
+
+export const productsControllerFindOne = <ThrowOnError extends boolean = false>(
+  options: Options<ProductsControllerFindOneData, ThrowOnError>,
+) =>
+  (options.client ?? client).get<
+    ProductsControllerFindOneResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/products/{id}",
+    ...options,
+  });
+
+export const myProductsControllerFindAll = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<MyProductsControllerFindAllData, ThrowOnError>,
+) =>
+  (options?.client ?? client).get<
+    MyProductsControllerFindAllResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/products/mine",
+    ...options,
+  });
+
+export const myProductsControllerCreate = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<MyProductsControllerCreateData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    MyProductsControllerCreateResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/products/mine",
     ...options,
     headers: {
       "Content-Type": "application/json",
-      ...options?.headers,
+      ...options.headers,
+    },
+  });
+
+export const myProductsControllerRemove = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<MyProductsControllerRemoveData, ThrowOnError>,
+) =>
+  (options.client ?? client).delete<
+    MyProductsControllerRemoveResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/products/mine/{id}",
+    ...options,
+  });
+
+export const myProductsControllerFindOne = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<MyProductsControllerFindOneData, ThrowOnError>,
+) =>
+  (options.client ?? client).get<
+    MyProductsControllerFindOneResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/products/mine/{id}",
+    ...options,
+  });
+
+export const myProductsControllerUpdate = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<MyProductsControllerUpdateData, ThrowOnError>,
+) =>
+  (options.client ?? client).patch<
+    MyProductsControllerUpdateResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/products/mine/{id}",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
     },
   });
 
 /**
- * Admin login
- *
- * Authenticates an admin user and returns a JWT token.
+ * Get all active categories
  */
-export const postApiV1AdminAuthLogin = <ThrowOnError extends boolean = false>(
-  options: Options<PostApiV1AdminAuthLoginData, ThrowOnError>,
+export const categoriesControllerFindAll = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<CategoriesControllerFindAllData, ThrowOnError>,
+) =>
+  (options?.client ?? client).get<
+    CategoriesControllerFindAllResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/categories",
+    ...options,
+  });
+
+/**
+ * Get a category by ID
+ */
+export const categoriesControllerFindOne = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<CategoriesControllerFindOneData, ThrowOnError>,
+) =>
+  (options.client ?? client).get<
+    CategoriesControllerFindOneResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/categories/{id}",
+    ...options,
+  });
+
+/**
+ * Create a transaction (Internal/Admin)
+ */
+export const transactionsControllerCreate = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<TransactionsControllerCreateData, ThrowOnError>,
 ) =>
   (options.client ?? client).post<
-    PostApiV1AdminAuthLoginResponses,
-    PostApiV1AdminAuthLoginErrors,
+    TransactionsControllerCreateResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/transactions",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Get transaction by order ID
+ */
+export const transactionsControllerFindByOrderId = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<TransactionsControllerFindByOrderIdData, ThrowOnError>,
+) =>
+  (options.client ?? client).get<
+    TransactionsControllerFindByOrderIdResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/transactions/order/{orderId}",
+    ...options,
+  });
+
+/**
+ * Get transaction by ID
+ */
+export const transactionsControllerFindById = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<TransactionsControllerFindByIdData, ThrowOnError>,
+) =>
+  (options.client ?? client).get<
+    TransactionsControllerFindByIdResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/transactions/{id}",
+    ...options,
+  });
+
+/**
+ * Update transaction status
+ */
+export const transactionsControllerUpdateStatus = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<TransactionsControllerUpdateStatusData, ThrowOnError>,
+) =>
+  (options.client ?? client).patch<
+    TransactionsControllerUpdateStatusResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/transactions/{id}/status",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Add a document to the transaction
+ */
+export const transactionsControllerAddDocument = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<TransactionsControllerAddDocumentData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    TransactionsControllerAddDocumentResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/transactions/{id}/documents",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Get transaction audit logs
+ */
+export const transactionsControllerGetLogs = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<TransactionsControllerGetLogsData, ThrowOnError>,
+) =>
+  (options.client ?? client).get<
+    TransactionsControllerGetLogsResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/transactions/{id}/logs",
+    ...options,
+  });
+
+/**
+ * Directly purchase a product (creates matched request and order)
+ */
+export const ordersControllerPurchase = <ThrowOnError extends boolean = false>(
+  options: Options<OrdersControllerPurchaseData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    OrdersControllerPurchaseResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/orders/purchase",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * List my orders (as buyer or seller)
+ */
+export const ordersControllerFindAll = <ThrowOnError extends boolean = false>(
+  options?: Options<OrdersControllerFindAllData, ThrowOnError>,
+) =>
+  (options?.client ?? client).get<
+    OrdersControllerFindAllResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/orders",
+    ...options,
+  });
+
+/**
+ * Get a single order (party only)
+ */
+export const ordersControllerFindOne = <ThrowOnError extends boolean = false>(
+  options: Options<OrdersControllerFindOneData, ThrowOnError>,
+) =>
+  (options.client ?? client).get<
+    OrdersControllerFindOneResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/orders/{id}",
+    ...options,
+  });
+
+/**
+ * Update order (notes/documents only)
+ */
+export const ordersControllerUpdate = <ThrowOnError extends boolean = false>(
+  options: Options<OrdersControllerUpdateData, ThrowOnError>,
+) =>
+  (options.client ?? client).patch<
+    OrdersControllerUpdateResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/orders/{id}",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Seller confirms order
+ */
+export const ordersControllerConfirm = <ThrowOnError extends boolean = false>(
+  options: Options<OrdersControllerConfirmData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    OrdersControllerConfirmResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/orders/{id}/confirm",
+    ...options,
+  });
+
+/**
+ * Get order logs
+ */
+export const ordersControllerGetLogs = <ThrowOnError extends boolean = false>(
+  options: Options<OrdersControllerGetLogsData, ThrowOnError>,
+) =>
+  (options.client ?? client).get<
+    OrdersControllerGetLogsResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/orders/{id}/logs",
+    ...options,
+  });
+
+/**
+ * Cancel order (either party, pending only)
+ */
+export const ordersControllerCancel = <ThrowOnError extends boolean = false>(
+  options: Options<OrdersControllerCancelData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    OrdersControllerCancelResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/orders/{id}/cancel",
+    ...options,
+  });
+
+/**
+ * List my requests
+ */
+export const requestsControllerFindAll = <ThrowOnError extends boolean = false>(
+  options?: Options<RequestsControllerFindAllData, ThrowOnError>,
+) =>
+  (options?.client ?? client).get<
+    RequestsControllerFindAllResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/requests",
+    ...options,
+  });
+
+/**
+ * Create a new product request
+ */
+export const requestsControllerCreate = <ThrowOnError extends boolean = false>(
+  options: Options<RequestsControllerCreateData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    RequestsControllerCreateResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/requests",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Get a single request (Own only)
+ */
+export const requestsControllerFindOne = <ThrowOnError extends boolean = false>(
+  options: Options<RequestsControllerFindOneData, ThrowOnError>,
+) =>
+  (options.client ?? client).get<
+    RequestsControllerFindOneResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/requests/{id}",
+    ...options,
+  });
+
+/**
+ * Update an existing request (Own only)
+ */
+export const requestsControllerUpdate = <ThrowOnError extends boolean = false>(
+  options: Options<RequestsControllerUpdateData, ThrowOnError>,
+) =>
+  (options.client ?? client).patch<
+    RequestsControllerUpdateResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/requests/{id}",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Get current onboarding status
+ */
+export const onboardingControllerGetOnboardingStatus = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<OnboardingControllerGetOnboardingStatusData, ThrowOnError>,
+) =>
+  (options?.client ?? client).get<
+    OnboardingControllerGetOnboardingStatusResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/onboarding",
+    ...options,
+  });
+
+/**
+ * Update residential address
+ */
+export const onboardingControllerUpdateResidential = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<OnboardingControllerUpdateResidentialData, ThrowOnError>,
+) =>
+  (options.client ?? client).put<
+    OnboardingControllerUpdateResidentialResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/onboarding/residential",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Update company information
+ */
+export const onboardingControllerUpdateCompanyInfo = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<OnboardingControllerUpdateCompanyInfoData, ThrowOnError>,
+) =>
+  (options.client ?? client).put<
+    OnboardingControllerUpdateCompanyInfoResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/onboarding/company-info",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Update company documents
+ */
+export const onboardingControllerUpdateCompanyDocuments = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    OnboardingControllerUpdateCompanyDocumentsData,
+    ThrowOnError
+  >,
+) =>
+  (options.client ?? client).put<
+    OnboardingControllerUpdateCompanyDocumentsResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/onboarding/company-documents",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Complete onboarding
+ */
+export const onboardingControllerCompleteOnboarding = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<OnboardingControllerCompleteOnboardingData, ThrowOnError>,
+) =>
+  (options?.client ?? client).post<
+    OnboardingControllerCompleteOnboardingResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/onboarding/complete",
+    ...options,
+  });
+
+/**
+ * Create a new product (Admin)
+ */
+export const adminProductsControllerCreate = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AdminProductsControllerCreateData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    AdminProductsControllerCreateResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/products",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Delete a product (Admin)
+ */
+export const adminProductsControllerRemove = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AdminProductsControllerRemoveData, ThrowOnError>,
+) =>
+  (options.client ?? client).delete<
+    AdminProductsControllerRemoveResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/products/{id}",
+    ...options,
+  });
+
+/**
+ * Update an existing product (Admin)
+ */
+export const adminProductsControllerUpdate = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AdminProductsControllerUpdateData, ThrowOnError>,
+) =>
+  (options.client ?? client).patch<
+    AdminProductsControllerUpdateResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/products/{id}",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Login with email and password to receive OTP
+ */
+export const adminAuthControllerLogin = <ThrowOnError extends boolean = false>(
+  options: Options<AdminAuthControllerLoginData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    AdminAuthControllerLoginResponses,
+    unknown,
     ThrowOnError
   >({
     url: "/api/v1/admin/auth/login",
@@ -452,143 +977,90 @@ export const postApiV1AdminAuthLogin = <ThrowOnError extends boolean = false>(
   });
 
 /**
- * Refresh admin token
- *
- * Refreshes the admin access token using a refresh token.
+ * Verify OTP and get access token
  */
-export const postApiV1AdminAuthRefreshToken = <
+export const adminAuthControllerVerifyOtp = <
   ThrowOnError extends boolean = false,
 >(
-  options?: Options<PostApiV1AdminAuthRefreshTokenData, ThrowOnError>,
+  options: Options<AdminAuthControllerVerifyOtpData, ThrowOnError>,
 ) =>
-  (options?.client ?? client).post<
-    PostApiV1AdminAuthRefreshTokenResponses,
-    PostApiV1AdminAuthRefreshTokenErrors,
+  (options.client ?? client).post<
+    AdminAuthControllerVerifyOtpResponses,
+    unknown,
     ThrowOnError
   >({
-    url: "/api/v1/admin/auth/refresh-token",
+    url: "/api/v1/admin/auth/verify-otp",
     ...options,
     headers: {
       "Content-Type": "application/json",
-      ...options?.headers,
+      ...options.headers,
     },
   });
 
-/**
- * Get current admin info
- *
- * Returns the authenticated admin's information from the JWT token.
- */
-export const getApiV1AdminAuthWhoami = <ThrowOnError extends boolean = false>(
-  options?: Options<GetApiV1AdminAuthWhoamiData, ThrowOnError>,
-) =>
-  (options?.client ?? client).get<
-    GetApiV1AdminAuthWhoamiResponses,
-    GetApiV1AdminAuthWhoamiErrors,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/api/v1/admin/auth/whoami",
-    ...options,
-  });
-
-/**
- * Email diagnostics
- *
- * Returns email configuration diagnostics.
- */
-export const getApiV1AdminAuthTestEmailDiag = <
+export const adminAuthControllerCreateAdmin = <
   ThrowOnError extends boolean = false,
 >(
-  options?: Options<GetApiV1AdminAuthTestEmailDiagData, ThrowOnError>,
+  options: Options<AdminAuthControllerCreateAdminData, ThrowOnError>,
 ) =>
-  (options?.client ?? client).get<
-    GetApiV1AdminAuthTestEmailDiagResponses,
+  (options.client ?? client).post<
+    AdminAuthControllerCreateAdminResponses,
     unknown,
     ThrowOnError
   >({
     security: [{ scheme: "bearer", type: "http" }],
-    url: "/api/v1/admin/auth/test-email/diag",
-    ...options,
-  });
-
-/**
- * Raw SendGrid test
- *
- * Sends a raw test email via SendGrid.
- */
-export const postApiV1AdminAuthTestEmailRaw = <
-  ThrowOnError extends boolean = false,
->(
-  options?: Options<PostApiV1AdminAuthTestEmailRawData, ThrowOnError>,
-) =>
-  (options?.client ?? client).post<
-    PostApiV1AdminAuthTestEmailRawResponses,
-    PostApiV1AdminAuthTestEmailRawErrors,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/api/v1/admin/auth/test-email/raw",
+    url: "/api/v1/admin/auth/create",
     ...options,
     headers: {
       "Content-Type": "application/json",
-      ...options?.headers,
+      ...options.headers,
     },
   });
 
-/**
- * Formatted email test
- *
- * Sends a formatted test email.
- */
-export const postApiV1AdminAuthTestEmail = <
+export const adminAuthControllerChangePassword = <
   ThrowOnError extends boolean = false,
 >(
-  options?: Options<PostApiV1AdminAuthTestEmailData, ThrowOnError>,
-) =>
-  (options?.client ?? client).post<
-    PostApiV1AdminAuthTestEmailResponses,
-    PostApiV1AdminAuthTestEmailErrors,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/api/v1/admin/auth/test-email",
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options?.headers,
-    },
-  });
-
-/**
- * List all categories
- *
- * Fetches product categories with pagination.
- */
-export const getApiV1AdminCategories = <ThrowOnError extends boolean = false>(
-  options?: Options<GetApiV1AdminCategoriesData, ThrowOnError>,
-) =>
-  (options?.client ?? client).get<
-    GetApiV1AdminCategoriesResponses,
-    GetApiV1AdminCategoriesErrors,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/api/v1/admin/categories",
-    ...options,
-  });
-
-/**
- * Create a category
- *
- * Creates a new product category.
- */
-export const postApiV1AdminCategories = <ThrowOnError extends boolean = false>(
-  options: Options<PostApiV1AdminCategoriesData, ThrowOnError>,
+  options: Options<AdminAuthControllerChangePasswordData, ThrowOnError>,
 ) =>
   (options.client ?? client).post<
-    PostApiV1AdminCategoriesResponses,
-    PostApiV1AdminCategoriesErrors,
+    AdminAuthControllerChangePasswordResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/auth/change-password",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+export const adminAuthControllerGetProfile = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<AdminAuthControllerGetProfileData, ThrowOnError>,
+) =>
+  (options?.client ?? client).get<
+    AdminAuthControllerGetProfileResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/auth/me",
+    ...options,
+  });
+
+/**
+ * Create a new category
+ */
+export const adminCategoriesControllerCreate = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AdminCategoriesControllerCreateData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    AdminCategoriesControllerCreateResponses,
+    unknown,
     ThrowOnError
   >({
     security: [{ scheme: "bearer", type: "http" }],
@@ -602,37 +1074,15 @@ export const postApiV1AdminCategories = <ThrowOnError extends boolean = false>(
 
 /**
  * Delete a category
- *
- * Deletes a category by ID.
  */
-export const deleteApiV1AdminCategoriesById = <
+export const adminCategoriesControllerRemove = <
   ThrowOnError extends boolean = false,
 >(
-  options: Options<DeleteApiV1AdminCategoriesByIdData, ThrowOnError>,
+  options: Options<AdminCategoriesControllerRemoveData, ThrowOnError>,
 ) =>
   (options.client ?? client).delete<
-    DeleteApiV1AdminCategoriesByIdResponses,
-    DeleteApiV1AdminCategoriesByIdErrors,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/api/v1/admin/categories/{id}",
-    ...options,
-  });
-
-/**
- * Get a category
- *
- * Fetches a category by ID.
- */
-export const getApiV1AdminCategoriesById = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<GetApiV1AdminCategoriesByIdData, ThrowOnError>,
-) =>
-  (options.client ?? client).get<
-    GetApiV1AdminCategoriesByIdResponses,
-    GetApiV1AdminCategoriesByIdErrors,
+    AdminCategoriesControllerRemoveResponses,
+    unknown,
     ThrowOnError
   >({
     security: [{ scheme: "bearer", type: "http" }],
@@ -642,17 +1092,15 @@ export const getApiV1AdminCategoriesById = <
 
 /**
  * Update a category
- *
- * Updates an existing category by ID.
  */
-export const putApiV1AdminCategoriesById = <
+export const adminCategoriesControllerUpdate = <
   ThrowOnError extends boolean = false,
 >(
-  options: Options<PutApiV1AdminCategoriesByIdData, ThrowOnError>,
+  options: Options<AdminCategoriesControllerUpdateData, ThrowOnError>,
 ) =>
-  (options.client ?? client).put<
-    PutApiV1AdminCategoriesByIdResponses,
-    PutApiV1AdminCategoriesByIdErrors,
+  (options.client ?? client).patch<
+    AdminCategoriesControllerUpdateResponses,
+    unknown,
     ThrowOnError
   >({
     security: [{ scheme: "bearer", type: "http" }],
@@ -665,963 +1113,74 @@ export const putApiV1AdminCategoriesById = <
   });
 
 /**
- * List all escrows
- *
- * Fetches a paginated list of all escrows for admin management.
+ * List all requests (Admin)
  */
-export const getApiV1AdminEscrows = <ThrowOnError extends boolean = false>(
-  options?: Options<GetApiV1AdminEscrowsData, ThrowOnError>,
+export const adminRequestsControllerFindAll = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<AdminRequestsControllerFindAllData, ThrowOnError>,
 ) =>
   (options?.client ?? client).get<
-    GetApiV1AdminEscrowsResponses,
+    AdminRequestsControllerFindAllResponses,
     unknown,
     ThrowOnError
   >({
     security: [{ scheme: "bearer", type: "http" }],
-    url: "/api/v1/admin/escrows",
+    url: "/api/v1/admin/requests",
     ...options,
   });
 
 /**
- * Get escrow details
- *
- * Fetches details of a single escrow by ID.
+ * Get any request (Admin)
  */
-export const getApiV1AdminEscrowsById = <ThrowOnError extends boolean = false>(
-  options: Options<GetApiV1AdminEscrowsByIdData, ThrowOnError>,
+export const adminRequestsControllerFindOne = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AdminRequestsControllerFindOneData, ThrowOnError>,
 ) =>
   (options.client ?? client).get<
-    GetApiV1AdminEscrowsByIdResponses,
-    GetApiV1AdminEscrowsByIdErrors,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/api/v1/admin/escrows/{id}",
-    ...options,
-  });
-
-/**
- * Get escrow statistics
- *
- * Fetches aggregated statistics for escrows.
- */
-export const getApiV1AdminEscrowsStats = <ThrowOnError extends boolean = false>(
-  options?: Options<GetApiV1AdminEscrowsStatsData, ThrowOnError>,
-) =>
-  (options?.client ?? client).get<
-    GetApiV1AdminEscrowsStatsResponses,
+    AdminRequestsControllerFindOneResponses,
     unknown,
     ThrowOnError
   >({
     security: [{ scheme: "bearer", type: "http" }],
-    url: "/api/v1/admin/escrows/stats",
-    ...options,
-  });
-
-/**
- * List all organizations
- *
- * Fetches organizations with pagination, search, and type filtering.
- */
-export const getApiV1AdminOrganizations = <
-  ThrowOnError extends boolean = false,
->(
-  options?: Options<GetApiV1AdminOrganizationsData, ThrowOnError>,
-) =>
-  (options?.client ?? client).get<
-    GetApiV1AdminOrganizationsResponses,
-    GetApiV1AdminOrganizationsErrors,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/api/v1/admin/organizations",
-    ...options,
-  });
-
-/**
- * Create an organization
- *
- * Creates a new organization.
- */
-export const postApiV1AdminOrganizations = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<PostApiV1AdminOrganizationsData, ThrowOnError>,
-) =>
-  (options.client ?? client).post<
-    PostApiV1AdminOrganizationsResponses,
-    PostApiV1AdminOrganizationsErrors,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/api/v1/admin/organizations",
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options.headers,
-    },
-  });
-
-/**
- * Delete an organization
- *
- * Deletes an organization by ID.
- */
-export const deleteApiV1AdminOrganizationsById = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<DeleteApiV1AdminOrganizationsByIdData, ThrowOnError>,
-) =>
-  (options.client ?? client).delete<
-    DeleteApiV1AdminOrganizationsByIdResponses,
-    DeleteApiV1AdminOrganizationsByIdErrors,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/api/v1/admin/organizations/{id}",
-    ...options,
-  });
-
-/**
- * Get an organization
- *
- * Fetches an organization by ID.
- */
-export const getApiV1AdminOrganizationsById = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<GetApiV1AdminOrganizationsByIdData, ThrowOnError>,
-) =>
-  (options.client ?? client).get<
-    GetApiV1AdminOrganizationsByIdResponses,
-    GetApiV1AdminOrganizationsByIdErrors,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/api/v1/admin/organizations/{id}",
-    ...options,
-  });
-
-/**
- * Update an organization
- *
- * Updates an existing organization by ID.
- */
-export const putApiV1AdminOrganizationsById = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<PutApiV1AdminOrganizationsByIdData, ThrowOnError>,
-) =>
-  (options.client ?? client).put<
-    PutApiV1AdminOrganizationsByIdResponses,
-    PutApiV1AdminOrganizationsByIdErrors,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/api/v1/admin/organizations/{id}",
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options.headers,
-    },
-  });
-
-/**
- * List all transactions
- *
- * Fetches a paginated list of all transactions for admin management.
- */
-export const getApiV1AdminTransactions = <ThrowOnError extends boolean = false>(
-  options?: Options<GetApiV1AdminTransactionsData, ThrowOnError>,
-) =>
-  (options?.client ?? client).get<
-    GetApiV1AdminTransactionsResponses,
-    GetApiV1AdminTransactionsErrors,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/api/v1/admin/transactions",
-    ...options,
-  });
-
-/**
- * Update transaction status
- *
- * Updates the status of a transaction.
- */
-export const patchApiV1AdminTransactionsByIdStatus = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<PatchApiV1AdminTransactionsByIdStatusData, ThrowOnError>,
-) =>
-  (options.client ?? client).patch<
-    PatchApiV1AdminTransactionsByIdStatusResponses,
-    PatchApiV1AdminTransactionsByIdStatusErrors,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/api/v1/admin/transactions/{id}/status",
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options.headers,
-    },
-  });
-
-/**
- * Get all countries
- *
- * Fetch a list of all countries.
- */
-export const getApiV1DataCountries = <ThrowOnError extends boolean = false>(
-  options?: Options<GetApiV1DataCountriesData, ThrowOnError>,
-) =>
-  (options?.client ?? client).get<
-    GetApiV1DataCountriesResponses,
-    GetApiV1DataCountriesErrors,
-    ThrowOnError
-  >({ url: "/api/v1/data/countries", ...options });
-
-/**
- * Get all states
- *
- * Fetch a list of all states in a country (requires country parameter).
- */
-export const getApiV1DataStates = <ThrowOnError extends boolean = false>(
-  options: Options<GetApiV1DataStatesData, ThrowOnError>,
-) =>
-  (options.client ?? client).get<
-    GetApiV1DataStatesResponses,
-    GetApiV1DataStatesErrors,
-    ThrowOnError
-  >({ url: "/api/v1/data/states", ...options });
-
-/**
- * Get all states for a country (non-paginated)
- *
- * Fetch all states for a country without pagination. Useful for dropdown menus.
- */
-export const getApiV1DataStatesAll = <ThrowOnError extends boolean = false>(
-  options: Options<GetApiV1DataStatesAllData, ThrowOnError>,
-) =>
-  (options.client ?? client).get<
-    GetApiV1DataStatesAllResponses,
-    GetApiV1DataStatesAllErrors,
-    ThrowOnError
-  >({ url: "/api/v1/data/states/all", ...options });
-
-/**
- * Get all cities for a state (non-paginated)
- *
- * Fetch all cities for a state without pagination. Useful for dropdown menus.
- */
-export const getApiV1DataCitiesAll = <ThrowOnError extends boolean = false>(
-  options: Options<GetApiV1DataCitiesAllData, ThrowOnError>,
-) =>
-  (options.client ?? client).get<
-    GetApiV1DataCitiesAllResponses,
-    GetApiV1DataCitiesAllErrors,
-    ThrowOnError
-  >({ url: "/api/v1/data/cities/all", ...options });
-
-/**
- * Uploads a file and returns its URL.
- *
- * Accepts a file from the request and uploads it to either local storage or S3, returning the file URL.
- */
-export const postApiV1Upload = <ThrowOnError extends boolean = false>(
-  options?: Options<PostApiV1UploadData, ThrowOnError>,
-) =>
-  (options?.client ?? client).post<
-    PostApiV1UploadResponses,
-    PostApiV1UploadErrors,
-    ThrowOnError
-  >({ url: "/api/v1/upload", ...options });
-
-/**
- * List invoices
- *
- * Get a paginated list of invoices.
- */
-export const getApiV1Invoices = <ThrowOnError extends boolean = false>(
-  options?: Options<GetApiV1InvoicesData, ThrowOnError>,
-) =>
-  (options?.client ?? client).get<
-    GetApiV1InvoicesResponses,
-    unknown,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/api/v1/invoices",
-    ...options,
-  });
-
-/**
- * Create a new invoice
- *
- * Create a new invoice, optionally linked to an order.
- */
-export const postApiV1Invoices = <ThrowOnError extends boolean = false>(
-  options: Options<PostApiV1InvoicesData, ThrowOnError>,
-) =>
-  (options.client ?? client).post<
-    PostApiV1InvoicesResponses,
-    unknown,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/api/v1/invoices",
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options.headers,
-    },
-  });
-
-/**
- * Delete an invoice
- *
- * Delete an invoice. Cannot delete paid invoices.
- */
-export const deleteApiV1InvoicesById = <ThrowOnError extends boolean = false>(
-  options: Options<DeleteApiV1InvoicesByIdData, ThrowOnError>,
-) =>
-  (options.client ?? client).delete<
-    DeleteApiV1InvoicesByIdResponses,
-    DeleteApiV1InvoicesByIdErrors,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/api/v1/invoices/{id}",
-    ...options,
-  });
-
-/**
- * Get a single invoice
- *
- * Get invoice by ID.
- */
-export const getApiV1InvoicesById = <ThrowOnError extends boolean = false>(
-  options: Options<GetApiV1InvoicesByIdData, ThrowOnError>,
-) =>
-  (options.client ?? client).get<
-    GetApiV1InvoicesByIdResponses,
-    GetApiV1InvoicesByIdErrors,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/api/v1/invoices/{id}",
-    ...options,
-  });
-
-/**
- * Update an invoice
- *
- * Update invoice details. Cannot update paid invoices.
- */
-export const putApiV1InvoicesById = <ThrowOnError extends boolean = false>(
-  options: Options<PutApiV1InvoicesByIdData, ThrowOnError>,
-) =>
-  (options.client ?? client).put<
-    PutApiV1InvoicesByIdResponses,
-    PutApiV1InvoicesByIdErrors,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/api/v1/invoices/{id}",
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options.headers,
-    },
-  });
-
-/**
- * Mark invoice as paid
- *
- * Mark an invoice as paid by the current user.
- */
-export const patchApiV1InvoicesByIdPay = <ThrowOnError extends boolean = false>(
-  options: Options<PatchApiV1InvoicesByIdPayData, ThrowOnError>,
-) =>
-  (options.client ?? client).patch<
-    PatchApiV1InvoicesByIdPayResponses,
-    PatchApiV1InvoicesByIdPayErrors,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/api/v1/invoices/{id}/pay",
-    ...options,
-  });
-
-/**
- * Get onboarding status
- *
- * Returns the current onboarding step and all submitted onboarding data.
- */
-export const getApiV1UserOnboarding = <ThrowOnError extends boolean = false>(
-  options?: Options<GetApiV1UserOnboardingData, ThrowOnError>,
-) =>
-  (options?.client ?? client).get<
-    GetApiV1UserOnboardingResponses,
-    GetApiV1UserOnboardingErrors,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/api/v1/user/onboarding",
-    ...options,
-  });
-
-/**
- * Save residential address
- *
- * Saves the user's residential address and advances onboarding to the company_info step.
- */
-export const putApiV1UserOnboardingResidential = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<PutApiV1UserOnboardingResidentialData, ThrowOnError>,
-) =>
-  (options.client ?? client).put<
-    PutApiV1UserOnboardingResidentialResponses,
-    PutApiV1UserOnboardingResidentialErrors,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/api/v1/user/onboarding/residential",
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options.headers,
-    },
-  });
-
-/**
- * Save company information
- *
- * Saves company information and advances onboarding to the company_documents step.
- */
-export const putApiV1UserOnboardingCompanyInfo = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<PutApiV1UserOnboardingCompanyInfoData, ThrowOnError>,
-) =>
-  (options.client ?? client).put<
-    PutApiV1UserOnboardingCompanyInfoResponses,
-    PutApiV1UserOnboardingCompanyInfoErrors,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/api/v1/user/onboarding/company-info",
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options.headers,
-    },
-  });
-
-/**
- * Save company documents
- *
- * Saves company documents (RC number, Tax ID) and advances onboarding to the review step.
- */
-export const putApiV1UserOnboardingCompanyDocuments = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<PutApiV1UserOnboardingCompanyDocumentsData, ThrowOnError>,
-) =>
-  (options.client ?? client).put<
-    PutApiV1UserOnboardingCompanyDocumentsResponses,
-    PutApiV1UserOnboardingCompanyDocumentsErrors,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/api/v1/user/onboarding/company-documents",
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options.headers,
-    },
-  });
-
-/**
- * Complete onboarding
- *
- * Marks the user's onboarding as complete.
- */
-export const postApiV1UserOnboardingComplete = <
-  ThrowOnError extends boolean = false,
->(
-  options?: Options<PostApiV1UserOnboardingCompleteData, ThrowOnError>,
-) =>
-  (options?.client ?? client).post<
-    PostApiV1UserOnboardingCompleteResponses,
-    PostApiV1UserOnboardingCompleteErrors,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/api/v1/user/onboarding/complete",
-    ...options,
-  });
-
-/**
- * Get all products
- *
- * Fetch a list of all products.
- */
-export const getApiV1Products = <ThrowOnError extends boolean = false>(
-  options?: Options<GetApiV1ProductsData, ThrowOnError>,
-) =>
-  (options?.client ?? client).get<
-    GetApiV1ProductsResponses,
-    GetApiV1ProductsErrors,
-    ThrowOnError
-  >({ url: "/api/v1/products", ...options });
-
-/**
- * Create a new product
- *
- * Allows a user to create a new product.
- */
-export const postApiV1Products = <ThrowOnError extends boolean = false>(
-  options: Options<PostApiV1ProductsData, ThrowOnError>,
-) =>
-  (options.client ?? client).post<
-    PostApiV1ProductsResponses,
-    PostApiV1ProductsErrors,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/api/v1/products",
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options.headers,
-    },
-  });
-
-/**
- * Get products by category
- *
- * Fetch a list of products filtered by category.
- */
-export const getApiV1ProductsCategory = <ThrowOnError extends boolean = false>(
-  options: Options<GetApiV1ProductsCategoryData, ThrowOnError>,
-) =>
-  (options.client ?? client).get<
-    GetApiV1ProductsCategoryResponses,
-    GetApiV1ProductsCategoryErrors,
-    ThrowOnError
-  >({ url: "/api/v1/products/category", ...options });
-
-/**
- * Get the user's products
- *
- * Fetch the list of products owned by the currently authenticated user.
- */
-export const getApiV1ProductsMine = <ThrowOnError extends boolean = false>(
-  options?: Options<GetApiV1ProductsMineData, ThrowOnError>,
-) =>
-  (options?.client ?? client).get<
-    GetApiV1ProductsMineResponses,
-    GetApiV1ProductsMineErrors,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/api/v1/products/mine",
-    ...options,
-  });
-
-/**
- * Delete a product by ID
- *
- * Delete a product by its ID.
- */
-export const deleteApiV1ProductsById = <ThrowOnError extends boolean = false>(
-  options: Options<DeleteApiV1ProductsByIdData, ThrowOnError>,
-) =>
-  (options.client ?? client).delete<
-    DeleteApiV1ProductsByIdResponses,
-    DeleteApiV1ProductsByIdErrors,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/api/v1/products/{id}",
-    ...options,
-  });
-
-/**
- * Get a product by ID
- *
- * Fetch a single product by its ID.
- */
-export const getApiV1ProductsById = <ThrowOnError extends boolean = false>(
-  options: Options<GetApiV1ProductsByIdData, ThrowOnError>,
-) =>
-  (options.client ?? client).get<
-    GetApiV1ProductsByIdResponses,
-    GetApiV1ProductsByIdErrors,
-    ThrowOnError
-  >({ url: "/api/v1/products/{id}", ...options });
-
-/**
- * Update a product by ID
- *
- * Update product details by its ID.
- */
-export const putApiV1ProductsById = <ThrowOnError extends boolean = false>(
-  options: Options<PutApiV1ProductsByIdData, ThrowOnError>,
-) =>
-  (options.client ?? client).put<
-    PutApiV1ProductsByIdResponses,
-    PutApiV1ProductsByIdErrors,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/api/v1/products/{id}",
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options.headers,
-    },
-  });
-
-/**
- * Get all categories
- *
- * Fetch a list of all product categories.
- */
-export const getApiV1Categories = <ThrowOnError extends boolean = false>(
-  options?: Options<GetApiV1CategoriesData, ThrowOnError>,
-) =>
-  (options?.client ?? client).get<
-    GetApiV1CategoriesResponses,
-    GetApiV1CategoriesErrors,
-    ThrowOnError
-  >({ url: "/api/v1/categories", ...options });
-
-/**
- * Create a new category
- *
- * Allows an admin to create a new category.
- */
-export const postApiV1Categories = <ThrowOnError extends boolean = false>(
-  options: Options<PostApiV1CategoriesData, ThrowOnError>,
-) =>
-  (options.client ?? client).post<
-    PostApiV1CategoriesResponses,
-    PostApiV1CategoriesErrors,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/api/v1/categories",
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options.headers,
-    },
-  });
-
-/**
- * Delete a category by ID
- *
- * Delete a category by its ID.
- */
-export const deleteApiV1CategoriesById = <ThrowOnError extends boolean = false>(
-  options: Options<DeleteApiV1CategoriesByIdData, ThrowOnError>,
-) =>
-  (options.client ?? client).delete<
-    DeleteApiV1CategoriesByIdResponses,
-    DeleteApiV1CategoriesByIdErrors,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/api/v1/categories/{id}",
-    ...options,
-  });
-
-/**
- * Get category by ID
- *
- * Fetch a category by its ID.
- */
-export const getApiV1CategoriesById = <ThrowOnError extends boolean = false>(
-  options: Options<GetApiV1CategoriesByIdData, ThrowOnError>,
-) =>
-  (options.client ?? client).get<
-    GetApiV1CategoriesByIdResponses,
-    GetApiV1CategoriesByIdErrors,
-    ThrowOnError
-  >({ url: "/api/v1/categories/{id}", ...options });
-
-/**
- * Update a category by ID
- *
- * Update a category by its ID.
- */
-export const putApiV1CategoriesById = <ThrowOnError extends boolean = false>(
-  options: Options<PutApiV1CategoriesByIdData, ThrowOnError>,
-) =>
-  (options.client ?? client).put<
-    PutApiV1CategoriesByIdResponses,
-    PutApiV1CategoriesByIdErrors,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/api/v1/categories/{id}",
-    ...options,
-  });
-
-/**
- * Get all transactions
- *
- * Fetch a list of all transactions for the currently authenticated user.
- */
-export const getApiV1Transactions = <ThrowOnError extends boolean = false>(
-  options?: Options<GetApiV1TransactionsData, ThrowOnError>,
-) =>
-  (options?.client ?? client).get<
-    GetApiV1TransactionsResponses,
-    GetApiV1TransactionsErrors,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/api/v1/transactions",
-    ...options,
-  });
-
-/**
- * Create a new transaction
- *
- * Allows a user to create a new transaction (deal).
- */
-export const postApiV1Transactions = <ThrowOnError extends boolean = false>(
-  options?: Options<PostApiV1TransactionsData, ThrowOnError>,
-) =>
-  (options?.client ?? client).post<
-    PostApiV1TransactionsResponses,
-    PostApiV1TransactionsErrors,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/api/v1/transactions",
-    ...options,
-  });
-
-/**
- * Get the user's transactions
- *
- * Fetch the list of transactions for the currently authenticated user.
- */
-export const getApiV1TransactionsMine = <ThrowOnError extends boolean = false>(
-  options?: Options<GetApiV1TransactionsMineData, ThrowOnError>,
-) =>
-  (options?.client ?? client).get<
-    GetApiV1TransactionsMineResponses,
-    GetApiV1TransactionsMineErrors,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/api/v1/transactions/mine",
-    ...options,
-  });
-
-/**
- * Delete a transaction by ID
- *
- * Delete a transaction by its ID.
- */
-export const deleteApiV1TransactionsById = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<DeleteApiV1TransactionsByIdData, ThrowOnError>,
-) =>
-  (options.client ?? client).delete<
-    DeleteApiV1TransactionsByIdResponses,
-    DeleteApiV1TransactionsByIdErrors,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/api/v1/transactions/{id}",
-    ...options,
-  });
-
-/**
- * Get a transaction by ID
- *
- * Fetch a single transaction by its ID.
- */
-export const getApiV1TransactionsById = <ThrowOnError extends boolean = false>(
-  options: Options<GetApiV1TransactionsByIdData, ThrowOnError>,
-) =>
-  (options.client ?? client).get<
-    GetApiV1TransactionsByIdResponses,
-    GetApiV1TransactionsByIdErrors,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/api/v1/transactions/{id}",
-    ...options,
-  });
-
-/**
- * Update a transaction by ID
- *
- * Update transaction details by its ID.
- */
-export const putApiV1TransactionsById = <ThrowOnError extends boolean = false>(
-  options: Options<PutApiV1TransactionsByIdData, ThrowOnError>,
-) =>
-  (options.client ?? client).put<
-    PutApiV1TransactionsByIdResponses,
-    PutApiV1TransactionsByIdErrors,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/api/v1/transactions/{id}",
-    ...options,
-  });
-
-/**
- * Update product status
- *
- * Update the status of a product (approve/reject).
- */
-export const patchApiV1ProductsByIdStatus = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<PatchApiV1ProductsByIdStatusData, ThrowOnError>,
-) =>
-  (options.client ?? client).patch<
-    PatchApiV1ProductsByIdStatusResponses,
-    PatchApiV1ProductsByIdStatusErrors,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/api/v1/products/{id}/status",
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options.headers,
-    },
-  });
-
-/**
- * List product requests
- *
- * get all.
- */
-export const getApiV1Requests = <ThrowOnError extends boolean = false>(
-  options?: Options<GetApiV1RequestsData, ThrowOnError>,
-) =>
-  (options?.client ?? client).get<
-    GetApiV1RequestsResponses,
-    unknown,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/api/v1/requests",
-    ...options,
-  });
-
-/**
- * Create a new product request
- *
- * Create a new request for a product.
- */
-export const postApiV1Requests = <ThrowOnError extends boolean = false>(
-  options: Options<PostApiV1RequestsData, ThrowOnError>,
-) =>
-  (options.client ?? client).post<
-    PostApiV1RequestsResponses,
-    unknown,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/api/v1/requests",
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options.headers,
-    },
-  });
-
-/**
- * Get a single product request
- *
- * Get by ID.
- */
-export const getApiV1RequestsById = <ThrowOnError extends boolean = false>(
-  options: Options<GetApiV1RequestsByIdData, ThrowOnError>,
-) =>
-  (options.client ?? client).get<
-    GetApiV1RequestsByIdResponses,
-    GetApiV1RequestsByIdErrors,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/api/v1/requests/{id}",
+    url: "/api/v1/admin/requests/{id}",
     ...options,
   });
 
 /**
  * Update request status
- *
- * Update the status of a product request.
  */
-export const patchApiV1RequestsByIdStatus = <
+export const adminRequestsControllerUpdateStatus = <
   ThrowOnError extends boolean = false,
 >(
-  options: Options<PatchApiV1RequestsByIdStatusData, ThrowOnError>,
+  options: Options<AdminRequestsControllerUpdateStatusData, ThrowOnError>,
 ) =>
   (options.client ?? client).patch<
-    PatchApiV1RequestsByIdStatusResponses,
+    AdminRequestsControllerUpdateStatusResponses,
     unknown,
     ThrowOnError
   >({
     security: [{ scheme: "bearer", type: "http" }],
-    url: "/api/v1/requests/{id}/status",
+    url: "/api/v1/admin/requests/{id}/status",
     ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options.headers,
-    },
   });
 
 /**
- * Accept a product request
- *
- * Seller accepts a buyer's product request, creating an order.
+ * Accept request and create order (Admin)
  */
-export const postApiV1RequestsByIdAccept = <
+export const adminRequestsControllerAcceptRequest = <
   ThrowOnError extends boolean = false,
 >(
-  options: Options<PostApiV1RequestsByIdAcceptData, ThrowOnError>,
+  options: Options<AdminRequestsControllerAcceptRequestData, ThrowOnError>,
 ) =>
   (options.client ?? client).post<
-    PostApiV1RequestsByIdAcceptResponses,
-    PostApiV1RequestsByIdAcceptErrors,
+    AdminRequestsControllerAcceptRequestResponses,
+    unknown,
     ThrowOnError
   >({
     security: [{ scheme: "bearer", type: "http" }],
-    url: "/api/v1/requests/{id}/accept",
-    ...options,
-  });
-
-/**
- * Register a new user
- *
- * Allows a new user to register with a username and password.
- */
-export const postRegister = <ThrowOnError extends boolean = false>(
-  options: Options<PostRegisterData, ThrowOnError>,
-) =>
-  (options.client ?? client).post<
-    PostRegisterResponses,
-    PostRegisterErrors,
-    ThrowOnError
-  >({
-    url: "/register",
+    url: "/api/v1/admin/requests/{id}/accept",
     ...options,
     headers: {
       "Content-Type": "application/json",
@@ -1629,111 +1188,33 @@ export const postRegister = <ThrowOnError extends boolean = false>(
     },
   });
 
-/**
- * Login a user
- *
- * Authenticates a user and returns a token.
- */
-export const postLogin = <ThrowOnError extends boolean = false>(
-  options: Options<PostLoginData, ThrowOnError>,
-) =>
-  (options.client ?? client).post<
-    PostLoginResponses,
-    PostLoginErrors,
-    ThrowOnError
-  >({
-    url: "/login",
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options.headers,
-    },
-  });
-
-/**
- * Send a password reset link
- *
- * Sends a password reset link to the user's email.
- */
-export const postSendPasswordReset = <ThrowOnError extends boolean = false>(
-  options: Options<PostSendPasswordResetData, ThrowOnError>,
-) =>
-  (options.client ?? client).post<
-    PostSendPasswordResetResponses,
-    PostSendPasswordResetErrors,
-    ThrowOnError
-  >({
-    url: "/send-password-reset",
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options.headers,
-    },
-  });
-
-/**
- * Reset the user's password
- *
- * Allows the user to reset their password with a valid token.
- */
-export const postPasswordReset = <ThrowOnError extends boolean = false>(
-  options: Options<PostPasswordResetData, ThrowOnError>,
-) =>
-  (options.client ?? client).post<
-    PostPasswordResetResponses,
-    PostPasswordResetErrors,
-    ThrowOnError
-  >({
-    url: "/password-reset",
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options.headers,
-    },
-  });
-
-/**
- * Verify user's email
- *
- * Verifies the user's email address using the provided token.
- */
-export const getVerifyEmailByToken = <ThrowOnError extends boolean = false>(
-  options: Options<GetVerifyEmailByTokenData, ThrowOnError>,
+export const orgProductsControllerFindAll = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<OrgProductsControllerFindAllData, ThrowOnError>,
 ) =>
   (options.client ?? client).get<
-    GetVerifyEmailByTokenResponses,
-    GetVerifyEmailByTokenErrors,
-    ThrowOnError
-  >({ url: "/verify-email/{token}", ...options });
-
-/**
- * Send a new email verification link
- *
- * Sends a new verification email to the user if not yet verified.
- */
-export const getSendVerificationEmail = <ThrowOnError extends boolean = false>(
-  options?: Options<GetSendVerificationEmailData, ThrowOnError>,
-) =>
-  (options?.client ?? client).get<
-    GetSendVerificationEmailResponses,
-    GetSendVerificationEmailErrors,
-    ThrowOnError
-  >({ url: "/send-verification-email", ...options });
-
-/**
- * Verify OTP and complete login
- *
- * Validates the 6-digit OTP sent to user's email and returns a JWT token.
- */
-export const postVerifyOtp = <ThrowOnError extends boolean = false>(
-  options: Options<PostVerifyOtpData, ThrowOnError>,
-) =>
-  (options.client ?? client).post<
-    PostVerifyOtpResponses,
-    PostVerifyOtpErrors,
+    OrgProductsControllerFindAllResponses,
+    unknown,
     ThrowOnError
   >({
-    url: "/verify-otp",
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/organizations/{orgId}/products",
+    ...options,
+  });
+
+export const orgProductsControllerCreate = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<OrgProductsControllerCreateData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    OrgProductsControllerCreateResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/organizations/{orgId}/products",
     ...options,
     headers: {
       "Content-Type": "application/json",
@@ -1741,97 +1222,48 @@ export const postVerifyOtp = <ThrowOnError extends boolean = false>(
     },
   });
 
-/**
- * Get all vendors
- *
- * Fetch a paginated list of all vendors.
- */
-export const getApiV1Vendors = <ThrowOnError extends boolean = false>(
-  options?: Options<GetApiV1VendorsData, ThrowOnError>,
-) =>
-  (options?.client ?? client).get<
-    GetApiV1VendorsResponses,
-    GetApiV1VendorsErrors,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/api/v1/vendors",
-    ...options,
-  });
-
-/**
- * Create a new vendor profile
- *
- * Allows a merchant user to create their vendor profile.
- */
-export const postApiV1Vendors = <ThrowOnError extends boolean = false>(
-  options: Options<PostApiV1VendorsData, ThrowOnError>,
-) =>
-  (options.client ?? client).post<
-    PostApiV1VendorsResponses,
-    PostApiV1VendorsErrors,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/api/v1/vendors",
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options.headers,
-    },
-  });
-
-/**
- * Delete a vendor by ID
- *
- * Delete a vendor by its ID.
- */
-export const deleteApiV1VendorsById = <ThrowOnError extends boolean = false>(
-  options: Options<DeleteApiV1VendorsByIdData, ThrowOnError>,
+export const orgProductsControllerRemove = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<OrgProductsControllerRemoveData, ThrowOnError>,
 ) =>
   (options.client ?? client).delete<
-    DeleteApiV1VendorsByIdResponses,
-    DeleteApiV1VendorsByIdErrors,
+    OrgProductsControllerRemoveResponses,
+    unknown,
     ThrowOnError
   >({
     security: [{ scheme: "bearer", type: "http" }],
-    url: "/api/v1/vendors/{id}",
+    url: "/api/v1/organizations/{orgId}/products/{productId}",
     ...options,
   });
 
-/**
- * Get a vendor by ID
- *
- * Fetch a single vendor by its ID.
- */
-export const getApiV1VendorsById = <ThrowOnError extends boolean = false>(
-  options: Options<GetApiV1VendorsByIdData, ThrowOnError>,
+export const orgProductsControllerFindOne = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<OrgProductsControllerFindOneData, ThrowOnError>,
 ) =>
   (options.client ?? client).get<
-    GetApiV1VendorsByIdResponses,
-    GetApiV1VendorsByIdErrors,
+    OrgProductsControllerFindOneResponses,
+    unknown,
     ThrowOnError
   >({
     security: [{ scheme: "bearer", type: "http" }],
-    url: "/api/v1/vendors/{id}",
+    url: "/api/v1/organizations/{orgId}/products/{productId}",
     ...options,
   });
 
-/**
- * Update a vendor by ID
- *
- * Update vendor details by its ID.
- */
-export const putApiV1VendorsById = <ThrowOnError extends boolean = false>(
-  options: Options<PutApiV1VendorsByIdData, ThrowOnError>,
+export const orgProductsControllerUpdate = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<OrgProductsControllerUpdateData, ThrowOnError>,
 ) =>
-  (options.client ?? client).put<
-    PutApiV1VendorsByIdResponses,
-    PutApiV1VendorsByIdErrors,
+  (options.client ?? client).patch<
+    OrgProductsControllerUpdateResponses,
+    unknown,
     ThrowOnError
   >({
     security: [{ scheme: "bearer", type: "http" }],
-    url: "/api/v1/vendors/{id}",
+    url: "/api/v1/organizations/{orgId}/products/{productId}",
     ...options,
     headers: {
       "Content-Type": "application/json",
@@ -1839,43 +1271,17 @@ export const putApiV1VendorsById = <ThrowOnError extends boolean = false>(
     },
   });
 
-/**
- * Get payment history for a vendor
- *
- * Fetch all payments made to a vendor.
- */
-export const getApiV1VendorsByIdPayments = <
+export const storageControllerGeneratePresignedUrls = <
   ThrowOnError extends boolean = false,
 >(
-  options: Options<GetApiV1VendorsByIdPaymentsData, ThrowOnError>,
+  options: Options<StorageControllerGeneratePresignedUrlsData, ThrowOnError>,
 ) =>
-  (options.client ?? client).get<
-    GetApiV1VendorsByIdPaymentsResponses,
+  (options.client ?? client).post<
+    StorageControllerGeneratePresignedUrlsResponses,
     unknown,
     ThrowOnError
   >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/api/v1/vendors/{id}/payments",
-    ...options,
-  });
-
-/**
- * Make a payment to a vendor
- *
- * Record a payment to a vendor.
- */
-export const postApiV1VendorsByIdPayments = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<PostApiV1VendorsByIdPaymentsData, ThrowOnError>,
-) =>
-  (options.client ?? client).post<
-    PostApiV1VendorsByIdPaymentsResponses,
-    PostApiV1VendorsByIdPaymentsErrors,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/api/v1/vendors/{id}/payments",
+    url: "/api/v1/storage/presigned-urls",
     ...options,
     headers: {
       "Content-Type": "application/json",

@@ -9,6 +9,7 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "update:swagger": "node scripts/update-swagger.mjs",
+    "seed:admin": "cd ../api && npm run seed:admin",
     "generate:api": "openapi-ts"
   },
   "dependencies": {

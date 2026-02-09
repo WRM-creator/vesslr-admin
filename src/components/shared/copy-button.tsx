@@ -14,7 +14,7 @@ interface CopyButtonProps extends React.ComponentProps<typeof Button> {
 export function CopyButton({
   value,
   className,
-  variant = "outline",
+  variant = "ghost",
   size = "icon",
   label,
   ...props

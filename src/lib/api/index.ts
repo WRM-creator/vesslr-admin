@@ -10,59 +10,36 @@
  *   const { data } = api.products.list.useSuspenseQuery({});
  */
 
-import { createMutation, createQuery } from "./factory";
+import { createMutation } from "./factory";
 
 // Import client config to initialize interceptors
 import "./client-config";
-import { client } from "./client-config";
 
 // Import generated SDK functions as needed
 // NOTE: These imports will be available after running `npm run generate:api`
 // Uncomment and add imports as you need them:
 //
 import {
-  deleteApiV1AdminCategoriesById,
-  deleteApiV1AdminOrganizationsById,
-  getApiV1AdminCategories,
-  getApiV1AdminCategoriesById,
-  getApiV1AdminEscrows,
-  getApiV1AdminEscrowsById,
-  getApiV1AdminOrganizations,
-  getApiV1AdminOrganizationsById,
-  getApiV1AdminTransactions,
-  getApiV1Products,
-  getApiV1ProductsById,
-  getApiV1VendorsById,
-  getApiV1VendorsByIdPayments,
-  patchApiV1AdminTransactionsByIdStatus,
-  patchApiV1ProductsByIdStatus,
-  //   postApiV1Products,
-  //   // ... add more as needed
-  postApiV1AdminAuthLogin,
-  postApiV1AdminCategories,
-  postApiV1AdminOrganizations,
-  postApiV1VendorsByIdPayments,
-  putApiV1AdminCategoriesById,
-  putApiV1AdminOrganizationsById,
-  putApiV1ProductsById,
+  adminAuthControllerLogin,
+  adminAuthControllerVerifyOtp,
 } from "./generated";
 
-async function getEscrowStats() {
-  const { data } = await client.request<{
-    success: boolean;
-    data: {
-      totalHeld: number;
-      totalTransacted: number;
-      activeCount: number;
-      disputedCount: number;
-      completedCount: number;
-    };
-  }>({
-    url: "/api/v1/admin/escrows/stats",
-    method: "GET",
-  });
-  return data!;
-}
+// async function getEscrowStats() {
+//   const { data } = await client.request<{
+//     success: boolean;
+//     data: {
+//       totalHeld: number;
+//       totalTransacted: number;
+//       activeCount: number;
+//       disputedCount: number;
+//       completedCount: number;
+//     };
+//   }>({
+//     url: "/api/v1/admin/escrows/stats",
+//     method: "GET",
+//   });
+//   return data!;
+// }
 
 export const api = {
   // Add endpoints as they are needed, following this pattern:
@@ -74,90 +51,91 @@ export const api = {
   //   }),
   // },
   auth: {
-    login: createMutation(postApiV1AdminAuthLogin),
+    login: createMutation(adminAuthControllerLogin),
+    verifyOtp: createMutation(adminAuthControllerVerifyOtp),
   },
-  admin: {
-    transactions: {
-      list: createQuery(getApiV1AdminTransactions, [
-        "admin",
-        "transactions",
-        "list",
-      ]),
-      updateStatus: createMutation(patchApiV1AdminTransactionsByIdStatus, {
-        invalidates: () => [["admin", "transactions", "list"]],
-      }),
-    },
-    escrows: {
-      list: createQuery(getApiV1AdminEscrows, ["admin", "escrows", "list"]),
-      detail: createQuery(getApiV1AdminEscrowsById, [
-        "admin",
-        "escrows",
-        "detail",
-      ]),
-      stats: createQuery(getEscrowStats, ["admin", "escrows", "stats"]),
-    },
-    // users: {
-    //   list: createQuery(getApiV1AdminUsers, ["admin", "users", "list"]),
-    // },
-  },
-  categories: {
-    list: createQuery(getApiV1AdminCategories, ["categories", "list"]),
-    detail: createQuery(getApiV1AdminCategoriesById, ["categories", "detail"]),
-    create: createMutation(postApiV1AdminCategories, {
-      invalidates: () => [["categories", "list"]],
-    }),
-    update: createMutation(putApiV1AdminCategoriesById, {
-      invalidates: () => [["categories", "list"]],
-    }),
-    delete: createMutation(deleteApiV1AdminCategoriesById, {
-      invalidates: () => [["categories", "list"]],
-    }),
-  },
-  organizations: {
-    list: createQuery(getApiV1AdminOrganizations, ["organizations", "list"]),
-    detail: createQuery(getApiV1AdminOrganizationsById, [
-      "organizations",
-      "detail",
-    ]),
-    create: createMutation(postApiV1AdminOrganizations, {
-      invalidates: () => [["organizations", "list"]],
-    }),
-    update: createMutation(putApiV1AdminOrganizationsById, {
-      invalidates: () => [["organizations", "list"]],
-    }),
-    delete: createMutation(deleteApiV1AdminOrganizationsById, {
-      invalidates: () => [["organizations", "list"]],
-    }),
-  },
-  products: {
-    list: createQuery(getApiV1Products, ["products", "list"]),
-    detail: createQuery(getApiV1ProductsById, ["products", "detail"]),
-    update: createMutation(putApiV1ProductsById, {
-      invalidates: () => [
-        ["products", "list"],
-        ["products", "detail"],
-      ],
-    }),
-    updateStatus: createMutation(patchApiV1ProductsByIdStatus, {
-      invalidates: () => [
-        ["products", "list"],
-        ["products", "detail"],
-      ],
-    }),
-  },
-  vendors: {
-    detail: createQuery(getApiV1VendorsById, ["vendors", "detail"]),
-    payments: {
-      list: createQuery(getApiV1VendorsByIdPayments, [
-        "vendors",
-        "payments",
-        "list",
-      ]),
-      create: createMutation(postApiV1VendorsByIdPayments, {
-        invalidates: () => [["vendors", "payments", "list"]],
-      }),
-    },
-  },
+  // admin: {
+  //   transactions: {
+  //     list: createQuery(getApiV1AdminTransactions, [
+  //       "admin",
+  //       "transactions",
+  //       "list",
+  //     ]),
+  //     updateStatus: createMutation(patchApiV1AdminTransactionsByIdStatus, {
+  //       invalidates: () => [["admin", "transactions", "list"]],
+  //     }),
+  //   },
+  //   escrows: {
+  //     list: createQuery(getApiV1AdminEscrows, ["admin", "escrows", "list"]),
+  //     detail: createQuery(getApiV1AdminEscrowsById, [
+  //       "admin",
+  //       "escrows",
+  //       "detail",
+  //     ]),
+  //     stats: createQuery(getEscrowStats, ["admin", "escrows", "stats"]),
+  //   },
+  //   // users: {
+  //   //   list: createQuery(getApiV1AdminUsers, ["admin", "users", "list"]),
+  //   // },
+  // },
+  // categories: {
+  //   list: createQuery(getApiV1AdminCategories, ["categories", "list"]),
+  //   detail: createQuery(getApiV1AdminCategoriesById, ["categories", "detail"]),
+  //   create: createMutation(postApiV1AdminCategories, {
+  //     invalidates: () => [["categories", "list"]],
+  //   }),
+  //   update: createMutation(putApiV1AdminCategoriesById, {
+  //     invalidates: () => [["categories", "list"]],
+  //   }),
+  //   delete: createMutation(deleteApiV1AdminCategoriesById, {
+  //     invalidates: () => [["categories", "list"]],
+  //   }),
+  // },
+  // organizations: {
+  //   list: createQuery(getApiV1AdminOrganizations, ["organizations", "list"]),
+  //   detail: createQuery(getApiV1AdminOrganizationsById, [
+  //     "organizations",
+  //     "detail",
+  //   ]),
+  //   create: createMutation(postApiV1AdminOrganizations, {
+  //     invalidates: () => [["organizations", "list"]],
+  //   }),
+  //   update: createMutation(putApiV1AdminOrganizationsById, {
+  //     invalidates: () => [["organizations", "list"]],
+  //   }),
+  //   delete: createMutation(deleteApiV1AdminOrganizationsById, {
+  //     invalidates: () => [["organizations", "list"]],
+  //   }),
+  // },
+  // products: {
+  //   list: createQuery(getApiV1Products, ["products", "list"]),
+  //   detail: createQuery(getApiV1ProductsById, ["products", "detail"]),
+  //   update: createMutation(putApiV1ProductsById, {
+  //     invalidates: () => [
+  //       ["products", "list"],
+  //       ["products", "detail"],
+  //     ],
+  //   }),
+  //   updateStatus: createMutation(patchApiV1ProductsByIdStatus, {
+  //     invalidates: () => [
+  //       ["products", "list"],
+  //       ["products", "detail"],
+  //     ],
+  //   }),
+  // },
+  // vendors: {
+  //   detail: createQuery(getApiV1VendorsById, ["vendors", "detail"]),
+  //   payments: {
+  //     list: createQuery(getApiV1VendorsByIdPayments, [
+  //       "vendors",
+  //       "payments",
+  //       "list",
+  //     ]),
+  //     create: createMutation(postApiV1VendorsByIdPayments, {
+  //       invalidates: () => [["vendors", "payments", "list"]],
+  //     }),
+  //   },
+  // },
 };
 
 // Re-export factory utilities for advanced usage
