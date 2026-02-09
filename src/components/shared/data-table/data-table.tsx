@@ -8,11 +8,13 @@ import type {
 import {
   flexRender,
   getCoreRowModel,
+  getExpandedRowModel,
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
 import * as React from "react";
 
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import {
   Table,
   TableBody,
@@ -22,8 +24,21 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
-import { InboxIcon } from "lucide-react";
 import { DataTableSkeleton } from "./data-table-skeleton";
+
+interface ColumnMeta {
+  className?: string;
+}
+
+interface DataTableClassNames {
+  root?: string;
+  tableWrapper?: string;
+  table?: string;
+  header?: string;
+  body?: string;
+  row?: string;
+  cell?: string;
+}
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -36,16 +51,10 @@ interface DataTableProps<TData, TValue> {
   renderAboveTable?: React.ReactNode;
   renderBelowTable?: React.ReactNode;
   onRowClick?: (row: Row<TData>) => void;
-  getRowClassName?: (row: Row<TData>) => string;
+  getRowClassName?: (row: Row<TData>) => string | undefined;
   getRowId?: (originalRow: TData, index: number, parent?: Row<TData>) => string;
-  classNames?: {
-    container?: string;
-    table?: string;
-    header?: string;
-    body?: string;
-    row?: string;
-    cell?: string;
-  };
+  getSubRows?: (row: TData) => TData[] | undefined;
+  classNames?: DataTableClassNames;
 
   // State control
   rowSelection?: RowSelectionState;
@@ -58,18 +67,20 @@ export function DataTable<TData, TValue>({
   data,
   isLoading = false,
   loadingRowCount = 5,
-  emptyContent,
+  emptyContent = "No data.",
   renderAboveTable,
   renderBelowTable,
   onRowClick,
   getRowClassName,
   getRowId,
+  getSubRows,
   classNames,
   rowSelection,
   onRowSelectionChange,
   hiddenColumns,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
+  const [expanded, setExpanded] = React.useState({});
   const [internalRowSelection, setInternalRowSelection] =
     React.useState<RowSelectionState>({});
 
@@ -81,32 +92,95 @@ export function DataTable<TData, TValue>({
   const table = useReactTable({
     data,
     columns,
-    getCoreRowModel: getCoreRowModel(),
     onSortingChange: setSorting,
-    getSortedRowModel: getSortedRowModel(),
+    onExpandedChange: setExpanded,
     onRowSelectionChange: onRowSelectionChange || setInternalRowSelection,
+    getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getExpandedRowModel: getExpandedRowModel(),
+    getSubRows,
     getRowId,
     state: {
       sorting,
+      expanded,
       rowSelection: rowSelection || internalRowSelection,
       columnVisibility,
     },
   });
 
+  const renderTableBody = () => {
+    if (isLoading) {
+      return <DataTableSkeleton columns={columns} rowCount={loadingRowCount} />;
+    }
+
+    if (!table.getRowModel().rows?.length) {
+      return (
+        <TableRow className="hover:bg-transparent">
+          <TableCell colSpan={columns.length} className="h-24 py-8 text-center">
+            {emptyContent}
+          </TableCell>
+        </TableRow>
+      );
+    }
+
+    return table.getRowModel().rows.map((row) => (
+      <TableRow
+        key={row.id}
+        data-state={row.getIsSelected() && "selected"}
+        className={cn(
+          "h-15",
+          onRowClick && "cursor-pointer",
+          getRowClassName?.(row),
+          classNames?.row,
+        )}
+        onClick={() => onRowClick?.(row)}
+        role={onRowClick ? "button" : undefined}
+      >
+        {row.getVisibleCells().map((cell) => (
+          <TableCell
+            key={cell.id}
+            className={cn(
+              (cell.column.columnDef.meta as ColumnMeta | undefined)?.className,
+              classNames?.cell,
+            )}
+          >
+            {flexRender(cell.column.columnDef.cell, cell.getContext())}
+          </TableCell>
+        ))}
+      </TableRow>
+    ));
+  };
+
   return (
-    <div className={cn("space-y-4", classNames?.container)}>
+    <div className={cn("w-full space-y-3", classNames?.root)}>
       {renderAboveTable}
 
-      <div className="overflow-hidden rounded-md border">
-        <Table className={classNames?.table}>
-          {!isLoading ? (
-            <>
-              <TableHeader className={classNames?.header}>
+      <ScrollArea className="w-full">
+        <div
+          className={cn(
+            "bg-card overflow-hidden rounded-lg border",
+            classNames?.tableWrapper,
+          )}
+        >
+          <Table className={classNames?.table}>
+            {(isLoading || data.length > 0) && (
+              <TableHeader className={cn("bg-muted h-15", classNames?.header)}>
                 {table.getHeaderGroups().map((headerGroup) => (
-                  <TableRow key={headerGroup.id} className="bg-muted px-3">
+                  <TableRow key={headerGroup.id}>
                     {headerGroup.headers.map((header) => {
                       return (
-                        <TableHead key={header.id} className={classNames?.cell}>
+                        <TableHead
+                          key={header.id}
+                          className={cn(
+                            (
+                              header.column.columnDef.meta as
+                                | ColumnMeta
+                                | undefined
+                            )?.className,
+                            "text-xs font-medium uppercase",
+                            classNames?.cell,
+                          )}
+                        >
                           {header.isPlaceholder
                             ? null
                             : flexRender(
@@ -119,67 +193,14 @@ export function DataTable<TData, TValue>({
                   </TableRow>
                 ))}
               </TableHeader>
-              <TableBody className={classNames?.body}>
-                {table.getRowModel().rows?.length ? (
-                  table.getRowModel().rows.map((row) => (
-                    <TableRow
-                      key={row.id}
-                      data-state={row.getIsSelected() && "selected"}
-                      className={cn(
-                        onRowClick && "cursor-pointer",
-                        getRowClassName?.(row),
-                        classNames?.row,
-                      )}
-                      onClick={() => onRowClick?.(row)}
-                    >
-                      {row.getVisibleCells().map((cell) => (
-                        <TableCell
-                          key={cell.id}
-                          className={cn("px-3", classNames?.cell)}
-                        >
-                          {flexRender(
-                            cell.column.columnDef.cell,
-                            cell.getContext(),
-                          )}
-                        </TableCell>
-                      ))}
-                    </TableRow>
-                  ))
-                ) : (
-                  <TableRow>
-                    <TableCell
-                      colSpan={columns.length}
-                      className="h-24 text-center"
-                    >
-                      {emptyContent || (
-                        <div className="flex flex-col items-center justify-center py-12 text-center">
-                          <div className="bg-muted/50 mb-3 rounded-full p-4">
-                            <InboxIcon
-                              className="text-muted-foreground size-8"
-                              strokeWidth={1.2}
-                            />
-                          </div>
-                          <h3 className="text-lg font-semibold">
-                            No results found
-                          </h3>
-                          <p className="text-muted-foreground mt-1 max-w-sm text-sm">
-                            There are no items to display at this time.
-                          </p>
-                        </div>
-                      )}
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </>
-          ) : (
-            <DataTableSkeleton
-              columnCount={columns.length}
-              rowCount={loadingRowCount}
-            />
-          )}
-        </Table>
-      </div>
+            )}
+            <TableBody className={classNames?.body}>
+              {renderTableBody()}
+            </TableBody>
+          </Table>
+        </div>
+        <ScrollBar orientation="horizontal" className="mx-0.5 mb-0.5" />
+      </ScrollArea>
 
       {renderBelowTable}
     </div>

@@ -6,12 +6,13 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import type { ColumnDef } from "@tanstack/react-table";
 
-interface DataTableSkeletonProps {
+interface DataTableSkeletonProps<TData, TValue> {
   /**
-   * Number of columns to display
+   * Column definitions to calculate skeleton cells
    */
-  columnCount: number;
+  columns: ColumnDef<TData, TValue>[];
 
   /**
    * Number of rows to display
@@ -26,21 +27,21 @@ interface DataTableSkeletonProps {
   showCheckbox?: boolean;
 }
 
-export function DataTableSkeleton({
-  columnCount,
+export function DataTableSkeleton<TData, TValue>({
+  columns,
   rowCount = 5,
   showCheckbox = false,
-}: DataTableSkeletonProps) {
+}: DataTableSkeletonProps<TData, TValue>) {
   return (
     <>
-      <TableHeader>
+      <TableHeader className="bg-muted h-15">
         <TableRow>
           {showCheckbox && (
             <TableHead className="w-[50px]">
               <Skeleton className="h-4 w-4" />
             </TableHead>
           )}
-          {Array.from({ length: columnCount }).map((_, i) => (
+          {columns.map((_, i) => (
             <TableHead key={i}>
               <Skeleton className="h-4 w-[100px]" />
             </TableHead>
@@ -49,15 +50,15 @@ export function DataTableSkeleton({
       </TableHeader>
       <TableBody>
         {Array.from({ length: rowCount }).map((_, i) => (
-          <TableRow key={i}>
+          <TableRow key={i} className="h-15 hover:bg-transparent">
             {showCheckbox && (
               <TableCell>
                 <Skeleton className="h-4 w-4" />
               </TableCell>
             )}
-            {Array.from({ length: columnCount }).map((_, j) => (
+            {columns.map((_, j) => (
               <TableCell key={j}>
-                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-5 w-full" />
               </TableCell>
             ))}
           </TableRow>
