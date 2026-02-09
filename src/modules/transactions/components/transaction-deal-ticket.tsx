@@ -1,4 +1,5 @@
 import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
 import { formatCurrency } from "@/lib/utils";
 import { Droplet } from "lucide-react";
 
@@ -18,16 +19,16 @@ export function TransactionDealTicket({
   type,
 }: TransactionDealTicketProps) {
   return (
-    <div className="px-2">
-      <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+    <Card>
+      <CardContent className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
         {/* Left: The Asset */}
-        <div className="flex items-start gap-5">
+        <div className="flex items-start gap-2">
           <div className="bg-muted text-foreground/70 flex h-14 w-14 shrink-0 items-center justify-center rounded-xl">
             <Droplet className="h-7 w-7" />
           </div>
-          <div className="space-y-1.5">
+          <div className="space-y-1">
             <div className="flex items-center gap-3">
-              <h3 className="text-xl font-semibold tracking-tight">
+              <h3 className="text-lg font-semibold tracking-tight">
                 {product.name}
               </h3>
               <Badge
@@ -37,7 +38,7 @@ export function TransactionDealTicket({
                 {type.replace("_", " ")}
               </Badge>
             </div>
-            <div className="text-muted-foreground text-base">
+            <div className="text-muted-foreground text-sm">
               {product.quantity.toLocaleString()} {product.unit} @{" "}
               {formatCurrency(product.pricePerUnit)} / {product.unit}
             </div>
@@ -49,11 +50,11 @@ export function TransactionDealTicket({
           <div className="text-muted-foreground text-xs font-medium tracking-wider uppercase">
             Total Value
           </div>
-          <div className="text-foreground bg-clip-text text-3xl font-bold tracking-tight">
+          <div className="text-foreground bg-clip-text text-xl font-bold tracking-tight">
             {formatCurrency(product.total)}
           </div>
         </div>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 }

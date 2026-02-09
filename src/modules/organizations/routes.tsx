@@ -16,19 +16,7 @@ export const organizationsRoutes: RouteObject[] = [
   {
     path: "customers/:id",
     lazy: async () => ({
-      Component: (await import("./pages/customer-details")).default,
-    }),
-  },
-  {
-    path: "registrations",
-    lazy: async () => ({
-      Component: (await import("./pages/registrations")).default,
-    }),
-  },
-  {
-    path: "merchants/:id",
-    lazy: async () => ({
-      Component: (await import("./pages/merchant-details")).default,
+      Component: (await import("./pages/organization-details")).default,
     }),
     children: [
       {
@@ -41,50 +29,120 @@ export const organizationsRoutes: RouteObject[] = [
       {
         path: "overview",
         lazy: async () => ({
-          Component: (await import("./pages/merchant-tabs-routes"))
-            .MerchantOverviewRoute,
+          Component: (await import("./pages/organization-tabs-routes"))
+            .OrganizationOverviewRoute,
         }),
       },
       {
         path: "team",
         lazy: async () => ({
-          Component: (await import("./pages/merchant-tabs-routes"))
-            .MerchantTeamRoute,
+          Component: (await import("./pages/organization-tabs-routes"))
+            .OrganizationTeamRoute,
         }),
       },
       {
         path: "products",
         lazy: async () => ({
-          Component: (await import("./pages/merchant-tabs-routes"))
-            .MerchantProductsRoute,
+          Component: (await import("./pages/organization-tabs-routes"))
+            .OrganizationProductsRoute,
         }),
       },
       {
         path: "compliance",
         lazy: async () => ({
-          Component: (await import("./pages/merchant-tabs-routes"))
-            .MerchantComplianceRoute,
+          Component: (await import("./pages/organization-tabs-routes"))
+            .OrganizationComplianceRoute,
         }),
       },
       {
         path: "financials",
         lazy: async () => ({
-          Component: (await import("./pages/merchant-tabs-routes"))
-            .MerchantFinancialsRoute,
+          Component: (await import("./pages/organization-tabs-routes"))
+            .OrganizationFinancialsRoute,
         }),
       },
       {
         path: "transactions",
         lazy: async () => ({
-          Component: (await import("./pages/merchant-tabs-routes"))
-            .MerchantTransactionsRoute,
+          Component: (await import("./pages/organization-tabs-routes"))
+            .OrganizationTransactionsRoute,
         }),
       },
       {
         path: "disputes",
         lazy: async () => ({
-          Component: (await import("./pages/merchant-tabs-routes"))
-            .MerchantDisputesRoute,
+          Component: (await import("./pages/organization-tabs-routes"))
+            .OrganizationDisputesRoute,
+        }),
+      },
+    ],
+  },
+  {
+    path: "registrations",
+    lazy: async () => ({
+      Component: (await import("./pages/registrations")).default,
+    }),
+  },
+  {
+    path: "merchants/:id",
+    lazy: async () => ({
+      Component: (await import("./pages/organization-details")).default,
+    }),
+    children: [
+      {
+        index: true,
+        lazy: async () => {
+          const { Navigate } = await import("react-router-dom");
+          return { Component: () => <Navigate to="overview" replace /> };
+        },
+      },
+      {
+        path: "overview",
+        lazy: async () => ({
+          Component: (await import("./pages/organization-tabs-routes"))
+            .OrganizationOverviewRoute,
+        }),
+      },
+      {
+        path: "team",
+        lazy: async () => ({
+          Component: (await import("./pages/organization-tabs-routes"))
+            .OrganizationTeamRoute,
+        }),
+      },
+      {
+        path: "products",
+        lazy: async () => ({
+          Component: (await import("./pages/organization-tabs-routes"))
+            .OrganizationProductsRoute,
+        }),
+      },
+      {
+        path: "compliance",
+        lazy: async () => ({
+          Component: (await import("./pages/organization-tabs-routes"))
+            .OrganizationComplianceRoute,
+        }),
+      },
+      {
+        path: "financials",
+        lazy: async () => ({
+          Component: (await import("./pages/organization-tabs-routes"))
+            .OrganizationFinancialsRoute,
+        }),
+      },
+      {
+        path: "transactions",
+        lazy: async () => ({
+          Component: (await import("./pages/organization-tabs-routes"))
+            .OrganizationTransactionsRoute,
+        }),
+      },
+      {
+        path: "disputes",
+        lazy: async () => ({
+          Component: (await import("./pages/organization-tabs-routes"))
+            .OrganizationDisputesRoute,
         }),
       },
     ],

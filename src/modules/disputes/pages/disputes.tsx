@@ -6,23 +6,28 @@ import { DisputeStats } from "../components/dispute-stats";
 import { DisputesTable } from "../components/disputes-table";
 
 export default function DisputesPage() {
-  const { data, isLoading } = useQuery({
-    queryKey: ["disputes"],
-    queryFn: () => getDisputes({ page: 1, limit: 10 }), // TODO: Add pagination state
+  const { data: disputesData, isLoading } = useQuery({
+    queryKey: ["disputes", "list"],
+    queryFn: () =>
+      getDisputes({
+        page: 1,
+        limit: 50,
+      }),
   });
 
   return (
     <Page>
       <PageHeader
         title="Disputes"
-        description="Manage and resolve transaction disputes."
+        description="Monitor and resolve transaction disputes."
       />
+
       <DisputeStats />
-      {isLoading ? (
-        <div>Loading...</div>
-      ) : (
-        <DisputesTable data={data?.data.docs || []} />
-      )}
+
+      <DisputesTable
+        data={disputesData?.data?.docs || []}
+        isLoading={isLoading}
+      />
     </Page>
   );
 }

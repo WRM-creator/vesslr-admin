@@ -10,16 +10,13 @@ import { api } from "@/lib/api";
 import { Loader2 } from "lucide-react";
 import { Link, Outlet, useLocation, useParams } from "react-router-dom";
 
-export default function MerchantDetailsPage() {
+export default function OrganizationDetailsPage() {
   const { id } = useParams<{ id: string }>();
   const location = useLocation();
 
   // Determine active tab from URL, default to "overview"
   const getActiveTab = () => {
     const pathSegments = location.pathname.split("/");
-    // If the last segment is the ID, we're at the root, so default to overview
-    // Note: This logic assumes the ID is the 3rd or greater segment in the path /merchants/:id
-    // A safer check might be to see if the last segment matches one of the known tabs
     const lastSegment = pathSegments[pathSegments.length - 1];
 
     const validTabs = [
@@ -62,9 +59,9 @@ export default function MerchantDetailsPage() {
     return (
       <Page>
         <div className="flex flex-col items-center justify-center py-12">
-          <h2 className="text-xl font-semibold">Merchant Not Found</h2>
+          <h2 className="text-xl font-semibold">Organization Not Found</h2>
           <p className="text-muted-foreground">
-            The merchant details could not be loaded.
+            The organization details could not be loaded.
           </p>
         </div>
       </Page>
@@ -104,11 +101,11 @@ export default function MerchantDetailsPage() {
         }
         description={
           <div className="flex items-center gap-2 text-sm">
-            <span>Merchant ID: {organization._id}</span>
+            <span>ID: {organization._id}</span>
             <CopyButton
               variant="ghost"
               value={organization._id}
-              label="Merchant ID"
+              label="Organization ID"
               className="size-3"
             />
           </div>

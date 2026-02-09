@@ -33,51 +33,37 @@ export const escrowsColumns: ColumnDef<any>[] = [
     header: "Escrow ID",
     cell: ({ row }) => (
       <Link
-        to={`/escrows/${row.original._id}`}
+        to={`/escrows/${row.original.id}`}
         className="hover:text-primary font-mono text-xs font-medium hover:underline"
       >
-        {row.original._id.substring(0, 8)}...
+        {row.original.id?.substring(0, 8) || "N/A"}...
       </Link>
     ),
   },
   {
-    accessorKey: "transaction",
+    accessorKey: "transactionReference",
     header: "Transaction",
     cell: ({ row }) => (
       <div className="font-medium">
-        {row.original.transaction?._id
-          ? row.original.transaction._id.substring(0, 8) + "..."
-          : "N/A"}
+        {row.original.transactionReference?.substring(0, 8) || "N/A"}...
       </div>
     ),
   },
   {
     id: "merchantName",
     header: "Merchant",
-    cell: ({ row }) => (
-      <div>
-        {row.original.seller
-          ? `${row.original.seller.firstName} ${row.original.seller.lastName}`
-          : "Unknown"}
-      </div>
-    ),
+    cell: ({ row }) => <div>{row.original.merchantName || "Unknown"}</div>,
   },
   {
     id: "customerName",
     header: "Customer",
-    cell: ({ row }) => (
-      <div>
-        {row.original.buyer
-          ? `${row.original.buyer.firstName} ${row.original.buyer.lastName}`
-          : "Unknown"}
-      </div>
-    ),
+    cell: ({ row }) => <div>{row.original.customerName || "Unknown"}</div>,
   },
   {
-    accessorKey: "totalAmountExpected",
+    accessorKey: "amount",
     header: "Value",
     cell: ({ row }) => {
-      const amount = row.original.totalAmountExpected || 0;
+      const amount = row.original.amount || 0;
       const formatted = new Intl.NumberFormat("en-US", {
         style: "currency",
         currency: row.original.currency || "NGN",

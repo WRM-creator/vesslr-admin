@@ -1,5 +1,5 @@
 import type { RouteObject } from "react-router-dom";
-import ProductDetailsPage from "./pages/product-details";
+
 import ProductsPage from "./pages/products";
 
 export const productsRoutes: RouteObject[] = [
@@ -7,14 +7,17 @@ export const productsRoutes: RouteObject[] = [
     path: "products",
     element: <ProductsPage />,
   },
-  {
-    path: "products/:id",
-    element: <ProductDetailsPage />,
-  },
+
   {
     path: "product-approvals",
     lazy: async () => ({
       Component: (await import("./pages/product-approvals")).default,
+    }),
+  },
+  {
+    path: "products/:id",
+    lazy: async () => ({
+      Component: (await import("./pages/product-details")).default,
     }),
   },
 ];

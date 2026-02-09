@@ -6,9 +6,13 @@ import type { DisputeReference } from "../lib/escrow-details-model";
 
 interface EscrowDisputeCardProps {
   dispute?: DisputeReference;
+  transactionId?: string;
 }
 
-export function EscrowDisputeCard({ dispute }: EscrowDisputeCardProps) {
+export function EscrowDisputeCard({
+  dispute,
+  transactionId,
+}: EscrowDisputeCardProps) {
   if (!dispute) return null;
 
   return (
@@ -60,7 +64,9 @@ export function EscrowDisputeCard({ dispute }: EscrowDisputeCardProps) {
             className="w-full border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20"
             asChild
           >
-            <Link to={`/disputes/${dispute.id}`}>Manage Dispute</Link>
+            <Link to={`/transactions/${transactionId || ""}?tab=disputes`}>
+              Manage Dispute
+            </Link>
           </Button>
         </div>
       </CardContent>

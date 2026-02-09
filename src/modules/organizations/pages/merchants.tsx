@@ -1,11 +1,12 @@
 "use client";
 
+import { DataPagination } from "@/components/shared/data-pagination";
 import { Page } from "@/components/shared/page";
 import { PageHeader } from "@/components/shared/page-header";
 import { Button } from "@/components/ui/button";
 import { api } from "@/lib/api";
 import { PlusIcon } from "lucide-react";
-import { parseAsString, useQueryState } from "nuqs";
+import { parseAsInteger, parseAsString, useQueryState } from "nuqs";
 import { Link } from "react-router-dom";
 import { OrganizationsTable } from "../components/organizations-table";
 
@@ -15,9 +16,11 @@ export default function MerchantsPage() {
     parseAsString.withDefault("").withOptions({ throttleMs: 500 }),
   );
 
+  const [page, setPage] = useQueryState("page", parseAsInteger.withDefault(1));
+
   const { data, isLoading } = api.organizations.list.useQuery({
     query: {
-      page: 1,
+      page,
       limit: 10,
       type: "merchant",
       search: search || undefined,
@@ -54,6 +57,12 @@ export default function MerchantsPage() {
         onRowClick={(row) =>
           window.open(`/merchants/${row.original._id}`, "_self")
         }
+      />
+      <DataPagination
+        currentPage={page}
+        totalItems={data?.data?.totalDocs || 0}
+        itemsPerPage={10}
+        onPageChange={setPage}
       />
     </Page>
   );

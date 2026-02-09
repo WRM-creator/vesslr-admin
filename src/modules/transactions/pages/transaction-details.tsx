@@ -32,39 +32,36 @@ export default function TransactionDetailsPage() {
         description={`Created: ${formatDateTime(createdDate)} • Updated: ${formatDateTime(updatedDate)}`}
       />
 
-      <div className="flex flex-col gap-10">
-        <TransactionLifecycle currentStatus={status} />
+      <TransactionLifecycle currentStatus={status} />
 
-        <TransactionDealTicket
-          type="purchase"
-          product={{
-            name: "Bonny Light Crude Oil",
-            quantity: 50000,
-            unit: "MT",
-            pricePerUnit: 17000,
-            total: 850000000,
-          }}
+      <TransactionDealTicket
+        type="purchase"
+        product={{
+          name: "Bonny Light Crude Oil",
+          quantity: 50000,
+          unit: "MT",
+          pricePerUnit: 17000,
+          total: 850000000,
+        }}
+      />
+
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <TransactionPartyCard
+          role="Seller"
+          name="Dangote Refinery"
+          company="Dangote Industries Ltd"
+          link="/merchants/merc_123"
         />
-
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          <TransactionPartyCard
-            role="Seller"
-            name="Dangote Refinery"
-            company="Dangote Industries Ltd"
-            link="/merchants/merc_123"
-            badges={["Verified"]}
-          />
-          <TransactionPartyCard
-            role="Buyer"
-            name="Total Energies"
-            company="Total Energies EP Nigeria"
-            link="/customers/cust_456"
-          />
-        </div>
-
-        {/* Detailed Tabs */}
-        <TransactionTabs />
+        <TransactionPartyCard
+          role="Buyer"
+          name="Total Energies"
+          company="Total Energies EP Nigeria"
+          link="/customers/cust_456"
+        />
       </div>
+
+      {/* Detailed Tabs */}
+      <TransactionTabs />
     </Page>
   );
 }

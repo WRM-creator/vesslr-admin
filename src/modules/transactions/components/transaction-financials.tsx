@@ -1,4 +1,5 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useSearchParams } from "react-router-dom";
 import { TransactionFinancialsEscrow } from "./transaction-financials-escrow";
 import { TransactionFinancialsInvoiceCard } from "./transaction-financials-invoice-card";
 
@@ -72,6 +73,16 @@ export function TransactionFinancials() {
   const tabTriggerClassName =
     "data-[state=active]:border-foreground data-[state=active]:text-foreground data-[state=active]:bg-background data-[state=active]:shadow-none";
 
+  const [searchParams, setSearchParams] = useSearchParams();
+  const currentTab = searchParams.get("financialsTab") || "receivable";
+
+  const handleTabChange = (value: string) => {
+    setSearchParams((prev: URLSearchParams) => {
+      prev.set("financialsTab", value);
+      return prev;
+    });
+  };
+
   return (
     <div className="space-y-6">
       {/* SUMMARY STATS */}
@@ -82,7 +93,11 @@ export function TransactionFinancials() {
         marginPercent={marginPercent}
       /> */}
 
-      <Tabs defaultValue="receivable" className="w-full">
+      <Tabs
+        value={currentTab}
+        onValueChange={handleTabChange}
+        className="w-full"
+      >
         <TabsList className="gap-2">
           <TabsTrigger value="receivable" className={tabTriggerClassName}>
             Inbound

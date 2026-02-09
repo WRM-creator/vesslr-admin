@@ -7,41 +7,43 @@ import { MerchantProductsTab } from "../components/merchant-details/merchant-pro
 import { MerchantTeamTab } from "../components/merchant-details/merchant-team-tab";
 import { MerchantTransactionsTab } from "../components/merchant-details/merchant-transactions-tab";
 
-interface MerchantContext {
-  organization: any; // Type should ideally be shared/imported
+interface OrganizationContext {
+  organization: any;
 }
 
-export function MerchantOverviewRoute() {
-  const { organization } = useOutletContext<MerchantContext>();
+export function OrganizationOverviewRoute() {
+  const { organization } = useOutletContext<OrganizationContext>();
   return <MerchantOverviewTab organization={organization} />;
 }
 
-export function MerchantTeamRoute() {
-  const { organization } = useOutletContext<MerchantContext>();
+export function OrganizationTeamRoute() {
+  const { organization } = useOutletContext<OrganizationContext>();
   return <MerchantTeamTab merchantId={organization._id} />;
 }
 
-export function MerchantProductsRoute() {
-  const { organization } = useOutletContext<MerchantContext>();
+export function OrganizationProductsRoute() {
+  const { organization } = useOutletContext<OrganizationContext>();
+  // Note: Assuming 'merchantId' prop is okay for generic organization for now.
+  // If the component handles only merchants strictly, we might need to update it later.
   return <MerchantProductsTab merchantId={organization._id} />;
 }
 
-export function MerchantComplianceRoute() {
-  const { organization } = useOutletContext<MerchantContext>();
+export function OrganizationComplianceRoute() {
+  const { organization } = useOutletContext<OrganizationContext>();
   return <MerchantComplianceTab organization={organization} />;
 }
 
-export function MerchantFinancialsRoute() {
-  const { organization } = useOutletContext<MerchantContext>();
+export function OrganizationFinancialsRoute() {
+  const { organization } = useOutletContext<OrganizationContext>();
   return <MerchantFinancialsTab organization={organization} />;
 }
 
-export function MerchantTransactionsRoute() {
-  const { organization } = useOutletContext<MerchantContext>();
+export function OrganizationTransactionsRoute() {
+  const { organization } = useOutletContext<OrganizationContext>();
   return <MerchantTransactionsTab merchantId={organization._id} />;
 }
 
-export function MerchantDisputesRoute() {
-  // Disputes tab doesn't seem to need organization data based on previous file content
+export function OrganizationDisputesRoute() {
+  // Disputes tab doesn't need organization data passed directly in the original code
   return <MerchantDisputesTab />;
 }

@@ -103,7 +103,11 @@ export function EscrowsTable({ data, isLoading }: EscrowsTableProps) {
         data={filteredData}
         isLoading={isLoading}
         emptyContent={<div className="py-6 text-center">No escrows found</div>}
-        onRowClick={(row) => navigate(`/escrows/${row.original.id}`)}
+        onRowClick={(row) =>
+          navigate(
+            `/transactions/${row.original.transactionReference}?tab=financials&financialsTab=escrow`,
+          )
+        }
       />
     </div>
   );
