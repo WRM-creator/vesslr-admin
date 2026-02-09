@@ -1,5 +1,5 @@
-import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "@/providers/auth-provider";
+import { Navigate, Outlet, useLocation } from "react-router-dom";
 
 export function AuthGuard() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -7,8 +7,8 @@ export function AuthGuard() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900" />
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-gray-900" />
       </div>
     );
   }

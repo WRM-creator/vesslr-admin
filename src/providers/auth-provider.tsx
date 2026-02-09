@@ -29,28 +29,26 @@ const TOKEN_KEYS = {
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
     // Initialize from localStorage
-    return !!localStorage.getItem(TOKEN_KEYS.accessToken);
+    const token = localStorage.getItem(TOKEN_KEYS.accessToken);
+    if (!token) return false;
+
+    const expiresAt = localStorage.getItem(TOKEN_KEYS.expiresAt);
+    if (expiresAt) {
+      const expiryDate = new Date(expiresAt);
+      if (expiryDate <= new Date()) {
+        // Token is expired, clean up and return false
+        localStorage.removeItem(TOKEN_KEYS.accessToken);
+        localStorage.removeItem(TOKEN_KEYS.refreshToken);
+        localStorage.removeItem(TOKEN_KEYS.expiresAt);
+        return false;
+      }
+    }
+    return true;
   });
   const [isLoading, setIsLoading] = useState(false);
 
-  // Check token validity on mount
+  // Check token validity on mount (and setup listeners)
   useEffect(() => {
-    const token = localStorage.getItem(TOKEN_KEYS.accessToken);
-    const expiresAt = localStorage.getItem(TOKEN_KEYS.expiresAt);
-
-    if (token) {
-      // Check if token is expired
-      if (expiresAt) {
-        const expiryDate = new Date(expiresAt);
-        if (expiryDate <= new Date()) {
-          // Token expired, clear and set as not authenticated
-          logout();
-          return;
-        }
-      }
-      setIsAuthenticated(true);
-    }
-
     const handleLogoutEvent = () => {
       logout();
     };
