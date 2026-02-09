@@ -1,21 +1,16 @@
 "use client";
 
+import { DataTable } from "@/components/shared/data-table";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { type TransactionResponseDto } from "@/lib/api/generated";
 import { parseAsString, useQueryState } from "nuqs";
 import * as React from "react";
 import { useNavigate } from "react-router-dom";
-
-import { DataTable } from "@/components/shared/data-table";
-import { type Transaction, transactionsColumns } from "./columns";
-
+import { transactionsColumns } from "./columns";
 import { Filters } from "./filters";
 
-export { transactionsColumns };
-export type { Transaction };
-
-// ...
 interface TransactionsTableProps {
-  data: Transaction[];
+  data: TransactionResponseDto[];
   isLoading?: boolean;
   hiddenColumns?: string[];
 }
@@ -25,7 +20,6 @@ export function TransactionsTable({
   isLoading,
   filters,
   merchantOptions,
-  hiddenColumns,
   onFilterChange,
   onReset,
 }: TransactionsTableProps & React.ComponentProps<typeof Filters>) {
@@ -37,7 +31,11 @@ export function TransactionsTable({
 
   const filteredData = React.useMemo(() => {
     if (activeTab === "all") return data;
-    return data.filter((transaction) => transaction.state === activeTab);
+    // Map the tab value to the possible uppercase status
+    return data.filter((transaction) => {
+      const statusMatch = transaction.status === activeTab.toUpperCase();
+      return statusMatch;
+    });
   }, [data, activeTab]);
 
   return (
@@ -66,8 +64,8 @@ export function TransactionsTable({
         columns={transactionsColumns}
         data={filteredData}
         isLoading={isLoading}
-        hiddenColumns={hiddenColumns}
-        onRowClick={(row) => navigate(`/transactions/${row.original.id}`)}
+        // hiddenColumns={hiddenColumns}
+        onRowClick={(row) => navigate(`/transactions/${row.original._id}`)}
       />
     </div>
   );

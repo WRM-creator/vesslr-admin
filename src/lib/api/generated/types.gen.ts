@@ -297,6 +297,89 @@ export type CreateTransactionDto = {
   orderId: string;
 };
 
+export type OrderOrganizationDto = {
+  _id: string;
+  name: string;
+};
+
+export type OrderRegionDto = {
+  _id: string;
+  name: string;
+};
+
+export type OrderBuyerDto = {
+  _id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+};
+
+export type OrderRequestDto = {
+  _id: string;
+  name: string;
+  displayId?: number;
+  status?: string;
+  region?: Array<OrderRegionDto>;
+  targetPricePerUnit?: number;
+  quantity?: number;
+  unitOfMeasurement?: string;
+  requester?: OrderBuyerDto;
+};
+
+export type OrderProductDto = {
+  _id: string;
+  title: string;
+  pricePerUnit?: number;
+  images?: Array<string>;
+};
+
+export type OrderDocumentDto = {
+  name: string;
+  url: string;
+};
+
+export type OrderStateDto = {
+  _id: string;
+  name: string;
+  iso2: string;
+};
+
+export type OrderCountryDto = {
+  _id: string;
+  name: string;
+  iso2: string;
+};
+
+export type OrderLocationDto = {
+  state?: OrderStateDto;
+  region?: OrderRegionDto;
+  country?: OrderCountryDto;
+  address?: string;
+};
+
+export type OrderResponseDto = {
+  _id: string;
+  sellerOrganization?: OrderOrganizationDto;
+  buyerOrganization?: OrderOrganizationDto;
+  request: OrderRequestDto;
+  product?: OrderProductDto;
+  transactionType: string;
+  quantity: number;
+  unitOfMeasurement: string;
+  pricePerUnit: number;
+  currency: string;
+  totalAmount: number;
+  condition?: string;
+  buyerDocuments?: Array<OrderDocumentDto>;
+  sellerDocuments?: Array<OrderDocumentDto>;
+  notes?: string;
+  location?: OrderLocationDto;
+  status: string;
+  displayId: number;
+  createdAt: string;
+  updatedAt: string;
+};
+
 export type TransactionEventDto = {
   timestamp: string;
   actor?: string;
@@ -313,7 +396,8 @@ export type TransactionEventDto = {
 
 export type TransactionResponseDto = {
   _id: string;
-  order: string;
+  order: OrderResponseDto;
+  displayId: number;
   status:
     | "INITIATED"
     | "DOCUMENTS_SUBMITTED"
@@ -380,11 +464,6 @@ export type AddTransactionDocumentDto = {
   url: string;
 };
 
-export type OrderDocumentDto = {
-  name: string;
-  url: string;
-};
-
 export type PurchaseProductDto = {
   /**
    * ID of the product to purchase
@@ -420,84 +499,6 @@ export type PurchaseProductDto = {
     address?: string;
   };
   buyerDocuments?: Array<OrderDocumentDto>;
-};
-
-export type OrderOrganizationDto = {
-  _id: string;
-  name: string;
-};
-
-export type OrderRegionDto = {
-  _id: string;
-  name: string;
-};
-
-export type OrderBuyerDto = {
-  _id: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-};
-
-export type OrderRequestDto = {
-  _id: string;
-  name: string;
-  displayId?: number;
-  status?: string;
-  region?: Array<OrderRegionDto>;
-  targetPricePerUnit?: number;
-  quantity?: number;
-  unitOfMeasurement?: string;
-  requester?: OrderBuyerDto;
-};
-
-export type OrderProductDto = {
-  _id: string;
-  title: string;
-  pricePerUnit?: number;
-  images?: Array<string>;
-};
-
-export type OrderStateDto = {
-  _id: string;
-  name: string;
-  iso2: string;
-};
-
-export type OrderCountryDto = {
-  _id: string;
-  name: string;
-  iso2: string;
-};
-
-export type OrderLocationDto = {
-  state?: OrderStateDto;
-  region?: OrderRegionDto;
-  country?: OrderCountryDto;
-  address?: string;
-};
-
-export type OrderResponseDto = {
-  _id: string;
-  sellerOrganization?: OrderOrganizationDto;
-  buyerOrganization?: OrderOrganizationDto;
-  request: OrderRequestDto;
-  product?: OrderProductDto;
-  transactionType: string;
-  quantity: number;
-  unitOfMeasurement: string;
-  pricePerUnit: number;
-  currency: string;
-  totalAmount: number;
-  condition?: string;
-  buyerDocuments?: Array<OrderDocumentDto>;
-  sellerDocuments?: Array<OrderDocumentDto>;
-  notes?: string;
-  location?: OrderLocationDto;
-  status: string;
-  displayId: number;
-  createdAt: string;
-  updatedAt: string;
 };
 
 export type OrdersPaginationDataDto = {
@@ -800,6 +801,19 @@ export type UpdateCategoryDto = {
    * Whether the category is active
    */
   isActive?: boolean;
+};
+
+export type PaginatedDataDto = {
+  docs: Array<TransactionResponseDto>;
+  totalDocs: number;
+  limit: number;
+  totalPages: number;
+  page: number;
+};
+
+export type PaginatedTransactionsResponseDto = {
+  message: string;
+  data: PaginatedDataDto;
 };
 
 export type AcceptRequestOrderDto = {
@@ -1752,6 +1766,37 @@ export type AdminCategoriesControllerUpdateResponses = {
 
 export type AdminCategoriesControllerUpdateResponse =
   AdminCategoriesControllerUpdateResponses[keyof AdminCategoriesControllerUpdateResponses];
+
+export type AdminTransactionsControllerFindAllData = {
+  body?: never;
+  path?: never;
+  query?: {
+    /**
+     * Page number
+     */
+    page?: string;
+    /**
+     * Items per page
+     */
+    limit?: string;
+    /**
+     * Search term (Transaction ID or Order ID)
+     */
+    search?: string;
+    /**
+     * Filter by status
+     */
+    status?: string;
+  };
+  url: "/api/v1/admin/transactions";
+};
+
+export type AdminTransactionsControllerFindAllResponses = {
+  200: PaginatedTransactionsResponseDto;
+};
+
+export type AdminTransactionsControllerFindAllResponse =
+  AdminTransactionsControllerFindAllResponses[keyof AdminTransactionsControllerFindAllResponses];
 
 export type AdminRequestsControllerFindAllData = {
   body?: never;

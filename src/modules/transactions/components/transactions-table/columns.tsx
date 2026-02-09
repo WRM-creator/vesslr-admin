@@ -1,161 +1,113 @@
-"use client";
-
+import {
+  TransactionStatusBadge,
+  type StatusVariant,
+} from "@/components/shared/status-badge";
 import { Badge } from "@/components/ui/badge";
+import { type TransactionResponseDto } from "@/lib/api/generated";
 import { type ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
 import { Link } from "react-router-dom";
 
-export interface Transaction {
-  id: string;
-  createdAt: string;
-  updatedAt: string;
-  type: "purchase" | "refund" | "transfer" | "payout";
-  state:
-    | "initiated"
-    | "documents_submitted"
-    | "compliance_review"
-    | "escrow_funded"
-    | "logistics_assigned"
-    | "in_transit"
-    | "delivery_confirmed"
-    | "settlement_released"
-    | "closed";
-  paymentStatus: "paid" | "unpaid" | "partial" | "refunded";
-  complianceStatus: "approved" | "pending_review" | "flagged" | "rejected";
-  merchant: {
-    name: string;
-  };
-  customer: {
-    name: string;
-  };
-  value: number;
-}
+// TODO: Extract the badges into distinct badge components
 
-const paymentStatusStyles: Record<
-  Transaction["paymentStatus"],
-  "default" | "secondary" | "outline" | "destructive"
-> = {
-  paid: "default",
-  unpaid: "destructive",
-  partial: "secondary",
-  refunded: "outline",
+const paymentStatusStyles: Record<string, StatusVariant> = {
+  paid: "success",
+  unpaid: "danger",
+  partial: "warning",
+  refunded: "info",
 };
 
-const complianceStatusStyles: Record<
-  Transaction["complianceStatus"],
-  "default" | "secondary" | "outline" | "destructive"
-> = {
-  approved: "default",
-  pending_review: "secondary",
-  flagged: "outline",
-  rejected: "destructive",
+const stateStyles: Record<string, StatusVariant> = {
+  INITIATED: "info",
+  DOCUMENTS_SUBMITTED: "info",
+  COMPLIANCE_REVIEW: "warning",
+  ESCROW_FUNDED: "success",
+  LOGISTICS_ASSIGNED: "info",
+  IN_TRANSIT: "info",
+  DELIVERY_CONFIRMED: "success",
+  SETTLEMENT_RELEASED: "success",
+  CLOSED: "neutral",
 };
 
-const stateStyles: Record<
-  Transaction["state"],
-  "default" | "secondary" | "outline" | "destructive"
-> = {
-  initiated: "secondary",
-  documents_submitted: "secondary",
-  compliance_review: "outline",
-  escrow_funded: "default",
-  logistics_assigned: "outline",
-  in_transit: "outline",
-  delivery_confirmed: "default",
-  settlement_released: "default",
-  closed: "secondary",
-};
-
-export const transactionsColumns: ColumnDef<Transaction>[] = [
+export const transactionsColumns: ColumnDef<TransactionResponseDto>[] = [
   {
-    accessorKey: "id",
-    header: "Transaction ID",
-    cell: ({ row }) => (
-      <Link
-        to={`/transactions/${row.original.id}`}
-        className="font-mono text-sm hover:underline"
-      >
-        {row.original.id}
-      </Link>
-    ),
+    accessorKey: "displayId",
+    header: "ID",
+    cell: ({ row }) => {
+      const displayId = row.original.displayId?.toString() || row.original._id;
+      return (
+        <Link
+          to={`/transactions/${row.original._id}`}
+          className="font-mono text-sm hover:underline"
+        >
+          {displayId.startsWith("#") ? displayId : `#${displayId}`}
+        </Link>
+      );
+    },
   },
   {
-    accessorKey: "merchant.name",
+    accessorKey: "order.sellerOrganization.name",
     header: "Merchant",
     cell: ({ row }) => (
-      <span className="font-medium">{row.original.merchant.name}</span>
+      <span className="font-medium">
+        {row.original.order.sellerOrganization?.name || "N/A"}
+      </span>
     ),
   },
   {
-    accessorKey: "customer.name",
+    accessorKey: "order.buyerOrganization.name",
     header: "Customer",
     cell: ({ row }) => (
-      <span className="font-medium">{row.original.customer.name}</span>
+      <span className="font-medium">
+        {row.original.order.buyerOrganization?.name || "N/A"}
+      </span>
     ),
   },
   {
-    accessorKey: "value",
+    accessorKey: "order.totalAmount",
     header: "Value",
     cell: ({ row }) => {
-      const value = row.original.value;
+      const value = row.original.order.totalAmount;
       const formatted = new Intl.NumberFormat("en-US", {
         style: "currency",
-        currency: "USD",
+        currency: row.original.order.currency || "USD",
       }).format(value);
 
       return <div className="font-medium">{formatted}</div>;
     },
   },
   {
-    accessorKey: "type",
+    accessorKey: "order.transactionType",
     header: "Type",
     cell: ({ row }) => (
-      <span className="text-sm capitalize">{row.original.type}</span>
+      <span className="text-sm capitalize">
+        {row.original.order.transactionType}
+      </span>
     ),
   },
   {
-    accessorKey: "state",
+    accessorKey: "status",
     header: "State",
     cell: ({ row }) => {
-      const state = row.original.state;
+      const state = row.original.status;
       if (!state) return <Badge variant="outline">Unknown</Badge>;
       return (
-        <Badge variant={stateStyles[state] || "outline"} className="capitalize">
-          {state.replace("_", " ")}
-        </Badge>
+        <TransactionStatusBadge status={state} variant={stateStyles[state]} />
       );
     },
   },
   {
-    accessorKey: "paymentStatus",
+    accessorFn: (row) => row.order.status,
+    id: "paymentStatus",
     header: "Payment Status",
     cell: ({ row }) => {
-      const status = row.original.paymentStatus;
+      // For now using order status as payment status proxy or checking if we should derive it
+      const status = row.original.order.status?.toLowerCase();
       if (!status) return <Badge variant="outline">Unknown</Badge>;
-      return (
-        <Badge
-          variant={paymentStatusStyles[status] || "outline"}
-          className="capitalize"
-        >
-          {status.replace("_", " ")}
-        </Badge>
-      );
-    },
-  },
-  {
-    accessorKey: "complianceStatus",
-    header: "Compliance Status",
-    cell: ({ row }) => {
-      const status = row.original.complianceStatus;
-      if (!status) return <Badge variant="outline">Unknown</Badge>;
-      return (
-        <Badge
-          variant={complianceStatusStyles[status] || "outline"}
-          className="capitalize"
-        >
-          {status.replace("_", " ")}
-        </Badge>
-      );
+
+      const variant = paymentStatusStyles[status] || "neutral";
+
+      return <TransactionStatusBadge status={status} variant={variant} />;
     },
   },
   {

@@ -10,7 +10,7 @@
  *   const { data } = api.products.list.useSuspenseQuery({});
  */
 
-import { createMutation } from "./factory";
+import { createMutation, createQuery } from "./factory";
 
 // Import client config to initialize interceptors
 import "./client-config";
@@ -22,62 +22,24 @@ import "./client-config";
 import {
   adminAuthControllerLogin,
   adminAuthControllerVerifyOtp,
+  adminTransactionsControllerFindAll,
 } from "./generated";
 
-// async function getEscrowStats() {
-//   const { data } = await client.request<{
-//     success: boolean;
-//     data: {
-//       totalHeld: number;
-//       totalTransacted: number;
-//       activeCount: number;
-//       disputedCount: number;
-//       completedCount: number;
-//     };
-//   }>({
-//     url: "/api/v1/admin/escrows/stats",
-//     method: "GET",
-//   });
-//   return data!;
-// }
-
 export const api = {
-  // Add endpoints as they are needed, following this pattern:
-  //
-  // products: {
-  //   list: createQuery(getApiV1Products, ["products", "list"]),
-  //   create: createMutation(postApiV1Products, {
-  //     invalidates: () => [["products", "list"]],
-  //   }),
-  // },
   auth: {
     login: createMutation(adminAuthControllerLogin),
     verifyOtp: createMutation(adminAuthControllerVerifyOtp),
   },
-  // admin: {
-  //   transactions: {
-  //     list: createQuery(getApiV1AdminTransactions, [
-  //       "admin",
-  //       "transactions",
-  //       "list",
-  //     ]),
-  //     updateStatus: createMutation(patchApiV1AdminTransactionsByIdStatus, {
-  //       invalidates: () => [["admin", "transactions", "list"]],
-  //     }),
-  //   },
-  //   escrows: {
-  //     list: createQuery(getApiV1AdminEscrows, ["admin", "escrows", "list"]),
-  //     detail: createQuery(getApiV1AdminEscrowsById, [
-  //       "admin",
-  //       "escrows",
-  //       "detail",
-  //     ]),
-  //     stats: createQuery(getEscrowStats, ["admin", "escrows", "stats"]),
-  //   },
-  //   // users: {
-  //   //   list: createQuery(getApiV1AdminUsers, ["admin", "users", "list"]),
-  //   // },
-  // },
+  admin: {
+    transactions: {
+      list: createQuery(adminTransactionsControllerFindAll, (args) => [
+        "admin",
+        "transactions",
+        "list",
+        args?.query,
+      ]),
+    },
+  },
   // categories: {
   //   list: createQuery(getApiV1AdminCategories, ["categories", "list"]),
   //   detail: createQuery(getApiV1AdminCategoriesById, ["categories", "detail"]),

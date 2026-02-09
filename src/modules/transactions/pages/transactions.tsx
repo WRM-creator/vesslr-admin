@@ -3,52 +3,11 @@
 import { Page } from "@/components/shared/page";
 import { PageHeader } from "@/components/shared/page-header";
 import { api } from "@/lib/api";
+import { type TransactionResponseDto } from "@/lib/api/generated";
 import { useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
-import {
-  type Transaction,
-  TransactionsTable,
-} from "../components/transactions-table";
+import { TransactionsTable } from "../components/transactions-table";
 import type { TransactionFilters } from "../components/transactions-table/filters";
-
-const MOCK_TRANSACTIONS: Transaction[] = [
-  {
-    id: "tx_001",
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-    type: "purchase",
-    state: "closed",
-    paymentStatus: "paid",
-    complianceStatus: "approved",
-    merchant: { name: "Acme Corp" },
-    customer: { name: "John Doe" },
-    value: 120.5,
-  },
-  {
-    id: "tx_002",
-    createdAt: new Date(Date.now() - 86400000).toISOString(),
-    updatedAt: new Date().toISOString(),
-    type: "transfer",
-    state: "compliance_review",
-    paymentStatus: "partial",
-    complianceStatus: "pending_review",
-    merchant: { name: "Global Industries" },
-    customer: { name: "Jane Smith" },
-    value: 75.0,
-  },
-  {
-    id: "tx_003",
-    createdAt: new Date(Date.now() - 172800000).toISOString(),
-    updatedAt: new Date(Date.now() - 86400000).toISOString(),
-    type: "refund",
-    state: "initiated",
-    paymentStatus: "refunded",
-    complianceStatus: "flagged",
-    merchant: { name: "Tech Solutions" },
-    customer: { name: "Bob Johnson" },
-    value: 250.0,
-  },
-];
 
 export default function TransactionsPage() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -62,42 +21,29 @@ export default function TransactionsPage() {
   );
 
   const queryParams = useMemo(() => {
-    const params: Record<string, any> = {};
-    if (filters.search) params.search = filters.search;
-    if (filters.status && filters.status !== "all")
-      params.status = filters.status;
-    return params;
+    return {
+      query: {
+        page: "1",
+        limit: "100", // For now, simple list
+        search: filters.search || undefined,
+        status: filters.status !== "all" ? filters.status : undefined,
+      },
+    };
   }, [filters]);
 
   const { data: transactionsData, isLoading } =
     api.admin.transactions.list.useQuery(queryParams);
 
-  const transactions: Transaction[] = (transactionsData?.data?.docs || []).map(
-    (doc: any) => ({
-      id: doc._id || doc.id,
-      createdAt: doc.createdAt,
-      updatedAt: doc.updatedAt,
-      type: "purchase", // Defaulting as API might not have this yet
-      state: doc.status as Transaction["state"],
-      paymentStatus: doc.paymentStatus as Transaction["paymentStatus"],
-      complianceStatus: doc.complianceStatus as Transaction["complianceStatus"],
-      merchant: {
-        name: doc.seller?.firstName
-          ? `${doc.seller.firstName} ${doc.seller.lastName}`
-          : "Unknown",
-      },
-      customer: {
-        name: doc.buyer?.firstName
-          ? `${doc.buyer.firstName} ${doc.buyer.lastName}`
-          : "Unknown",
-      },
-      value: doc.specs?.totalPrice || 0,
-    }),
-  );
+  const transactions = useMemo(() => {
+    return (transactionsData?.data?.docs as TransactionResponseDto[]) || [];
+  }, [transactionsData]);
 
-  const handleFilterChange = (key: keyof TransactionFilters, value: any) => {
+  const handleFilterChange = (
+    key: keyof TransactionFilters,
+    value: string | null,
+  ) => {
     setSearchParams((prev) => {
-      if (!value) {
+      if (!value || value === "all") {
         prev.delete(key);
       } else {
         prev.set(key, String(value));
@@ -107,17 +53,7 @@ export default function TransactionsPage() {
   };
 
   const handleReset = () => {
-    setSearchParams((prev) => {
-      // Keep status/tab if needed, or clear everything.
-      // Based on ProductsPage, it clears everything.
-      // But here `status` is managed by `nuqs` in the table (as per my read of table code),
-      // or wait, table uses `useQueryState("status")`.
-      // If I clear searchParams here, it might clear "status" too if it's in the URL.
-      // Let's just clear the filters we know about for now to be safe, or just empty object if we want full reset.
-      // ProductsPage does `setSearchParams({})`.
-      // Let's do the same for consistency, assuming "status" might be reset to default "all".
-      return {};
-    });
+    setSearchParams({});
   };
 
   return (
@@ -131,7 +67,7 @@ export default function TransactionsPage() {
         data={transactions}
         isLoading={isLoading}
         filters={filters}
-        merchantOptions={[]} // TODO: Fetch merchants from API
+        merchantOptions={[]} // TODO: Fetch merchants from API if needed
         onFilterChange={handleFilterChange}
         onReset={handleReset}
       />

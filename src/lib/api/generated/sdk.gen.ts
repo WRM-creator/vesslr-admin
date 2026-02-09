@@ -33,6 +33,8 @@ import type {
   AdminRequestsControllerFindOneResponses,
   AdminRequestsControllerUpdateStatusData,
   AdminRequestsControllerUpdateStatusResponses,
+  AdminTransactionsControllerFindAllData,
+  AdminTransactionsControllerFindAllResponses,
   AppControllerGetHelloData,
   AppControllerGetHelloResponses,
   CategoriesControllerFindAllData,
@@ -1110,6 +1112,24 @@ export const adminCategoriesControllerUpdate = <
       "Content-Type": "application/json",
       ...options.headers,
     },
+  });
+
+/**
+ * List all transactions (Admin)
+ */
+export const adminTransactionsControllerFindAll = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<AdminTransactionsControllerFindAllData, ThrowOnError>,
+) =>
+  (options?.client ?? client).get<
+    AdminTransactionsControllerFindAllResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/transactions",
+    ...options,
   });
 
 /**
