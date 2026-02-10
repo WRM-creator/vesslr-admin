@@ -22,8 +22,11 @@ import "./client-config";
 import {
   adminAuthControllerLogin,
   adminAuthControllerVerifyOtp,
+  adminTransactionsControllerAddDocument,
+  adminTransactionsControllerDeleteRequirement,
   adminTransactionsControllerFindAll,
-  transactionsControllerFindById,
+  adminTransactionsControllerFindById,
+  adminTransactionsControllerUpdateRequirement,
 } from "./generated";
 
 export const api = {
@@ -40,12 +43,33 @@ export const api = {
         "list",
         args?.query,
       ]),
-      detail: createQuery(transactionsControllerFindById, (args) => [
+      detail: createQuery(adminTransactionsControllerFindById, (args) => [
         "admin",
         "transactions",
         "detail",
         args.path.id,
       ]),
+      addDocument: createMutation(adminTransactionsControllerAddDocument, {
+        invalidates: (args) => [
+          ["admin", "transactions", "detail", args.path.id],
+        ],
+      }),
+      updateRequirement: createMutation(
+        adminTransactionsControllerUpdateRequirement,
+        {
+          invalidates: (args) => [
+            ["admin", "transactions", "detail", args.path.id],
+          ],
+        },
+      ),
+      deleteRequirement: createMutation(
+        adminTransactionsControllerDeleteRequirement,
+        {
+          invalidates: (args) => [
+            ["admin", "transactions", "detail", args.path.id],
+          ],
+        },
+      ),
     },
   },
   // categories: {

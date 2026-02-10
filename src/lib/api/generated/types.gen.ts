@@ -388,9 +388,52 @@ export type TransactionEventDto = {
     | "STATUS_CHANGE"
     | "DOCUMENT_UPLOADED"
     | "LOGISTICS_UPDATE"
-    | "NOTE_ADDED";
+    | "NOTE_ADDED"
+    | "REQUIREMENT_ADDED"
+    | "REQUIREMENT_UPDATED"
+    | "REQUIREMENT_DELETED";
   metadata?: {
     [key: string]: unknown;
+  };
+};
+
+export type TransactionDocumentFileDto = {
+  name: string;
+  url: string;
+  uploader?: string;
+  timestamp: string;
+};
+
+export type TransactionDocumentSlotDto = {
+  type:
+    | "INVOICE"
+    | "PACKING_LIST"
+    | "CERTIFICATE_OF_ORIGIN"
+    | "SAFETY_DATA_SHEET"
+    | "BILL_OF_LADING"
+    | "OTHER";
+  name: string;
+  requiredFrom: "BUYER" | "SELLER";
+  isMandatory: boolean;
+  submission?: TransactionDocumentFileDto;
+  status: "PENDING" | "SUBMITTED" | "APPROVED" | "REJECTED";
+};
+
+export type TransactionTaskDto = {
+  id: string;
+  type: {
+    [key: string]: unknown;
+  };
+  title: string;
+  description: string;
+  assignedTo: {
+    [key: string]: unknown;
+  };
+  action?: {
+    type: {
+      [key: string]: unknown;
+    };
+    target: string;
   };
 };
 
@@ -409,6 +452,7 @@ export type TransactionResponseDto = {
     | "SETTLEMENT_RELEASED"
     | "CLOSED";
   events: Array<TransactionEventDto>;
+  requiredDocuments?: Array<TransactionDocumentSlotDto>;
   /**
    * Documents grouped by stage
    */
@@ -419,6 +463,7 @@ export type TransactionResponseDto = {
   assignedLogistics?: {
     [key: string]: unknown;
   };
+  pendingTasks?: Array<TransactionTaskDto>;
   createdAt: string;
   updatedAt: string;
 };
@@ -445,15 +490,15 @@ export type UpdateTransactionStatusDto = {
 
 export type AddTransactionDocumentDto = {
   /**
-   * The stage bucket this document belongs to
+   * The type of document being uploaded
    */
-  stage:
-    | "initiation"
-    | "compliance"
-    | "payment"
-    | "logistics"
-    | "delivery"
-    | "settlement";
+  type:
+    | "INVOICE"
+    | "PACKING_LIST"
+    | "CERTIFICATE_OF_ORIGIN"
+    | "SAFETY_DATA_SHEET"
+    | "BILL_OF_LADING"
+    | "OTHER";
   /**
    * Display name of the document
    */
@@ -462,6 +507,31 @@ export type AddTransactionDocumentDto = {
    * URL of the uploaded document
    */
   url: string;
+};
+
+export type AddTransactionRequirementDto = {
+  /**
+   * The type of document required
+   */
+  type:
+    | "INVOICE"
+    | "PACKING_LIST"
+    | "CERTIFICATE_OF_ORIGIN"
+    | "SAFETY_DATA_SHEET"
+    | "BILL_OF_LADING"
+    | "OTHER";
+  /**
+   * Display name of the requirement
+   */
+  name: string;
+  /**
+   * Who is required to submit this document
+   */
+  requiredFrom: "BUYER" | "SELLER";
+  /**
+   * Whether this document is mandatory for the transaction to proceed
+   */
+  isMandatory: boolean;
 };
 
 export type PurchaseProductDto = {
@@ -814,6 +884,31 @@ export type PaginatedDataDto = {
 export type PaginatedTransactionsResponseDto = {
   message: string;
   data: PaginatedDataDto;
+};
+
+export type UpdateTransactionRequirementDto = {
+  /**
+   * The type of document required
+   */
+  type?:
+    | "INVOICE"
+    | "PACKING_LIST"
+    | "CERTIFICATE_OF_ORIGIN"
+    | "SAFETY_DATA_SHEET"
+    | "BILL_OF_LADING"
+    | "OTHER";
+  /**
+   * Display name of the requirement
+   */
+  name?: string;
+  /**
+   * Who is required to submit this document
+   */
+  requiredFrom?: "BUYER" | "SELLER";
+  /**
+   * Whether this document is mandatory for the transaction to proceed
+   */
+  isMandatory?: boolean;
 };
 
 export type AcceptRequestOrderDto = {
@@ -1288,6 +1383,28 @@ export type TransactionsControllerAddDocumentResponses = {
 
 export type TransactionsControllerAddDocumentResponse =
   TransactionsControllerAddDocumentResponses[keyof TransactionsControllerAddDocumentResponses];
+
+export type TransactionsControllerAddRequirementData = {
+  body: AddTransactionRequirementDto;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/transactions/{id}/requirements";
+};
+
+export type TransactionsControllerAddRequirementResponses = {
+  /**
+   * The updated transaction
+   */
+  200: TransactionResponseDto;
+  201: {
+    [key: string]: unknown;
+  };
+};
+
+export type TransactionsControllerAddRequirementResponse =
+  TransactionsControllerAddRequirementResponses[keyof TransactionsControllerAddRequirementResponses];
 
 export type TransactionsControllerGetLogsData = {
   body?: never;
@@ -1797,6 +1914,144 @@ export type AdminTransactionsControllerFindAllResponses = {
 
 export type AdminTransactionsControllerFindAllResponse =
   AdminTransactionsControllerFindAllResponses[keyof AdminTransactionsControllerFindAllResponses];
+
+export type AdminTransactionsControllerFindByIdData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/admin/transactions/{id}";
+};
+
+export type AdminTransactionsControllerFindByIdResponses = {
+  /**
+   * The transaction
+   */
+  200: TransactionResponseDto;
+};
+
+export type AdminTransactionsControllerFindByIdResponse =
+  AdminTransactionsControllerFindByIdResponses[keyof AdminTransactionsControllerFindByIdResponses];
+
+export type AdminTransactionsControllerUpdateStatusData = {
+  body: UpdateTransactionStatusDto;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/admin/transactions/{id}/status";
+};
+
+export type AdminTransactionsControllerUpdateStatusResponses = {
+  /**
+   * The updated transaction
+   */
+  200: TransactionResponseDto;
+};
+
+export type AdminTransactionsControllerUpdateStatusResponse =
+  AdminTransactionsControllerUpdateStatusResponses[keyof AdminTransactionsControllerUpdateStatusResponses];
+
+export type AdminTransactionsControllerAddDocumentData = {
+  body: AddTransactionDocumentDto;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/admin/transactions/{id}/documents";
+};
+
+export type AdminTransactionsControllerAddDocumentResponses = {
+  /**
+   * The updated transaction
+   */
+  200: TransactionResponseDto;
+  201: {
+    [key: string]: unknown;
+  };
+};
+
+export type AdminTransactionsControllerAddDocumentResponse =
+  AdminTransactionsControllerAddDocumentResponses[keyof AdminTransactionsControllerAddDocumentResponses];
+
+export type AdminTransactionsControllerAddRequirementData = {
+  body: AddTransactionRequirementDto;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/admin/transactions/{id}/requirements";
+};
+
+export type AdminTransactionsControllerAddRequirementResponses = {
+  /**
+   * The updated transaction
+   */
+  200: TransactionResponseDto;
+  201: {
+    [key: string]: unknown;
+  };
+};
+
+export type AdminTransactionsControllerAddRequirementResponse =
+  AdminTransactionsControllerAddRequirementResponses[keyof AdminTransactionsControllerAddRequirementResponses];
+
+export type AdminTransactionsControllerGetLogsData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/admin/transactions/{id}/logs";
+};
+
+export type AdminTransactionsControllerGetLogsResponses = {
+  /**
+   * List of transaction events
+   */
+  200: unknown;
+};
+
+export type AdminTransactionsControllerDeleteRequirementData = {
+  body?: never;
+  path: {
+    id: string;
+    requirementId: string;
+  };
+  query?: never;
+  url: "/api/v1/admin/transactions/{id}/requirements/{requirementId}";
+};
+
+export type AdminTransactionsControllerDeleteRequirementResponses = {
+  /**
+   * The updated transaction
+   */
+  200: TransactionResponseDto;
+};
+
+export type AdminTransactionsControllerDeleteRequirementResponse =
+  AdminTransactionsControllerDeleteRequirementResponses[keyof AdminTransactionsControllerDeleteRequirementResponses];
+
+export type AdminTransactionsControllerUpdateRequirementData = {
+  body: UpdateTransactionRequirementDto;
+  path: {
+    id: string;
+    requirementId: string;
+  };
+  query?: never;
+  url: "/api/v1/admin/transactions/{id}/requirements/{requirementId}";
+};
+
+export type AdminTransactionsControllerUpdateRequirementResponses = {
+  /**
+   * The updated transaction
+   */
+  200: TransactionResponseDto;
+};
+
+export type AdminTransactionsControllerUpdateRequirementResponse =
+  AdminTransactionsControllerUpdateRequirementResponses[keyof AdminTransactionsControllerUpdateRequirementResponses];
 
 export type AdminRequestsControllerFindAllData = {
   body?: never;

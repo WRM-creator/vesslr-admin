@@ -33,8 +33,22 @@ import type {
   AdminRequestsControllerFindOneResponses,
   AdminRequestsControllerUpdateStatusData,
   AdminRequestsControllerUpdateStatusResponses,
+  AdminTransactionsControllerAddDocumentData,
+  AdminTransactionsControllerAddDocumentResponses,
+  AdminTransactionsControllerAddRequirementData,
+  AdminTransactionsControllerAddRequirementResponses,
+  AdminTransactionsControllerDeleteRequirementData,
+  AdminTransactionsControllerDeleteRequirementResponses,
   AdminTransactionsControllerFindAllData,
   AdminTransactionsControllerFindAllResponses,
+  AdminTransactionsControllerFindByIdData,
+  AdminTransactionsControllerFindByIdResponses,
+  AdminTransactionsControllerGetLogsData,
+  AdminTransactionsControllerGetLogsResponses,
+  AdminTransactionsControllerUpdateRequirementData,
+  AdminTransactionsControllerUpdateRequirementResponses,
+  AdminTransactionsControllerUpdateStatusData,
+  AdminTransactionsControllerUpdateStatusResponses,
   AppControllerGetHelloData,
   AppControllerGetHelloResponses,
   CategoriesControllerFindAllData,
@@ -109,6 +123,8 @@ import type {
   StorageControllerGeneratePresignedUrlsResponses,
   TransactionsControllerAddDocumentData,
   TransactionsControllerAddDocumentResponses,
+  TransactionsControllerAddRequirementData,
+  TransactionsControllerAddRequirementResponses,
   TransactionsControllerCreateData,
   TransactionsControllerCreateResponses,
   TransactionsControllerFindByIdData,
@@ -575,6 +591,28 @@ export const transactionsControllerAddDocument = <
   >({
     security: [{ scheme: "bearer", type: "http" }],
     url: "/api/v1/transactions/{id}/documents",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Add a required document to the transaction
+ */
+export const transactionsControllerAddRequirement = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<TransactionsControllerAddRequirementData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    TransactionsControllerAddRequirementResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/transactions/{id}/requirements",
     ...options,
     headers: {
       "Content-Type": "application/json",
@@ -1130,6 +1168,154 @@ export const adminTransactionsControllerFindAll = <
     security: [{ scheme: "bearer", type: "http" }],
     url: "/api/v1/admin/transactions",
     ...options,
+  });
+
+/**
+ * Get transaction by ID
+ */
+export const adminTransactionsControllerFindById = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AdminTransactionsControllerFindByIdData, ThrowOnError>,
+) =>
+  (options.client ?? client).get<
+    AdminTransactionsControllerFindByIdResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/transactions/{id}",
+    ...options,
+  });
+
+/**
+ * Update transaction status
+ */
+export const adminTransactionsControllerUpdateStatus = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AdminTransactionsControllerUpdateStatusData, ThrowOnError>,
+) =>
+  (options.client ?? client).patch<
+    AdminTransactionsControllerUpdateStatusResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/transactions/{id}/status",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Add a document to the transaction
+ */
+export const adminTransactionsControllerAddDocument = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AdminTransactionsControllerAddDocumentData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    AdminTransactionsControllerAddDocumentResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/transactions/{id}/documents",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Add a required document to the transaction (Admin)
+ */
+export const adminTransactionsControllerAddRequirement = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AdminTransactionsControllerAddRequirementData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    AdminTransactionsControllerAddRequirementResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/transactions/{id}/requirements",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Get transaction audit logs
+ */
+export const adminTransactionsControllerGetLogs = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AdminTransactionsControllerGetLogsData, ThrowOnError>,
+) =>
+  (options.client ?? client).get<
+    AdminTransactionsControllerGetLogsResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/transactions/{id}/logs",
+    ...options,
+  });
+
+/**
+ * Delete a required document from the transaction (Admin)
+ */
+export const adminTransactionsControllerDeleteRequirement = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    AdminTransactionsControllerDeleteRequirementData,
+    ThrowOnError
+  >,
+) =>
+  (options.client ?? client).delete<
+    AdminTransactionsControllerDeleteRequirementResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/transactions/{id}/requirements/{requirementId}",
+    ...options,
+  });
+
+/**
+ * Update a required document for the transaction (Admin)
+ */
+export const adminTransactionsControllerUpdateRequirement = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    AdminTransactionsControllerUpdateRequirementData,
+    ThrowOnError
+  >,
+) =>
+  (options.client ?? client).patch<
+    AdminTransactionsControllerUpdateRequirementResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/transactions/{id}/requirements/{requirementId}",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
   });
 
 /**
