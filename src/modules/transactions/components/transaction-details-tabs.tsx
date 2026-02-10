@@ -1,16 +1,28 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { TransactionResponseDto } from "@/lib/api/generated";
+import { TransactionDocumentsTab } from "./transaction-documents-tab";
 import { TransactionOverviewTab } from "./transaction-overview-tab";
 
 interface TransactionDetailsTabsProps {
   transaction: TransactionResponseDto;
+  value?: string;
+  onValueChange?: (value: string) => void;
+  onAction?: (action: any) => void;
 }
 
 export function TransactionDetailsTabs({
   transaction,
+  value,
+  onValueChange,
+  onAction,
 }: TransactionDetailsTabsProps) {
   return (
-    <Tabs defaultValue="overview" className="w-full">
+    <Tabs
+      defaultValue="overview"
+      value={value}
+      onValueChange={onValueChange}
+      className="w-full"
+    >
       <TabsList>
         <TabsTrigger value="overview">Overview</TabsTrigger>
         <TabsTrigger value="documents">Documents & Compliance</TabsTrigger>
@@ -21,9 +33,14 @@ export function TransactionDetailsTabs({
 
       <div className="mt-2">
         <TabsContent value="overview">
-          <TransactionOverviewTab transaction={transaction} />
+          <TransactionOverviewTab
+            transaction={transaction}
+            onAction={onAction}
+          />
         </TabsContent>
-        <TabsContent value="documents" />
+        <TabsContent value="documents">
+          <TransactionDocumentsTab transaction={transaction} />
+        </TabsContent>
         <TabsContent value="financials" />
         <TabsContent value="logistics" />
         <TabsContent value="audit" />

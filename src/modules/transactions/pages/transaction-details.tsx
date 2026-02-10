@@ -1,7 +1,9 @@
 import { Page } from "@/components/shared/page";
 import { PageHeader } from "@/components/shared/page-header";
+import { PageLoader } from "@/components/shared/page-loader";
 import { api } from "@/lib/api";
 import { Loader2 } from "lucide-react";
+import { useState } from "react";
 import { useParams } from "react-router-dom";
 import { TransactionDetailsTabs } from "../components/transaction-details-tabs";
 import { TransactionOrchestrationBar } from "../components/transaction-orchestration-bar";
@@ -10,6 +12,7 @@ import { TransactionStatusBadge } from "../components/transaction-status-badge";
 
 export default function TransactionDetailsPage() {
   const { id } = useParams();
+  const [activeTab, setActiveTab] = useState("overview");
 
   const { data: transaction, isLoading } =
     api.admin.transactions.detail.useQuery(
@@ -30,18 +33,31 @@ export default function TransactionDetailsPage() {
   }
 
   if (!transaction) {
-    return (
-      <Page>
-        <div className="flex h-96 items-center justify-center">
-          <p className="text-muted-foreground">Transaction not found</p>
-        </div>
-      </Page>
-    );
+    return <PageLoader />;
   }
 
   const order = transaction.order;
   const buyerName = order?.buyerOrganization?.name || "Unknown Buyer";
   const sellerName = order?.sellerOrganization?.name || "Unknown Seller";
+
+  const handleTaskAction = (action: any) => {
+    if (!action) return;
+
+    if (action.type === "navigate") {
+      if (action.target === "documents-tab") {
+        setActiveTab("documents");
+      } else if (action.target === "compliance-tab") {
+        setActiveTab("documents");
+      } else if (action.target === "logistics-tab") {
+        setActiveTab("logistics");
+      } else if (action.target === "financials-tab") {
+        setActiveTab("financials");
+      }
+    } else if (action.type === "modal") {
+      console.log("Open modal:", action.target);
+      // Future: Open specific modals
+    }
+  };
 
   return (
     <Page>
@@ -62,13 +78,16 @@ export default function TransactionDetailsPage() {
         </div>
 
         {/* 2. Orchestration Bar (The Bridge) */}
-        <TransactionOrchestrationBar
-          currentStatus={transaction.status}
-          events={transaction.events}
-        />
+        <TransactionOrchestrationBar status={transaction.status} />
 
         {/* 3. Detailed Tabs (The What) */}
-        <TransactionDetailsTabs transaction={transaction} />
+        <TransactionDetailsTabs
+          transaction={transaction}
+          value={activeTab}
+          onValueChange={setActiveTab}
+          onAction={handleTaskAction} // Wait, TransactionDetailsTabs doesn't have onAction yet?
+          // Ah, I missed updating TransactionDetailsTabs to pass onAction down to TransactionOverviewTab
+        />
       </div>
     </Page>
   );
