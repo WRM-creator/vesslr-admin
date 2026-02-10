@@ -24,7 +24,7 @@ const variantStyles: Record<StatusVariant, string> = {
 
 // TODO: Convert this to a general status badge
 
-export function TransactionStatusBadge({
+export function StatusBadge({
   status,
   variant = "neutral",
   className,

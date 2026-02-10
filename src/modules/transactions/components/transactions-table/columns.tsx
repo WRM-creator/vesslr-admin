@@ -1,5 +1,5 @@
 import {
-  TransactionStatusBadge,
+  StatusBadge,
   type StatusVariant,
 } from "@/components/shared/status-badge";
 import { Badge } from "@/components/ui/badge";
@@ -91,9 +91,7 @@ export const transactionsColumns: ColumnDef<TransactionResponseDto>[] = [
     cell: ({ row }) => {
       const state = row.original.status;
       if (!state) return <Badge variant="outline">Unknown</Badge>;
-      return (
-        <TransactionStatusBadge status={state} variant={stateStyles[state]} />
-      );
+      return <StatusBadge status={state} variant={stateStyles[state]} />;
     },
   },
   {
@@ -107,7 +105,7 @@ export const transactionsColumns: ColumnDef<TransactionResponseDto>[] = [
 
       const variant = paymentStatusStyles[status] || "neutral";
 
-      return <TransactionStatusBadge status={status} variant={variant} />;
+      return <StatusBadge status={status} variant={variant} />;
     },
   },
   {

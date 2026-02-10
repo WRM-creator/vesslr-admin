@@ -1,31 +1,23 @@
-import { type ReactNode } from "react";
-
 interface PageHeaderProps {
-  title: string | ReactNode;
-  description?: string | ReactNode;
-  endContent?: ReactNode;
+  title: React.ReactNode;
+  description?: React.ReactNode;
+  endContent?: React.ReactNode;
 }
 
-export function PageHeader({
+export const PageHeader = ({
   title,
   description,
   endContent,
-}: PageHeaderProps) {
+}: PageHeaderProps) => {
   return (
-    <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">{title}</h1>
+    <div className="flex flex-col-reverse justify-between gap-2 @2xl:flex-row @2xl:items-center">
+      <div className="space-y-1">
+        <h1 className="text-[24px] leading-[1.45] font-semibold">{title}</h1>
         {description && (
-          <div className="text-muted-foreground mt-2 text-base">
-            {description}
-          </div>
+          <p className="text-muted-foreground text-sm">{description}</p>
         )}
       </div>
-      {endContent && (
-        <div className="mt-2 flex items-center gap-2 text-sm! sm:mt-0">
-          {endContent}
-        </div>
-      )}
+      {endContent && <div className="ml-auto w-fit @2xl:m-0">{endContent}</div>}
     </div>
   );
-}
+};

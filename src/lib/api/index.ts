@@ -23,6 +23,7 @@ import {
   adminAuthControllerLogin,
   adminAuthControllerVerifyOtp,
   adminTransactionsControllerFindAll,
+  transactionsControllerFindById,
 } from "./generated";
 
 export const api = {
@@ -36,7 +37,14 @@ export const api = {
         "admin",
         "transactions",
         "list",
+        "list",
         args?.query,
+      ]),
+      detail: createQuery(transactionsControllerFindById, (args) => [
+        "admin",
+        "transactions",
+        "detail",
+        args.path.id,
       ]),
     },
   },

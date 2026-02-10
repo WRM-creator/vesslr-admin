@@ -1,29 +1,25 @@
-/* Tailwind v4 CSS-first import */
 @import "tailwindcss";
 @import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
 
 @theme {
-  /* --- Frontend Custom Colors --- */
-  --color-primary-green: #40e0d0;
-  --color-primary-green-light: #b4f3ec;
-  --color-bg-light-green: #f5fdfc;
-  --color-secondary-black: #1a1a1a;
+  --color-primaryGreen: #40e0d0;
+  --color-primaryGreenLight: #b4f3ec;
+  --color-primaryGreenDark: #148176; /* Accessible text on white */
+  --color-bgLightGreen: #f5fdfc;
+  --color-secondaryBlack: #1a1a1a;
   --color-white: #ffffff;
-  --color-text-grey: #b9b9b9;
-  --color-text-black: #2b2a2a;
+  --color-textGrey: #b9b9b9;
+  --color-textBlack: #2b2a2a;
   --color-black: #141414;
   --color-grey: #eef0f7;
-  --color-border-grey: #e4e7ec;
-  --color-grey-dark: #344054;
-  --color-grey-700: #344054;
+  --color-borderGrey: #e4e7ec;
+  --color-grey700: #344054;
   --color-orange: #ff912b;
-  --color-text-grey-lighter: #98a2b3;
-  --color-text-black-lighter: #383030;
+  --color-textGreyLighter: #98a2b3;
+  --color-textBlackLighter: #383030;
 
-  /* --- Fonts (Merged Admin + Frontend) --- */
-  /* Frontend-style families */
   --font-Cals-Sans: "Cals-Sans";
   --font-Matter-Bold: "Matter-Bold";
   --font-Matter-Heavy: "Matter-Heavy";
@@ -32,111 +28,22 @@
   --font-Matter-Regular: "Matter-Regular";
   --font-Matter-SemiBold: "Matter-SemiBold";
 
-  /* Admin-style standard families */
-  --font-cals-sans: "Cals-Sans", sans-serif;
-  --font-sans:
-    "Matter", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji",
-    "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  /* Removed --font-sans override to match Frontend */
 
-  /* --- Radius --- */
-  --radius-10: 10px;
+  --text-sm: 14px;
+  --text-base: 16px;
+  --text-md: 18px;
+  --text-lg: 20px;
+  --text-xl: 32px;
+  --text-2xl: 40px;
+  --text-2xl--line-height: 130%;
+  --text-3xl: 64px;
+  --text-3xl--line-height: 125%;
 }
 
-/* --- Font Face Definitions --- */
-
-/* Cals Sans */
 @font-face {
   font-family: "Cals-Sans";
   src: url("/fonts/CalSans-SemiBold.ttf") format("truetype");
-  font-weight: 600;
-  font-style: normal;
-  font-display: swap;
-}
-
-/* Matter - Standard Family (for font-sans) */
-@font-face {
-  font-family: "Matter";
-  src: url("/fonts/Matter-Light.ttf") format("truetype");
-  font-weight: 300;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: "Matter";
-  src: url("/fonts/Matter-LightItalic.ttf") format("truetype");
-  font-weight: 300;
-  font-style: italic;
-  font-display: swap;
-}
-@font-face {
-  font-family: "Matter";
-  src: url("/fonts/Matter-Regular.ttf") format("truetype");
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: "Matter";
-  src: url("/fonts/Matter-RegularItalic.ttf") format("truetype");
-  font-weight: 400;
-  font-style: italic;
-  font-display: swap;
-}
-@font-face {
-  font-family: "Matter";
-  src: url("/fonts/Matter-Medium.ttf") format("truetype");
-  font-weight: 500;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: "Matter";
-  src: url("/fonts/Matter-MediumItalic.ttf") format("truetype");
-  font-weight: 500;
-  font-style: italic;
-  font-display: swap;
-}
-@font-face {
-  font-family: "Matter";
-  src: url("/fonts/Matter-SemiBold.ttf") format("truetype");
-  font-weight: 600;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: "Matter";
-  src: url("/fonts/Matter-SemiBoldItalic.ttf") format("truetype");
-  font-weight: 600;
-  font-style: italic;
-  font-display: swap;
-}
-@font-face {
-  font-family: "Matter";
-  src: url("/fonts/Matter-Bold.ttf") format("truetype");
-  font-weight: 700;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: "Matter";
-  src: url("/fonts/Matter-BoldItalic.ttf") format("truetype");
-  font-weight: 700;
-  font-style: italic;
-  font-display: swap;
-}
-@font-face {
-  font-family: "Matter";
-  src: url("/fonts/Matter-Heavy.ttf") format("truetype");
-  font-weight: 800;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: "Matter";
-  src: url("/fonts/Matter-HeavyItalic.ttf") format("truetype");
-  font-weight: 800;
-  font-style: italic;
-  font-display: swap;
 }
 
 /* Matter - Specific Families (matching Frontend) */
@@ -144,10 +51,12 @@
   font-family: "Matter-Bold";
   src: url("/fonts/Matter-Bold.ttf") format("truetype");
 }
+
 @font-face {
   font-family: "Matter-Heavy";
   src: url("/fonts/Matter-Heavy.ttf") format("truetype");
 }
+
 @font-face {
   font-family: "Matter-Light";
   src: url("/fonts/Matter-Light.ttf") format("truetype");
@@ -165,13 +74,6 @@
   src: url("/fonts/Matter-SemiBold.ttf") format("truetype");
 }
 
-/* --- Base Styles --- */
-/* h1, h2, etc commented out in frontend, omitting here too */
-
-p {
-  @apply font-Matter-Regular text-sm;
-}
-
 .custom__sidebar__scrollbar {
   @apply h-screen;
 }
@@ -187,7 +89,6 @@ p {
 .custom__sidebar__scrollbar::-webkit-scrollbar-thumb {
   @apply rounded-[4px] bg-[#15294b]/70 hover:bg-[#15294b]/70 md:rounded-sm;
 }
-
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
 }
@@ -215,13 +116,11 @@ p {
   }
 
   .lg\:text-\[54px\] {
-    /* Used in frontend? Keeping it */
     font-size: 54px;
   }
 }
 
-/* --- Inline Theme (Shadcn) --- */
-@theme inline {
+@theme {
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -260,24 +159,17 @@ p {
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
-
-  /* Additional frontend vars */
-  --sidebar-width: 280px;
-  --h-input-sm: 3rem; /* 48px / h-12 */
-  --h-input-default: 3.5rem; /* 56px / h-14 */
-  --h-input-lg: 4rem; /* 64px / h-16 */
 }
 
-/* --- CSS Variables --- */
 :root {
-  --radius: 0.625rem;
-  --background: oklch(0.985 0 0);
+  --radius: 0.8rem;
+  --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.82 0.13 185.08);
+  --primary: oklch(0.82 0.13 185.08); /* #40E0D0 */
   --primary-foreground: oklch(0.22 0 0);
   --secondary: oklch(0.97 0 0);
   --secondary-foreground: oklch(0.205 0 0);
@@ -305,6 +197,15 @@ p {
   --sidebar-accent-foreground: oklch(1 0 0); /* white for text on dark bg */
   --sidebar-border: oklch(0.3 0 0); /* subtle dark border */
   --sidebar-ring: oklch(0.8223 0.1308 185.12); /* primaryGreen for focus */
+}
+
+@theme inline {
+  --sidebar-width: 280px;
+
+  /* Form element heights */
+  --h-input-sm: 3rem; /* 48px / h-12 */
+  --h-input-default: 3.5rem; /* 56px / h-14 */
+  --h-input-lg: 4rem; /* 64px / h-16 */
 }
 
 .dark {
@@ -342,21 +243,41 @@ p {
 }
 
 @layer base {
-  *,
-  ::before,
-  ::after {
-    box-sizing: border-box;
-  }
-  html,
-  body,
-  #root {
-    height: 100%;
-  }
-
   * {
     @apply border-border outline-ring/50;
   }
   body {
     @apply bg-background text-foreground;
   }
+
+  h1 {
+    @apply font-Cals-Sans text-xl md:text-2xl lg:text-3xl;
+  }
+  h2 {
+    @apply font-Cals-Sans text-xl lg:text-2xl;
+  }
+  h3 {
+    @apply text-xl;
+  }
+  h4 {
+    @apply text-md font-Matter-Regular lg:text-lg;
+  }
+  h5 {
+    @apply text-md font-Matter-Regular;
+  }
+  h6 {
+    @apply font-Matter-Regular text-sm md:text-base;
+  }
+  p {
+    @apply font-Matter-Regular text-sm;
+  }
+}
+
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type="number"] {
+  -moz-appearance: textfield;
 }

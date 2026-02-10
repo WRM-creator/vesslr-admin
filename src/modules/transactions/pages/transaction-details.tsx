@@ -1,82 +1,74 @@
 import { Page } from "@/components/shared/page";
+import { PageHeader } from "@/components/shared/page-header";
+import { api } from "@/lib/api";
+import { Loader2 } from "lucide-react";
 import { useParams } from "react-router-dom";
+import { TransactionDetailsTabs } from "../components/transaction-details-tabs";
+import { TransactionOrchestrationBar } from "../components/transaction-orchestration-bar";
+import { TransactionPartyCard } from "../components/transaction-party-card";
+import { TransactionStatusBadge } from "../components/transaction-status-badge";
 
 export default function TransactionDetailsPage() {
   const { id } = useParams();
 
-  // Mock data for now
-  const status = "in_transit";
-  const createdDate = new Date("2023-10-23T14:30:00");
-  const updatedDate = new Date();
+  const { data: transaction, isLoading } =
+    api.admin.transactions.detail.useQuery(
+      {
+        path: { id: id! },
+      },
+      {
+        enabled: !!id,
+      },
+    );
+
+  if (isLoading) {
+    return (
+      <div className="flex h-96 items-center justify-center">
+        <Loader2 className="text-muted-foreground animate-spin" />
+      </div>
+    );
+  }
+
+  if (!transaction) {
+    return (
+      <Page>
+        <div className="flex h-96 items-center justify-center">
+          <p className="text-muted-foreground">Transaction not found</p>
+        </div>
+      </Page>
+    );
+  }
+
+  const order = transaction.order;
+  const buyerName = order?.buyerOrganization?.name || "Unknown Buyer";
+  const sellerName = order?.sellerOrganization?.name || "Unknown Seller";
 
   return (
     <Page>
-      <div className="flex flex-col gap-6 p-6">
-        {/* Header Region */}
-        <div className="flex h-16 w-full items-center justify-center border-2 border-dashed border-gray-400 bg-gray-50 font-mono text-gray-500">
-          HEADER (Breadcrumbs, Title, Status, Override Actions)
+      <PageHeader
+        title={
+          <div className="flex items-center gap-3">
+            <span>Transaction #{transaction.displayId}</span>
+            <TransactionStatusBadge status={transaction.status} />
+          </div>
+        }
+      />
+
+      <div className="space-y-6">
+        {/* 1. Identity Row (The Who) */}
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <TransactionPartyCard role="Buyer" name={buyerName} />
+          <TransactionPartyCard role="Seller" name={sellerName} />
         </div>
 
-        {/* Timeline / Progress Stepper */}
-        <div className="flex h-24 w-full items-center justify-center border-2 border-dashed border-gray-400 bg-gray-50 font-mono text-gray-500">
-          TRANSACTION PROGRESS TIMELINE (9 Steps)
-        </div>
+        {/* 2. Orchestration Bar (The Bridge) */}
+        <TransactionOrchestrationBar
+          currentStatus={transaction.status}
+          events={transaction.events}
+        />
 
-        {/* Main Orchestration Area - 3 Columns */}
-        <div className="grid min-h-[600px] grid-cols-1 gap-6 md:grid-cols-3">
-          {/* Left Column: Buyer Context */}
-          <div className="flex flex-col gap-4 border-2 border-dashed border-blue-300 bg-blue-50/30 p-4">
-            <div className="mb-4 text-center font-bold text-blue-800">
-              BUYER CONTEXT
-            </div>
-
-            <div className="flex h-32 items-center justify-center border border-blue-200 bg-white text-sm text-blue-600">
-              Identity Card & Trust Score
-            </div>
-
-            <div className="flex h-24 items-center justify-center border border-blue-200 bg-white text-sm text-blue-600">
-              Buyer Needed Actions
-            </div>
-
-            <div className="flex flex-1 items-center justify-center border border-blue-200 bg-white text-sm text-blue-600">
-              Buyer Document Vault
-            </div>
-          </div>
-
-          {/* Middle Column: Orchestration / Admin Control */}
-          <div className="flex flex-col gap-4 border-2 border-dashed border-purple-300 bg-purple-50/30 p-4">
-            <div className="mb-4 text-center font-bold text-purple-800">
-              ORCHESTRATION / ADMIN
-            </div>
-
-            <div className="flex h-40 items-center justify-center border-2 border-purple-400 bg-white text-sm font-bold text-purple-700 shadow-sm">
-              ACTIVE BLOCKER / CALL TO ACTION
-            </div>
-
-            <div className="flex flex-1 items-center justify-center border border-purple-200 bg-white text-sm text-purple-600">
-              Activity Feed & Audit Log
-            </div>
-          </div>
-
-          {/* Right Column: Seller Context */}
-          <div className="flex flex-col gap-4 border-2 border-dashed border-green-300 bg-green-50/30 p-4">
-            <div className="mb-4 text-center font-bold text-green-800">
-              SELLER CONTEXT
-            </div>
-
-            <div className="flex h-32 items-center justify-center border border-green-200 bg-white text-sm text-green-600">
-              Identity Card & Trust Score
-            </div>
-
-            <div className="flex h-24 items-center justify-center border border-green-200 bg-white text-sm text-green-600">
-              Seller Needed Actions
-            </div>
-
-            <div className="flex flex-1 items-center justify-center border border-green-200 bg-white text-sm text-green-600">
-              Seller Document Vault
-            </div>
-          </div>
-        </div>
+        {/* 3. Detailed Tabs (The What) */}
+        <TransactionDetailsTabs transaction={transaction} />
       </div>
     </Page>
   );
