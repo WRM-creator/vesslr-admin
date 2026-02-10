@@ -123,8 +123,6 @@ import type {
   StorageControllerGeneratePresignedUrlsResponses,
   TransactionsControllerAddDocumentData,
   TransactionsControllerAddDocumentResponses,
-  TransactionsControllerAddRequirementData,
-  TransactionsControllerAddRequirementResponses,
   TransactionsControllerCreateData,
   TransactionsControllerCreateResponses,
   TransactionsControllerFindByIdData,
@@ -591,28 +589,6 @@ export const transactionsControllerAddDocument = <
   >({
     security: [{ scheme: "bearer", type: "http" }],
     url: "/api/v1/transactions/{id}/documents",
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options.headers,
-    },
-  });
-
-/**
- * Add a required document to the transaction
- */
-export const transactionsControllerAddRequirement = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<TransactionsControllerAddRequirementData, ThrowOnError>,
-) =>
-  (options.client ?? client).post<
-    TransactionsControllerAddRequirementResponses,
-    unknown,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/api/v1/transactions/{id}/requirements",
     ...options,
     headers: {
       "Content-Type": "application/json",

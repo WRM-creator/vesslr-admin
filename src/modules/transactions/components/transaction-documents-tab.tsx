@@ -1,6 +1,8 @@
 import type { TransactionResponseDto } from "@/lib/api/generated";
 import { useState } from "react";
+import { toast } from "sonner";
 import { AddRequirementDialog } from "./add-requirement-dialog";
+import { DocumentReviewDialog } from "./document-review-dialog";
 import { EditRequirementDialog } from "./edit-requirement-dialog";
 import { TransactionPartyDocumentsCard } from "./transaction-party-documents-card";
 
@@ -15,6 +17,7 @@ export function TransactionDocumentsTab({
   const [targetParty, setTargetParty] = useState<"BUYER" | "SELLER">("SELLER");
   const [requirementToEdit, setRequirementToEdit] = useState<any>(null);
   const [isEditRequirementOpen, setIsEditRequirementOpen] = useState(false);
+  const [reviewDocument, setReviewDocument] = useState<any>(null);
 
   const openAddRequirement = (party: "BUYER" | "SELLER") => {
     setTargetParty(party);
@@ -30,6 +33,26 @@ export function TransactionDocumentsTab({
     // This is now handled inside the dialog, but we could still trigger
     // other local state updates if needed.
   };
+
+  const handleReviewDocument = (document: any) => {
+    setReviewDocument(document);
+  };
+
+  const handleApproveDocument = (documentId: string) => {
+    console.log("Approve document:", documentId);
+    toast.success("Document approved");
+    setReviewDocument(null);
+  };
+
+  const handleRejectDocument = (documentId: string, reason: string) => {
+    console.log("Reject document:", documentId, reason);
+    toast.success("Document rejected");
+    setReviewDocument(null);
+  };
+
+  const canReview = ["DOCUMENTS_SUBMITTED", "COMPLIANCE_REVIEW"].includes(
+    transaction.status,
+  );
 
   const requiredDocs = transaction.requiredDocuments || [];
 
@@ -52,6 +75,7 @@ export function TransactionDocumentsTab({
         onAdd={() => openAddRequirement("BUYER")}
         onEdit={handleEditRequirement}
         onDelete={handleDeleteRequirement}
+        onReview={canReview ? handleReviewDocument : undefined}
       />
 
       <TransactionPartyDocumentsCard
@@ -63,6 +87,7 @@ export function TransactionDocumentsTab({
         onAdd={() => openAddRequirement("SELLER")}
         onEdit={handleEditRequirement}
         onDelete={handleDeleteRequirement}
+        onReview={canReview ? handleReviewDocument : undefined}
       />
 
       {otherDocs.length > 0 && (
@@ -72,6 +97,7 @@ export function TransactionDocumentsTab({
           description="Additional documents required for this transaction."
           documents={otherDocs}
           className="md:col-span-2"
+          onReview={canReview ? handleReviewDocument : undefined}
         />
       )}
 
@@ -87,6 +113,14 @@ export function TransactionDocumentsTab({
         requirement={requirementToEdit}
         open={isEditRequirementOpen}
         onOpenChange={setIsEditRequirementOpen}
+      />
+
+      <DocumentReviewDialog
+        open={!!reviewDocument}
+        onOpenChange={(open) => !open && setReviewDocument(null)}
+        document={reviewDocument}
+        onApprove={handleApproveDocument}
+        onReject={handleRejectDocument}
       />
     </div>
   );

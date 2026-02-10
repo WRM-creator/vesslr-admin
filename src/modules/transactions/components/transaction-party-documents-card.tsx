@@ -20,6 +20,7 @@ interface TransactionPartyDocumentsCardProps {
   onAdd?: () => void;
   onEdit?: (document: TransactionDocumentSlotDto) => void;
   onDelete?: (document: TransactionDocumentSlotDto) => void;
+  onReview?: (document: TransactionDocumentSlotDto) => void;
   className?: string;
 }
 
@@ -32,6 +33,7 @@ export function TransactionPartyDocumentsCard({
   onAdd,
   onEdit,
   onDelete,
+  onReview,
   className,
 }: TransactionPartyDocumentsCardProps) {
   return (
@@ -54,6 +56,7 @@ export function TransactionPartyDocumentsCard({
           emptyMessage={emptyMessage}
           onEdit={onEdit}
           onDelete={onDelete}
+          onReview={onReview}
         />
       </CardContent>
     </Card>

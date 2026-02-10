@@ -24,10 +24,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Spinner } from "@/components/ui/spinner";
 import { Switch } from "@/components/ui/switch";
 import { adminTransactionsControllerAddRequirement } from "@/lib/api/generated";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import * as z from "zod";
@@ -81,7 +83,7 @@ export function AddRequirementDialog({
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ["transaction", transactionId],
+        queryKey: ["admin", "transactions", "detail", transactionId],
       });
       toast.success("Requirement added successfully");
       onOpenChange(false);
@@ -92,6 +94,17 @@ export function AddRequirementDialog({
       toast.error("Failed to add requirement");
     },
   });
+
+  useEffect(() => {
+    if (open) {
+      form.reset({
+        type: "OTHER",
+        name: "",
+        requiredFrom: defaultRequiredFrom,
+        isMandatory: true,
+      });
+    }
+  }, [open, defaultRequiredFrom, form]);
 
   function onSubmit(values: FormValues) {
     mutation.mutate(values);
@@ -125,7 +138,6 @@ export function AddRequirementDialog({
                 </FormItem>
               )}
             />
-
             <FormField
               control={form.control as any}
               name="type"
@@ -160,7 +172,6 @@ export function AddRequirementDialog({
                 </FormItem>
               )}
             />
-
             <FormField
               control={form.control as any}
               name="requiredFrom"
@@ -185,7 +196,6 @@ export function AddRequirementDialog({
                 </FormItem>
               )}
             />
-
             <FormField
               control={form.control as any}
               name="isMandatory"
@@ -216,7 +226,8 @@ export function AddRequirementDialog({
                 Cancel
               </Button>
               <Button type="submit" disabled={mutation.isPending}>
-                {mutation.isPending ? "Adding..." : "Add Requirement"}
+                {mutation.isPending && <Spinner className="mr-2" />}
+                Add Requirement
               </Button>
             </DialogFooter>
           </form>

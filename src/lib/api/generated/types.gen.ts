@@ -509,31 +509,6 @@ export type AddTransactionDocumentDto = {
   url: string;
 };
 
-export type AddTransactionRequirementDto = {
-  /**
-   * The type of document required
-   */
-  type:
-    | "INVOICE"
-    | "PACKING_LIST"
-    | "CERTIFICATE_OF_ORIGIN"
-    | "SAFETY_DATA_SHEET"
-    | "BILL_OF_LADING"
-    | "OTHER";
-  /**
-   * Display name of the requirement
-   */
-  name: string;
-  /**
-   * Who is required to submit this document
-   */
-  requiredFrom: "BUYER" | "SELLER";
-  /**
-   * Whether this document is mandatory for the transaction to proceed
-   */
-  isMandatory: boolean;
-};
-
 export type PurchaseProductDto = {
   /**
    * ID of the product to purchase
@@ -884,6 +859,31 @@ export type PaginatedDataDto = {
 export type PaginatedTransactionsResponseDto = {
   message: string;
   data: PaginatedDataDto;
+};
+
+export type AddTransactionRequirementDto = {
+  /**
+   * The type of document required
+   */
+  type:
+    | "INVOICE"
+    | "PACKING_LIST"
+    | "CERTIFICATE_OF_ORIGIN"
+    | "SAFETY_DATA_SHEET"
+    | "BILL_OF_LADING"
+    | "OTHER";
+  /**
+   * Display name of the requirement
+   */
+  name: string;
+  /**
+   * Who is required to submit this document
+   */
+  requiredFrom: "BUYER" | "SELLER";
+  /**
+   * Whether this document is mandatory for the transaction to proceed
+   */
+  isMandatory: boolean;
 };
 
 export type UpdateTransactionRequirementDto = {
@@ -1383,28 +1383,6 @@ export type TransactionsControllerAddDocumentResponses = {
 
 export type TransactionsControllerAddDocumentResponse =
   TransactionsControllerAddDocumentResponses[keyof TransactionsControllerAddDocumentResponses];
-
-export type TransactionsControllerAddRequirementData = {
-  body: AddTransactionRequirementDto;
-  path: {
-    id: string;
-  };
-  query?: never;
-  url: "/api/v1/transactions/{id}/requirements";
-};
-
-export type TransactionsControllerAddRequirementResponses = {
-  /**
-   * The updated transaction
-   */
-  200: TransactionResponseDto;
-  201: {
-    [key: string]: unknown;
-  };
-};
-
-export type TransactionsControllerAddRequirementResponse =
-  TransactionsControllerAddRequirementResponses[keyof TransactionsControllerAddRequirementResponses];
 
 export type TransactionsControllerGetLogsData = {
   body?: never;

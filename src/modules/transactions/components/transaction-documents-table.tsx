@@ -15,7 +15,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import type { TransactionDocumentSlotDto } from "@/lib/api/generated";
-import { FileText, MoreVertical, Pencil, Trash2 } from "lucide-react";
+import { Eye, FileText, MoreVertical, Pencil, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { DeleteDocumentRequirementDialog } from "./delete-document-requirement-dialog";
 import { TransactionDocumentStatusBadge } from "./transaction-document-status-badge";
@@ -26,6 +26,7 @@ interface TransactionDocumentsTableProps {
   emptyMessage?: string;
   onEdit?: (document: TransactionDocumentSlotDto) => void;
   onDelete?: (document: TransactionDocumentSlotDto) => void;
+  onReview?: (document: TransactionDocumentSlotDto) => void;
 }
 
 export function TransactionDocumentsTable({
@@ -34,6 +35,7 @@ export function TransactionDocumentsTable({
   emptyMessage = "No documents required.",
   onEdit,
   onDelete,
+  onReview,
 }: TransactionDocumentsTableProps) {
   const [documentToDelete, setDocumentToDelete] =
     useState<TransactionDocumentSlotDto | null>(null);
@@ -46,7 +48,7 @@ export function TransactionDocumentsTable({
             <TableHead>Document Name</TableHead>
             <TableHead>Type</TableHead>
             <TableHead className="text-right">Status</TableHead>
-            <TableHead className="w-[50px]"></TableHead>
+            <TableHead className="w-[100px]"></TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -70,7 +72,7 @@ export function TransactionDocumentsTable({
                         href={doc.submission.url}
                         target="_blank"
                         rel="noreferrer"
-                        className="text-primary flex items-center gap-1 hover:underline"
+                        className="flex items-center gap-1 hover:underline"
                       >
                         {doc.name}
                         <span className="sr-only">View file</span>
@@ -89,7 +91,18 @@ export function TransactionDocumentsTable({
                 <TableCell className="text-right">
                   <TransactionDocumentStatusBadge status={doc.status} />
                 </TableCell>
-                <TableCell>
+                <TableCell className="flex items-center justify-end gap-2">
+                  {doc.status === "SUBMITTED" && onReview && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="h-8 gap-1"
+                      onClick={() => onReview(doc)}
+                    >
+                      <Eye className="h-3.5 w-3.5" />
+                      Review
+                    </Button>
+                  )}
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button variant="ghost" size="icon" className="h-8 w-8">
@@ -101,7 +114,7 @@ export function TransactionDocumentsTable({
                       <DropdownMenuItem onClick={() => onEdit?.(doc)}>
                         <Pencil
                           strokeWidth={1.5}
-                          className="text-muted-foreground"
+                          className="text-muted-foreground mr-2 h-4 w-4"
                         />
                         Edit
                       </DropdownMenuItem>
@@ -111,7 +124,7 @@ export function TransactionDocumentsTable({
                       >
                         <Trash2
                           strokeWidth={1.5}
-                          className="text-destructive"
+                          className="text-destructive mr-2 h-4 w-4"
                         />
                         Delete
                       </DropdownMenuItem>
