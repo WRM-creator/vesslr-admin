@@ -444,7 +444,7 @@ export type TransactionResponseDto = {
   status:
     | "INITIATED"
     | "DOCUMENTS_SUBMITTED"
-    | "COMPLIANCE_REVIEW"
+    | "COMPLIANCE_REVIEWED"
     | "ESCROW_FUNDED"
     | "LOGISTICS_ASSIGNED"
     | "IN_TRANSIT"
@@ -475,7 +475,7 @@ export type UpdateTransactionStatusDto = {
   status:
     | "INITIATED"
     | "DOCUMENTS_SUBMITTED"
-    | "COMPLIANCE_REVIEW"
+    | "COMPLIANCE_REVIEWED"
     | "ESCROW_FUNDED"
     | "LOGISTICS_ASSIGNED"
     | "IN_TRANSIT"

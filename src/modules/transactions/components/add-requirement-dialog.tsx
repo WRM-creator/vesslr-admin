@@ -226,7 +226,7 @@ export function AddRequirementDialog({
                 Cancel
               </Button>
               <Button type="submit" disabled={mutation.isPending}>
-                {mutation.isPending && <Spinner className="mr-2" />}
+                {mutation.isPending && <Spinner />}
                 Add Requirement
               </Button>
             </DialogFooter>

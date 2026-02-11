@@ -20,7 +20,7 @@ const paymentStatusStyles: Record<string, StatusVariant> = {
 const stateStyles: Record<string, StatusVariant> = {
   INITIATED: "info",
   DOCUMENTS_SUBMITTED: "info",
-  COMPLIANCE_REVIEW: "warning",
+  COMPLIANCE_REVIEWED: "warning",
   ESCROW_FUNDED: "success",
   LOGISTICS_ASSIGNED: "info",
   IN_TRANSIT: "info",

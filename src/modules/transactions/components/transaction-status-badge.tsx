@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 export enum TransactionStatus {
   INITIATED = "INITIATED",
   DOCUMENTS_SUBMITTED = "DOCUMENTS_SUBMITTED",
-  COMPLIANCE_REVIEW = "COMPLIANCE_REVIEW",
+  COMPLIANCE_REVIEWED = "COMPLIANCE_REVIEWED",
   ESCROW_FUNDED = "ESCROW_FUNDED",
   LOGISTICS_ASSIGNED = "LOGISTICS_ASSIGNED",
   IN_TRANSIT = "IN_TRANSIT",
@@ -28,7 +28,7 @@ interface TransactionStatusBadgeProps {
 const statusToVariant: Record<string, StatusVariant> = {
   [TransactionStatus.INITIATED]: "neutral",
   [TransactionStatus.DOCUMENTS_SUBMITTED]: "info",
-  [TransactionStatus.COMPLIANCE_REVIEW]: "warning",
+  [TransactionStatus.COMPLIANCE_REVIEWED]: "warning",
   [TransactionStatus.ESCROW_FUNDED]: "info",
   [TransactionStatus.LOGISTICS_ASSIGNED]: "info",
   [TransactionStatus.IN_TRANSIT]: "info",

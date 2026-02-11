@@ -7,7 +7,7 @@ type TransactionStatus = TransactionResponseDto["status"];
 const ALL_STATUSES: TransactionStatus[] = [
   "INITIATED",
   "DOCUMENTS_SUBMITTED",
-  "COMPLIANCE_REVIEW",
+  "COMPLIANCE_REVIEWED",
   "ESCROW_FUNDED",
   "LOGISTICS_ASSIGNED",
   "IN_TRANSIT",
@@ -19,7 +19,7 @@ const ALL_STATUSES: TransactionStatus[] = [
 const STEPS: { key: TransactionStatus; label: string }[] = [
   { key: "INITIATED", label: "Initiated" },
   { key: "DOCUMENTS_SUBMITTED", label: "Docs" },
-  { key: "COMPLIANCE_REVIEW", label: "Compliance" },
+  { key: "COMPLIANCE_REVIEWED", label: "Compliance" },
   { key: "ESCROW_FUNDED", label: "Escrow" },
   { key: "LOGISTICS_ASSIGNED", label: "Logistics" },
   { key: "IN_TRANSIT", label: "In Transit" },

@@ -66,6 +66,17 @@ export function TransactionDocumentsTable({
               <TableRow key={index}>
                 <TableCell className="font-medium">
                   <div className="flex items-center gap-2">
+                    {doc.status === "SUBMITTED" && onReview && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="h-8 gap-1"
+                        onClick={() => onReview(doc)}
+                      >
+                        <Eye className="h-3.5 w-3.5" />
+                        Review
+                      </Button>
+                    )}
                     <FileText className="text-muted-foreground h-4 w-4" />
                     {doc.submission ? (
                       <a
@@ -92,17 +103,6 @@ export function TransactionDocumentsTable({
                   <TransactionDocumentStatusBadge status={doc.status} />
                 </TableCell>
                 <TableCell className="flex items-center justify-end gap-2">
-                  {doc.status === "SUBMITTED" && onReview && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="h-8 gap-1"
-                      onClick={() => onReview(doc)}
-                    >
-                      <Eye className="h-3.5 w-3.5" />
-                      Review
-                    </Button>
-                  )}
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button variant="ghost" size="icon" className="h-8 w-8">
