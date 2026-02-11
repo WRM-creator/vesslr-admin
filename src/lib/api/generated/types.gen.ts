@@ -387,6 +387,7 @@ export type TransactionEventDto = {
     | "CREATED"
     | "STATUS_CHANGE"
     | "DOCUMENT_UPLOADED"
+    | "DOCUMENT_REVIEWED"
     | "LOGISTICS_UPDATE"
     | "NOTE_ADDED"
     | "REQUIREMENT_ADDED"
@@ -405,36 +406,35 @@ export type TransactionDocumentFileDto = {
 };
 
 export type TransactionDocumentSlotDto = {
+  _id: string;
   type:
     | "INVOICE"
     | "PACKING_LIST"
     | "CERTIFICATE_OF_ORIGIN"
     | "SAFETY_DATA_SHEET"
     | "BILL_OF_LADING"
+    | "CONTRACT"
     | "OTHER";
   name: string;
   requiredFrom: "BUYER" | "SELLER";
   isMandatory: boolean;
   submission?: TransactionDocumentFileDto;
   status: "PENDING" | "SUBMITTED" | "APPROVED" | "REJECTED";
+  rejectionReason?: string;
+};
+
+export type TransactionTaskActionDto = {
+  type: "navigate" | "modal";
+  target: string;
 };
 
 export type TransactionTaskDto = {
   id: string;
-  type: {
-    [key: string]: unknown;
-  };
+  type: "BLOCKER" | "INFO";
   title: string;
   description: string;
-  assignedTo: {
-    [key: string]: unknown;
-  };
-  action?: {
-    type: {
-      [key: string]: unknown;
-    };
-    target: string;
-  };
+  assignedTo: "BUYER" | "SELLER" | "ADMIN";
+  action?: TransactionTaskActionDto;
 };
 
 export type TransactionResponseDto = {
@@ -498,6 +498,7 @@ export type AddTransactionDocumentDto = {
     | "CERTIFICATE_OF_ORIGIN"
     | "SAFETY_DATA_SHEET"
     | "BILL_OF_LADING"
+    | "CONTRACT"
     | "OTHER";
   /**
    * Display name of the document
@@ -507,6 +508,10 @@ export type AddTransactionDocumentDto = {
    * URL of the uploaded document
    */
   url: string;
+  /**
+   * Index of the document slot in the requiredDocuments array
+   */
+  slotIndex?: number;
 };
 
 export type PurchaseProductDto = {
@@ -871,6 +876,7 @@ export type AddTransactionRequirementDto = {
     | "CERTIFICATE_OF_ORIGIN"
     | "SAFETY_DATA_SHEET"
     | "BILL_OF_LADING"
+    | "CONTRACT"
     | "OTHER";
   /**
    * Display name of the requirement
@@ -896,6 +902,7 @@ export type UpdateTransactionRequirementDto = {
     | "CERTIFICATE_OF_ORIGIN"
     | "SAFETY_DATA_SHEET"
     | "BILL_OF_LADING"
+    | "CONTRACT"
     | "OTHER";
   /**
    * Display name of the requirement
@@ -909,6 +916,17 @@ export type UpdateTransactionRequirementDto = {
    * Whether this document is mandatory for the transaction to proceed
    */
   isMandatory?: boolean;
+};
+
+export type ReviewTransactionDocumentDto = {
+  /**
+   * Decision to approve or reject the document
+   */
+  decision: "APPROVED" | "REJECTED";
+  /**
+   * Reason for rejection (required if decision is REJECTED)
+   */
+  rejectionReason?: string;
 };
 
 export type AcceptRequestOrderDto = {
@@ -1383,6 +1401,22 @@ export type TransactionsControllerAddDocumentResponses = {
 
 export type TransactionsControllerAddDocumentResponse =
   TransactionsControllerAddDocumentResponses[keyof TransactionsControllerAddDocumentResponses];
+
+export type TransactionsControllerDownloadContractData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/transactions/{id}/contract";
+};
+
+export type TransactionsControllerDownloadContractResponses = {
+  /**
+   * The transaction contract PDF
+   */
+  200: unknown;
+};
 
 export type TransactionsControllerGetLogsData = {
   body?: never;
@@ -2030,6 +2064,26 @@ export type AdminTransactionsControllerUpdateRequirementResponses = {
 
 export type AdminTransactionsControllerUpdateRequirementResponse =
   AdminTransactionsControllerUpdateRequirementResponses[keyof AdminTransactionsControllerUpdateRequirementResponses];
+
+export type AdminTransactionsControllerReviewDocumentData = {
+  body: ReviewTransactionDocumentDto;
+  path: {
+    id: string;
+    requirementId: string;
+  };
+  query?: never;
+  url: "/api/v1/admin/transactions/{id}/requirements/{requirementId}/review";
+};
+
+export type AdminTransactionsControllerReviewDocumentResponses = {
+  /**
+   * The updated transaction
+   */
+  200: TransactionResponseDto;
+};
+
+export type AdminTransactionsControllerReviewDocumentResponse =
+  AdminTransactionsControllerReviewDocumentResponses[keyof AdminTransactionsControllerReviewDocumentResponses];
 
 export type AdminRequestsControllerFindAllData = {
   body?: never;

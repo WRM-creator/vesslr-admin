@@ -17,7 +17,7 @@ export function TransactionDocumentStatusBadge({
       );
     case "REJECTED":
       return (
-        <Badge variant="destructive">
+        <Badge className="border-red-200 bg-red-100 text-red-700 hover:bg-red-100">
           <AlertCircle className="mr-1 h-3 w-3" /> Rejected
         </Badge>
       );

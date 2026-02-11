@@ -1,3 +1,4 @@
+import { api } from "@/lib/api";
 import type { TransactionResponseDto } from "@/lib/api/generated";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -38,16 +39,43 @@ export function TransactionDocumentsTab({
     setReviewDocument(document);
   };
 
+  const { mutate: reviewDoc, isPending } =
+    api.admin.transactions.reviewDocument.useMutation();
+
   const handleApproveDocument = (documentId: string) => {
-    console.log("Approve document:", documentId);
-    toast.success("Document approved");
-    setReviewDocument(null);
+    reviewDoc(
+      {
+        path: { id: transaction._id, requirementId: documentId },
+        body: { decision: "APPROVED" },
+      },
+      {
+        onSuccess: () => {
+          toast.success("Document approved");
+          setReviewDocument(null);
+        },
+        onError: (error: any) => {
+          toast.error(error.message || "Failed to approve document");
+        },
+      },
+    );
   };
 
   const handleRejectDocument = (documentId: string, reason: string) => {
-    console.log("Reject document:", documentId, reason);
-    toast.success("Document rejected");
-    setReviewDocument(null);
+    reviewDoc(
+      {
+        path: { id: transaction._id, requirementId: documentId },
+        body: { decision: "REJECTED", rejectionReason: reason },
+      },
+      {
+        onSuccess: () => {
+          toast.success("Document rejected");
+          setReviewDocument(null);
+        },
+        onError: (error: any) => {
+          toast.error(error.message || "Failed to reject document");
+        },
+      },
+    );
   };
 
   const canReview = ["DOCUMENTS_SUBMITTED", "COMPLIANCE_REVIEW"].includes(
@@ -121,6 +149,7 @@ export function TransactionDocumentsTab({
         document={reviewDocument}
         onApprove={handleApproveDocument}
         onReject={handleRejectDocument}
+        isPending={isPending}
       />
     </div>
   );

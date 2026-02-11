@@ -45,6 +45,8 @@ import type {
   AdminTransactionsControllerFindByIdResponses,
   AdminTransactionsControllerGetLogsData,
   AdminTransactionsControllerGetLogsResponses,
+  AdminTransactionsControllerReviewDocumentData,
+  AdminTransactionsControllerReviewDocumentResponses,
   AdminTransactionsControllerUpdateRequirementData,
   AdminTransactionsControllerUpdateRequirementResponses,
   AdminTransactionsControllerUpdateStatusData,
@@ -125,6 +127,8 @@ import type {
   TransactionsControllerAddDocumentResponses,
   TransactionsControllerCreateData,
   TransactionsControllerCreateResponses,
+  TransactionsControllerDownloadContractData,
+  TransactionsControllerDownloadContractResponses,
   TransactionsControllerFindByIdData,
   TransactionsControllerFindByIdResponses,
   TransactionsControllerFindByOrderIdData,
@@ -594,6 +598,24 @@ export const transactionsControllerAddDocument = <
       "Content-Type": "application/json",
       ...options.headers,
     },
+  });
+
+/**
+ * Download transaction contract
+ */
+export const transactionsControllerDownloadContract = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<TransactionsControllerDownloadContractData, ThrowOnError>,
+) =>
+  (options.client ?? client).get<
+    TransactionsControllerDownloadContractResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/transactions/{id}/contract",
+    ...options,
   });
 
 /**
@@ -1287,6 +1309,28 @@ export const adminTransactionsControllerUpdateRequirement = <
   >({
     security: [{ scheme: "bearer", type: "http" }],
     url: "/api/v1/admin/transactions/{id}/requirements/{requirementId}",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Approve or reject a submitted document
+ */
+export const adminTransactionsControllerReviewDocument = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AdminTransactionsControllerReviewDocumentData, ThrowOnError>,
+) =>
+  (options.client ?? client).patch<
+    AdminTransactionsControllerReviewDocumentResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/transactions/{id}/requirements/{requirementId}/review",
     ...options,
     headers: {
       "Content-Type": "application/json",

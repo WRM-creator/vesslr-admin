@@ -13,7 +13,7 @@ import { Textarea } from "@/components/ui/textarea";
 import type { TransactionDocumentSlotDto } from "@/lib/api/generated";
 import { format } from "date-fns";
 import { AlertCircle, Check, ExternalLink, FileText, X } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { TransactionDocumentStatusBadge } from "./transaction-document-status-badge";
 
 interface DocumentReviewDialogProps {
@@ -22,6 +22,7 @@ interface DocumentReviewDialogProps {
   document: TransactionDocumentSlotDto | null;
   onApprove: (documentId: string) => void;
   onReject: (documentId: string, reason: string) => void;
+  isPending?: boolean;
 }
 
 export function DocumentReviewDialog({
@@ -30,10 +31,19 @@ export function DocumentReviewDialog({
   document,
   onApprove,
   onReject,
+  isPending = false,
 }: DocumentReviewDialogProps) {
   const [isRejecting, setIsRejecting] = useState(false);
   const [rejectionReason, setRejectionReason] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [pendingAction, setPendingAction] = useState<
+    "approve" | "reject" | null
+  >(null);
+
+  useEffect(() => {
+    if (!isPending) {
+      setPendingAction(null);
+    }
+  }, [isPending]);
 
   if (!document) return null;
 
@@ -41,28 +51,24 @@ export function DocumentReviewDialog({
     if (!newOpen) {
       setIsRejecting(false);
       setRejectionReason("");
+      setPendingAction(null);
     }
     onOpenChange(newOpen);
   };
 
-  const handleApprove = async () => {
-    setIsSubmitting(true);
-    // Simulate API call or just call the prop
-    await new Promise((resolve) => setTimeout(resolve, 500));
+  const handleApprove = () => {
+    setPendingAction("approve");
     onApprove(document._id);
-    setIsSubmitting(false);
-    handleOpenChange(false);
+    // Dialog closing is handled by parent on success
   };
 
-  const handleReject = async () => {
+  const handleReject = () => {
     if (!rejectionReason.trim()) return;
-    setIsSubmitting(true);
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    setPendingAction("reject");
     onReject(document._id, rejectionReason);
-    setIsSubmitting(false);
+    // Dialog closing is handled by parent on success
     setIsRejecting(false);
     setRejectionReason("");
-    handleOpenChange(false);
   };
 
   return (
@@ -152,19 +158,37 @@ export function DocumentReviewDialog({
                   size="sm"
                   variant="default"
                   onClick={handleApprove}
-                  disabled={isSubmitting}
+                  disabled={isPending}
                 >
-                  {isSubmitting ? <Spinner /> : <Check />}
-                  Approve
+                  {isPending && pendingAction === "approve" ? (
+                    <>
+                      <Spinner />
+                      Approving...
+                    </>
+                  ) : (
+                    <>
+                      <Check />
+                      Approve
+                    </>
+                  )}
                 </Button>
                 <Button
                   size="sm"
                   variant="destructive-outline"
                   onClick={() => setIsRejecting(true)}
-                  disabled={isSubmitting}
+                  disabled={isPending}
                 >
-                  <X />
-                  Reject
+                  {isPending && pendingAction === "reject" ? (
+                    <>
+                      <Spinner />
+                      Rejecting...
+                    </>
+                  ) : (
+                    <>
+                      <X />
+                      Reject
+                    </>
+                  )}
                 </Button>
               </div>
             </div>
@@ -177,16 +201,16 @@ export function DocumentReviewDialog({
               <Button
                 variant="ghost"
                 onClick={() => setIsRejecting(false)}
-                disabled={isSubmitting}
+                disabled={isPending}
               >
                 Back
               </Button>
               <Button
-                variant="destructive"
+                variant="destructive-outline"
                 onClick={handleReject}
-                disabled={!rejectionReason.trim() || isSubmitting}
+                disabled={!rejectionReason.trim() || isPending}
               >
-                {isSubmitting && <Spinner />}
+                {isPending && <Spinner className="mr-2 h-4 w-4" />}
                 Confirm Rejection
               </Button>
             </>
@@ -194,7 +218,7 @@ export function DocumentReviewDialog({
             <Button
               variant="outline"
               onClick={() => handleOpenChange(false)}
-              disabled={isSubmitting}
+              disabled={isPending}
             >
               Close
             </Button>

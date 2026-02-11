@@ -26,6 +26,7 @@ import {
   adminTransactionsControllerDeleteRequirement,
   adminTransactionsControllerFindAll,
   adminTransactionsControllerFindById,
+  adminTransactionsControllerReviewDocument,
   adminTransactionsControllerUpdateRequirement,
 } from "./generated";
 
@@ -64,6 +65,14 @@ export const api = {
       ),
       deleteRequirement: createMutation(
         adminTransactionsControllerDeleteRequirement,
+        {
+          invalidates: (args) => [
+            ["admin", "transactions", "detail", args.path.id],
+          ],
+        },
+      ),
+      reviewDocument: createMutation(
+        adminTransactionsControllerReviewDocument,
         {
           invalidates: (args) => [
             ["admin", "transactions", "detail", args.path.id],
