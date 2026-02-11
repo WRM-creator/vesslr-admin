@@ -6,17 +6,33 @@ import {
   CardDescription,
   CardHeader,
 } from "@/components/ui/card";
-import type { TransactionTaskDto } from "@/lib/api/generated";
+import type {
+  TransactionResponseDto,
+  TransactionTaskDto,
+} from "@/lib/api/generated";
+import { useState } from "react";
+import { ReleaseSettlementDialog } from "./release-settlement-dialog";
 
 interface TransactionPendingTasksProps {
-  tasks?: TransactionTaskDto[];
+  transaction?: TransactionResponseDto;
   onAction?: (action: any) => void;
 }
 
 export function TransactionPendingTasks({
-  tasks,
+  transaction,
   onAction,
 }: TransactionPendingTasksProps) {
+  const [isSettlementOpen, setIsSettlementOpen] = useState(false);
+  const tasks = transaction?.pendingTasks || [];
+
+  const handleAction = (task: TransactionTaskDto) => {
+    if (task.action?.target === "approve-settlement") {
+      setIsSettlementOpen(true);
+    } else {
+      onAction?.(task.action);
+    }
+  };
+
   if (!tasks || tasks.length === 0) {
     return null;
   }
@@ -55,7 +71,7 @@ export function TransactionPendingTasks({
                 <Button
                   size="sm"
                   variant="outline"
-                  onClick={() => onAction?.(task.action)}
+                  onClick={() => handleAction(task)}
                 >
                   View
                 </Button>
@@ -64,6 +80,12 @@ export function TransactionPendingTasks({
           ))}
         </div>
       </CardContent>
+
+      <ReleaseSettlementDialog
+        open={isSettlementOpen}
+        onOpenChange={setIsSettlementOpen}
+        transaction={transaction}
+      />
     </Card>
   );
 }

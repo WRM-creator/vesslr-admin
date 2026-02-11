@@ -39,9 +39,11 @@ export function TransactionStepper({ status }: TransactionStepperProps) {
     <div className="flex flex-1 items-center gap-2">
       {STEPS.map((step, index) => {
         const stepStatusIndex = ALL_STATUSES.indexOf(step.key);
-        const isCompleted = stepStatusIndex < currentStatusIndex;
-        const isCurrent = stepStatusIndex === currentStatusIndex;
         const isLast = index === STEPS.length - 1;
+        const isCurrent = stepStatusIndex === currentStatusIndex;
+        // Treat the last step as completed when it's the current step (transaction is fully done)
+        const isCompleted =
+          stepStatusIndex < currentStatusIndex || (isCurrent && isLast);
 
         // Determine line style for the line FOLLOWING this step
         // If the NEXT step is reached (current or completed), the line is solid.
@@ -66,7 +68,7 @@ export function TransactionStepper({ status }: TransactionStepperProps) {
                 )}
               >
                 {isCompleted && <Check className="size-3.5 stroke-[3]" />}
-                {isCurrent && (
+                {isCurrent && !isLast && (
                   <div className="bg-primary size-2 rounded-full" />
                 )}
               </div>

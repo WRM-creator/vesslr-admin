@@ -1,8 +1,9 @@
 import { Page } from "@/components/shared/page";
 import { PageHeader } from "@/components/shared/page-header";
 import { PageLoader } from "@/components/shared/page-loader";
+import { Button } from "@/components/ui/button";
 import { api } from "@/lib/api";
-import { Loader2 } from "lucide-react";
+import { RefreshCw } from "lucide-react";
 import { useState } from "react";
 import { useParams } from "react-router-dom";
 import { TransactionDetailsTabs } from "../components/transaction-details-tabs";
@@ -14,27 +15,29 @@ export default function TransactionDetailsPage() {
   const { id } = useParams();
   const [activeTab, setActiveTab] = useState("overview");
 
-  const { data: transaction, isLoading } =
-    api.admin.transactions.detail.useQuery(
-      {
-        path: { id: id! },
-      },
-      {
-        enabled: !!id,
-      },
-    );
+  const {
+    data: transaction,
+    isLoading,
+    refetch,
+    isRefetching,
+  } = api.admin.transactions.detail.useQuery(
+    {
+      path: { id: id! },
+    },
+    {
+      enabled: !!id,
+    },
+  );
 
   if (isLoading) {
-    return (
-      <div className="flex h-96 items-center justify-center">
-        <Loader2 className="text-muted-foreground animate-spin" />
-      </div>
-    );
+    return <PageLoader />;
   }
 
   if (!transaction) {
-    return <PageLoader />;
+    return "No transaction found";
   }
+
+  console.log(transaction);
 
   const order = transaction.order;
   const buyerName = order?.buyerOrganization?.name || "Unknown Buyer";
@@ -67,6 +70,19 @@ export default function TransactionDetailsPage() {
             <span>Transaction #{transaction.displayId}</span>
             <TransactionStatusBadge status={transaction.status} />
           </div>
+        }
+        endContent={
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => refetch()}
+            disabled={isRefetching}
+          >
+            <RefreshCw
+              className={`h-4 w-4 ${isRefetching ? "animate-spin" : ""}`}
+            />
+            Refresh
+          </Button>
         }
       />
 

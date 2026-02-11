@@ -17,7 +17,7 @@ export function TransactionOverviewTab({
       <div className="space-y-4 md:col-span-2">
         {/* <TransactionAttentionNeeded /> -- Redundant with Pending Tasks card */}
         <TransactionPendingTasks
-          tasks={transaction.pendingTasks}
+          transaction={transaction}
           onAction={onAction}
         />
       </div>

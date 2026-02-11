@@ -26,8 +26,8 @@ const MOCK_LOGS = [
 
 export function TransactionRecentActivity() {
   return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between space-y-0">
+    <Card className="h-full">
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle>
           <CardTitleText>Recent Activity</CardTitleText>
         </CardTitle>
@@ -36,29 +36,46 @@ export function TransactionRecentActivity() {
         </Button>
       </CardHeader>
       <CardContent>
-        <div className="space-y-4">
+        <div className="space-y-0">
           {MOCK_LOGS.map((log, index) => (
-            <div key={index} className="flex gap-4 text-sm">
-              <span className="text-muted-foreground min-w-[60px] text-xs">
-                {new Date(log.createdAt).toLocaleString(undefined, {
-                  month: "short",
-                  day: "numeric",
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })}
-              </span>
-              <div className="flex flex-col">
-                <span className="text-foreground/80 text-xs font-medium">
-                  {log.message}
+            <div key={index} className="group flex gap-3 text-sm">
+              {/* Date/Time Left Sidebar */}
+              <div className="flex min-w-[40px] flex-col items-end text-right">
+                <span className="text-muted-foreground text-xs">
+                  {new Date(log.createdAt).toLocaleString(undefined, {
+                    month: "short",
+                    day: "numeric",
+                  })}
                 </span>
                 <span className="text-muted-foreground text-[10px]">
-                  {log.details}
+                  {new Date(log.createdAt).toLocaleString(undefined, {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
                 </span>
-                {log.performedBy && log.performedBy.lastName !== "Platform" && (
-                  <span className="text-muted-foreground mt-0.5 text-[9px] tracking-wider uppercase">
-                    by {log.performedBy.firstName}
+              </div>
+
+              {/* Timeline Line & Content */}
+              <div className="border-border/50 relative ml-1 flex-1 border-l pb-4 pl-4 group-last:border-transparent">
+                {/* Timeline dot */}
+                <div className="border-background bg-muted-foreground/30 ring-background group-first:bg-primary group-first:ring-primary/20 absolute top-1.5 -left-[6px] h-3 w-3 rounded-full border ring-2" />
+
+                <div className="flex flex-col gap-0.5">
+                  <span className="text-foreground/90 text-xs font-medium">
+                    {log.message}
                   </span>
-                )}
+                  <span className="text-muted-foreground text-[11px] leading-snug">
+                    {log.details}
+                  </span>
+                  {log.performedBy &&
+                    log.performedBy.lastName !== "Platform" && (
+                      <div className="pt-0.5">
+                        <span className="text-muted-foreground text-[9px] font-medium tracking-wider uppercase">
+                          by {log.performedBy.firstName}
+                        </span>
+                      </div>
+                    )}
+                </div>
               </div>
             </div>
           ))}

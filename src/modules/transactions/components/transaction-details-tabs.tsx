@@ -1,6 +1,8 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { TransactionResponseDto } from "@/lib/api/generated";
 import { TransactionDocumentsTab } from "./transaction-documents-tab";
+import { TransactionFinancialsTab } from "./transaction-financials-tab";
+import { TransactionLogisticsTab } from "./transaction-logistics-tab";
 import { TransactionOverviewTab } from "./transaction-overview-tab";
 
 interface TransactionDetailsTabsProps {
@@ -41,8 +43,12 @@ export function TransactionDetailsTabs({
         <TabsContent value="documents">
           <TransactionDocumentsTab transaction={transaction} />
         </TabsContent>
-        <TabsContent value="financials" />
-        <TabsContent value="logistics" />
+        <TabsContent value="financials">
+          <TransactionFinancialsTab transaction={transaction} />
+        </TabsContent>
+        <TabsContent value="logistics">
+          <TransactionLogisticsTab transaction={transaction} />
+        </TabsContent>
         <TabsContent value="audit" />
       </div>
     </Tabs>
