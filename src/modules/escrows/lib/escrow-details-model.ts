@@ -171,7 +171,7 @@ export const MOCK_ESCROW_DETAILS: EscrowDetails = {
       title: "Funds Secured",
       description: "Buyer deposit of $61,800.00 confirmed",
       timestamp: "2026-01-16T10:45:00Z",
-      actor: "Stripe Connect",
+      actor: "X transfer",
     },
     {
       id: "evt_1",
