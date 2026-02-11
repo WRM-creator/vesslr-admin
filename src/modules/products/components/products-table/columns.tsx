@@ -12,7 +12,7 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
 import { MoreHorizontal } from "lucide-react";
 import { Link } from "react-router-dom";
-import type { Product } from "../../lib/product-model";
+import type { Product } from "../../lib/product-details-model";
 
 const statusStyles: Record<
   Product["status"],

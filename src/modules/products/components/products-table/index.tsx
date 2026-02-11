@@ -1,7 +1,7 @@
 "use client";
 
 import { DataTable } from "@/components/shared/data-table";
-import type { Product } from "../../lib/product-model";
+import type { Product } from "../../lib/product-details-model";
 import { productsColumns } from "./columns";
 import { Filters } from "./filters";
 

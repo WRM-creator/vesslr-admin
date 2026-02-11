@@ -25,6 +25,108 @@ export interface Product {
   unitOfMeasurement?: string;
 }
 
+export interface ProductDetails {
+  merchant: {
+    id: string;
+    name: string;
+    email: string;
+    logo?: string;
+    rating?: number;
+    joinedAt: string;
+  };
+  overview: {
+    name: string;
+    description: string;
+    status: Product["status"];
+    price: number;
+    currency: string;
+    category: string;
+    merchant: string;
+    image?: string;
+    thumbnail?: string;
+    availableQuantity?: number;
+    unitOfMeasurement?: string;
+    transactionType: string;
+    created: string;
+    lastUpdated: string;
+  };
+  specs: {
+    attributes: Array<{ label: string; value: string; key?: string }>;
+    condition?: string;
+    brand?: string;
+    model?: string;
+    sku?: string;
+    description?: string;
+    inventory: {
+      total: number;
+      available: number;
+      reserved: number;
+      sold: number;
+    };
+  };
+  logistics: {
+    origin: string;
+    destination: string;
+    terms: string;
+    carrier?: string;
+    trackingId?: string;
+    shippingStatus?: string;
+    estimatedDelivery?: string;
+  };
+  compliance: {
+    rules: Array<{
+      id: string;
+      name: string;
+      status: "met" | "unmet" | "pending";
+      criticality?: "high" | "medium" | "low";
+      description?: string;
+    }>;
+    documents: Array<{
+      id: string;
+      name: string;
+      status: "approved" | "pending" | "rejected";
+      required?: boolean;
+    }>;
+  };
+  admin: {
+    notes: Array<{
+      id: string;
+      text: string;
+      author: string;
+      date: string;
+      content?: string;
+    }>;
+    riskScore: number;
+  };
+  activity: {
+    views: number;
+    lastViewed: string;
+    inquiries: number;
+    riskSignals: Array<{
+      id: string;
+      type: "high" | "medium" | "low";
+      message: string;
+      severity?: "high" | "medium" | "low";
+      detectedAt?: string;
+    }>;
+  };
+  transactions: {
+    totalCount: number;
+    completedCount: number;
+    activeCount: number;
+    history: Array<{
+      id: string;
+      date: string;
+      amount: number;
+      buyer: string;
+      status: string;
+      type: string;
+      currency: string;
+      value: number;
+    }>;
+  };
+}
+
 export const MOCK_PRODUCTS: Product[] = [
   {
     id: "prod_001",

@@ -92,7 +92,11 @@ export default function ProductApprovalsPage() {
   };
 
   const { data: productsData, isLoading } = api.products.list.useQuery({
-    query: queryParams,
+    query: {
+      ...queryParams,
+      page: queryParams.page.toString(),
+      limit: queryParams.limit.toString(),
+    },
   });
 
   const productsDataList = (productsData?.data?.docs as any[]) || [];
