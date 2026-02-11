@@ -19,8 +19,14 @@ import type {
   AdminCategoriesControllerRemoveResponses,
   AdminCategoriesControllerUpdateData,
   AdminCategoriesControllerUpdateResponses,
+  AdminOrganizationsControllerFindAllData,
+  AdminOrganizationsControllerFindAllResponses,
   AdminProductsControllerCreateData,
   AdminProductsControllerCreateResponses,
+  AdminProductsControllerFindAllData,
+  AdminProductsControllerFindAllResponses,
+  AdminProductsControllerFindOneData,
+  AdminProductsControllerFindOneResponses,
   AdminProductsControllerRemoveData,
   AdminProductsControllerRemoveResponses,
   AdminProductsControllerUpdateData,
@@ -45,6 +51,8 @@ import type {
   AdminTransactionsControllerFindByIdResponses,
   AdminTransactionsControllerGetLogsData,
   AdminTransactionsControllerGetLogsResponses,
+  AdminTransactionsControllerReleaseSettlementData,
+  AdminTransactionsControllerReleaseSettlementResponses,
   AdminTransactionsControllerReviewDocumentData,
   AdminTransactionsControllerReviewDocumentResponses,
   AdminTransactionsControllerUpdateRequirementData,
@@ -125,6 +133,10 @@ import type {
   StorageControllerGeneratePresignedUrlsResponses,
   TransactionsControllerAddDocumentData,
   TransactionsControllerAddDocumentResponses,
+  TransactionsControllerAssignLogisticsData,
+  TransactionsControllerAssignLogisticsResponses,
+  TransactionsControllerConfirmDeliveryData,
+  TransactionsControllerConfirmDeliveryResponses,
   TransactionsControllerCreateData,
   TransactionsControllerCreateResponses,
   TransactionsControllerDownloadContractData,
@@ -133,6 +145,8 @@ import type {
   TransactionsControllerFindByIdResponses,
   TransactionsControllerFindByOrderIdData,
   TransactionsControllerFindByOrderIdResponses,
+  TransactionsControllerFundEscrowData,
+  TransactionsControllerFundEscrowResponses,
   TransactionsControllerGetLogsData,
   TransactionsControllerGetLogsResponses,
   TransactionsControllerUpdateStatusData,
@@ -637,6 +651,68 @@ export const transactionsControllerGetLogs = <
   });
 
 /**
+ * Assign logistics to a transaction
+ */
+export const transactionsControllerAssignLogistics = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<TransactionsControllerAssignLogisticsData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    TransactionsControllerAssignLogisticsResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/transactions/{id}/assign-logistics",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * MOCK: Fund the escrow account (Transitions to ESCROW_FUNDED)
+ *
+ * WARNING: This is a mock endpoint for testing purposes only. Do not use in production.
+ */
+export const transactionsControllerFundEscrow = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<TransactionsControllerFundEscrowData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    TransactionsControllerFundEscrowResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/transactions/{id}/fund-escrow",
+    ...options,
+  });
+
+/**
+ * MOCK: Confirm delivery (Transitions to DELIVERY_CONFIRMED)
+ *
+ * WARNING: This is a mock endpoint for testing purposes only. In the future, this will be triggered by AIS monitoring.
+ */
+export const transactionsControllerConfirmDelivery = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<TransactionsControllerConfirmDeliveryData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    TransactionsControllerConfirmDeliveryResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/transactions/{id}/confirm-delivery",
+    ...options,
+  });
+
+/**
  * Directly purchase a product (creates matched request and order)
  */
 export const ordersControllerPurchase = <ThrowOnError extends boolean = false>(
@@ -934,6 +1010,24 @@ export const onboardingControllerCompleteOnboarding = <
   });
 
 /**
+ * List all products (Admin)
+ */
+export const adminProductsControllerFindAll = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<AdminProductsControllerFindAllData, ThrowOnError>,
+) =>
+  (options?.client ?? client).get<
+    AdminProductsControllerFindAllResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/products",
+    ...options,
+  });
+
+/**
  * Create a new product (Admin)
  */
 export const adminProductsControllerCreate = <
@@ -965,6 +1059,24 @@ export const adminProductsControllerRemove = <
 ) =>
   (options.client ?? client).delete<
     AdminProductsControllerRemoveResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/products/{id}",
+    ...options,
+  });
+
+/**
+ * Get a product by ID (Admin)
+ */
+export const adminProductsControllerFindOne = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AdminProductsControllerFindOneData, ThrowOnError>,
+) =>
+  (options.client ?? client).get<
+    AdminProductsControllerFindOneResponses,
     unknown,
     ThrowOnError
   >({
@@ -1336,6 +1448,45 @@ export const adminTransactionsControllerReviewDocument = <
       "Content-Type": "application/json",
       ...options.headers,
     },
+  });
+
+/**
+ * MOCK: Release settlement funds (DELIVERY_CONFIRMED → CLOSED)
+ */
+export const adminTransactionsControllerReleaseSettlement = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    AdminTransactionsControllerReleaseSettlementData,
+    ThrowOnError
+  >,
+) =>
+  (options.client ?? client).post<
+    AdminTransactionsControllerReleaseSettlementResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/transactions/{id}/release-settlement",
+    ...options,
+  });
+
+/**
+ * List all organizations (Admin)
+ */
+export const adminOrganizationsControllerFindAll = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<AdminOrganizationsControllerFindAllData, ThrowOnError>,
+) =>
+  (options?.client ?? client).get<
+    AdminOrganizationsControllerFindAllResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/organizations",
+    ...options,
   });
 
 /**

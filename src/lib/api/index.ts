@@ -20,27 +20,36 @@ import "./client-config";
 // Uncomment and add imports as you need them:
 //
 import {
+  adminAuthControllerGetProfile,
   adminAuthControllerLogin,
   adminAuthControllerVerifyOtp,
+  adminOrganizationsControllerFindAll,
+  adminProductsControllerCreate,
+  adminProductsControllerFindAll,
+  adminProductsControllerFindOne,
+  adminProductsControllerRemove,
+  adminProductsControllerUpdate,
   adminTransactionsControllerAddDocument,
   adminTransactionsControllerDeleteRequirement,
   adminTransactionsControllerFindAll,
   adminTransactionsControllerFindById,
   adminTransactionsControllerReviewDocument,
   adminTransactionsControllerUpdateRequirement,
+  productsControllerFindAll,
+  productsControllerFindOne,
 } from "./generated";
 
 export const api = {
   auth: {
     login: createMutation(adminAuthControllerLogin),
     verifyOtp: createMutation(adminAuthControllerVerifyOtp),
+    profile: createQuery(adminAuthControllerGetProfile, ["auth", "profile"]),
   },
   admin: {
     transactions: {
       list: createQuery(adminTransactionsControllerFindAll, (args) => [
         "admin",
         "transactions",
-        "list",
         "list",
         args?.query,
       ]),
@@ -80,6 +89,59 @@ export const api = {
         },
       ),
     },
+    products: {
+      create: createMutation(adminProductsControllerCreate, {
+        invalidates: () => [["admin", "products", "list"]],
+      }),
+      update: createMutation(adminProductsControllerUpdate, {
+        invalidates: (args) => [
+          ["admin", "products", "list"],
+          ["admin", "products", "detail", args.path.id],
+        ],
+      }),
+      remove: createMutation(adminProductsControllerRemove, {
+        invalidates: () => [["admin", "products", "list"]],
+      }),
+      list: createQuery(adminProductsControllerFindAll, (args) => [
+        "admin",
+        "products",
+        "list",
+        args?.query,
+      ]),
+      detail: createQuery(adminProductsControllerFindOne, (args) => [
+        "admin",
+        "products",
+        "detail",
+        args.path.id,
+      ]),
+    },
+    organizations: {
+      list: createQuery(adminOrganizationsControllerFindAll, (args) => [
+        "admin",
+        "organizations",
+        "list",
+        args?.query,
+      ]),
+    },
+  },
+  products: {
+    list: createQuery(productsControllerFindAll, (args) => [
+      "products",
+      "list",
+      args?.query,
+    ]),
+    detail: createQuery(productsControllerFindOne, (args) => [
+      "products",
+      "detail",
+      args.path.id,
+    ]),
+  },
+  organizations: {
+    list: createQuery(adminOrganizationsControllerFindAll, (args) => [
+      "organizations",
+      "list",
+      args?.query,
+    ]),
   },
   // categories: {
   //   list: createQuery(getApiV1AdminCategories, ["categories", "list"]),

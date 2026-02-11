@@ -514,6 +514,33 @@ export type AddTransactionDocumentDto = {
   slotIndex?: number;
 };
 
+export type AssignLogisticsDto = {
+  /**
+   * Shipping method used
+   */
+  shippingMethod: string;
+  /**
+   * Name of the carrier
+   */
+  carrierName: string;
+  /**
+   * Name of the vessel or vehicle
+   */
+  vesselName?: string;
+  /**
+   * Tracking reference number (e.g., Bill of Lading number)
+   */
+  trackingReference: string;
+  /**
+   * Estimated departure date
+   */
+  estimatedDeparture: string;
+  /**
+   * Estimated arrival date
+   */
+  estimatedArrival: string;
+};
+
 export type PurchaseProductDto = {
   /**
    * ID of the product to purchase
@@ -890,6 +917,19 @@ export type AddTransactionRequirementDto = {
    * Whether this document is mandatory for the transaction to proceed
    */
   isMandatory: boolean;
+  /**
+   * The transaction status at which this document becomes required
+   */
+  requiredAtStatus?:
+    | "INITIATED"
+    | "DOCUMENTS_SUBMITTED"
+    | "COMPLIANCE_REVIEWED"
+    | "ESCROW_FUNDED"
+    | "LOGISTICS_ASSIGNED"
+    | "IN_TRANSIT"
+    | "DELIVERY_CONFIRMED"
+    | "SETTLEMENT_RELEASED"
+    | "CLOSED";
 };
 
 export type UpdateTransactionRequirementDto = {
@@ -916,6 +956,19 @@ export type UpdateTransactionRequirementDto = {
    * Whether this document is mandatory for the transaction to proceed
    */
   isMandatory?: boolean;
+  /**
+   * The transaction status at which this document becomes required
+   */
+  requiredAtStatus?:
+    | "INITIATED"
+    | "DOCUMENTS_SUBMITTED"
+    | "COMPLIANCE_REVIEWED"
+    | "ESCROW_FUNDED"
+    | "LOGISTICS_ASSIGNED"
+    | "IN_TRANSIT"
+    | "DELIVERY_CONFIRMED"
+    | "SETTLEMENT_RELEASED"
+    | "CLOSED";
 };
 
 export type ReviewTransactionDocumentDto = {
@@ -1434,6 +1487,72 @@ export type TransactionsControllerGetLogsResponses = {
   200: unknown;
 };
 
+export type TransactionsControllerAssignLogisticsData = {
+  body: AssignLogisticsDto;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/transactions/{id}/assign-logistics";
+};
+
+export type TransactionsControllerAssignLogisticsResponses = {
+  /**
+   * Logistics assigned successfully.
+   */
+  200: TransactionResponseDto;
+  201: {
+    [key: string]: unknown;
+  };
+};
+
+export type TransactionsControllerAssignLogisticsResponse =
+  TransactionsControllerAssignLogisticsResponses[keyof TransactionsControllerAssignLogisticsResponses];
+
+export type TransactionsControllerFundEscrowData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/transactions/{id}/fund-escrow";
+};
+
+export type TransactionsControllerFundEscrowResponses = {
+  /**
+   * The updated transaction
+   */
+  200: TransactionResponseDto;
+  201: {
+    [key: string]: unknown;
+  };
+};
+
+export type TransactionsControllerFundEscrowResponse =
+  TransactionsControllerFundEscrowResponses[keyof TransactionsControllerFundEscrowResponses];
+
+export type TransactionsControllerConfirmDeliveryData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/transactions/{id}/confirm-delivery";
+};
+
+export type TransactionsControllerConfirmDeliveryResponses = {
+  /**
+   * The updated transaction
+   */
+  200: TransactionResponseDto;
+  201: {
+    [key: string]: unknown;
+  };
+};
+
+export type TransactionsControllerConfirmDeliveryResponse =
+  TransactionsControllerConfirmDeliveryResponses[keyof TransactionsControllerConfirmDeliveryResponses];
+
 export type OrdersControllerPurchaseData = {
   body: PurchaseProductDto;
   path?: never;
@@ -1724,6 +1843,32 @@ export type OnboardingControllerCompleteOnboardingResponses = {
   201: unknown;
 };
 
+export type AdminProductsControllerFindAllData = {
+  body?: never;
+  path?: never;
+  query?: {
+    page?: string;
+    limit?: string;
+    status?: string;
+    category?: string;
+    search?: string;
+    merchant?: string;
+    transactionType?: string;
+    "price[gte]"?: string;
+    "price[lte]"?: string;
+    "created[gte]"?: string;
+    "created[lte]"?: string;
+  };
+  url: "/api/v1/admin/products";
+};
+
+export type AdminProductsControllerFindAllResponses = {
+  200: Array<ProductResponseDto>;
+};
+
+export type AdminProductsControllerFindAllResponse =
+  AdminProductsControllerFindAllResponses[keyof AdminProductsControllerFindAllResponses];
+
 export type AdminProductsControllerCreateData = {
   body: CreateProductDto;
   path?: never;
@@ -1750,6 +1895,22 @@ export type AdminProductsControllerRemoveData = {
 export type AdminProductsControllerRemoveResponses = {
   200: unknown;
 };
+
+export type AdminProductsControllerFindOneData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/admin/products/{id}";
+};
+
+export type AdminProductsControllerFindOneResponses = {
+  200: ProductResponseDto;
+};
+
+export type AdminProductsControllerFindOneResponse =
+  AdminProductsControllerFindOneResponses[keyof AdminProductsControllerFindOneResponses];
 
 export type AdminProductsControllerUpdateData = {
   body: UpdateProductDto;
@@ -2084,6 +2245,47 @@ export type AdminTransactionsControllerReviewDocumentResponses = {
 
 export type AdminTransactionsControllerReviewDocumentResponse =
   AdminTransactionsControllerReviewDocumentResponses[keyof AdminTransactionsControllerReviewDocumentResponses];
+
+export type AdminTransactionsControllerReleaseSettlementData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/admin/transactions/{id}/release-settlement";
+};
+
+export type AdminTransactionsControllerReleaseSettlementResponses = {
+  /**
+   * The updated transaction
+   */
+  200: TransactionResponseDto;
+  201: {
+    [key: string]: unknown;
+  };
+};
+
+export type AdminTransactionsControllerReleaseSettlementResponse =
+  AdminTransactionsControllerReleaseSettlementResponses[keyof AdminTransactionsControllerReleaseSettlementResponses];
+
+export type AdminOrganizationsControllerFindAllData = {
+  body?: never;
+  path?: never;
+  query?: {
+    page?: string;
+    limit?: string;
+    type?: string;
+    search?: string;
+  };
+  url: "/api/v1/admin/organizations";
+};
+
+export type AdminOrganizationsControllerFindAllResponses = {
+  /**
+   * Organizations list
+   */
+  200: unknown;
+};
 
 export type AdminRequestsControllerFindAllData = {
   body?: never;
