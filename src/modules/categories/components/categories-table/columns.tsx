@@ -1,6 +1,5 @@
 "use client";
 
-import { Thumbnail } from "@/components/shared/thumbnail";
 import { Button } from "@/components/ui/button";
 import type { ColumnDef } from "@tanstack/react-table";
 import { ArrowRight } from "lucide-react";
@@ -22,10 +21,8 @@ export interface CategoryTableItem {
   _id: string;
   name: string;
   slug: string;
-  image?: string;
-  productCount: number;
-  // properties needed for filtering but missing from API
-  type?: "equipment-and-products" | "services";
+  type?: string;
+  isActive: boolean;
 }
 
 export const getCategoriesColumns = (
@@ -36,25 +33,32 @@ export const getCategoriesColumns = (
     header: "Category",
     cell: ({ row }) => {
       return (
-        <div className="flex items-center gap-3">
-          <Thumbnail
-            src={row.original.image}
-            alt={row.original.name}
-            size="sm"
-          />
-          <div className="flex flex-col">
-            <span className="text-sm font-medium">{row.original.name}</span>
-          </div>
+        <div className="flex flex-col">
+          <span className="text-sm font-medium">{row.original.name}</span>
+          <span className="text-muted-foreground text-xs">
+            {row.original.slug}
+          </span>
         </div>
       );
     },
   },
   {
-    accessorKey: "productCount",
-    header: "Products",
+    accessorKey: "type",
+    header: "Type",
     cell: ({ row }) => (
-      <span className="text-sm font-medium">
-        {(row.original.productCount || 0).toLocaleString()}
+      <span className="text-muted-foreground text-sm capitalize">
+        {(row.original.type || "equipment-and-products").replace(/-/g, " ")}
+      </span>
+    ),
+  },
+  {
+    accessorKey: "isActive",
+    header: "Status",
+    cell: ({ row }) => (
+      <span
+        className={`rounded-full px-2 py-1 text-xs ${row.original.isActive ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-700"}`}
+      >
+        {row.original.isActive ? "Active" : "Inactive"}
       </span>
     ),
   },

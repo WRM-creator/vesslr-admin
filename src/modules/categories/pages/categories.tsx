@@ -21,18 +21,34 @@ export default function CategoriesPage() {
     parseAsString.withDefault("").withOptions({ throttleMs: 500 }),
   );
 
-  const { data, isLoading } = api.categories.list.useQuery({
-    query: {
-      page,
-      limit: 10,
-      type: type === "all" ? undefined : (type as any),
-      search: search || undefined,
-    },
+  const { data, isLoading } = api.categories.list.useQuery({});
+
+  const allCategories = data ?? [];
+
+  // Client-side filtering
+  const filteredCategories = allCategories.filter((item: any) => {
+    const matchesType =
+      type === "all" ||
+      (type === "equipment-and-products" &&
+        item.type === "equipment-and-products") ||
+      (type === "services" && item.type === "services");
+
+    const matchesSearch =
+      !search ||
+      item.name.toLowerCase().includes(search.toLowerCase()) ||
+      item.slug.toLowerCase().includes(search.toLowerCase());
+
+    return matchesType && matchesSearch;
   });
 
-  const categories = data?.data?.docs ?? [];
-  const totalItems = data?.data?.totalDocs ?? 0;
-  const itemsPerPage = data?.data?.limit ?? 10;
+  const totalItems = filteredCategories.length;
+  const itemsPerPage = 10;
+
+  // Client-side pagination
+  const categories = filteredCategories.slice(
+    (page - 1) * itemsPerPage,
+    page * itemsPerPage,
+  );
 
   return (
     <Page>
@@ -50,28 +66,27 @@ export default function CategoriesPage() {
 
       <div className="space-y-4">
         <CategoriesTable
-          data={categories.map((item) => ({
+          data={categories.map((item: any) => ({
             _id: item._id || "",
             name: item.name || "Unknown",
             slug: item.slug || "",
-            image: item.image,
-            productCount: item.productCount || 0,
-            type: (item.type as any) || "equipment-and-products",
+            type: item.type || "equipment-and-products",
+            isActive: !!item.isActive,
           }))}
           isLoading={isLoading}
-          activeTab={type}
+          activeTab={type ?? "all"}
           onTabChange={(val) => {
             setType(val);
             setPage(1); // Reset page on tab change
           }}
-          search={search}
+          search={search ?? ""}
           onSearchChange={(val) => {
             setSearch(val);
             setPage(1);
           }}
         />
 
-        {!isLoading && totalItems > 0 && (
+        {!isLoading && totalItems > itemsPerPage && (
           <DataPagination
             currentPage={page}
             totalItems={totalItems}

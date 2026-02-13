@@ -23,6 +23,11 @@ import {
   adminAuthControllerGetProfile,
   adminAuthControllerLogin,
   adminAuthControllerVerifyOtp,
+  adminCategoriesControllerCreate,
+  adminCategoriesControllerFindAll,
+  adminCategoriesControllerFindOne,
+  adminCategoriesControllerRemove,
+  adminCategoriesControllerUpdate,
   adminOrganizationsControllerFindAll,
   adminProductsControllerCreate,
   adminProductsControllerFindAll,
@@ -33,6 +38,7 @@ import {
   adminTransactionsControllerDeleteRequirement,
   adminTransactionsControllerFindAll,
   adminTransactionsControllerFindById,
+  adminTransactionsControllerGetLogs,
   adminTransactionsControllerReviewDocument,
   adminTransactionsControllerUpdateRequirement,
   productsControllerFindAll,
@@ -88,6 +94,12 @@ export const api = {
           ],
         },
       ),
+      logs: createQuery(adminTransactionsControllerGetLogs, (args) => [
+        "admin",
+        "transactions",
+        "logs",
+        args.path.id,
+      ]),
     },
     products: {
       create: createMutation(adminProductsControllerCreate, {
@@ -143,19 +155,26 @@ export const api = {
       args?.query,
     ]),
   },
-  // categories: {
-  //   list: createQuery(getApiV1AdminCategories, ["categories", "list"]),
-  //   detail: createQuery(getApiV1AdminCategoriesById, ["categories", "detail"]),
-  //   create: createMutation(postApiV1AdminCategories, {
-  //     invalidates: () => [["categories", "list"]],
-  //   }),
-  //   update: createMutation(putApiV1AdminCategoriesById, {
-  //     invalidates: () => [["categories", "list"]],
-  //   }),
-  //   delete: createMutation(deleteApiV1AdminCategoriesById, {
-  //     invalidates: () => [["categories", "list"]],
-  //   }),
-  // },
+  categories: {
+    list: createQuery(adminCategoriesControllerFindAll, ["categories", "list"]),
+    detail: createQuery(adminCategoriesControllerFindOne, (args) => [
+      "categories",
+      "detail",
+      args.path.id,
+    ]),
+    create: createMutation(adminCategoriesControllerCreate, {
+      invalidates: () => [["categories", "list"]],
+    }),
+    update: createMutation(adminCategoriesControllerUpdate, {
+      invalidates: (args) => [
+        ["categories", "list"],
+        ["categories", "detail", args.path.id],
+      ],
+    }),
+    delete: createMutation(adminCategoriesControllerRemove, {
+      invalidates: () => [["categories", "list"]],
+    }),
+  },
   // organizations: {
   //   list: createQuery(getApiV1AdminOrganizations, ["organizations", "list"]),
   //   detail: createQuery(getApiV1AdminOrganizationsById, [
