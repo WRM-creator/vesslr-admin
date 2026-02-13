@@ -18,7 +18,7 @@ const ALL_STATUSES: TransactionStatus[] = [
 
 const STEPS: { key: TransactionStatus; label: string }[] = [
   { key: "INITIATED", label: "Initiated" },
-  { key: "DOCUMENTS_SUBMITTED", label: "Docs" },
+  { key: "DOCUMENTS_SUBMITTED", label: "Documents submitted" },
   { key: "COMPLIANCE_REVIEWED", label: "Compliance" },
   { key: "ESCROW_FUNDED", label: "Escrow" },
   { key: "LOGISTICS_ASSIGNED", label: "Logistics" },

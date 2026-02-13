@@ -24,7 +24,7 @@ export function TransactionOverviewTab({
 
       {/* Column 2: Activity & Quick Actions (1/3 width) */}
       <div className="space-y-4">
-        <TransactionRecentActivity />
+        <TransactionRecentActivity transactionId={transaction._id} />
       </div>
     </div>
   );

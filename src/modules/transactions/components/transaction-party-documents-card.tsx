@@ -16,6 +16,7 @@ interface TransactionPartyDocumentsCardProps {
   title: string;
   description: string;
   documents: TransactionDocumentSlotDto[];
+  currentStep?: string;
   emptyMessage?: string;
   onAdd?: () => void;
   onEdit?: (document: TransactionDocumentSlotDto) => void;
@@ -29,6 +30,7 @@ export function TransactionPartyDocumentsCard({
   title,
   description,
   documents,
+  currentStep,
   emptyMessage,
   onAdd,
   onEdit,
@@ -53,6 +55,7 @@ export function TransactionPartyDocumentsCard({
         <TransactionDocumentsTable
           transactionId={transactionId}
           documents={documents}
+          currentStep={currentStep}
           emptyMessage={emptyMessage}
           onEdit={onEdit}
           onDelete={onDelete}

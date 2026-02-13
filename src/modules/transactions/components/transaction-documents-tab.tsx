@@ -99,6 +99,7 @@ export function TransactionDocumentsTab({
         title="Buyer Requirements"
         description="Documents required from the buyer."
         documents={buyerDocs}
+        currentStep={transaction.status}
         emptyMessage="No documents required from the buyer."
         onAdd={() => openAddRequirement("BUYER")}
         onEdit={handleEditRequirement}
@@ -111,6 +112,7 @@ export function TransactionDocumentsTab({
         title="Seller Requirements"
         description="Documents required from the seller."
         documents={sellerDocs}
+        currentStep={transaction.status}
         emptyMessage="No documents required from the seller."
         onAdd={() => openAddRequirement("SELLER")}
         onEdit={handleEditRequirement}
@@ -124,6 +126,7 @@ export function TransactionDocumentsTab({
           title="Other Requirements"
           description="Additional documents required for this transaction."
           documents={otherDocs}
+          currentStep={transaction.status}
           className="md:col-span-2"
           onReview={canReview ? handleReviewDocument : undefined}
         />

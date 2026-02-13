@@ -30,7 +30,7 @@ export function TransactionDetailsTabs({
         <TabsTrigger value="documents">Documents & Compliance</TabsTrigger>
         <TabsTrigger value="financials">Financials & Escrow</TabsTrigger>
         <TabsTrigger value="logistics">Logistics</TabsTrigger>
-        <TabsTrigger value="audit">Audit Log</TabsTrigger>
+        {/* <TabsTrigger value="audit">Audit Log</TabsTrigger> */}
       </TabsList>
 
       <div className="mt-2">
@@ -49,7 +49,7 @@ export function TransactionDetailsTabs({
         <TabsContent value="logistics">
           <TransactionLogisticsTab transaction={transaction} />
         </TabsContent>
-        <TabsContent value="audit" />
+        {/* <TabsContent value="audit" /> */}
       </div>
     </Tabs>
   );
