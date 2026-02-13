@@ -15,6 +15,10 @@ import type {
   AdminAuthControllerVerifyOtpResponses,
   AdminCategoriesControllerCreateData,
   AdminCategoriesControllerCreateResponses,
+  AdminCategoriesControllerFindAllData,
+  AdminCategoriesControllerFindAllResponses,
+  AdminCategoriesControllerFindOneData,
+  AdminCategoriesControllerFindOneResponses,
   AdminCategoriesControllerRemoveData,
   AdminCategoriesControllerRemoveResponses,
   AdminCategoriesControllerUpdateData,
@@ -1201,6 +1205,24 @@ export const adminAuthControllerGetProfile = <
   });
 
 /**
+ * List all categories (Admin)
+ */
+export const adminCategoriesControllerFindAll = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<AdminCategoriesControllerFindAllData, ThrowOnError>,
+) =>
+  (options?.client ?? client).get<
+    AdminCategoriesControllerFindAllResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/categories",
+    ...options,
+  });
+
+/**
  * Create a new category
  */
 export const adminCategoriesControllerCreate = <
@@ -1232,6 +1254,24 @@ export const adminCategoriesControllerRemove = <
 ) =>
   (options.client ?? client).delete<
     AdminCategoriesControllerRemoveResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/categories/{id}",
+    ...options,
+  });
+
+/**
+ * Get a category by ID (Admin)
+ */
+export const adminCategoriesControllerFindOne = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AdminCategoriesControllerFindOneData, ThrowOnError>,
+) =>
+  (options.client ?? client).get<
+    AdminCategoriesControllerFindOneResponses,
     unknown,
     ThrowOnError
   >({

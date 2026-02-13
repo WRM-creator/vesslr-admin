@@ -421,6 +421,16 @@ export type TransactionDocumentSlotDto = {
   submission?: TransactionDocumentFileDto;
   status: "PENDING" | "SUBMITTED" | "APPROVED" | "REJECTED";
   rejectionReason?: string;
+  requiredAtStatus?:
+    | "INITIATED"
+    | "DOCUMENTS_SUBMITTED"
+    | "COMPLIANCE_REVIEWED"
+    | "ESCROW_FUNDED"
+    | "LOGISTICS_ASSIGNED"
+    | "IN_TRANSIT"
+    | "DELIVERY_CONFIRMED"
+    | "SETTLEMENT_RELEASED"
+    | "CLOSED";
 };
 
 export type TransactionTaskActionDto = {
@@ -1484,8 +1494,11 @@ export type TransactionsControllerGetLogsResponses = {
   /**
    * List of transaction events
    */
-  200: unknown;
+  200: Array<TransactionEventDto>;
 };
+
+export type TransactionsControllerGetLogsResponse =
+  TransactionsControllerGetLogsResponses[keyof TransactionsControllerGetLogsResponses];
 
 export type TransactionsControllerAssignLogisticsData = {
   body: AssignLogisticsDto;
@@ -2011,6 +2024,20 @@ export type AdminAuthControllerGetProfileResponses = {
 export type AdminAuthControllerGetProfileResponse =
   AdminAuthControllerGetProfileResponses[keyof AdminAuthControllerGetProfileResponses];
 
+export type AdminCategoriesControllerFindAllData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: "/api/v1/admin/categories";
+};
+
+export type AdminCategoriesControllerFindAllResponses = {
+  200: Array<CategoryDto>;
+};
+
+export type AdminCategoriesControllerFindAllResponse =
+  AdminCategoriesControllerFindAllResponses[keyof AdminCategoriesControllerFindAllResponses];
+
 export type AdminCategoriesControllerCreateData = {
   body: CreateCategoryDto;
   path?: never;
@@ -2040,6 +2067,22 @@ export type AdminCategoriesControllerRemoveResponses = {
    */
   200: unknown;
 };
+
+export type AdminCategoriesControllerFindOneData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/admin/categories/{id}";
+};
+
+export type AdminCategoriesControllerFindOneResponses = {
+  200: CategoryDto;
+};
+
+export type AdminCategoriesControllerFindOneResponse =
+  AdminCategoriesControllerFindOneResponses[keyof AdminCategoriesControllerFindOneResponses];
 
 export type AdminCategoriesControllerUpdateData = {
   body: UpdateCategoryDto;
@@ -2183,8 +2226,11 @@ export type AdminTransactionsControllerGetLogsResponses = {
   /**
    * List of transaction events
    */
-  200: unknown;
+  200: Array<TransactionEventDto>;
 };
+
+export type AdminTransactionsControllerGetLogsResponse =
+  AdminTransactionsControllerGetLogsResponses[keyof AdminTransactionsControllerGetLogsResponses];
 
 export type AdminTransactionsControllerDeleteRequirementData = {
   body?: never;
