@@ -4,6 +4,7 @@ import {
   Building2Icon,
   BuildingIcon,
   ClipboardCheck,
+  ClipboardList,
   Command,
   LayoutDashboard,
   Lock,
@@ -103,6 +104,11 @@ const navGroups: NavGroup[] = [
   {
     label: "Operations",
     items: [
+      {
+        title: "Requests",
+        url: "/requests",
+        icon: ClipboardList,
+      },
       {
         title: "Transactions",
         url: "/transactions",

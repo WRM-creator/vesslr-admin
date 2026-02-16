@@ -11,6 +11,7 @@ import { escrowsRoutes } from "../escrows/routes";
 import { logisticsRoutes } from "../logistics/routes";
 import { organizationsRoutes } from "../organizations/routes";
 import { productsRoutes } from "../products/routes";
+import { requestsRoutes } from "../requests/routes";
 import { transactionRoutes } from "../transactions/routes";
 
 export const appRoutes: RouteObject[] = [
@@ -27,6 +28,7 @@ export const appRoutes: RouteObject[] = [
             element: <Navigate to="dashboard" replace />,
           },
           ...dashboardRoutes,
+          ...requestsRoutes,
           ...categoryRoutes,
           ...transactionRoutes,
           ...organizationsRoutes,
