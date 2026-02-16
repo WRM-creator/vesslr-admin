@@ -23,6 +23,12 @@ import type {
   AdminCategoriesControllerRemoveResponses,
   AdminCategoriesControllerUpdateData,
   AdminCategoriesControllerUpdateResponses,
+  AdminNegotiationsControllerFindAllData,
+  AdminNegotiationsControllerFindAllResponses,
+  AdminNegotiationsControllerFindOneData,
+  AdminNegotiationsControllerFindOneResponses,
+  AdminNegotiationsControllerUpdateStatusData,
+  AdminNegotiationsControllerUpdateStatusResponses,
   AdminOrganizationsControllerFindAllData,
   AdminOrganizationsControllerFindAllResponses,
   AdminProductsControllerCreateData,
@@ -87,6 +93,30 @@ import type {
   MyProductsControllerRemoveResponses,
   MyProductsControllerUpdateData,
   MyProductsControllerUpdateResponses,
+  NegotiationsControllerAcceptData,
+  NegotiationsControllerAcceptResponses,
+  NegotiationsControllerConfirmData,
+  NegotiationsControllerConfirmResponses,
+  NegotiationsControllerCounterOfferData,
+  NegotiationsControllerCounterOfferResponses,
+  NegotiationsControllerCreateData,
+  NegotiationsControllerCreateResponses,
+  NegotiationsControllerFindAllData,
+  NegotiationsControllerFindAllResponses,
+  NegotiationsControllerFindOneData,
+  NegotiationsControllerFindOneResponses,
+  NegotiationsControllerRejectData,
+  NegotiationsControllerRejectResponses,
+  NegotiationsControllerSendMessageData,
+  NegotiationsControllerSendMessageResponses,
+  NotificationsControllerFindAllData,
+  NotificationsControllerFindAllResponses,
+  NotificationsControllerGetUnreadCountData,
+  NotificationsControllerGetUnreadCountResponses,
+  NotificationsControllerMarkAllAsReadData,
+  NotificationsControllerMarkAllAsReadResponses,
+  NotificationsControllerMarkAsReadData,
+  NotificationsControllerMarkAsReadResponses,
   OnboardingControllerCompleteOnboardingData,
   OnboardingControllerCompleteOnboardingResponses,
   OnboardingControllerGetOnboardingStatusData,
@@ -95,6 +125,8 @@ import type {
   OnboardingControllerUpdateCompanyDocumentsResponses,
   OnboardingControllerUpdateCompanyInfoData,
   OnboardingControllerUpdateCompanyInfoResponses,
+  OnboardingControllerUpdateProductCategoriesData,
+  OnboardingControllerUpdateProductCategoriesResponses,
   OnboardingControllerUpdateResidentialData,
   OnboardingControllerUpdateResidentialResponses,
   OrdersControllerCancelData,
@@ -129,7 +161,11 @@ import type {
   RequestsControllerCreateResponses,
   RequestsControllerFindAllData,
   RequestsControllerFindAllResponses,
+  RequestsControllerFindFeedData,
+  RequestsControllerFindFeedResponses,
   RequestsControllerFindOneData,
+  RequestsControllerFindOneFeedData,
+  RequestsControllerFindOneFeedResponses,
   RequestsControllerFindOneResponses,
   RequestsControllerUpdateData,
   RequestsControllerUpdateResponses,
@@ -873,6 +909,42 @@ export const requestsControllerCreate = <ThrowOnError extends boolean = false>(
   });
 
 /**
+ * List available requests in categories this merchant services
+ */
+export const requestsControllerFindFeed = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<RequestsControllerFindFeedData, ThrowOnError>,
+) =>
+  (options?.client ?? client).get<
+    RequestsControllerFindFeedResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/requests/feed",
+    ...options,
+  });
+
+/**
+ * Get a single available request (Merchant)
+ */
+export const requestsControllerFindOneFeed = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<RequestsControllerFindOneFeedData, ThrowOnError>,
+) =>
+  (options.client ?? client).get<
+    RequestsControllerFindOneFeedResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/requests/feed/{id}",
+    ...options,
+  });
+
+/**
  * Get a single request (Own only)
  */
 export const requestsControllerFindOne = <ThrowOnError extends boolean = false>(
@@ -906,6 +978,162 @@ export const requestsControllerUpdate = <ThrowOnError extends boolean = false>(
       "Content-Type": "application/json",
       ...options.headers,
     },
+  });
+
+/**
+ * List negotiations for current user's organization
+ */
+export const negotiationsControllerFindAll = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<NegotiationsControllerFindAllData, ThrowOnError>,
+) =>
+  (options?.client ?? client).get<
+    NegotiationsControllerFindAllResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/negotiations",
+    ...options,
+  });
+
+/**
+ * Create a negotiation (seller submits initial offer)
+ */
+export const negotiationsControllerCreate = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<NegotiationsControllerCreateData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    NegotiationsControllerCreateResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/negotiations",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Get a single negotiation with full thread
+ */
+export const negotiationsControllerFindOne = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<NegotiationsControllerFindOneData, ThrowOnError>,
+) =>
+  (options.client ?? client).get<
+    NegotiationsControllerFindOneResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/negotiations/{id}",
+    ...options,
+  });
+
+/**
+ * Submit a counter-offer
+ */
+export const negotiationsControllerCounterOffer = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<NegotiationsControllerCounterOfferData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    NegotiationsControllerCounterOfferResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/negotiations/{id}/counter",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Send a text message in the negotiation thread
+ */
+export const negotiationsControllerSendMessage = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<NegotiationsControllerSendMessageData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    NegotiationsControllerSendMessageResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/negotiations/{id}/messages",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Accept the latest offer (Moves to buyer review)
+ */
+export const negotiationsControllerAccept = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<NegotiationsControllerAcceptData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    NegotiationsControllerAcceptResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/negotiations/{id}/accept",
+    ...options,
+  });
+
+/**
+ * Confirm the negotiation (Creates an Order)
+ */
+export const negotiationsControllerConfirm = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<NegotiationsControllerConfirmData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    NegotiationsControllerConfirmResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/negotiations/{id}/confirm",
+    ...options,
+  });
+
+/**
+ * Reject the negotiation
+ */
+export const negotiationsControllerReject = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<NegotiationsControllerRejectData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    NegotiationsControllerRejectResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/negotiations/{id}/reject",
+    ...options,
   });
 
 /**
@@ -963,6 +1191,31 @@ export const onboardingControllerUpdateCompanyInfo = <
   >({
     security: [{ scheme: "bearer", type: "http" }],
     url: "/api/v1/onboarding/company-info",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Update product categories
+ */
+export const onboardingControllerUpdateProductCategories = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    OnboardingControllerUpdateProductCategoriesData,
+    ThrowOnError
+  >,
+) =>
+  (options.client ?? client).put<
+    OnboardingControllerUpdateProductCategoriesResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/onboarding/product-categories",
     ...options,
     headers: {
       "Content-Type": "application/json",
@@ -1603,6 +1856,132 @@ export const adminRequestsControllerAcceptRequest = <
       "Content-Type": "application/json",
       ...options.headers,
     },
+  });
+
+/**
+ * List all negotiations (Admin)
+ */
+export const adminNegotiationsControllerFindAll = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<AdminNegotiationsControllerFindAllData, ThrowOnError>,
+) =>
+  (options?.client ?? client).get<
+    AdminNegotiationsControllerFindAllResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/negotiations",
+    ...options,
+  });
+
+/**
+ * Get any negotiation (Admin)
+ */
+export const adminNegotiationsControllerFindOne = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AdminNegotiationsControllerFindOneData, ThrowOnError>,
+) =>
+  (options.client ?? client).get<
+    AdminNegotiationsControllerFindOneResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/negotiations/{id}",
+    ...options,
+  });
+
+/**
+ * Update negotiation status (Admin override)
+ */
+export const adminNegotiationsControllerUpdateStatus = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AdminNegotiationsControllerUpdateStatusData, ThrowOnError>,
+) =>
+  (options.client ?? client).patch<
+    AdminNegotiationsControllerUpdateStatusResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/negotiations/{id}/status",
+    ...options,
+  });
+
+/**
+ * List notifications for the current user
+ */
+export const notificationsControllerFindAll = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<NotificationsControllerFindAllData, ThrowOnError>,
+) =>
+  (options?.client ?? client).get<
+    NotificationsControllerFindAllResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/notifications",
+    ...options,
+  });
+
+/**
+ * Get unread notification count for the current user
+ */
+export const notificationsControllerGetUnreadCount = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<NotificationsControllerGetUnreadCountData, ThrowOnError>,
+) =>
+  (options?.client ?? client).get<
+    NotificationsControllerGetUnreadCountResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/notifications/unread-count",
+    ...options,
+  });
+
+/**
+ * Mark a single notification as read
+ */
+export const notificationsControllerMarkAsRead = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<NotificationsControllerMarkAsReadData, ThrowOnError>,
+) =>
+  (options.client ?? client).patch<
+    NotificationsControllerMarkAsReadResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/notifications/{id}/read",
+    ...options,
+  });
+
+/**
+ * Mark all notifications as read
+ */
+export const notificationsControllerMarkAllAsRead = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<NotificationsControllerMarkAllAsReadData, ThrowOnError>,
+) =>
+  (options?.client ?? client).post<
+    NotificationsControllerMarkAllAsReadResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/notifications/read-all",
+    ...options,
   });
 
 export const orgProductsControllerFindAll = <

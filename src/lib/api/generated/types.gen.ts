@@ -31,6 +31,10 @@ export type RegisterOrganizationDto = {
    */
   name: string;
   /**
+   * Organization type (merchant or customer)
+   */
+  type?: "merchant" | "customer";
+  /**
    * Structured address with state and country
    */
   address: AddressDto;
@@ -81,8 +85,11 @@ export type LoginDto = {
   password: string;
 };
 
-export type VerifyOtpDto = {
+export type UserVerifyOtpDto = {
   email: string;
+  /**
+   * 6-digit OTP code
+   */
   otp: string;
 };
 
@@ -109,6 +116,69 @@ export type MessageResponseDto = {
    * Human-readable message
    */
   message: string;
+};
+
+export type PopulatedLocationDto = {
+  _id: string;
+  name: string;
+  iso2?: string;
+};
+
+export type ResidentialAddressDto = {
+  houseNumber?: string;
+  streetAddress?: string;
+  city?: PopulatedLocationDto;
+  state?: PopulatedLocationDto;
+  country?: PopulatedLocationDto;
+  postalCode?: string;
+};
+
+export type FileMetadataResponseDto = {
+  url: string;
+  name?: string;
+  type?: string;
+  size?: number;
+};
+
+export type OnboardingCategoryDto = {
+  _id: string;
+  name: string;
+};
+
+export type OrganizationDto = {
+  _id: string;
+  name: string;
+  description?: string;
+  type?: string;
+  address?: ResidentialAddressDto;
+  email?: string;
+  phoneNumber?: string;
+  rcNumber?: string;
+  taxId?: string;
+  proofOfResidenceFile?: string | FileMetadataResponseDto;
+  certificateOfIncorporation?: string | FileMetadataResponseDto;
+  memorandum?: string | FileMetadataResponseDto;
+  additionalDocuments?: Array<FileMetadataResponseDto>;
+  categories?: Array<OnboardingCategoryDto>;
+};
+
+export type UserProfileResponseDto = {
+  _id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  country?: PopulatedLocationDto;
+  onboardingStep?:
+    | "residential"
+    | "company_info"
+    | "product_categories"
+    | "company_documents"
+    | "review"
+    | "complete";
+  onboardingCompleted?: boolean;
+  residentialAddress?: ResidentialAddressDto;
+  organization?: OrganizationDto;
 };
 
 export type CategoryGroupDto = {
@@ -278,12 +348,55 @@ export type UpdateProductDto = {
   isActive?: boolean;
 };
 
+export type CategoryDocumentTemplateDto = {
+  type:
+    | "INVOICE"
+    | "PACKING_LIST"
+    | "CERTIFICATE_OF_ORIGIN"
+    | "SAFETY_DATA_SHEET"
+    | "BILL_OF_LADING"
+    | "CONTRACT"
+    | "OTHER";
+  name: string;
+  requiredFrom: "BUYER" | "SELLER";
+  isMandatory: boolean;
+  requiredAtStatus?:
+    | "INITIATED"
+    | "DOCUMENTS_SUBMITTED"
+    | "COMPLIANCE_REVIEWED"
+    | "ESCROW_FUNDED"
+    | "LOGISTICS_ASSIGNED"
+    | "IN_TRANSIT"
+    | "DELIVERY_CONFIRMED"
+    | "SETTLEMENT_RELEASED"
+    | "CLOSED";
+};
+
+export type CategoryComplianceDto = {
+  isHazardous: boolean;
+  isRegulated: boolean;
+  riskLevel: "LOW" | "MEDIUM" | "HIGH";
+};
+
 export type CategoryDto = {
   _id: string;
   name: string;
   slug: string;
-  type?: string;
+  type: "equipment-and-products" | "services";
   description?: string;
+  image?: string;
+  allowedUnits: Array<
+    "kg" | "ton" | "lb" | "liter" | "gallon" | "unit" | "hour" | "day" | "month"
+  >;
+  supportedConditions: Array<
+    "New" | "Used - Good" | "Used - Fair" | "Refurbished"
+  >;
+  allowedTransactionTypes: Array<
+    "Purchase" | "Lease" | "Charter" | "Bulk Supply" | "Spot Trade"
+  >;
+  requiredDocuments: Array<CategoryDocumentTemplateDto>;
+  compliance: CategoryComplianceDto;
+  allowedCurrencies: Array<"NGN" | "USD" | "GBP" | "EUR">;
   group: CategoryGroupDto;
   isActive: boolean;
   createdAt: string;
@@ -607,6 +720,60 @@ export type UpdateOrderDto = {
   notes?: string;
 };
 
+export type RequestCategoryDto = {
+  _id: string;
+  name: string;
+  group?: CategoryGroupDto;
+  type?: string;
+  image?: string;
+};
+
+export type RequestCountryDto = {
+  _id: string;
+  name: string;
+  iso2: string;
+  region: string;
+};
+
+export type RecommendationFeedItemDto = {
+  _id: string;
+  name: string;
+  quantity: number;
+  category: RequestCategoryDto;
+  image?: string;
+  region: Array<RegionDto>;
+  country: Array<RequestCountryDto>;
+  state: Array<StateDto>;
+  unitOfMeasurement: string;
+  targetPricePerUnit: number;
+  currency: "NGN" | "USD" | "GBP" | "EUR";
+  transactionType: Array<string>;
+  condition?: Array<string>;
+  description?: string;
+  displayId: number;
+  status: string;
+  createdAt: string;
+  negotiationId?: string;
+};
+
+export type RecommendationFeedDataDto = {
+  docs: Array<RecommendationFeedItemDto>;
+  totalDocs: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+};
+
+export type RecommendationFeedResponseDto = {
+  message: string;
+  data: RecommendationFeedDataDto;
+};
+
+export type SingleRecommendationFeedResponseDto = {
+  message: string;
+  data: RecommendationFeedItemDto;
+};
+
 export type CreateRequestDto = {
   /**
    * ID of the category
@@ -707,6 +874,10 @@ export type ProductRequest = {
    */
   status: "pending" | "in_review" | "matched" | "fulfilled" | "cancelled";
   /**
+   * Organization matched as seller for this request
+   */
+  matchedSeller?: string;
+  /**
    * Display ID
    */
   displayId: number;
@@ -717,20 +888,19 @@ export type RequesterDto = {
   firstName: string;
   lastName: string;
   email: string;
+  phone?: string;
 };
 
-export type RequestCountryDto = {
+export type MatchedSellerDto = {
   _id: string;
   name: string;
-  iso2: string;
-  region: string;
 };
 
 export type RequestResponseDto = {
   _id: string;
   name: string;
   quantity: number;
-  category: CategoryDto;
+  category: RequestCategoryDto;
   requester: RequesterDto;
   region: Array<RegionDto>;
   country: Array<RequestCountryDto>;
@@ -743,9 +913,10 @@ export type RequestResponseDto = {
   description?: string;
   documents: Array<string>;
   selectionMode: string;
-  organization: string;
+  organization: OrganizationDto;
   displayId: number;
   status: string;
+  matchedSeller?: MatchedSellerDto;
   createdAt: string;
   updatedAt: string;
 };
@@ -779,7 +950,179 @@ export type UpdateRequestDto = {
   status?: "pending" | "in_review" | "matched" | "fulfilled" | "cancelled";
 };
 
+export type CreateNegotiationDto = {
+  /**
+   * ID of the ProductRequest being responded to
+   */
+  request: string;
+  /**
+   * ID of the product being offered
+   */
+  product?: string;
+  pricePerUnit: number;
+  quantity: number;
+  currency: "NGN" | "USD" | "GBP" | "EUR";
+  unitOfMeasurement: string;
+  transactionType?:
+    | "Purchase"
+    | "Lease"
+    | "Charter"
+    | "Bulk Supply"
+    | "Spot Trade";
+  condition?: "New" | "Used - Good" | "Used - Fair" | "Refurbished";
+  incoterms?: string;
+  paymentTerms?: string;
+  deliveryDate?: string;
+  /**
+   * Opening message to the buyer
+   */
+  notes?: string;
+  /**
+   * Hours until this offer expires (default: 24)
+   */
+  expirationHours?: number;
+  /**
+   * Whether the seller is accepting all terms or counter-offering
+   */
+  responseType: "accept" | "counter_offer";
+};
+
+export type NegotiationRequestDto = {
+  _id: string;
+  name: string;
+  displayId?: number;
+  status?: string;
+  quantity?: number;
+  targetPricePerUnit?: number;
+  currency?: string;
+  unitOfMeasurement?: string;
+  transactionType?: Array<string>;
+  condition?: Array<string>;
+};
+
+export type NegotiationOrganizationDto = {
+  name?: string;
+  role: "buyer" | "seller";
+  isMine: boolean;
+};
+
+export type NegotiationOffer = {
+  pricePerUnit: number;
+  quantity: number;
+  currency: "NGN" | "USD" | "GBP" | "EUR";
+  unitOfMeasurement: string;
+  transactionType?:
+    | "Purchase"
+    | "Lease"
+    | "Charter"
+    | "Bulk Supply"
+    | "Spot Trade";
+  condition?: "New" | "Used - Good" | "Used - Fair" | "Refurbished";
+  incoterms?: string;
+  paymentTerms?: string;
+  deliveryDate?: string;
+  notes?: string;
+};
+
+export type NegotiationEntryResponseDto = {
+  type: string;
+  authorName: string;
+  isMine: boolean;
+  text?: string;
+  offer?: NegotiationOffer;
+  createdAt: string;
+};
+
+export type NegotiationResponseDto = {
+  _id: string;
+  displayId: number;
+  request: NegotiationRequestDto;
+  product?: string;
+  buyerOrganization: NegotiationOrganizationDto;
+  sellerOrganization: NegotiationOrganizationDto;
+  pendingOrganization: NegotiationOrganizationDto;
+  status: string;
+  responseType: string;
+  entries: Array<NegotiationEntryResponseDto>;
+  latestOffer?: NegotiationOffer;
+  latestOfferBy?: NegotiationOrganizationDto;
+  order?: string;
+  isMyTurn: boolean;
+  isMine: boolean;
+  createdAt: string;
+  updatedAt: string;
+  /**
+   * When the latest offer expires (ISO string)
+   */
+  offerExpiresAt?: string;
+  /**
+   * Whether the latest offer has expired
+   */
+  isOfferExpired: boolean;
+};
+
+export type NegotiationsPaginationDataDto = {
+  docs: Array<NegotiationResponseDto>;
+  totalDocs: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+};
+
+export type PaginatedNegotiationsResponseDto = {
+  message: string;
+  data: NegotiationsPaginationDataDto;
+};
+
+export type CounterOfferDto = {
+  pricePerUnit: number;
+  quantity: number;
+  currency: "NGN" | "USD" | "GBP" | "EUR";
+  unitOfMeasurement: string;
+  transactionType?:
+    | "Purchase"
+    | "Lease"
+    | "Charter"
+    | "Bulk Supply"
+    | "Spot Trade";
+  condition?: "New" | "Used - Good" | "Used - Fair" | "Refurbished";
+  incoterms?: string;
+  paymentTerms?: string;
+  deliveryDate?: string;
+  /**
+   * Message explaining the counter-offer
+   */
+  notes?: string;
+  /**
+   * Hours until this offer expires (default: 24)
+   */
+  expirationHours?: number;
+};
+
+export type SendMessageDto = {
+  /**
+   * Text message content
+   */
+  text: string;
+};
+
+export type OnboardingStatusResponseDto = {
+  onboardingStep:
+    | "residential"
+    | "company_info"
+    | "product_categories"
+    | "company_documents"
+    | "review"
+    | "complete";
+  onboardingCompleted: boolean;
+  residentialAddress?: ResidentialAddressDto;
+  organization?: OrganizationDto;
+};
+
 export type UpdateResidentialAddressDto = {
+  houseNumber?: string;
+  streetAddress?: string;
+  city?: string;
   state: string;
   country: string;
 };
@@ -787,16 +1130,30 @@ export type UpdateResidentialAddressDto = {
 export type UpdateCompanyInfoDto = {
   name: string;
   description?: string;
-  address: string;
+  address: AddressDto;
+};
+
+export type UpdateProductCategoriesDto = {
+  /**
+   * Array of Category IDs
+   */
+  categories: Array<string>;
+};
+
+export type FileMetadataDto = {
+  url: string;
+  name?: string;
+  type?: string;
+  size?: number;
 };
 
 export type UpdateCompanyDocumentsDto = {
   rcNumber: string;
   taxId?: string;
-  proofOfResidenceFile?: string;
-  certificateOfIncorporation?: string;
-  memorandum?: string;
-  additionalDocuments?: string;
+  proofOfResidenceFile?: string | FileMetadataDto;
+  certificateOfIncorporation?: string | FileMetadataDto;
+  memorandum?: string | FileMetadataDto;
+  additionalDocuments?: Array<FileMetadataDto>;
 };
 
 export type AdminLoginDto = {
@@ -808,6 +1165,11 @@ export type AdminLoginDto = {
    * Admin's password
    */
   password: string;
+};
+
+export type AdminVerifyOtpDto = {
+  email: string;
+  otp: string;
 };
 
 export type CreateAdminDto = {
@@ -852,6 +1214,36 @@ export type ChangePasswordDto = {
   newPassword: string;
 };
 
+export type CategoryDocumentTemplateInput = {
+  type:
+    | "INVOICE"
+    | "PACKING_LIST"
+    | "CERTIFICATE_OF_ORIGIN"
+    | "SAFETY_DATA_SHEET"
+    | "BILL_OF_LADING"
+    | "CONTRACT"
+    | "OTHER";
+  name: string;
+  requiredFrom: "BUYER" | "SELLER";
+  isMandatory?: boolean;
+  requiredAtStatus?:
+    | "INITIATED"
+    | "DOCUMENTS_SUBMITTED"
+    | "COMPLIANCE_REVIEWED"
+    | "ESCROW_FUNDED"
+    | "LOGISTICS_ASSIGNED"
+    | "IN_TRANSIT"
+    | "DELIVERY_CONFIRMED"
+    | "SETTLEMENT_RELEASED"
+    | "CLOSED";
+};
+
+export type CategoryComplianceInput = {
+  isHazardous?: boolean;
+  isRegulated?: boolean;
+  riskLevel?: "LOW" | "MEDIUM" | "HIGH";
+};
+
 export type CreateCategoryDto = {
   /**
    * The name of the category
@@ -865,6 +1257,26 @@ export type CreateCategoryDto = {
    * Description of the category
    */
   description?: string;
+  /**
+   * Type of the category
+   */
+  type?: "equipment-and-products" | "services";
+  /**
+   * Category image URL
+   */
+  image?: string;
+  allowedUnits?: Array<
+    "kg" | "ton" | "lb" | "liter" | "gallon" | "unit" | "hour" | "day" | "month"
+  >;
+  supportedConditions?: Array<
+    "New" | "Used - Good" | "Used - Fair" | "Refurbished"
+  >;
+  allowedTransactionTypes?: Array<
+    "Purchase" | "Lease" | "Charter" | "Bulk Supply" | "Spot Trade"
+  >;
+  requiredDocuments?: Array<CategoryDocumentTemplateInput>;
+  compliance?: CategoryComplianceInput;
+  allowedCurrencies?: Array<"NGN" | "USD" | "GBP" | "EUR">;
   /**
    * Whether the category is active
    */
@@ -884,6 +1296,26 @@ export type UpdateCategoryDto = {
    * Description of the category
    */
   description?: string;
+  /**
+   * Type of the category
+   */
+  type?: "equipment-and-products" | "services";
+  /**
+   * Category image URL
+   */
+  image?: string;
+  allowedUnits?: Array<
+    "kg" | "ton" | "lb" | "liter" | "gallon" | "unit" | "hour" | "day" | "month"
+  >;
+  supportedConditions?: Array<
+    "New" | "Used - Good" | "Used - Fair" | "Refurbished"
+  >;
+  allowedTransactionTypes?: Array<
+    "Purchase" | "Lease" | "Charter" | "Bulk Supply" | "Spot Trade"
+  >;
+  requiredDocuments?: Array<CategoryDocumentTemplateInput>;
+  compliance?: CategoryComplianceInput;
+  allowedCurrencies?: Array<"NGN" | "USD" | "GBP" | "EUR">;
   /**
    * Whether the category is active
    */
@@ -1015,6 +1447,34 @@ export type AcceptRequestOrderDto = {
   notes?: string;
 };
 
+export type NotificationResponseDto = {
+  _id: string;
+  type: string;
+  title: string;
+  message: string;
+  isRead: boolean;
+  readAt?: string;
+  resourceType?: string;
+  resourceId?: string;
+  metadata?: {
+    [key: string]: unknown;
+  };
+  createdAt: string;
+};
+
+export type NotificationsPaginationDataDto = {
+  docs: Array<NotificationResponseDto>;
+  totalDocs: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+};
+
+export type PaginatedNotificationsResponseDto = {
+  message: string;
+  data: NotificationsPaginationDataDto;
+};
+
 export type GeneratePresignedUrlDto = {
   filename: string;
   contentType: string;
@@ -1140,7 +1600,7 @@ export type UsersAuthControllerLoginResponse =
   UsersAuthControllerLoginResponses[keyof UsersAuthControllerLoginResponses];
 
 export type UsersAuthControllerVerifyOtpData = {
-  body: VerifyOtpDto;
+  body: UserVerifyOtpDto;
   path?: never;
   query?: never;
   url: "/api/v1/auth/verify-otp";
@@ -1212,9 +1672,7 @@ export type UsersAuthControllerGetProfileData = {
 };
 
 export type UsersAuthControllerGetProfileResponses = {
-  200: {
-    [key: string]: unknown;
-  };
+  200: UserProfileResponseDto;
 };
 
 export type UsersAuthControllerGetProfileResponse =
@@ -1753,6 +2211,61 @@ export type RequestsControllerCreateResponses = {
 export type RequestsControllerCreateResponse =
   RequestsControllerCreateResponses[keyof RequestsControllerCreateResponses];
 
+export type RequestsControllerFindFeedData = {
+  body?: never;
+  path?: never;
+  query?: {
+    /**
+     * Page number
+     */
+    page?: string;
+    /**
+     * Items per page
+     */
+    limit?: string;
+    /**
+     * Sort order
+     */
+    sort?: "newest" | "oldest";
+    /**
+     * Filter by status
+     */
+    status?: Array<
+      "pending" | "in_review" | "matched" | "fulfilled" | "cancelled"
+    >;
+  };
+  url: "/api/v1/requests/feed";
+};
+
+export type RequestsControllerFindFeedResponses = {
+  /**
+   * List of available requests
+   */
+  200: RecommendationFeedResponseDto;
+};
+
+export type RequestsControllerFindFeedResponse =
+  RequestsControllerFindFeedResponses[keyof RequestsControllerFindFeedResponses];
+
+export type RequestsControllerFindOneFeedData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/requests/feed/{id}";
+};
+
+export type RequestsControllerFindOneFeedResponses = {
+  /**
+   * Single available request details
+   */
+  200: SingleRecommendationFeedResponseDto;
+};
+
+export type RequestsControllerFindOneFeedResponse =
+  RequestsControllerFindOneFeedResponses[keyof RequestsControllerFindOneFeedResponses];
+
 export type RequestsControllerFindOneData = {
   body?: never;
   path: {
@@ -1785,6 +2298,166 @@ export type RequestsControllerUpdateResponses = {
 export type RequestsControllerUpdateResponse =
   RequestsControllerUpdateResponses[keyof RequestsControllerUpdateResponses];
 
+export type NegotiationsControllerFindAllData = {
+  body?: never;
+  path?: never;
+  query?: {
+    /**
+     * Page number
+     */
+    page?: string;
+    /**
+     * Items per page
+     */
+    limit?: string;
+    /**
+     * Filter by status
+     */
+    status?:
+      | "active"
+      | "pending_buyer_review"
+      | "accepted"
+      | "rejected"
+      | "expired";
+    /**
+     * Filter by role (buyer or seller)
+     */
+    role?: "buyer" | "seller";
+    /**
+     * Filter by request ID
+     */
+    requestId?: string;
+    /**
+     * Filter by response type
+     */
+    responseType?: "accept" | "counter_offer";
+  };
+  url: "/api/v1/negotiations";
+};
+
+export type NegotiationsControllerFindAllResponses = {
+  200: PaginatedNegotiationsResponseDto;
+};
+
+export type NegotiationsControllerFindAllResponse =
+  NegotiationsControllerFindAllResponses[keyof NegotiationsControllerFindAllResponses];
+
+export type NegotiationsControllerCreateData = {
+  body: CreateNegotiationDto;
+  path?: never;
+  query?: never;
+  url: "/api/v1/negotiations";
+};
+
+export type NegotiationsControllerCreateResponses = {
+  200: NegotiationResponseDto;
+  201: NegotiationResponseDto;
+};
+
+export type NegotiationsControllerCreateResponse =
+  NegotiationsControllerCreateResponses[keyof NegotiationsControllerCreateResponses];
+
+export type NegotiationsControllerFindOneData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/negotiations/{id}";
+};
+
+export type NegotiationsControllerFindOneResponses = {
+  200: NegotiationResponseDto;
+};
+
+export type NegotiationsControllerFindOneResponse =
+  NegotiationsControllerFindOneResponses[keyof NegotiationsControllerFindOneResponses];
+
+export type NegotiationsControllerCounterOfferData = {
+  body: CounterOfferDto;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/negotiations/{id}/counter";
+};
+
+export type NegotiationsControllerCounterOfferResponses = {
+  200: NegotiationResponseDto;
+  201: NegotiationResponseDto;
+};
+
+export type NegotiationsControllerCounterOfferResponse =
+  NegotiationsControllerCounterOfferResponses[keyof NegotiationsControllerCounterOfferResponses];
+
+export type NegotiationsControllerSendMessageData = {
+  body: SendMessageDto;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/negotiations/{id}/messages";
+};
+
+export type NegotiationsControllerSendMessageResponses = {
+  200: NegotiationResponseDto;
+  201: NegotiationResponseDto;
+};
+
+export type NegotiationsControllerSendMessageResponse =
+  NegotiationsControllerSendMessageResponses[keyof NegotiationsControllerSendMessageResponses];
+
+export type NegotiationsControllerAcceptData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/negotiations/{id}/accept";
+};
+
+export type NegotiationsControllerAcceptResponses = {
+  200: NegotiationResponseDto;
+  201: NegotiationResponseDto;
+};
+
+export type NegotiationsControllerAcceptResponse =
+  NegotiationsControllerAcceptResponses[keyof NegotiationsControllerAcceptResponses];
+
+export type NegotiationsControllerConfirmData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/negotiations/{id}/confirm";
+};
+
+export type NegotiationsControllerConfirmResponses = {
+  200: NegotiationResponseDto;
+  201: NegotiationResponseDto;
+};
+
+export type NegotiationsControllerConfirmResponse =
+  NegotiationsControllerConfirmResponses[keyof NegotiationsControllerConfirmResponses];
+
+export type NegotiationsControllerRejectData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/negotiations/{id}/reject";
+};
+
+export type NegotiationsControllerRejectResponses = {
+  200: NegotiationResponseDto;
+  201: NegotiationResponseDto;
+};
+
+export type NegotiationsControllerRejectResponse =
+  NegotiationsControllerRejectResponses[keyof NegotiationsControllerRejectResponses];
+
 export type OnboardingControllerGetOnboardingStatusData = {
   body?: never;
   path?: never;
@@ -1796,8 +2469,11 @@ export type OnboardingControllerGetOnboardingStatusResponses = {
   /**
    * Onboarding status retrieved
    */
-  200: unknown;
+  200: OnboardingStatusResponseDto;
 };
+
+export type OnboardingControllerGetOnboardingStatusResponse =
+  OnboardingControllerGetOnboardingStatusResponses[keyof OnboardingControllerGetOnboardingStatusResponses];
 
 export type OnboardingControllerUpdateResidentialData = {
   body: UpdateResidentialAddressDto;
@@ -1810,8 +2486,11 @@ export type OnboardingControllerUpdateResidentialResponses = {
   /**
    * Residential address updated
    */
-  200: unknown;
+  200: OnboardingStatusResponseDto;
 };
+
+export type OnboardingControllerUpdateResidentialResponse =
+  OnboardingControllerUpdateResidentialResponses[keyof OnboardingControllerUpdateResidentialResponses];
 
 export type OnboardingControllerUpdateCompanyInfoData = {
   body: UpdateCompanyInfoDto;
@@ -1824,8 +2503,28 @@ export type OnboardingControllerUpdateCompanyInfoResponses = {
   /**
    * Company information updated
    */
-  200: unknown;
+  200: OnboardingStatusResponseDto;
 };
+
+export type OnboardingControllerUpdateCompanyInfoResponse =
+  OnboardingControllerUpdateCompanyInfoResponses[keyof OnboardingControllerUpdateCompanyInfoResponses];
+
+export type OnboardingControllerUpdateProductCategoriesData = {
+  body: UpdateProductCategoriesDto;
+  path?: never;
+  query?: never;
+  url: "/api/v1/onboarding/product-categories";
+};
+
+export type OnboardingControllerUpdateProductCategoriesResponses = {
+  /**
+   * Product categories updated
+   */
+  200: OnboardingStatusResponseDto;
+};
+
+export type OnboardingControllerUpdateProductCategoriesResponse =
+  OnboardingControllerUpdateProductCategoriesResponses[keyof OnboardingControllerUpdateProductCategoriesResponses];
 
 export type OnboardingControllerUpdateCompanyDocumentsData = {
   body: UpdateCompanyDocumentsDto;
@@ -1838,8 +2537,11 @@ export type OnboardingControllerUpdateCompanyDocumentsResponses = {
   /**
    * Company documents updated
    */
-  200: unknown;
+  200: OnboardingStatusResponseDto;
 };
+
+export type OnboardingControllerUpdateCompanyDocumentsResponse =
+  OnboardingControllerUpdateCompanyDocumentsResponses[keyof OnboardingControllerUpdateCompanyDocumentsResponses];
 
 export type OnboardingControllerCompleteOnboardingData = {
   body?: never;
@@ -1852,9 +2554,12 @@ export type OnboardingControllerCompleteOnboardingResponses = {
   /**
    * Onboarding completed
    */
-  200: unknown;
+  200: OnboardingStatusResponseDto;
   201: unknown;
 };
+
+export type OnboardingControllerCompleteOnboardingResponse =
+  OnboardingControllerCompleteOnboardingResponses[keyof OnboardingControllerCompleteOnboardingResponses];
 
 export type AdminProductsControllerFindAllData = {
   body?: never;
@@ -1962,7 +2667,7 @@ export type AdminAuthControllerLoginResponse =
   AdminAuthControllerLoginResponses[keyof AdminAuthControllerLoginResponses];
 
 export type AdminAuthControllerVerifyOtpData = {
-  body: VerifyOtpDto;
+  body: AdminVerifyOtpDto;
   path?: never;
   query?: never;
   url: "/api/v1/admin/auth/verify-otp";
@@ -2354,8 +3059,11 @@ export type AdminRequestsControllerFindOneData = {
 };
 
 export type AdminRequestsControllerFindOneResponses = {
-  200: unknown;
+  200: RequestResponseDto;
 };
+
+export type AdminRequestsControllerFindOneResponse =
+  AdminRequestsControllerFindOneResponses[keyof AdminRequestsControllerFindOneResponses];
 
 export type AdminRequestsControllerUpdateStatusData = {
   body?: never;
@@ -2387,6 +3095,95 @@ export type AdminRequestsControllerAcceptRequestResponses = {
 
 export type AdminRequestsControllerAcceptRequestResponse =
   AdminRequestsControllerAcceptRequestResponses[keyof AdminRequestsControllerAcceptRequestResponses];
+
+export type AdminNegotiationsControllerFindAllData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: "/api/v1/admin/negotiations";
+};
+
+export type AdminNegotiationsControllerFindAllResponses = {
+  200: unknown;
+};
+
+export type AdminNegotiationsControllerFindOneData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/admin/negotiations/{id}";
+};
+
+export type AdminNegotiationsControllerFindOneResponses = {
+  200: unknown;
+};
+
+export type AdminNegotiationsControllerUpdateStatusData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/admin/negotiations/{id}/status";
+};
+
+export type AdminNegotiationsControllerUpdateStatusResponses = {
+  200: unknown;
+};
+
+export type NotificationsControllerFindAllData = {
+  body?: never;
+  path?: never;
+  query?: {
+    page?: string;
+    limit?: string;
+  };
+  url: "/api/v1/notifications";
+};
+
+export type NotificationsControllerFindAllResponses = {
+  200: PaginatedNotificationsResponseDto;
+};
+
+export type NotificationsControllerFindAllResponse =
+  NotificationsControllerFindAllResponses[keyof NotificationsControllerFindAllResponses];
+
+export type NotificationsControllerGetUnreadCountData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: "/api/v1/notifications/unread-count";
+};
+
+export type NotificationsControllerGetUnreadCountResponses = {
+  200: unknown;
+};
+
+export type NotificationsControllerMarkAsReadData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/notifications/{id}/read";
+};
+
+export type NotificationsControllerMarkAsReadResponses = {
+  200: unknown;
+};
+
+export type NotificationsControllerMarkAllAsReadData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: "/api/v1/notifications/read-all";
+};
+
+export type NotificationsControllerMarkAllAsReadResponses = {
+  201: unknown;
+};
 
 export type OrgProductsControllerFindAllData = {
   body?: never;

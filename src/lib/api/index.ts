@@ -28,12 +28,19 @@ import {
   adminCategoriesControllerFindOne,
   adminCategoriesControllerRemove,
   adminCategoriesControllerUpdate,
+  adminNegotiationsControllerFindAll,
+  adminNegotiationsControllerFindOne,
+  adminNegotiationsControllerUpdateStatus,
   adminOrganizationsControllerFindAll,
   adminProductsControllerCreate,
   adminProductsControllerFindAll,
   adminProductsControllerFindOne,
   adminProductsControllerRemove,
   adminProductsControllerUpdate,
+  adminRequestsControllerAcceptRequest,
+  adminRequestsControllerFindAll,
+  adminRequestsControllerFindOne,
+  adminRequestsControllerUpdateStatus,
   adminTransactionsControllerAddDocument,
   adminTransactionsControllerDeleteRequirement,
   adminTransactionsControllerFindAll,
@@ -134,6 +141,58 @@ export const api = {
         "list",
         args?.query,
       ]),
+      detail: createQuery(adminRequestsControllerFindOne, (args) => [
+        "admin",
+        "requests",
+        "detail",
+        args.path.id,
+      ]),
+    },
+    requests: {
+      list: createQuery(adminRequestsControllerFindAll, (args) => [
+        "admin",
+        "requests",
+        "list",
+        args?.query,
+      ]),
+      detail: createQuery(adminRequestsControllerFindOne, (args) => [
+        "admin",
+        "requests",
+        "detail",
+        args.path.id,
+      ]),
+      updateStatus: createMutation(adminRequestsControllerUpdateStatus, {
+        invalidates: (args) => [
+          ["admin", "requests", "list"],
+          ["admin", "requests", "detail", args.path.id],
+        ],
+      }),
+      accept: createMutation(adminRequestsControllerAcceptRequest, {
+        invalidates: (args) => [
+          ["admin", "requests", "list"],
+          ["admin", "requests", "detail", args.path.id],
+        ],
+      }),
+    },
+    negotiations: {
+      list: createQuery(adminNegotiationsControllerFindAll, (args) => [
+        "admin",
+        "negotiations",
+        "list",
+        args?.query,
+      ]),
+      detail: createQuery(adminNegotiationsControllerFindOne, (args) => [
+        "admin",
+        "negotiations",
+        "detail",
+        args.path.id,
+      ]),
+      updateStatus: createMutation(adminNegotiationsControllerUpdateStatus, {
+        invalidates: (args) => [
+          ["admin", "negotiations", "list"],
+          ["admin", "negotiations", "detail", args.path.id],
+        ],
+      }),
     },
   },
   products: {

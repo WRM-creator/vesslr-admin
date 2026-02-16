@@ -5,11 +5,14 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export function formatCurrency(amount: number | undefined | null): string {
+export function formatCurrency(
+  amount: number | undefined | null,
+  currency: string = "NGN",
+): string {
   if (amount == null) return "-";
   return new Intl.NumberFormat("en-NG", {
     style: "currency",
-    currency: "NGN",
+    currency: currency,
   }).format(amount);
 }
 
