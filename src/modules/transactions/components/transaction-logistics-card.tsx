@@ -1,4 +1,3 @@
-import { CardTitleText } from "@/components/shared/card-title-text";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { TransactionResponseDto } from "@/lib/api/generated";
 import { Calendar, Package, Truck } from "lucide-react";
@@ -33,9 +32,7 @@ export function TransactionLogisticsCard({
     <Card className="h-full">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
         <div className="flex items-center gap-3">
-          <CardTitle>
-            <CardTitleText>Logistics Details</CardTitleText>
-          </CardTitle>
+          <CardTitle>Logistics Details</CardTitle>
           <div
             className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${
               isAssigned

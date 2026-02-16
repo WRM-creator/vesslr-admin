@@ -1,9 +1,9 @@
-import { CardTitleText } from "@/components/shared/card-title-text";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
+  CardTitle,
 } from "@/components/ui/card";
 import { CheckCircle2 } from "lucide-react";
 
@@ -11,7 +11,7 @@ export function TransactionAttentionNeeded() {
   return (
     <Card>
       <CardHeader>
-        <CardTitleText>Attention Needed</CardTitleText>
+        <CardTitle>Attention Needed</CardTitle>
         <CardDescription>
           Items requiring your immediate attention.
         </CardDescription>

@@ -1,4 +1,3 @@
-import { CardTitleText } from "@/components/shared/card-title-text";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -54,9 +53,7 @@ export function TransactionFinancialsCard({
     <Card className="h-full">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <div className="flex items-center gap-3">
-          <CardTitle>
-            <CardTitleText>Payment Details</CardTitleText>
-          </CardTitle>
+          <CardTitle>Payment Details</CardTitle>
           <TransactionPaymentStatusBadge status={paymentStatus} />
         </div>
         <div className="flex items-center gap-2">

@@ -1,10 +1,10 @@
-import { CardTitleText } from "@/components/shared/card-title-text";
 import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
+  CardTitle,
 } from "@/components/ui/card";
 import type {
   TransactionResponseDto,
@@ -40,7 +40,7 @@ export function TransactionPendingTasks({
   return (
     <Card>
       <CardHeader>
-        <CardTitleText>Pending Tasks</CardTitleText>
+        <CardTitle>Pending Tasks</CardTitle>
         <CardDescription>
           Blockers preventing the transaction from progressing.
         </CardDescription>

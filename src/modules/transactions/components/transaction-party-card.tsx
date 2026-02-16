@@ -1,4 +1,3 @@
-import { CardTitleText } from "@/components/shared/card-title-text";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Link } from "react-router-dom";
@@ -17,9 +16,7 @@ export function TransactionPartyCard({
   return (
     <Card className="gap-2">
       <CardHeader className="flex flex-row items-center justify-between space-y-0">
-        <CardTitle>
-          <CardTitleText>{role}</CardTitleText>
-        </CardTitle>
+        <CardTitle>{role}</CardTitle>
         <div className="flex items-center gap-2">
           <Button variant="outline" size="sm" className="h-7 text-xs">
             Message

@@ -1,4 +1,3 @@
-import { CardTitleText } from "@/components/shared/card-title-text";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { TransactionResponseDto } from "@/lib/api/generated";
 import { ExternalLink, History } from "lucide-react";
@@ -29,9 +28,7 @@ export function TransactionLogisticsEvents({
   return (
     <Card className="h-full">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle>
-          <CardTitleText>Logistics Activity</CardTitleText>
-        </CardTitle>
+        <CardTitle>Logistics Activity</CardTitle>
         <History className="text-muted-foreground size-3.5" />
       </CardHeader>
       <CardContent>

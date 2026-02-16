@@ -1,4 +1,3 @@
-import { CardTitleText } from "@/components/shared/card-title-text";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { api } from "@/lib/api";
@@ -87,9 +86,7 @@ export function TransactionRecentActivity({
   return (
     <Card className="h-full">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle>
-          <CardTitleText>Recent Activity</CardTitleText>
-        </CardTitle>
+        <CardTitle>Recent Activity</CardTitle>
         <Button variant="ghost" size="icon" className="size-6 px-2 text-xs">
           <Download className="size-3.5" />
         </Button>
