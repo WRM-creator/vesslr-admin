@@ -26,7 +26,7 @@ export default function Login() {
     <div className="flex min-h-screen items-center justify-center bg-gray-50 p-6">
       <Card className="w-full max-w-sm shadow-lg">
         <CardHeader className="space-y-1">
-          <CardTitle className="font-Cals-Sans text-xl font-bold">
+          <CardTitle className="font-Cals-Sans text-lg font-bold capitalize">
             Admin Login
           </CardTitle>
           <CardDescription>
