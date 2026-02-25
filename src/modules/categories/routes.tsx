@@ -1,6 +1,6 @@
 import type { RouteObject } from "react-router-dom";
 import Categories from "./pages/categories";
-import CategoryDetails from "./pages/category-details";
+import CategoryGroupDetailsPage from "./pages/category-group-details";
 import NewCategory from "./pages/new-category";
 
 export const categoryRoutes: RouteObject[] = [
@@ -14,6 +14,6 @@ export const categoryRoutes: RouteObject[] = [
   },
   {
     path: "categories/:id",
-    element: <CategoryDetails />,
+    element: <CategoryGroupDetailsPage />,
   },
 ];

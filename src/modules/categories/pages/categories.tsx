@@ -8,7 +8,7 @@ import { PlusIcon } from "lucide-react";
 import { parseAsString, useQueryState } from "nuqs";
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { CategoriesTable } from "../components/categories-table";
+import { CategoryGroupsTable } from "../components/category-groups-table";
 
 export default function CategoriesPage() {
   const [page, setPage] = useState(1);
@@ -21,12 +21,12 @@ export default function CategoriesPage() {
     parseAsString.withDefault("").withOptions({ throttleMs: 500 }),
   );
 
-  const { data, isLoading } = api.categories.list.useQuery({});
+  const { data, isLoading } = api.categoryGroups.findAll.useQuery({});
 
-  const allCategories = data ?? [];
+  const allGroups = data ?? [];
 
   // Client-side filtering
-  const filteredCategories = allCategories.filter((item: any) => {
+  const filteredGroups = allGroups.filter((item: any) => {
     const matchesType =
       type === "all" ||
       (type === "equipment-and-products" &&
@@ -41,11 +41,11 @@ export default function CategoriesPage() {
     return matchesType && matchesSearch;
   });
 
-  const totalItems = filteredCategories.length;
+  const totalItems = filteredGroups.length;
   const itemsPerPage = 10;
 
   // Client-side pagination
-  const categories = filteredCategories.slice(
+  const groups = filteredGroups.slice(
     (page - 1) * itemsPerPage,
     page * itemsPerPage,
   );
@@ -53,20 +53,20 @@ export default function CategoriesPage() {
   return (
     <Page>
       <PageHeader
-        title="Categories"
-        description="Manage product categories and their configuration rules."
+        title="Category Groups"
+        description="Manage product category groups and their configuration rules."
         endContent={
           <Button asChild>
             <Link to="/categories/new">
-              <PlusIcon /> Create Category
+              <PlusIcon /> Create Category Group
             </Link>
           </Button>
         }
       />
 
       <div className="space-y-4">
-        <CategoriesTable
-          data={categories.map((item: any) => ({
+        <CategoryGroupsTable
+          data={groups.map((item: any) => ({
             _id: item._id || "",
             name: item.name || "Unknown",
             slug: item.slug || "",
@@ -75,12 +75,12 @@ export default function CategoriesPage() {
           }))}
           isLoading={isLoading}
           activeTab={type ?? "all"}
-          onTabChange={(val) => {
+          onTabChange={(val: string) => {
             setType(val);
             setPage(1); // Reset page on tab change
           }}
           search={search ?? ""}
-          onSearchChange={(val) => {
+          onSearchChange={(val: string) => {
             setSearch(val);
             setPage(1);
           }}

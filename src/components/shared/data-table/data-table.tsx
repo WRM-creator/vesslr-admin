@@ -140,6 +140,7 @@ export function DataTable<TData, TValue>({
           <TableCell
             key={cell.id}
             className={cn(
+              "px-4",
               (cell.column.columnDef.meta as ColumnMeta | undefined)?.className,
               classNames?.cell,
             )}
@@ -177,7 +178,7 @@ export function DataTable<TData, TValue>({
                                 | ColumnMeta
                                 | undefined
                             )?.className,
-                            "text-xs font-medium uppercase",
+                            "px-4 text-xs font-medium uppercase",
                             classNames?.cell,
                           )}
                         >
