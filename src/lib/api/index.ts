@@ -36,7 +36,7 @@ import {
   adminProductsControllerFindAll,
   adminProductsControllerFindOne,
   adminProductsControllerRemove,
-  adminProductsControllerUpdate,
+  adminProductsControllerUpdate, // Add import
   adminRequestsControllerAcceptRequest,
   adminRequestsControllerFindAll,
   adminRequestsControllerFindOne,
@@ -48,6 +48,9 @@ import {
   adminTransactionsControllerGetLogs,
   adminTransactionsControllerReviewDocument,
   adminTransactionsControllerUpdateRequirement,
+  categoryGroupsControllerFindAll,
+  categoryGroupsControllerFindOne,
+  categoryGroupsControllerUpdate,
   productsControllerFindAll,
   productsControllerFindOne,
 } from "./generated";
@@ -232,6 +235,23 @@ export const api = {
     }),
     delete: createMutation(adminCategoriesControllerRemove, {
       invalidates: () => [["categories", "list"]],
+    }),
+  },
+  categoryGroups: {
+    findAll: createQuery(categoryGroupsControllerFindAll, [
+      "categoryGroups",
+      "findAll",
+    ]),
+    detail: createQuery(categoryGroupsControllerFindOne, (args) => [
+      "categoryGroups",
+      "detail",
+      args.path.id,
+    ]),
+    update: createMutation(categoryGroupsControllerUpdate, {
+      invalidates: (args) => [
+        ["categoryGroups", "detail", args.path.id],
+        ["categoryGroups", "findAll"],
+      ],
     }),
   },
   // organizations: {
