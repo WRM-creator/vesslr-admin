@@ -1,61 +1,24 @@
-import type { TransactionResponseDto } from "@/lib/api/generated/types.gen";
+import type { TransactionStageResponseDto } from "@/lib/api/generated/types.gen";
 import { cn } from "@/lib/utils";
 import { Check } from "lucide-react";
 
-type TransactionStatus = TransactionResponseDto["status"];
-
-const ALL_STATUSES: TransactionStatus[] = [
-  "INITIATED",
-  "DOCUMENTS_SUBMITTED",
-  "COMPLIANCE_REVIEWED",
-  "ESCROW_FUNDED",
-  "LOGISTICS_ASSIGNED",
-  "IN_TRANSIT",
-  "DELIVERY_CONFIRMED",
-  "SETTLEMENT_RELEASED",
-  "CLOSED",
-];
-
-const STEPS: { key: TransactionStatus; label: string }[] = [
-  { key: "INITIATED", label: "Initiated" },
-  { key: "DOCUMENTS_SUBMITTED", label: "Documents submitted" },
-  { key: "COMPLIANCE_REVIEWED", label: "Compliance" },
-  { key: "ESCROW_FUNDED", label: "Escrow" },
-  { key: "LOGISTICS_ASSIGNED", label: "Logistics" },
-  { key: "IN_TRANSIT", label: "In Transit" },
-  { key: "DELIVERY_CONFIRMED", label: "Delivery" },
-  { key: "SETTLEMENT_RELEASED", label: "Settlement" },
-  { key: "CLOSED", label: "Closed" },
-];
-
 interface TransactionStepperProps {
-  status?: TransactionStatus;
+  stages?: Array<TransactionStageResponseDto>;
 }
 
-export function TransactionStepper({ status }: TransactionStepperProps) {
-  const currentStatusIndex = status ? ALL_STATUSES.indexOf(status) : 0;
-
+export function TransactionStepper({ stages = [] }: TransactionStepperProps) {
   return (
     <div className="flex flex-1 items-center gap-2">
-      {STEPS.map((step, index) => {
-        const stepStatusIndex = ALL_STATUSES.indexOf(step.key);
-        const isLast = index === STEPS.length - 1;
-        const isCurrent = stepStatusIndex === currentStatusIndex;
-        // Treat the last step as completed when it's the current step (transaction is fully done)
-        const isCompleted =
-          stepStatusIndex < currentStatusIndex || (isCurrent && isLast);
+      {stages.map((stage, index) => {
+        const isLast = index === stages.length - 1;
+        const isCompleted = stage.status === "COMPLETED";
+        const isCurrent = stage.status === "ACTIVE";
 
-        // Determine line style for the line FOLLOWING this step
-        // If the NEXT step is reached (current or completed), the line is solid.
-        // If THIS step is current, the line is a gradient to indicate progress.
-        const nextStepStatusIndex = isLast
-          ? -1
-          : ALL_STATUSES.indexOf(STEPS[index + 1].key);
-        const isNextStepReached =
-          !isLast && nextStepStatusIndex <= currentStatusIndex;
+        const nextStage = isLast ? null : stages[index + 1];
+        const isNextStepReached = !isLast && nextStage?.status !== "PENDING";
 
         return (
-          <div key={step.key} className="contents pb-8">
+          <div key={stage._id} className="contents pb-8">
             <div className="relative flex flex-col items-center gap-1">
               <div
                 className={cn(
@@ -74,11 +37,12 @@ export function TransactionStepper({ status }: TransactionStepperProps) {
               </div>
               <span
                 className={cn(
-                  "absolute -bottom-6 left-1/2 -translate-x-1/2 text-xs font-medium whitespace-nowrap",
+                  "absolute -bottom-6 left-1/2 max-w-[120px] -translate-x-1/2 truncate text-center text-xs font-medium",
                   isCurrent ? "text-foreground" : "text-muted-foreground",
                 )}
+                title={stage.name}
               >
-                {step.label}
+                {stage.name}
               </span>
             </div>
 

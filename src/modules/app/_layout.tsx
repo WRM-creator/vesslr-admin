@@ -19,7 +19,7 @@ export default function AppLayout({ children, title }: Props) {
           <AppSidebar />
           <SidebarInset>
             <AppHeader />
-            <div className="@container flex flex-1 flex-col gap-4 p-4">
+            <div className="@container flex flex-1 flex-col gap-4 p-4 md:px-6 lg:px-8">
               {children ?? <Outlet />}
             </div>
           </SidebarInset>
