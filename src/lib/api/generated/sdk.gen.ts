@@ -29,6 +29,14 @@ import type {
   AdminNegotiationsControllerFindOneResponses,
   AdminNegotiationsControllerUpdateStatusData,
   AdminNegotiationsControllerUpdateStatusResponses,
+  AdminNotificationsControllerFindAllData,
+  AdminNotificationsControllerFindAllResponses,
+  AdminNotificationsControllerGetUnreadCountData,
+  AdminNotificationsControllerGetUnreadCountResponses,
+  AdminNotificationsControllerMarkAllAsReadData,
+  AdminNotificationsControllerMarkAllAsReadResponses,
+  AdminNotificationsControllerMarkAsReadData,
+  AdminNotificationsControllerMarkAsReadResponses,
   AdminOrganizationsControllerFindAllData,
   AdminOrganizationsControllerFindAllResponses,
   AdminProductsControllerCreateData,
@@ -75,6 +83,12 @@ import type {
   CategoriesControllerFindAllResponses,
   CategoriesControllerFindOneData,
   CategoriesControllerFindOneResponses,
+  CategoryGroupsControllerFindAllData,
+  CategoryGroupsControllerFindAllResponses,
+  CategoryGroupsControllerFindOneData,
+  CategoryGroupsControllerFindOneResponses,
+  CategoryGroupsControllerUpdateData,
+  CategoryGroupsControllerUpdateResponses,
   LocationsControllerGetCitiesData,
   LocationsControllerGetCitiesResponses,
   LocationsControllerGetCountriesData,
@@ -167,12 +181,18 @@ import type {
   RequestsControllerFindOneFeedData,
   RequestsControllerFindOneFeedResponses,
   RequestsControllerFindOneResponses,
+  RequestsControllerKeepActiveData,
+  RequestsControllerKeepActiveResponses,
   RequestsControllerUpdateData,
   RequestsControllerUpdateResponses,
+  StaleRequestActionsControllerRespondData,
+  StaleRequestActionsControllerRespondResponses,
   StorageControllerGeneratePresignedUrlsData,
   StorageControllerGeneratePresignedUrlsResponses,
   TransactionsControllerAddDocumentData,
   TransactionsControllerAddDocumentResponses,
+  TransactionsControllerApproveMilestoneData,
+  TransactionsControllerApproveMilestoneResponses,
   TransactionsControllerAssignLogisticsData,
   TransactionsControllerAssignLogisticsResponses,
   TransactionsControllerConfirmDeliveryData,
@@ -189,6 +209,8 @@ import type {
   TransactionsControllerFundEscrowResponses,
   TransactionsControllerGetLogsData,
   TransactionsControllerGetLogsResponses,
+  TransactionsControllerSubmitMilestoneData,
+  TransactionsControllerSubmitMilestoneResponses,
   TransactionsControllerUpdateStatusData,
   TransactionsControllerUpdateStatusResponses,
   UsersAuthControllerForgotPasswordData,
@@ -691,7 +713,7 @@ export const transactionsControllerGetLogs = <
   });
 
 /**
- * Assign logistics to a transaction
+ * Assign logistics to a transaction (completes LOGISTICS stage)
  */
 export const transactionsControllerAssignLogistics = <
   ThrowOnError extends boolean = false,
@@ -713,7 +735,7 @@ export const transactionsControllerAssignLogistics = <
   });
 
 /**
- * MOCK: Fund the escrow account (Transitions to ESCROW_FUNDED)
+ * MOCK: Fund the escrow account (completes FUND_ESCROW stage)
  *
  * WARNING: This is a mock endpoint for testing purposes only. Do not use in production.
  */
@@ -733,7 +755,7 @@ export const transactionsControllerFundEscrow = <
   });
 
 /**
- * MOCK: Confirm delivery (Transitions to DELIVERY_CONFIRMED)
+ * MOCK: Confirm delivery (completes DELIVERY_CONFIRMATION stage)
  *
  * WARNING: This is a mock endpoint for testing purposes only. In the future, this will be triggered by AIS monitoring.
  */
@@ -750,6 +772,50 @@ export const transactionsControllerConfirmDelivery = <
     security: [{ scheme: "bearer", type: "http" }],
     url: "/api/v1/transactions/{id}/confirm-delivery",
     ...options,
+  });
+
+/**
+ * Seller submits a milestone for buyer approval
+ */
+export const transactionsControllerSubmitMilestone = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<TransactionsControllerSubmitMilestoneData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    TransactionsControllerSubmitMilestoneResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/transactions/{id}/stages/{stageId}/submit-milestone",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Buyer approves a submitted milestone
+ */
+export const transactionsControllerApproveMilestone = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<TransactionsControllerApproveMilestoneData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    TransactionsControllerApproveMilestoneResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/transactions/{id}/stages/{stageId}/approve-milestone",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
   });
 
 /**
@@ -838,6 +904,10 @@ export const ordersControllerConfirm = <ThrowOnError extends boolean = false>(
     security: [{ scheme: "bearer", type: "http" }],
     url: "/api/v1/orders/{id}/confirm",
     ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
   });
 
 /**
@@ -979,6 +1049,35 @@ export const requestsControllerUpdate = <ThrowOnError extends boolean = false>(
       ...options.headers,
     },
   });
+
+/**
+ * Keep a request active
+ */
+export const requestsControllerKeepActive = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<RequestsControllerKeepActiveData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    RequestsControllerKeepActiveResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/requests/{id}/keep-active",
+    ...options,
+  });
+
+export const staleRequestActionsControllerRespond = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<StaleRequestActionsControllerRespondData, ThrowOnError>,
+) =>
+  (options.client ?? client).get<
+    StaleRequestActionsControllerRespondResponses,
+    unknown,
+    ThrowOnError
+  >({ url: "/api/v1/requests/stale-actions/respond", ...options });
 
 /**
  * List negotiations for current user's organization
@@ -1913,6 +2012,84 @@ export const adminNegotiationsControllerUpdateStatus = <
   });
 
 /**
+ * List notifications for the current admin user
+ */
+export const adminNotificationsControllerFindAll = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<AdminNotificationsControllerFindAllData, ThrowOnError>,
+) =>
+  (options?.client ?? client).get<
+    AdminNotificationsControllerFindAllResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/notifications",
+    ...options,
+  });
+
+/**
+ * Get unread notification count for admin user
+ */
+export const adminNotificationsControllerGetUnreadCount = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<
+    AdminNotificationsControllerGetUnreadCountData,
+    ThrowOnError
+  >,
+) =>
+  (options?.client ?? client).get<
+    AdminNotificationsControllerGetUnreadCountResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/notifications/unread-count",
+    ...options,
+  });
+
+/**
+ * Mark a notification as read
+ */
+export const adminNotificationsControllerMarkAsRead = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AdminNotificationsControllerMarkAsReadData, ThrowOnError>,
+) =>
+  (options.client ?? client).patch<
+    AdminNotificationsControllerMarkAsReadResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/notifications/{id}/read",
+    ...options,
+  });
+
+/**
+ * Mark all admin notifications as read
+ */
+export const adminNotificationsControllerMarkAllAsRead = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<
+    AdminNotificationsControllerMarkAllAsReadData,
+    ThrowOnError
+  >,
+) =>
+  (options?.client ?? client).post<
+    AdminNotificationsControllerMarkAllAsReadResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/notifications/read-all",
+    ...options,
+  });
+
+/**
  * List notifications for the current user
  */
 export const notificationsControllerFindAll = <
@@ -1982,6 +2159,55 @@ export const notificationsControllerMarkAllAsRead = <
     security: [{ scheme: "bearer", type: "http" }],
     url: "/api/v1/notifications/read-all",
     ...options,
+  });
+
+/**
+ * Get all category groups
+ */
+export const categoryGroupsControllerFindAll = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<CategoryGroupsControllerFindAllData, ThrowOnError>,
+) =>
+  (options?.client ?? client).get<
+    CategoryGroupsControllerFindAllResponses,
+    unknown,
+    ThrowOnError
+  >({ url: "/api/v1/category-groups", ...options });
+
+/**
+ * Get a category group by id
+ */
+export const categoryGroupsControllerFindOne = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<CategoryGroupsControllerFindOneData, ThrowOnError>,
+) =>
+  (options.client ?? client).get<
+    CategoryGroupsControllerFindOneResponses,
+    unknown,
+    ThrowOnError
+  >({ url: "/api/v1/category-groups/{id}", ...options });
+
+/**
+ * Update a category group by id
+ */
+export const categoryGroupsControllerUpdate = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<CategoryGroupsControllerUpdateData, ThrowOnError>,
+) =>
+  (options.client ?? client).patch<
+    CategoryGroupsControllerUpdateResponses,
+    unknown,
+    ThrowOnError
+  >({
+    url: "/api/v1/category-groups/{id}",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
   });
 
 export const orgProductsControllerFindAll = <

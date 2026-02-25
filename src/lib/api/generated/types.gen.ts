@@ -5,11 +5,17 @@ export type ClientOptions = {
 };
 
 export type Region = {
-  [key: string]: unknown;
+  name: string;
+  _id: string;
 };
 
 export type Country = {
-  [key: string]: unknown;
+  name: string;
+  region: string;
+  iso2: string;
+  currency: string;
+  phoneCode: string;
+  _id: string;
 };
 
 export type State = {
@@ -72,6 +78,9 @@ export type AuthTokenResponseDto = {
    * JWT access token
    */
   accessToken: string;
+  user?: {
+    [key: string]: unknown;
+  };
 };
 
 export type LoginDto = {
@@ -109,13 +118,6 @@ export type ResetPasswordDto = {
    * New password
    */
   password: string;
-};
-
-export type MessageResponseDto = {
-  /**
-   * Human-readable message
-   */
-  message: string;
 };
 
 export type PopulatedLocationDto = {
@@ -184,6 +186,17 @@ export type UserProfileResponseDto = {
 export type CategoryGroupDto = {
   _id: string;
   name: string;
+  slug: string;
+  type: string;
+  isActive: boolean;
+  requiresLogistics: boolean;
+  allowsInspection: boolean;
+  milestoneDelivery: boolean;
+  requiresEscrow: boolean;
+  requiresCompliance: boolean;
+  measurementType: Array<'count' | 'volume' | 'mass' | 'time'>;
+  transactionTypes: Array<string>;
+  conditions: Array<string>;
 };
 
 export type ProductCategoryDto = {
@@ -238,7 +251,7 @@ export type PopulatedProductResponseDto = {
   features?: Array<string>;
   availableQuantity?: number;
   unitOfMeasurement?: string;
-  conditions?: Array<"new" | "used">;
+  conditions?: Array<"New" | "Used - Good" | "Used - Fair" | "Refurbished">;
   organization?: ProductOrganizationDto;
   location?: PopulatedProductLocationDto;
   status?: "pending" | "approved" | "rejected";
@@ -286,7 +299,7 @@ export type ProductResponseDto = {
   features?: Array<string>;
   availableQuantity?: number;
   unitOfMeasurement?: string;
-  conditions?: Array<"new" | "used">;
+  conditions?: Array<"New" | "Used - Good" | "Used - Fair" | "Refurbished">;
   organization?: ProductOrganizationDto;
   location?: ProductLocationDto;
   status?: "pending" | "approved" | "rejected";
@@ -367,7 +380,9 @@ export type CategoryDocumentTemplateDto = {
     | "ESCROW_FUNDED"
     | "LOGISTICS_ASSIGNED"
     | "IN_TRANSIT"
+    | "INSPECTION_PENDING"
     | "DELIVERY_CONFIRMED"
+    | "MILESTONES_IN_PROGRESS"
     | "SETTLEMENT_RELEASED"
     | "CLOSED";
 };
@@ -403,11 +418,24 @@ export type CategoryDto = {
   updatedAt: string;
 };
 
+export type MilestoneInputDto = {
+  name: string;
+  description?: string;
+};
+
 export type CreateTransactionDto = {
   /**
-   * ID of the confirmed order to create a transaction for
+   * ID of the confirmed order
    */
   orderId: string;
+  /**
+   * Whether to include a Q&Q inspection stage. Must be explicitly provided — even if false — for physical goods transactions.
+   */
+  hasInspection: boolean;
+  /**
+   * Ordered list of milestones. Required for SERVICE and FINANCIAL workflow types. Must have at least one milestone.
+   */
+  milestones?: Array<MilestoneInputDto>;
 };
 
 export type OrderOrganizationDto = {
@@ -488,6 +516,8 @@ export type OrderResponseDto = {
   notes?: string;
   location?: OrderLocationDto;
   status: string;
+  transactionStatus?: string;
+  transactionId?: string;
   displayId: number;
   createdAt: string;
   updatedAt: string;
@@ -505,7 +535,10 @@ export type TransactionEventDto = {
     | "NOTE_ADDED"
     | "REQUIREMENT_ADDED"
     | "REQUIREMENT_UPDATED"
-    | "REQUIREMENT_DELETED";
+    | "REQUIREMENT_DELETED"
+    | "STAGE_COMPLETED"
+    | "MILESTONE_SUBMITTED"
+    | "MILESTONE_APPROVED";
   metadata?: {
     [key: string]: unknown;
   };
@@ -541,9 +574,37 @@ export type TransactionDocumentSlotDto = {
     | "ESCROW_FUNDED"
     | "LOGISTICS_ASSIGNED"
     | "IN_TRANSIT"
+    | "INSPECTION_PENDING"
     | "DELIVERY_CONFIRMED"
+    | "MILESTONES_IN_PROGRESS"
     | "SETTLEMENT_RELEASED"
     | "CLOSED";
+};
+
+export type TransactionStageResponseDto = {
+  _id: string;
+  order: number;
+  type:
+    | "DOCUMENT_SUBMISSION"
+    | "COMPLIANCE_REVIEW"
+    | "FUND_ESCROW"
+    | "LOGISTICS"
+    | "IN_TRANSIT"
+    | "INSPECTION"
+    | "DELIVERY_CONFIRMATION"
+    | "MILESTONE_SUBMIT"
+    | "MILESTONE_APPROVE"
+    | "SETTLEMENT";
+  name: string;
+  description: string;
+  assignedTo: "BUYER" | "SELLER" | "ADMIN" | "SYSTEM";
+  status: "PENDING" | "ACTIVE" | "COMPLETED";
+  actionTarget?: string | null;
+  completedAt?: string | null;
+  completedBy?: string | null;
+  metadata: {
+    [key: string]: unknown;
+  };
 };
 
 export type TransactionTaskActionDto = {
@@ -553,11 +614,18 @@ export type TransactionTaskActionDto = {
 
 export type TransactionTaskDto = {
   id: string;
+  /**
+   * ID of the backing TransactionStage document
+   */
+  stageId?: string;
   type: "BLOCKER" | "INFO";
   title: string;
   description: string;
   assignedTo: "BUYER" | "SELLER" | "ADMIN";
   action?: TransactionTaskActionDto;
+  metadata?: {
+    [key: string]: unknown;
+  };
 };
 
 export type TransactionResponseDto = {
@@ -571,9 +639,12 @@ export type TransactionResponseDto = {
     | "ESCROW_FUNDED"
     | "LOGISTICS_ASSIGNED"
     | "IN_TRANSIT"
+    | "INSPECTION_PENDING"
     | "DELIVERY_CONFIRMED"
+    | "MILESTONES_IN_PROGRESS"
     | "SETTLEMENT_RELEASED"
     | "CLOSED";
+  workflowType: "PHYSICAL_GOODS" | "SERVICE" | "FINANCIAL";
   events: Array<TransactionEventDto>;
   requiredDocuments?: Array<TransactionDocumentSlotDto>;
   /**
@@ -586,6 +657,7 @@ export type TransactionResponseDto = {
   assignedLogistics?: {
     [key: string]: unknown;
   };
+  stages?: Array<TransactionStageResponseDto>;
   pendingTasks?: Array<TransactionTaskDto>;
   createdAt: string;
   updatedAt: string;
@@ -602,7 +674,9 @@ export type UpdateTransactionStatusDto = {
     | "ESCROW_FUNDED"
     | "LOGISTICS_ASSIGNED"
     | "IN_TRANSIT"
+    | "INSPECTION_PENDING"
     | "DELIVERY_CONFIRMED"
+    | "MILESTONES_IN_PROGRESS"
     | "SETTLEMENT_RELEASED"
     | "CLOSED";
   /**
@@ -664,6 +738,29 @@ export type AssignLogisticsDto = {
   estimatedArrival: string;
 };
 
+export type SubmittedDocumentDto = {
+  name: string;
+  url: string;
+};
+
+export type SubmitMilestoneDto = {
+  /**
+   * Seller's notes on what was delivered
+   */
+  notes?: string;
+  /**
+   * Optional proof documents
+   */
+  documents?: Array<SubmittedDocumentDto>;
+};
+
+export type ApproveMilestoneDto = {
+  /**
+   * Buyer's notes on the approval
+   */
+  notes?: string;
+};
+
 export type PurchaseProductDto = {
   /**
    * ID of the product to purchase
@@ -720,6 +817,22 @@ export type UpdateOrderDto = {
   notes?: string;
 };
 
+export type ConfirmOrderMilestoneDto = {
+  name: string;
+  description?: string;
+};
+
+export type ConfirmOrderDto = {
+  /**
+   * Whether to include a Q&Q inspection stage. Pass false explicitly if not required.
+   */
+  hasInspection?: boolean;
+  /**
+   * Ordered list of milestones. Required for SERVICE and FINANCIAL workflow types.
+   */
+  milestones?: Array<ConfirmOrderMilestoneDto>;
+};
+
 export type RequestCategoryDto = {
   _id: string;
   name: string;
@@ -746,6 +859,8 @@ export type RecommendationFeedItemDto = {
   state: Array<StateDto>;
   unitOfMeasurement: string;
   targetPricePerUnit: number;
+  duration?: number;
+  durationUnit?: string;
   currency: "NGN" | "USD" | "GBP" | "EUR";
   transactionType: Array<string>;
   condition?: Array<string>;
@@ -799,6 +914,14 @@ export type CreateRequestDto = {
   condition?: Array<"New" | "Used - Good" | "Used - Fair" | "Refurbished">;
   description?: string;
   documents?: Array<string>;
+  /**
+   * Duration for lease/charter transactions
+   */
+  duration?: number;
+  /**
+   * Duration unit for lease/charter (hour, day, month)
+   */
+  durationUnit?: string;
   selectionMode?: "open" | "jira-ai" | "direct";
 };
 
@@ -844,6 +967,14 @@ export type ProductRequest = {
    */
   targetPricePerUnit: number;
   /**
+   * Duration for lease/charter transactions
+   */
+  duration?: number;
+  /**
+   * Duration unit for lease/charter (hour, day, month)
+   */
+  durationUnit?: string;
+  /**
    * Currency code
    */
   currency: "NGN" | "USD" | "GBP" | "EUR";
@@ -881,6 +1012,18 @@ export type ProductRequest = {
    * Display ID
    */
   displayId: number;
+  /**
+   * Last activity timestamp
+   */
+  lastActivityAt: string;
+  /**
+   * Stale warning sent at
+   */
+  staleNotifiedAt: string;
+  /**
+   * Reason for cancellation
+   */
+  cancellationReason?: "user_cancelled" | "stale_auto_closed";
 };
 
 export type RequesterDto = {
@@ -907,6 +1050,8 @@ export type RequestResponseDto = {
   state: Array<StateDto>;
   unitOfMeasurement: string;
   targetPricePerUnit: number;
+  duration?: number;
+  durationUnit?: string;
   currency: "NGN" | "USD" | "GBP" | "EUR";
   transactionType: Array<string>;
   condition?: Array<string>;
@@ -919,6 +1064,13 @@ export type RequestResponseDto = {
   matchedSeller?: MatchedSellerDto;
   createdAt: string;
   updatedAt: string;
+  lastActivityAt?: string;
+  staleNotifiedAt?: string;
+  cancellationReason?: "user_cancelled" | "stale_auto_closed";
+  isStale?: boolean;
+  autoCloseAt?: string;
+  offersCount?: number;
+  counterOffersCount?: number;
 };
 
 export type UpdateRequestDto = {
@@ -946,6 +1098,14 @@ export type UpdateRequestDto = {
   condition?: Array<"New" | "Used - Good" | "Used - Fair" | "Refurbished">;
   description?: string;
   documents?: Array<string>;
+  /**
+   * Duration for lease/charter transactions
+   */
+  duration?: number;
+  /**
+   * Duration unit for lease/charter (hour, day, month)
+   */
+  durationUnit?: string;
   selectionMode?: "open" | "jira-ai" | "direct";
   status?: "pending" | "in_review" | "matched" | "fulfilled" | "cancelled";
 };
@@ -1001,6 +1161,8 @@ export type NegotiationRequestDto = {
 };
 
 export type NegotiationOrganizationDto = {
+  _id: string;
+  displayId?: number;
   name?: string;
   role: "buyer" | "seller";
   isMine: boolean;
@@ -1233,7 +1395,9 @@ export type CategoryDocumentTemplateInput = {
     | "ESCROW_FUNDED"
     | "LOGISTICS_ASSIGNED"
     | "IN_TRANSIT"
+    | "INSPECTION_PENDING"
     | "DELIVERY_CONFIRMED"
+    | "MILESTONES_IN_PROGRESS"
     | "SETTLEMENT_RELEASED"
     | "CLOSED";
 };
@@ -1369,7 +1533,9 @@ export type AddTransactionRequirementDto = {
     | "ESCROW_FUNDED"
     | "LOGISTICS_ASSIGNED"
     | "IN_TRANSIT"
+    | "INSPECTION_PENDING"
     | "DELIVERY_CONFIRMED"
+    | "MILESTONES_IN_PROGRESS"
     | "SETTLEMENT_RELEASED"
     | "CLOSED";
 };
@@ -1408,7 +1574,9 @@ export type UpdateTransactionRequirementDto = {
     | "ESCROW_FUNDED"
     | "LOGISTICS_ASSIGNED"
     | "IN_TRANSIT"
+    | "INSPECTION_PENDING"
     | "DELIVERY_CONFIRMED"
+    | "MILESTONES_IN_PROGRESS"
     | "SETTLEMENT_RELEASED"
     | "CLOSED";
 };
@@ -1473,6 +1641,15 @@ export type NotificationsPaginationDataDto = {
 export type PaginatedNotificationsResponseDto = {
   message: string;
   data: NotificationsPaginationDataDto;
+};
+
+export type UpdateCategoryGroupDto = {
+  requiresLogistics?: boolean;
+  allowsInspection?: boolean;
+  milestoneDelivery?: boolean;
+  measurementType?: Array<'count' | 'volume' | 'mass' | 'time'>;
+  transactionTypes?: Array<string>;
+  conditions?: Array<string>;
 };
 
 export type GeneratePresignedUrlDto = {
@@ -1656,9 +1833,9 @@ export type UsersAuthControllerVerifyEmailErrors = {
 
 export type UsersAuthControllerVerifyEmailResponses = {
   /**
-   * Email verified successfully
+   * Email verified successfully and user logged in
    */
-  200: MessageResponseDto;
+  200: AuthTokenResponseDto;
 };
 
 export type UsersAuthControllerVerifyEmailResponse =
@@ -1694,6 +1871,10 @@ export type ProductsControllerFindAllData = {
      * Filter by category ID
      */
     category?: string;
+    /**
+     * Filter by category group ID
+     */
+    categoryGroup?: string;
   };
   url: "/api/v1/products";
 };
@@ -2024,6 +2205,52 @@ export type TransactionsControllerConfirmDeliveryResponses = {
 export type TransactionsControllerConfirmDeliveryResponse =
   TransactionsControllerConfirmDeliveryResponses[keyof TransactionsControllerConfirmDeliveryResponses];
 
+export type TransactionsControllerSubmitMilestoneData = {
+  body: SubmitMilestoneDto;
+  path: {
+    id: string;
+    stageId: string;
+  };
+  query?: never;
+  url: "/api/v1/transactions/{id}/stages/{stageId}/submit-milestone";
+};
+
+export type TransactionsControllerSubmitMilestoneResponses = {
+  /**
+   * Milestone submitted successfully.
+   */
+  200: TransactionResponseDto;
+  201: {
+    [key: string]: unknown;
+  };
+};
+
+export type TransactionsControllerSubmitMilestoneResponse =
+  TransactionsControllerSubmitMilestoneResponses[keyof TransactionsControllerSubmitMilestoneResponses];
+
+export type TransactionsControllerApproveMilestoneData = {
+  body: ApproveMilestoneDto;
+  path: {
+    id: string;
+    stageId: string;
+  };
+  query?: never;
+  url: "/api/v1/transactions/{id}/stages/{stageId}/approve-milestone";
+};
+
+export type TransactionsControllerApproveMilestoneResponses = {
+  /**
+   * Milestone approved successfully.
+   */
+  200: TransactionResponseDto;
+  201: {
+    [key: string]: unknown;
+  };
+};
+
+export type TransactionsControllerApproveMilestoneResponse =
+  TransactionsControllerApproveMilestoneResponses[keyof TransactionsControllerApproveMilestoneResponses];
+
 export type OrdersControllerPurchaseData = {
   body: PurchaseProductDto;
   path?: never;
@@ -2057,15 +2284,9 @@ export type OrdersControllerFindAllData = {
      */
     limit?: string;
     /**
-     * Filter by status
+     * Filter by status (Order or Transaction status)
      */
-    status?:
-      | "pending"
-      | "confirmed"
-      | "cancelled"
-      | "in_transaction"
-      | "completed"
-      | "disputed";
+    status?: string;
     /**
      * Filter by role (buyer or seller)
      */
@@ -2114,7 +2335,7 @@ export type OrdersControllerUpdateResponse =
   OrdersControllerUpdateResponses[keyof OrdersControllerUpdateResponses];
 
 export type OrdersControllerConfirmData = {
-  body?: never;
+  body: ConfirmOrderDto;
   path: {
     id: string;
   };
@@ -2297,6 +2518,32 @@ export type RequestsControllerUpdateResponses = {
 
 export type RequestsControllerUpdateResponse =
   RequestsControllerUpdateResponses[keyof RequestsControllerUpdateResponses];
+
+export type RequestsControllerKeepActiveData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/requests/{id}/keep-active";
+};
+
+export type RequestsControllerKeepActiveResponses = {
+  201: unknown;
+};
+
+export type StaleRequestActionsControllerRespondData = {
+  body?: never;
+  path?: never;
+  query: {
+    token: string;
+  };
+  url: "/api/v1/requests/stale-actions/respond";
+};
+
+export type StaleRequestActionsControllerRespondResponses = {
+  200: unknown;
+};
 
 export type NegotiationsControllerFindAllData = {
   body?: never;
@@ -3133,6 +3380,55 @@ export type AdminNegotiationsControllerUpdateStatusResponses = {
   200: unknown;
 };
 
+export type AdminNotificationsControllerFindAllData = {
+  body?: never;
+  path?: never;
+  query?: {
+    page?: string;
+    limit?: string;
+  };
+  url: "/api/v1/admin/notifications";
+};
+
+export type AdminNotificationsControllerFindAllResponses = {
+  200: unknown;
+};
+
+export type AdminNotificationsControllerGetUnreadCountData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: "/api/v1/admin/notifications/unread-count";
+};
+
+export type AdminNotificationsControllerGetUnreadCountResponses = {
+  200: unknown;
+};
+
+export type AdminNotificationsControllerMarkAsReadData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/admin/notifications/{id}/read";
+};
+
+export type AdminNotificationsControllerMarkAsReadResponses = {
+  200: unknown;
+};
+
+export type AdminNotificationsControllerMarkAllAsReadData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: "/api/v1/admin/notifications/read-all";
+};
+
+export type AdminNotificationsControllerMarkAllAsReadResponses = {
+  201: unknown;
+};
+
 export type NotificationsControllerFindAllData = {
   body?: never;
   path?: never;
@@ -3184,6 +3480,61 @@ export type NotificationsControllerMarkAllAsReadData = {
 export type NotificationsControllerMarkAllAsReadResponses = {
   201: unknown;
 };
+
+export type CategoryGroupsControllerFindAllData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: "/api/v1/category-groups";
+};
+
+export type CategoryGroupsControllerFindAllResponses = {
+  /**
+   * List of category groups
+   */
+  200: Array<CategoryGroupDto>;
+};
+
+export type CategoryGroupsControllerFindAllResponse =
+  CategoryGroupsControllerFindAllResponses[keyof CategoryGroupsControllerFindAllResponses];
+
+export type CategoryGroupsControllerFindOneData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/category-groups/{id}";
+};
+
+export type CategoryGroupsControllerFindOneResponses = {
+  /**
+   * The category group
+   */
+  200: CategoryGroupDto;
+};
+
+export type CategoryGroupsControllerFindOneResponse =
+  CategoryGroupsControllerFindOneResponses[keyof CategoryGroupsControllerFindOneResponses];
+
+export type CategoryGroupsControllerUpdateData = {
+  body: UpdateCategoryGroupDto;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/category-groups/{id}";
+};
+
+export type CategoryGroupsControllerUpdateResponses = {
+  /**
+   * The updated category group
+   */
+  200: CategoryGroupDto;
+};
+
+export type CategoryGroupsControllerUpdateResponse =
+  CategoryGroupsControllerUpdateResponses[keyof CategoryGroupsControllerUpdateResponses];
 
 export type OrgProductsControllerFindAllData = {
   body?: never;
