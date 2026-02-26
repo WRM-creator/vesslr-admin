@@ -490,11 +490,65 @@ export type OrderRegionDto = {
   name: string;
 };
 
+export type OrderCountryDto = {
+  _id: string;
+  name: string;
+  iso2: string;
+};
+
+export type OrderStateDto = {
+  _id: string;
+  name: string;
+  iso2: string;
+};
+
 export type OrderBuyerDto = {
   _id: string;
   firstName: string;
   lastName: string;
   email: string;
+};
+
+export type QqCriterionDto = {
+  /**
+   * UUID generated client-side (idempotency key)
+   */
+  id: string;
+  /**
+   * Catalog key or free-form custom string
+   */
+  key: string;
+  /**
+   * Human-readable label
+   */
+  label: string;
+  /**
+   * Comparison operator — determines the expected shape of value
+   */
+  comparator:
+    | "="
+    | "!="
+    | ">"
+    | "<"
+    | ">="
+    | "<="
+    | "between"
+    | "±"
+    | "in list"
+    | "matches regex"
+    | "absent"
+    | "present";
+  /**
+   * Polymorphic value — shape depends on comparator: number|string for scalar comparators, [number, number] for between/±, string[] for "in list", string (regex pattern) for "matches regex", omitted for absent/present
+   */
+  value?: number | string | Array<string> | [number, number];
+  unit?: string;
+  method?: string;
+  severity: "blocking" | "informational" | "price_adjust";
+  /**
+   * When true, a missing measured value during inspection counts as FAIL
+   */
+  required?: boolean;
 };
 
 export type OrderRequestDto = {
@@ -503,10 +557,14 @@ export type OrderRequestDto = {
   displayId?: number;
   status?: string;
   region?: Array<OrderRegionDto>;
+  country?: Array<OrderCountryDto>;
+  state?: Array<OrderStateDto>;
   targetPricePerUnit?: number;
   quantity?: number;
   unitOfMeasurement?: string;
   requester?: OrderBuyerDto;
+  qqCriteria?: Array<QqCriterionDto>;
+  qqCompany?: string;
 };
 
 export type OrderProductDto = {
@@ -519,18 +577,6 @@ export type OrderProductDto = {
 export type OrderDocumentDto = {
   name: string;
   url: string;
-};
-
-export type OrderStateDto = {
-  _id: string;
-  name: string;
-  iso2: string;
-};
-
-export type OrderCountryDto = {
-  _id: string;
-  name: string;
-  iso2: string;
 };
 
 export type OrderLocationDto = {
@@ -864,6 +910,14 @@ export type PurchaseProductDto = {
     address?: string;
   };
   buyerDocuments?: Array<OrderDocumentDto>;
+  /**
+   * Q&Q acceptance criteria (only when category group allowsInspection=true)
+   */
+  qqCriteria?: Array<QqCriterionDto>;
+  /**
+   * Preferred Q&Q inspection company
+   */
+  qqCompany?: string;
 };
 
 export type OrdersPaginationDataDto = {
@@ -910,48 +964,6 @@ export type RequestCountryDto = {
   name: string;
   iso2: string;
   region: string;
-};
-
-export type QqCriterionDto = {
-  /**
-   * UUID generated client-side (idempotency key)
-   */
-  id: string;
-  /**
-   * Catalog key or free-form custom string
-   */
-  key: string;
-  /**
-   * Human-readable label
-   */
-  label: string;
-  /**
-   * Comparison operator — determines the expected shape of value
-   */
-  comparator:
-    | "="
-    | "!="
-    | ">"
-    | "<"
-    | ">="
-    | "<="
-    | "between"
-    | "±"
-    | "in list"
-    | "matches regex"
-    | "absent"
-    | "present";
-  /**
-   * Polymorphic value — shape depends on comparator: number|string for scalar comparators, [number, number] for between/±, string[] for "in list", string (regex pattern) for "matches regex", omitted for absent/present
-   */
-  value?: number | string | Array<string> | [number, number];
-  unit?: string;
-  method?: string;
-  severity: "blocking" | "informational" | "price_adjust";
-  /**
-   * When true, a missing measured value during inspection counts as FAIL
-   */
-  required?: boolean;
 };
 
 export type RecommendationFeedItemDto = {
