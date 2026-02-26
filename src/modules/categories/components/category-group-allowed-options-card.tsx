@@ -108,7 +108,7 @@ export function CategoryGroupAllowedOptionsCard({
             <OptionPill
               key={value}
               label={label}
-              selected={categoryGroup.transactionTypes.includes(value)}
+              selected={(categoryGroup.transactionTypes as string[]).includes(value)}
               disabled={isPending}
               onClick={handleToggle(
                 "transactionTypes",
@@ -127,7 +127,7 @@ export function CategoryGroupAllowedOptionsCard({
             <OptionPill
               key={value}
               label={label}
-              selected={categoryGroup.conditions.includes(value)}
+              selected={(categoryGroup.conditions as string[]).includes(value)}
               disabled={isPending}
               onClick={handleToggle(
                 "conditions",

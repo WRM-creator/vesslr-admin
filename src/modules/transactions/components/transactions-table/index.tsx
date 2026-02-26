@@ -3,6 +3,8 @@
 import { DataTable } from "@/components/shared/data-table";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { type TransactionResponseDto } from "@/lib/api/generated";
+
+export type { TransactionResponseDto as Transaction };
 import { parseAsString, useQueryState } from "nuqs";
 import * as React from "react";
 import { useNavigate } from "react-router-dom";

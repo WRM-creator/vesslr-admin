@@ -12,11 +12,10 @@ const statusStyles: Record<
 > = {
   active: "default",
   draft: "secondary",
-  reserved: "default", // Using default (primary color) for reserved but maybe with distinct text in real app
+  reserved: "default",
   in_transaction: "default",
   fulfilled: "secondary",
   pending_approval: "outline",
-  suspended: "destructive",
 };
 
 export function ProductOverviewCard({ data }: ProductOverviewCardProps) {

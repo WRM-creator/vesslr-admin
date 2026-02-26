@@ -54,7 +54,7 @@ export function ProductActivityCard({ data }: ProductActivityCardProps) {
                     {signal.type.replace(/_/g, " ")}
                   </div>
                   <div className="text-muted-foreground text-xs">
-                    Detected {new Date(signal.detectedAt).toLocaleDateString()}
+                    Detected {signal.detectedAt ? new Date(signal.detectedAt).toLocaleDateString() : "—"}
                   </div>
                 </div>
               </div>

@@ -33,6 +33,8 @@ export interface ProductDetails {
     logo?: string;
     rating?: number;
     joinedAt: string;
+    verificationStatus?: string;
+    trustScore?: number;
   };
   overview: {
     name: string;
@@ -74,6 +76,8 @@ export interface ProductDetails {
     estimatedDelivery?: string;
   };
   compliance: {
+    categoryName?: string;
+    categoryPath?: string[];
     rules: Array<{
       id: string;
       name: string;

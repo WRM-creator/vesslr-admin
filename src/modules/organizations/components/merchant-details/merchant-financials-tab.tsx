@@ -1,6 +1,5 @@
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { api } from "@/lib/api";
 import {
   AlertCircleIcon,
   CreditCardIcon,
@@ -57,24 +56,9 @@ export function MerchantFinancialsTab({
     },
   ];
 
-  // API Integration for Ledger
-  const { data: paymentsData, isLoading: isLedgerLoading } =
-    api.vendors.payments.list.useQuery({
-      path: { id: organization._id },
-    });
-
-  // Safe fallback to placeholder or empty array if API fails or organization is not a vendor
-  // The 'organization' object might be an Organization document which shares ID with Vendor,
-  // or we need to resolve the Vendor ID. Assuming shared ID for now.
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const ledger =
-    (paymentsData as any)?.payments?.map((p: any) => ({
-      id: p._id,
-      date: new Date(p.createdAt).toLocaleDateString(),
-      type: p.description || "Payment",
-      amount: `$${p.amount}`,
-      status: p.status,
-    })) || [];
+  // Vendor payments API not yet available — use empty ledger
+  const isLedgerLoading = false;
+  const ledger: Array<{ id: string; date: string; type: string; amount: string; status: string }> = [];
 
   // TODO: Connect to API when invoices endpoint supports merchant filtering (e.g. /api/v1/invoices?merchantId={id})
   const invoices = [

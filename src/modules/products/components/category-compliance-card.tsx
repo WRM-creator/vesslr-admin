@@ -15,9 +15,9 @@ export function CategoryComplianceCard({ data }: CategoryComplianceCardProps) {
           <Layers className="h-5 w-5" />
         </div>
         <div>
-          <h4 className="font-medium">{data.categoryName}</h4>
+          <h4 className="font-medium">{data.categoryName ?? "—"}</h4>
           <div className="text-muted-foreground flex flex-wrap items-center gap-1 text-xs">
-            {data.categoryPath.join(" › ")}
+            {(data.categoryPath ?? []).join(" › ")}
           </div>
         </div>
       </div>
@@ -82,7 +82,7 @@ export function CategoryComplianceCard({ data }: CategoryComplianceCardProps) {
                 variant={
                   doc.status === "approved"
                     ? "outline" // success isn't a variant, usually green outline or custom class
-                    : doc.status === "missing" || doc.status === "rejected"
+                    : doc.status === "rejected"
                       ? "destructive"
                       : "secondary"
                 }

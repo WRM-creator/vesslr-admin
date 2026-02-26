@@ -22,19 +22,21 @@ export default function PendingApprovalsPage() {
 
   const { data, isLoading } = api.organizations.list.useQuery({
     query: {
-      page,
-      limit: 10,
-      verificationStatus: "pending",
+      page: String(page),
+      limit: "10",
       search: search || undefined,
       type: type === "all" ? undefined : (type as any),
     },
   });
 
-  const organizations = (data?.data?.docs ?? []).map((item) => ({
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const responseData = (data as any)?.data;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const organizations = (responseData?.docs ?? []).map((item: any) => ({
     _id: item._id!,
     name: item.name!,
     email: item.email!,
-    verificationStatus: (item.verificationStatus as any) || "unverified",
+    verificationStatus: item.verificationStatus || "unverified",
     industrySectors: item.industrySectors || [],
     createdAt: item.createdAt!,
   }));
@@ -67,7 +69,7 @@ export default function PendingApprovalsPage() {
       />
       <DataPagination
         currentPage={page}
-        totalItems={data?.data?.totalDocs || 0}
+        totalItems={responseData?.totalDocs || 0}
         itemsPerPage={10}
         onPageChange={setPage}
       />

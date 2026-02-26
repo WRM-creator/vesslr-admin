@@ -1,9 +1,9 @@
 import { api } from "@/lib/api";
 import {
-  type Transaction,
   TransactionsTable,
 } from "@/modules/transactions/components/transactions-table";
 import type { TransactionFilters } from "@/modules/transactions/components/transactions-table/filters";
+import { type TransactionResponseDto } from "@/lib/api/generated";
 import { useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
 
@@ -42,7 +42,7 @@ export function MerchantTransactionsTab({
     const params: Record<string, any> = {};
 
     if (filters.search) params.search = filters.search;
-    params.seller = merchantId; // Using 'seller' as per implementation plan assumption
+    params.seller = merchantId;
     if (filters.status && filters.status !== "all")
       params.status = filters.status;
     if (filters.type && filters.type !== "all") params.type = filters.type;
@@ -65,29 +65,8 @@ export function MerchantTransactionsTab({
   const { data: transactionsData, isLoading } =
     api.admin.transactions.list.useQuery(queryParams);
 
-  const transactions: Transaction[] = (transactionsData?.data?.docs || []).map(
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (doc: any) => ({
-      id: doc.id,
-      createdAt: doc.createdAt,
-      updatedAt: doc.updatedAt,
-      type: "purchase", // Defaulting as API might not have this yet
-      state: doc.status as Transaction["state"],
-      paymentStatus: doc.paymentStatus as Transaction["paymentStatus"],
-      complianceStatus: doc.complianceStatus as Transaction["complianceStatus"],
-      merchant: {
-        name: doc.seller?.firstName
-          ? `${doc.seller.firstName} ${doc.seller.lastName}`
-          : "Unknown",
-      },
-      customer: {
-        name: doc.buyer?.firstName
-          ? `${doc.buyer.firstName} ${doc.buyer.lastName}`
-          : "Unknown",
-      },
-      value: doc.specs?.totalPrice || 0,
-    }),
-  );
+  const transactions: TransactionResponseDto[] =
+    ((transactionsData as any)?.data?.docs as TransactionResponseDto[]) || [];
 
   const handleFilterChange = (key: keyof TransactionFilters, value: any) => {
     setSearchParams((prev) => {

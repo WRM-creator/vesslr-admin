@@ -99,14 +99,15 @@ export default function ProductApprovalsPage() {
     },
   });
 
-  const productsDataList = (productsData?.data?.docs as any[]) || [];
-  const products: any[] = productsDataList.map((item) => ({
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const productsDataList = (((productsData as any)?.data?.docs) as any[]) || [];
+  const products: any[] = productsDataList.map((item: any) => ({
     id: item._id,
     name: item.title,
-    category: item.category?.name || "Uncategorized", // Handle populated category
-    merchant: item.seller?.name || "Unknown Merchant", // Start treating seller as object if populated, otherwise string
-    status: item.status === "pending" ? "pending_approval" : item.status, // Map backend 'pending' to UI 'pending_approval'
-    created: item.createdAt, // Map createdAt to created
+    category: item.category?.name || "Uncategorized",
+    merchant: item.seller?.name || "Unknown Merchant",
+    status: item.status === "pending" ? "pending_approval" : item.status,
+    created: item.createdAt,
     price: item.price,
     transactionType: item.transactionType || "spot_trade",
     currency: item.currency || "USD",
@@ -114,14 +115,15 @@ export default function ProductApprovalsPage() {
     availableQuantity: item.availableQuantity,
     unitOfMeasurement: item.unitOfMeasurement,
   }));
-  const totalDocs = productsData?.data?.totalDocs || 0;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const totalDocs = (productsData as any)?.data?.totalDocs || 0;
 
   // --- 4. Merchant Options (Sidebar) ---
   const { data: merchantsData } = api.organizations.list.useQuery({
-    query: { type: "merchant", limit: 100 },
+    query: { type: "merchant", limit: "100" },
   });
-  const merchantOptions =
-    (merchantsData?.data?.docs ?? []).map((m) => ({
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const merchantOptions = (((merchantsData as any)?.data?.docs ?? []) as any[]).map((m: any) => ({
       label: m.name || "Unknown",
       value: m._id || "",
     })) || [];
@@ -189,7 +191,7 @@ export default function ProductApprovalsPage() {
           hiddenFilters={["status"]} // Hide status filter from UI since it's locked
           onFilterChange={handleFilterChange}
           onReset={handleReset}
-          onRowClick={(row) => {
+          onRowClick={(row: any) => {
             navigate(`/products/${row.original.id}?tab=compliance`);
           }}
         />

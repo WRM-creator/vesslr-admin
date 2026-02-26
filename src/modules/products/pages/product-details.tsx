@@ -20,7 +20,8 @@ export default function ProductDetailsPage() {
     path: { id: id! },
   });
 
-  const product = data?.data;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const product = (data as any)?.data ?? data;
 
   useAppBreadcrumbLabel(id!, product?.title);
 

@@ -58,7 +58,8 @@ export default function ProductsPage() {
 
   const { data: productsData, isLoading } =
     api.products.list.useQuery(queryParams);
-  const rawProducts = productsData?.data?.docs || [];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const rawProducts = ((productsData as any)?.data?.docs as any[]) || [];
 
   const products: any[] = rawProducts.map((p: any) => ({
     id: p._id,
@@ -76,13 +77,13 @@ export default function ProductsPage() {
 
   // Fetch merchants for filter
   const { data: merchantsData } = api.organizations.list.useQuery({
-    query: { type: "merchant", limit: 100 },
+    query: { type: "merchant", limit: "100" },
   });
-  const merchantOptions =
-    (merchantsData?.data?.docs ?? []).map((m) => ({
-      label: m.name || "Unknown",
-      value: m._id || "",
-    })) || [];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const merchantOptions = (((merchantsData as any)?.data?.docs ?? []) as any[]).map((m) => ({
+    label: m.name || "Unknown",
+    value: m._id || "",
+  }));
 
   const handleFilterChange = (key: keyof ProductFilters, value: any) => {
     setSearchParams((prev) => {

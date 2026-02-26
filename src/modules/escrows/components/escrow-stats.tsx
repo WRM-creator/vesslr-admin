@@ -1,22 +1,10 @@
-import { api } from "@/lib/api";
 import { formatCurrency } from "@/lib/utils";
 import { StatsCard } from "@/modules/dashboard/components/stats-card";
 import { AlertCircle, CheckCircle, DollarSign, Lock } from "lucide-react";
 
 export function EscrowStats() {
-  const { data: statsData, isLoading } = api.admin.escrows.stats.useQuery({});
-
-  if (isLoading) {
-    return (
-      <div className="mb-6 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        {[1, 2, 3, 4].map((i) => (
-          <div key={i} className="bg-muted h-32 animate-pulse rounded-xl" />
-        ))}
-      </div>
-    );
-  }
-
-  const stats = (statsData as any)?.data || {
+  // Escrow stats API not yet available — display placeholder values
+  const stats = {
     totalHeld: 0,
     totalTransacted: 0,
     activeCount: 0,

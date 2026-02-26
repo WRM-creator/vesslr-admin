@@ -1,18 +1,12 @@
 import { Page } from "@/components/shared/page";
 import { PageHeader } from "@/components/shared/page-header";
-import { api } from "@/lib/api";
 import { EscrowStats } from "../components/escrow-stats";
 import { EscrowsTable } from "../components/escrows-table";
 
 export default function EscrowsPage() {
-  const { data: escrowsData, isLoading } = api.admin.escrows.list.useQuery({
-    query: {
-      page: 1,
-      limit: 50,
-    },
-  });
-
-  const rawEscrows = escrowsData?.data?.docs || [];
+  // Escrow list API not yet available — display empty state
+  const isLoading = false;
+  const rawEscrows: any[] = [];
   const escrows = rawEscrows.map((e: any) => ({
     id: e._id,
     transactionReference:

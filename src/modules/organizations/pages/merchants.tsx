@@ -20,18 +20,21 @@ export default function MerchantsPage() {
 
   const { data, isLoading } = api.organizations.list.useQuery({
     query: {
-      page,
-      limit: 10,
+      page: String(page),
+      limit: "10",
       type: "merchant",
       search: search || undefined,
     },
   });
 
-  const merchants = (data?.data?.docs ?? []).map((item) => ({
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const responseData = (data as any)?.data;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const merchants = (responseData?.docs ?? []).map((item: any) => ({
     _id: item._id!,
     name: item.name!,
     email: item.email!,
-    verificationStatus: (item.verificationStatus as any) || "unverified",
+    verificationStatus: item.verificationStatus || "unverified",
     industrySectors: item.industrySectors || [],
     createdAt: item.createdAt!,
   }));
@@ -60,7 +63,7 @@ export default function MerchantsPage() {
       />
       <DataPagination
         currentPage={page}
-        totalItems={data?.data?.totalDocs || 0}
+        totalItems={responseData?.totalDocs || 0}
         itemsPerPage={10}
         onPageChange={setPage}
       />

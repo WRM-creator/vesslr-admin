@@ -235,6 +235,11 @@ export const api = {
       "list",
       args?.query,
     ]),
+    detail: createQuery(adminRequestsControllerFindOne, (args) => [
+      "organizations",
+      "detail",
+      args.path.id,
+    ]),
   },
   categories: {
     list: createQuery(adminCategoriesControllerFindAll, ["categories", "list"]),

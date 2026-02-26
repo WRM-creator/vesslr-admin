@@ -50,18 +50,18 @@ export function MerchantInfoCard({ data }: MerchantInfoCardProps) {
       <div className="space-y-3 pt-2">
         <div className="flex items-center justify-between text-sm">
           <span className="text-muted-foreground">Trust Score</span>
-          <span className="font-medium">{data.trustScore}/100</span>
+          <span className="font-medium">{data.trustScore ?? 0}/100</span>
         </div>
         <div className="bg-secondary h-2 w-full overflow-hidden rounded-full">
           <div
             className={`h-full ${
-              data.trustScore >= 80
+              (data.trustScore ?? 0) >= 80
                 ? "bg-green-500"
-                : data.trustScore >= 60
+                : (data.trustScore ?? 0) >= 60
                   ? "bg-amber-500"
                   : "bg-red-500"
             }`}
-            style={{ width: `${data.trustScore}%` }}
+            style={{ width: `${data.trustScore ?? 0}%` }}
           />
         </div>
       </div>
