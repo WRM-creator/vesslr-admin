@@ -47,12 +47,15 @@ import {
   adminTransactionsControllerFindById,
   adminTransactionsControllerGetLogs,
   adminTransactionsControllerReviewDocument,
+  adminTransactionsControllerSubmitInspection,
+  adminTransactionsControllerReviewInspection,
   adminTransactionsControllerUpdateRequirement,
   categoryGroupsControllerFindAll,
   categoryGroupsControllerFindOne,
   categoryGroupsControllerUpdate,
   productsControllerFindAll,
   productsControllerFindOne,
+  storageControllerGeneratePresignedUrls,
 } from "./generated";
 
 export const api = {
@@ -110,6 +113,22 @@ export const api = {
         "logs",
         args.path.id,
       ]),
+      submitInspection: createMutation(
+        adminTransactionsControllerSubmitInspection,
+        {
+          invalidates: (args) => [
+            ["admin", "transactions", "detail", args.path.id],
+          ],
+        },
+      ),
+      reviewInspection: createMutation(
+        adminTransactionsControllerReviewInspection,
+        {
+          invalidates: (args) => [
+            ["admin", "transactions", "detail", args.path.id],
+          ],
+        },
+      ),
     },
     products: {
       create: createMutation(adminProductsControllerCreate, {
@@ -253,6 +272,9 @@ export const api = {
         ["categoryGroups", "findAll"],
       ],
     }),
+  },
+  storage: {
+    presignedUrls: createMutation(storageControllerGeneratePresignedUrls),
   },
   // organizations: {
   //   list: createQuery(getApiV1AdminOrganizations, ["organizations", "list"]),

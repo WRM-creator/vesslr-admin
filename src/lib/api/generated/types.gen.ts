@@ -26,6 +26,15 @@ export type City = {
   [key: string]: unknown;
 };
 
+export type UpdateAddressDto = {
+  houseNumber?: string;
+  streetAddress?: string;
+  city?: string;
+  state?: string;
+  country?: string;
+  postalCode?: string;
+};
+
 export type AddressDto = {
   state: string;
   country: string;
@@ -183,6 +192,38 @@ export type UserProfileResponseDto = {
   organization?: OrganizationDto;
 };
 
+export type UpdateProfileDto = {
+  firstName?: string;
+  lastName?: string;
+  phone?: string;
+};
+
+export type ChangePasswordDto = {
+  /**
+   * Current password for verification
+   */
+  currentPassword: string;
+  /**
+   * New password (min 8 chars)
+   */
+  newPassword: string;
+};
+
+export type UpdateOrganizationDto = {
+  name?: string;
+  description?: string;
+  email?: string;
+  phoneNumber?: string;
+  address?: {
+    [key: string]: unknown;
+  };
+  categories?: Array<string>;
+};
+
+export type UpdateRoleDto = {
+  role: "admin" | "member" | "viewer";
+};
+
 export type CategoryGroupDto = {
   _id: string;
   name: string;
@@ -194,9 +235,12 @@ export type CategoryGroupDto = {
   milestoneDelivery: boolean;
   requiresEscrow: boolean;
   requiresCompliance: boolean;
-  measurementType: Array<'count' | 'volume' | 'mass' | 'time'>;
-  transactionTypes: Array<string>;
-  conditions: Array<string>;
+  measurementType: Array<"count" | "volume" | "mass" | "time">;
+  transactionTypes: Array<
+    "Purchase" | "Lease" | "Charter" | "Bulk Supply" | "Spot Trade"
+  >;
+  conditions: Array<"New" | "Used - Good" | "Used - Fair" | "Refurbished">;
+  allowedCurrencies: Array<"NGN" | "USD" | "GBP" | "EUR">;
 };
 
 export type ProductCategoryDto = {
@@ -369,6 +413,7 @@ export type CategoryDocumentTemplateDto = {
     | "SAFETY_DATA_SHEET"
     | "BILL_OF_LADING"
     | "CONTRACT"
+    | "INSPECTION_CERTIFICATE"
     | "OTHER";
   name: string;
   requiredFrom: "BUYER" | "SELLER";
@@ -381,6 +426,9 @@ export type CategoryDocumentTemplateDto = {
     | "LOGISTICS_ASSIGNED"
     | "IN_TRANSIT"
     | "INSPECTION_PENDING"
+    | "INSPECTION_UNDER_REVIEW"
+    | "INSPECTION_FAILED"
+    | "INSPECTION_PRICE_REVIEW"
     | "DELIVERY_CONFIRMED"
     | "MILESTONES_IN_PROGRESS"
     | "SETTLEMENT_RELEASED"
@@ -400,18 +448,8 @@ export type CategoryDto = {
   type: "equipment-and-products" | "services";
   description?: string;
   image?: string;
-  allowedUnits: Array<
-    "kg" | "ton" | "lb" | "liter" | "gallon" | "unit" | "hour" | "day" | "month"
-  >;
-  supportedConditions: Array<
-    "New" | "Used - Good" | "Used - Fair" | "Refurbished"
-  >;
-  allowedTransactionTypes: Array<
-    "Purchase" | "Lease" | "Charter" | "Bulk Supply" | "Spot Trade"
-  >;
   requiredDocuments: Array<CategoryDocumentTemplateDto>;
   compliance: CategoryComplianceDto;
-  allowedCurrencies: Array<"NGN" | "USD" | "GBP" | "EUR">;
   group: CategoryGroupDto;
   isActive: boolean;
   createdAt: string;
@@ -421,6 +459,10 @@ export type CategoryDto = {
 export type MilestoneInputDto = {
   name: string;
   description?: string;
+  /**
+   * Names of documents the seller must submit for this milestone
+   */
+  requiredDocuments?: Array<string>;
 };
 
 export type CreateTransactionDto = {
@@ -429,9 +471,9 @@ export type CreateTransactionDto = {
    */
   orderId: string;
   /**
-   * Whether to include a Q&Q inspection stage. Must be explicitly provided — even if false — for physical goods transactions.
+   * Tells the system whether to use the product from the order or the matching request to determine the category.
    */
-  hasInspection: boolean;
+  productSource: "ORDER" | "REQUEST";
   /**
    * Ordered list of milestones. Required for SERVICE and FINANCIAL workflow types. Must have at least one milestone.
    */
@@ -538,7 +580,9 @@ export type TransactionEventDto = {
     | "REQUIREMENT_DELETED"
     | "STAGE_COMPLETED"
     | "MILESTONE_SUBMITTED"
-    | "MILESTONE_APPROVED";
+    | "MILESTONE_APPROVED"
+    | "INSPECTION_SUBMITTED"
+    | "INSPECTION_REVIEWED";
   metadata?: {
     [key: string]: unknown;
   };
@@ -560,6 +604,7 @@ export type TransactionDocumentSlotDto = {
     | "SAFETY_DATA_SHEET"
     | "BILL_OF_LADING"
     | "CONTRACT"
+    | "INSPECTION_CERTIFICATE"
     | "OTHER";
   name: string;
   requiredFrom: "BUYER" | "SELLER";
@@ -575,6 +620,9 @@ export type TransactionDocumentSlotDto = {
     | "LOGISTICS_ASSIGNED"
     | "IN_TRANSIT"
     | "INSPECTION_PENDING"
+    | "INSPECTION_UNDER_REVIEW"
+    | "INSPECTION_FAILED"
+    | "INSPECTION_PRICE_REVIEW"
     | "DELIVERY_CONFIRMED"
     | "MILESTONES_IN_PROGRESS"
     | "SETTLEMENT_RELEASED"
@@ -599,6 +647,7 @@ export type TransactionStageResponseDto = {
   description: string;
   assignedTo: "BUYER" | "SELLER" | "ADMIN" | "SYSTEM";
   status: "PENDING" | "ACTIVE" | "COMPLETED";
+  visibility: "SHARED" | "PARTY_ONLY";
   actionTarget?: string | null;
   completedAt?: string | null;
   completedBy?: string | null;
@@ -640,6 +689,9 @@ export type TransactionResponseDto = {
     | "LOGISTICS_ASSIGNED"
     | "IN_TRANSIT"
     | "INSPECTION_PENDING"
+    | "INSPECTION_UNDER_REVIEW"
+    | "INSPECTION_FAILED"
+    | "INSPECTION_PRICE_REVIEW"
     | "DELIVERY_CONFIRMED"
     | "MILESTONES_IN_PROGRESS"
     | "SETTLEMENT_RELEASED"
@@ -675,6 +727,9 @@ export type UpdateTransactionStatusDto = {
     | "LOGISTICS_ASSIGNED"
     | "IN_TRANSIT"
     | "INSPECTION_PENDING"
+    | "INSPECTION_UNDER_REVIEW"
+    | "INSPECTION_FAILED"
+    | "INSPECTION_PRICE_REVIEW"
     | "DELIVERY_CONFIRMED"
     | "MILESTONES_IN_PROGRESS"
     | "SETTLEMENT_RELEASED"
@@ -696,6 +751,7 @@ export type AddTransactionDocumentDto = {
     | "SAFETY_DATA_SHEET"
     | "BILL_OF_LADING"
     | "CONTRACT"
+    | "INSPECTION_CERTIFICATE"
     | "OTHER";
   /**
    * Display name of the document
@@ -761,6 +817,18 @@ export type ApproveMilestoneDto = {
   notes?: string;
 };
 
+export type InspectionDocumentDto = {
+  name: string;
+  url: string;
+};
+
+export type SubmitInspectionDocumentsDto = {
+  /**
+   * One or more Q&Q certification documents uploaded by the buyer or admin.
+   */
+  documents: Array<InspectionDocumentDto>;
+};
+
 export type PurchaseProductDto = {
   /**
    * ID of the product to purchase
@@ -824,10 +892,6 @@ export type ConfirmOrderMilestoneDto = {
 
 export type ConfirmOrderDto = {
   /**
-   * Whether to include a Q&Q inspection stage. Pass false explicitly if not required.
-   */
-  hasInspection?: boolean;
-  /**
    * Ordered list of milestones. Required for SERVICE and FINANCIAL workflow types.
    */
   milestones?: Array<ConfirmOrderMilestoneDto>;
@@ -846,6 +910,48 @@ export type RequestCountryDto = {
   name: string;
   iso2: string;
   region: string;
+};
+
+export type QqCriterionDto = {
+  /**
+   * UUID generated client-side (idempotency key)
+   */
+  id: string;
+  /**
+   * Catalog key or free-form custom string
+   */
+  key: string;
+  /**
+   * Human-readable label
+   */
+  label: string;
+  /**
+   * Comparison operator — determines the expected shape of value
+   */
+  comparator:
+    | "="
+    | "!="
+    | ">"
+    | "<"
+    | ">="
+    | "<="
+    | "between"
+    | "±"
+    | "in list"
+    | "matches regex"
+    | "absent"
+    | "present";
+  /**
+   * Polymorphic value — shape depends on comparator: number|string for scalar comparators, [number, number] for between/±, string[] for "in list", string (regex pattern) for "matches regex", omitted for absent/present
+   */
+  value?: number | string | Array<string> | [number, number];
+  unit?: string;
+  method?: string;
+  severity: "blocking" | "informational" | "price_adjust";
+  /**
+   * When true, a missing measured value during inspection counts as FAIL
+   */
+  required?: boolean;
 };
 
 export type RecommendationFeedItemDto = {
@@ -869,6 +975,8 @@ export type RecommendationFeedItemDto = {
   status: string;
   createdAt: string;
   negotiationId?: string;
+  qqCriteria?: Array<QqCriterionDto>;
+  qqCompany?: string;
 };
 
 export type RecommendationFeedDataDto = {
@@ -887,6 +995,15 @@ export type RecommendationFeedResponseDto = {
 export type SingleRecommendationFeedResponseDto = {
   message: string;
   data: RecommendationFeedItemDto;
+};
+
+export type RequestMilestoneDto = {
+  name: string;
+  description?: string;
+  /**
+   * List of document names required for this milestone
+   */
+  requiredDocuments?: Array<string>;
 };
 
 export type CreateRequestDto = {
@@ -923,107 +1040,15 @@ export type CreateRequestDto = {
    */
   durationUnit?: string;
   selectionMode?: "open" | "jira-ai" | "direct";
-};
-
-export type ProductRequest = {
+  milestones?: Array<RequestMilestoneDto>;
   /**
-   * User who created the request
+   * Q&Q acceptance criteria. Supply an empty array or omit when the category group does not have allowsInspection=true.
    */
-  requester: string;
+  qqCriteria?: Array<QqCriterionDto>;
   /**
-   * Organization of the requester
+   * The preferred Q&Q inspection company
    */
-  organization: string;
-  /**
-   * Category of the product
-   */
-  category: string;
-  /**
-   * Name of the product/request
-   */
-  name: string;
-  /**
-   * Quantity required
-   */
-  quantity: number;
-  /**
-   * List of region IDs
-   */
-  region: Array<string>;
-  /**
-   * List of country IDs
-   */
-  country: Array<string>;
-  /**
-   * List of state IDs
-   */
-  state: Array<string>;
-  /**
-   * Unit of measurement
-   */
-  unitOfMeasurement: string;
-  /**
-   * Target price per unit
-   */
-  targetPricePerUnit: number;
-  /**
-   * Duration for lease/charter transactions
-   */
-  duration?: number;
-  /**
-   * Duration unit for lease/charter (hour, day, month)
-   */
-  durationUnit?: string;
-  /**
-   * Currency code
-   */
-  currency: "NGN" | "USD" | "GBP" | "EUR";
-  /**
-   * Transaction types
-   */
-  transactionType: Array<
-    "Purchase" | "Lease" | "Charter" | "Bulk Supply" | "Spot Trade"
-  >;
-  /**
-   * Conditions of the product
-   */
-  condition?: Array<"New" | "Used - Good" | "Used - Fair" | "Refurbished">;
-  /**
-   * Description of the request
-   */
-  description: string;
-  /**
-   * List of document URLs
-   */
-  documents: Array<string>;
-  /**
-   * Selection mode
-   */
-  selectionMode: "open" | "jira-ai" | "direct";
-  /**
-   * Status of the request
-   */
-  status: "pending" | "in_review" | "matched" | "fulfilled" | "cancelled";
-  /**
-   * Organization matched as seller for this request
-   */
-  matchedSeller?: string;
-  /**
-   * Display ID
-   */
-  displayId: number;
-  /**
-   * Last activity timestamp
-   */
-  lastActivityAt: string;
-  /**
-   * Stale warning sent at
-   */
-  staleNotifiedAt: string;
-  /**
-   * Reason for cancellation
-   */
-  cancellationReason?: "user_cancelled" | "stale_auto_closed";
+  qqCompany?: string;
 };
 
 export type RequesterDto = {
@@ -1071,6 +1096,10 @@ export type RequestResponseDto = {
   autoCloseAt?: string;
   offersCount?: number;
   counterOffersCount?: number;
+  /**
+   * Q&Q acceptance criteria attached to this request
+   */
+  qqCriteria?: Array<QqCriterionDto>;
 };
 
 export type UpdateRequestDto = {
@@ -1107,6 +1136,15 @@ export type UpdateRequestDto = {
    */
   durationUnit?: string;
   selectionMode?: "open" | "jira-ai" | "direct";
+  milestones?: Array<RequestMilestoneDto>;
+  /**
+   * Q&Q acceptance criteria. Supply an empty array or omit when the category group does not have allowsInspection=true.
+   */
+  qqCriteria?: Array<QqCriterionDto>;
+  /**
+   * The preferred Q&Q inspection company
+   */
+  qqCompany?: string;
   status?: "pending" | "in_review" | "matched" | "fulfilled" | "cancelled";
 };
 
@@ -1287,6 +1325,7 @@ export type UpdateResidentialAddressDto = {
   city?: string;
   state: string;
   country: string;
+  postalCode?: string;
 };
 
 export type UpdateCompanyInfoDto = {
@@ -1316,6 +1355,27 @@ export type UpdateCompanyDocumentsDto = {
   certificateOfIncorporation?: string | FileMetadataDto;
   memorandum?: string | FileMetadataDto;
   additionalDocuments?: Array<FileMetadataDto>;
+};
+
+export type InviteItemDto = {
+  email: string;
+  role: "admin" | "member" | "viewer";
+};
+
+export type InviteTeamDto = {
+  invites: Array<InviteItemDto>;
+};
+
+export type AcceptInvitationDto = {
+  firstName: string;
+  lastName: string;
+  phone: string;
+  password: string;
+};
+
+export type CreateInvitationDto = {
+  email: string;
+  role: "admin" | "member" | "viewer";
 };
 
 export type AdminLoginDto = {
@@ -1365,17 +1425,6 @@ export type CreateAdminDto = {
   isActive?: boolean;
 };
 
-export type ChangePasswordDto = {
-  /**
-   * Current password for verification
-   */
-  currentPassword: string;
-  /**
-   * New password (min 8 chars)
-   */
-  newPassword: string;
-};
-
 export type CategoryDocumentTemplateInput = {
   type:
     | "INVOICE"
@@ -1384,6 +1433,7 @@ export type CategoryDocumentTemplateInput = {
     | "SAFETY_DATA_SHEET"
     | "BILL_OF_LADING"
     | "CONTRACT"
+    | "INSPECTION_CERTIFICATE"
     | "OTHER";
   name: string;
   requiredFrom: "BUYER" | "SELLER";
@@ -1396,6 +1446,9 @@ export type CategoryDocumentTemplateInput = {
     | "LOGISTICS_ASSIGNED"
     | "IN_TRANSIT"
     | "INSPECTION_PENDING"
+    | "INSPECTION_UNDER_REVIEW"
+    | "INSPECTION_FAILED"
+    | "INSPECTION_PRICE_REVIEW"
     | "DELIVERY_CONFIRMED"
     | "MILESTONES_IN_PROGRESS"
     | "SETTLEMENT_RELEASED"
@@ -1429,18 +1482,8 @@ export type CreateCategoryDto = {
    * Category image URL
    */
   image?: string;
-  allowedUnits?: Array<
-    "kg" | "ton" | "lb" | "liter" | "gallon" | "unit" | "hour" | "day" | "month"
-  >;
-  supportedConditions?: Array<
-    "New" | "Used - Good" | "Used - Fair" | "Refurbished"
-  >;
-  allowedTransactionTypes?: Array<
-    "Purchase" | "Lease" | "Charter" | "Bulk Supply" | "Spot Trade"
-  >;
   requiredDocuments?: Array<CategoryDocumentTemplateInput>;
   compliance?: CategoryComplianceInput;
-  allowedCurrencies?: Array<"NGN" | "USD" | "GBP" | "EUR">;
   /**
    * Whether the category is active
    */
@@ -1468,18 +1511,8 @@ export type UpdateCategoryDto = {
    * Category image URL
    */
   image?: string;
-  allowedUnits?: Array<
-    "kg" | "ton" | "lb" | "liter" | "gallon" | "unit" | "hour" | "day" | "month"
-  >;
-  supportedConditions?: Array<
-    "New" | "Used - Good" | "Used - Fair" | "Refurbished"
-  >;
-  allowedTransactionTypes?: Array<
-    "Purchase" | "Lease" | "Charter" | "Bulk Supply" | "Spot Trade"
-  >;
   requiredDocuments?: Array<CategoryDocumentTemplateInput>;
   compliance?: CategoryComplianceInput;
-  allowedCurrencies?: Array<"NGN" | "USD" | "GBP" | "EUR">;
   /**
    * Whether the category is active
    */
@@ -1510,6 +1543,7 @@ export type AddTransactionRequirementDto = {
     | "SAFETY_DATA_SHEET"
     | "BILL_OF_LADING"
     | "CONTRACT"
+    | "INSPECTION_CERTIFICATE"
     | "OTHER";
   /**
    * Display name of the requirement
@@ -1534,6 +1568,9 @@ export type AddTransactionRequirementDto = {
     | "LOGISTICS_ASSIGNED"
     | "IN_TRANSIT"
     | "INSPECTION_PENDING"
+    | "INSPECTION_UNDER_REVIEW"
+    | "INSPECTION_FAILED"
+    | "INSPECTION_PRICE_REVIEW"
     | "DELIVERY_CONFIRMED"
     | "MILESTONES_IN_PROGRESS"
     | "SETTLEMENT_RELEASED"
@@ -1551,6 +1588,7 @@ export type UpdateTransactionRequirementDto = {
     | "SAFETY_DATA_SHEET"
     | "BILL_OF_LADING"
     | "CONTRACT"
+    | "INSPECTION_CERTIFICATE"
     | "OTHER";
   /**
    * Display name of the requirement
@@ -1575,6 +1613,9 @@ export type UpdateTransactionRequirementDto = {
     | "LOGISTICS_ASSIGNED"
     | "IN_TRANSIT"
     | "INSPECTION_PENDING"
+    | "INSPECTION_UNDER_REVIEW"
+    | "INSPECTION_FAILED"
+    | "INSPECTION_PRICE_REVIEW"
     | "DELIVERY_CONFIRMED"
     | "MILESTONES_IN_PROGRESS"
     | "SETTLEMENT_RELEASED"
@@ -1588,6 +1629,17 @@ export type ReviewTransactionDocumentDto = {
   decision: "APPROVED" | "REJECTED";
   /**
    * Reason for rejection (required if decision is REJECTED)
+   */
+  rejectionReason?: string;
+};
+
+export type ReviewInspectionDto = {
+  /**
+   * APPROVED advances the workflow to the next stage. REJECTED resets the stage to INSPECTION_PENDING so the buyer can re-upload.
+   */
+  decision: "APPROVED" | "REJECTED";
+  /**
+   * Reason for rejection. Required when decision is REJECTED.
    */
   rejectionReason?: string;
 };
@@ -1647,9 +1699,15 @@ export type UpdateCategoryGroupDto = {
   requiresLogistics?: boolean;
   allowsInspection?: boolean;
   milestoneDelivery?: boolean;
-  measurementType?: Array<'count' | 'volume' | 'mass' | 'time'>;
-  transactionTypes?: Array<string>;
-  conditions?: Array<string>;
+  measurementType?: "count" | "volume" | "mass" | "time";
+  transactionTypes?:
+    | "Purchase"
+    | "Lease"
+    | "Charter"
+    | "Bulk Supply"
+    | "Spot Trade";
+  conditions?: "New" | "Used - Good" | "Used - Fair" | "Refurbished";
+  allowedCurrencies?: Array<"NGN" | "USD" | "GBP" | "EUR">;
 };
 
 export type GeneratePresignedUrlDto = {
@@ -1666,6 +1724,53 @@ export type PresignedUrlResponseDto = {
   url: string;
   publicUrl: string;
   filename: string;
+};
+
+export type QqFieldDef = {
+  [key: string]: unknown;
+};
+
+export type QqTemplate = {
+  [key: string]: unknown;
+};
+
+export type CriterionResultDto = {
+  /**
+   * UUID matching QQCriterion.id stored on the request
+   */
+  criterionId: string;
+  /**
+   * The actual measured value from the inspection report. Polymorphic — matches QQCriterion value shape.
+   */
+  measuredValue?: {
+    [key: string]: unknown;
+  };
+  reportedBy?: string;
+  testMethod?: string;
+  notes?: string;
+};
+
+export type SubmitInspectionDto = {
+  inspectorName: string;
+  inspectorCompany: string;
+  /**
+   * ISO 8601 datetime of when inspection took place
+   */
+  inspectedAt: string;
+  /**
+   * URL to the uploaded inspection report (PDF/image)
+   */
+  reportFileUrl?: string;
+  /**
+   * SHA256 hex digest of the report file for tamper detection (64 hex chars)
+   */
+  reportFileHash?: string;
+  criteriaResults: Array<CriterionResultDto>;
+  notes?: string;
+};
+
+export type InspectionReport = {
+  [key: string]: unknown;
 };
 
 export type AppControllerGetHelloData = {
@@ -1741,6 +1846,20 @@ export type LocationsControllerGetCitiesResponses = {
 
 export type LocationsControllerGetCitiesResponse =
   LocationsControllerGetCitiesResponses[keyof LocationsControllerGetCitiesResponses];
+
+export type UsersControllerUpdateAddressData = {
+  body: UpdateAddressDto;
+  path?: never;
+  query?: never;
+  url: "/api/v1/users/me/address";
+};
+
+export type UsersControllerUpdateAddressResponses = {
+  /**
+   * Address updated successfully
+   */
+  200: unknown;
+};
 
 export type UsersAuthControllerRegisterData = {
   body: RegisterDto;
@@ -1854,6 +1973,104 @@ export type UsersAuthControllerGetProfileResponses = {
 
 export type UsersAuthControllerGetProfileResponse =
   UsersAuthControllerGetProfileResponses[keyof UsersAuthControllerGetProfileResponses];
+
+export type UsersAuthControllerUpdateProfileData = {
+  body: UpdateProfileDto;
+  path?: never;
+  query?: never;
+  url: "/api/v1/auth/profile";
+};
+
+export type UsersAuthControllerUpdateProfileResponses = {
+  /**
+   * Profile updated successfully
+   */
+  200: unknown;
+};
+
+export type UsersAuthControllerChangePasswordData = {
+  body: ChangePasswordDto;
+  path?: never;
+  query?: never;
+  url: "/api/v1/auth/change-password";
+};
+
+export type UsersAuthControllerChangePasswordResponses = {
+  /**
+   * Password changed successfully
+   */
+  200: unknown;
+  201: unknown;
+};
+
+export type OrganizationsControllerUpdateOrganizationData = {
+  body: UpdateOrganizationDto;
+  path: {
+    orgId: string;
+  };
+  query?: never;
+  url: "/api/v1/organizations/{orgId}";
+};
+
+export type OrganizationsControllerUpdateOrganizationResponses = {
+  200: {
+    [key: string]: unknown;
+  };
+};
+
+export type OrganizationsControllerUpdateOrganizationResponse =
+  OrganizationsControllerUpdateOrganizationResponses[keyof OrganizationsControllerUpdateOrganizationResponses];
+
+export type OrganizationsControllerListMembersData = {
+  body?: never;
+  path: {
+    orgId: string;
+  };
+  query?: never;
+  url: "/api/v1/organizations/{orgId}/members";
+};
+
+export type OrganizationsControllerListMembersResponses = {
+  200: Array<{
+    [key: string]: unknown;
+  }>;
+};
+
+export type OrganizationsControllerListMembersResponse =
+  OrganizationsControllerListMembersResponses[keyof OrganizationsControllerListMembersResponses];
+
+export type OrganizationsControllerUpdateMemberRoleData = {
+  body: UpdateRoleDto;
+  path: {
+    orgId: string;
+    userId: string;
+  };
+  query?: never;
+  url: "/api/v1/organizations/{orgId}/members/{userId}/role";
+};
+
+export type OrganizationsControllerUpdateMemberRoleResponses = {
+  200: {
+    [key: string]: unknown;
+  };
+};
+
+export type OrganizationsControllerUpdateMemberRoleResponse =
+  OrganizationsControllerUpdateMemberRoleResponses[keyof OrganizationsControllerUpdateMemberRoleResponses];
+
+export type OrganizationsControllerRemoveMemberData = {
+  body?: never;
+  path: {
+    orgId: string;
+    userId: string;
+  };
+  query?: never;
+  url: "/api/v1/organizations/{orgId}/members/{userId}";
+};
+
+export type OrganizationsControllerRemoveMemberResponses = {
+  200: unknown;
+};
 
 export type ProductsControllerFindAllData = {
   body?: never;
@@ -2251,6 +2468,29 @@ export type TransactionsControllerApproveMilestoneResponses = {
 export type TransactionsControllerApproveMilestoneResponse =
   TransactionsControllerApproveMilestoneResponses[keyof TransactionsControllerApproveMilestoneResponses];
 
+export type TransactionsControllerSubmitInspectionData = {
+  body: SubmitInspectionDocumentsDto;
+  path: {
+    id: string;
+    stageId: string;
+  };
+  query?: never;
+  url: "/api/v1/transactions/{id}/stages/{stageId}/submit-inspection";
+};
+
+export type TransactionsControllerSubmitInspectionResponses = {
+  /**
+   * Inspection documents submitted successfully.
+   */
+  200: TransactionResponseDto;
+  201: {
+    [key: string]: unknown;
+  };
+};
+
+export type TransactionsControllerSubmitInspectionResponse =
+  TransactionsControllerSubmitInspectionResponses[keyof TransactionsControllerSubmitInspectionResponses];
+
 export type OrdersControllerPurchaseData = {
   body: PurchaseProductDto;
   path?: never;
@@ -2423,7 +2663,7 @@ export type RequestsControllerCreateData = {
 };
 
 export type RequestsControllerCreateResponses = {
-  200: ProductRequest;
+  200: RequestResponseDto;
   201: {
     [key: string]: unknown;
   };
@@ -2790,6 +3030,23 @@ export type OnboardingControllerUpdateCompanyDocumentsResponses = {
 export type OnboardingControllerUpdateCompanyDocumentsResponse =
   OnboardingControllerUpdateCompanyDocumentsResponses[keyof OnboardingControllerUpdateCompanyDocumentsResponses];
 
+export type OnboardingControllerInviteTeamData = {
+  body: InviteTeamDto;
+  path?: never;
+  query?: never;
+  url: "/api/v1/onboarding/invite-team";
+};
+
+export type OnboardingControllerInviteTeamResponses = {
+  /**
+   * Invites sent and step advanced
+   */
+  200: OnboardingStatusResponseDto;
+};
+
+export type OnboardingControllerInviteTeamResponse =
+  OnboardingControllerInviteTeamResponses[keyof OnboardingControllerInviteTeamResponses];
+
 export type OnboardingControllerCompleteOnboardingData = {
   body?: never;
   path?: never;
@@ -2807,6 +3064,82 @@ export type OnboardingControllerCompleteOnboardingResponses = {
 
 export type OnboardingControllerCompleteOnboardingResponse =
   OnboardingControllerCompleteOnboardingResponses[keyof OnboardingControllerCompleteOnboardingResponses];
+
+export type InvitationsControllerGetInviteDetailsData = {
+  body?: never;
+  path: {
+    token: string;
+  };
+  query?: never;
+  url: "/api/v1/invitations/accept/{token}";
+};
+
+export type InvitationsControllerGetInviteDetailsResponses = {
+  200: unknown;
+};
+
+export type InvitationsControllerAcceptInviteData = {
+  body: AcceptInvitationDto;
+  path: {
+    token: string;
+  };
+  query?: never;
+  url: "/api/v1/invitations/accept/{token}";
+};
+
+export type InvitationsControllerAcceptInviteResponses = {
+  201: unknown;
+};
+
+export type InvitationsControllerListInvitationsData = {
+  body?: never;
+  path: {
+    orgId: string;
+  };
+  query?: never;
+  url: "/api/v1/invitations/organizations/{orgId}";
+};
+
+export type InvitationsControllerListInvitationsResponses = {
+  200: Array<{
+    [key: string]: unknown;
+  }>;
+};
+
+export type InvitationsControllerListInvitationsResponse =
+  InvitationsControllerListInvitationsResponses[keyof InvitationsControllerListInvitationsResponses];
+
+export type InvitationsControllerInviteData = {
+  body: CreateInvitationDto;
+  path: {
+    orgId: string;
+  };
+  query?: never;
+  url: "/api/v1/invitations/organizations/{orgId}";
+};
+
+export type InvitationsControllerInviteResponses = {
+  201: {
+    [key: string]: unknown;
+  };
+};
+
+export type InvitationsControllerInviteResponse =
+  InvitationsControllerInviteResponses[keyof InvitationsControllerInviteResponses];
+
+export type InvitationsControllerRevokeInvitationData = {
+  body?: never;
+  path: {
+    orgId: string;
+    inviteId: string;
+  };
+  query?: never;
+  url: "/api/v1/invitations/organizations/{orgId}/{inviteId}";
+};
+
+export type InvitationsControllerRevokeInvitationResponses = {
+  200: unknown;
+};
 
 export type AdminProductsControllerFindAllData = {
   body?: never;
@@ -3266,6 +3599,55 @@ export type AdminTransactionsControllerReleaseSettlementResponses = {
 export type AdminTransactionsControllerReleaseSettlementResponse =
   AdminTransactionsControllerReleaseSettlementResponses[keyof AdminTransactionsControllerReleaseSettlementResponses];
 
+export type AdminTransactionsControllerSubmitInspectionData = {
+  body: SubmitInspectionDocumentsDto;
+  path: {
+    id: string;
+    stageId: string;
+  };
+  query?: never;
+  url: "/api/v1/admin/transactions/{id}/stages/{stageId}/submit-inspection";
+};
+
+export type AdminTransactionsControllerSubmitInspectionResponses = {
+  /**
+   * Inspection documents submitted successfully.
+   */
+  200: TransactionResponseDto;
+  201: {
+    [key: string]: unknown;
+  };
+};
+
+export type AdminTransactionsControllerSubmitInspectionResponse =
+  AdminTransactionsControllerSubmitInspectionResponses[keyof AdminTransactionsControllerSubmitInspectionResponses];
+
+export type AdminTransactionsControllerReviewInspectionData = {
+  body: ReviewInspectionDto;
+  path: {
+    /**
+     * Transaction ID
+     */
+    id: string;
+    /**
+     * INSPECTION stage ID
+     */
+    stageId: string;
+  };
+  query?: never;
+  url: "/api/v1/admin/transactions/{id}/stages/{stageId}/review-inspection";
+};
+
+export type AdminTransactionsControllerReviewInspectionResponses = {
+  /**
+   * Updated transaction with review outcome applied.
+   */
+  200: TransactionResponseDto;
+};
+
+export type AdminTransactionsControllerReviewInspectionResponse =
+  AdminTransactionsControllerReviewInspectionResponses[keyof AdminTransactionsControllerReviewInspectionResponses];
+
 export type AdminOrganizationsControllerFindAllData = {
   body?: never;
   path?: never;
@@ -3639,3 +4021,142 @@ export type StorageControllerGeneratePresignedUrlsResponses = {
 
 export type StorageControllerGeneratePresignedUrlsResponse =
   StorageControllerGeneratePresignedUrlsResponses[keyof StorageControllerGeneratePresignedUrlsResponses];
+
+export type QqCatalogControllerFindAllFieldsData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: "/api/v1/qq-catalog/fields";
+};
+
+export type QqCatalogControllerFindAllFieldsResponses = {
+  200: Array<QqFieldDef>;
+};
+
+export type QqCatalogControllerFindAllFieldsResponse =
+  QqCatalogControllerFindAllFieldsResponses[keyof QqCatalogControllerFindAllFieldsResponses];
+
+export type QqCatalogControllerFindFieldData = {
+  body?: never;
+  path: {
+    /**
+     * Field key (e.g. "sulfur", "density_15C")
+     */
+    key: string;
+  };
+  query?: never;
+  url: "/api/v1/qq-catalog/fields/{key}";
+};
+
+export type QqCatalogControllerFindFieldResponses = {
+  200: QqFieldDef;
+};
+
+export type QqCatalogControllerFindFieldResponse =
+  QqCatalogControllerFindFieldResponses[keyof QqCatalogControllerFindFieldResponses];
+
+export type QqCatalogControllerFindAllTemplatesData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: "/api/v1/qq-catalog/templates";
+};
+
+export type QqCatalogControllerFindAllTemplatesResponses = {
+  200: Array<QqTemplate>;
+};
+
+export type QqCatalogControllerFindAllTemplatesResponse =
+  QqCatalogControllerFindAllTemplatesResponses[keyof QqCatalogControllerFindAllTemplatesResponses];
+
+export type QqCatalogControllerFindTemplateData = {
+  body?: never;
+  path: {
+    /**
+     * Template slug (e.g. "crude-fob", "diesel-ulsd")
+     */
+    slug: string;
+  };
+  query?: never;
+  url: "/api/v1/qq-catalog/templates/{slug}";
+};
+
+export type QqCatalogControllerFindTemplateResponses = {
+  200: QqTemplate;
+};
+
+export type QqCatalogControllerFindTemplateResponse =
+  QqCatalogControllerFindTemplateResponses[keyof QqCatalogControllerFindTemplateResponses];
+
+export type QqCatalogControllerFindAllCompaniesData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: "/api/v1/qq-catalog/companies";
+};
+
+export type QqCatalogControllerFindAllCompaniesResponses = {
+  200: {
+    [key: string]: unknown;
+  };
+};
+
+export type QqCatalogControllerFindAllCompaniesResponse =
+  QqCatalogControllerFindAllCompaniesResponses[keyof QqCatalogControllerFindAllCompaniesResponses];
+
+export type InspectionControllerSubmitInspectionData = {
+  body: SubmitInspectionDto;
+  path: {
+    /**
+     * ID of the product request
+     */
+    requestId: string;
+  };
+  query?: never;
+  url: "/api/v1/requests/{requestId}/inspection";
+};
+
+export type InspectionControllerSubmitInspectionResponses = {
+  201: InspectionReport;
+};
+
+export type InspectionControllerSubmitInspectionResponse =
+  InspectionControllerSubmitInspectionResponses[keyof InspectionControllerSubmitInspectionResponses];
+
+export type InspectionControllerListInspectionsData = {
+  body?: never;
+  path: {
+    /**
+     * ID of the product request
+     */
+    requestId: string;
+  };
+  query?: never;
+  url: "/api/v1/requests/{requestId}/inspections";
+};
+
+export type InspectionControllerListInspectionsResponses = {
+  200: Array<InspectionReport>;
+};
+
+export type InspectionControllerListInspectionsResponse =
+  InspectionControllerListInspectionsResponses[keyof InspectionControllerListInspectionsResponses];
+
+export type InspectionReportControllerFindOneData = {
+  body?: never;
+  path: {
+    /**
+     * Inspection report ID
+     */
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/inspection-reports/{id}";
+};
+
+export type InspectionReportControllerFindOneResponses = {
+  200: InspectionReport;
+};
+
+export type InspectionReportControllerFindOneResponse =
+  InspectionReportControllerFindOneResponses[keyof InspectionReportControllerFindOneResponses];

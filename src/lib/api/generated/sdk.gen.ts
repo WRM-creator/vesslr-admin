@@ -73,6 +73,10 @@ import type {
   AdminTransactionsControllerReleaseSettlementResponses,
   AdminTransactionsControllerReviewDocumentData,
   AdminTransactionsControllerReviewDocumentResponses,
+  AdminTransactionsControllerReviewInspectionData,
+  AdminTransactionsControllerReviewInspectionResponses,
+  AdminTransactionsControllerSubmitInspectionData,
+  AdminTransactionsControllerSubmitInspectionResponses,
   AdminTransactionsControllerUpdateRequirementData,
   AdminTransactionsControllerUpdateRequirementResponses,
   AdminTransactionsControllerUpdateStatusData,
@@ -89,6 +93,22 @@ import type {
   CategoryGroupsControllerFindOneResponses,
   CategoryGroupsControllerUpdateData,
   CategoryGroupsControllerUpdateResponses,
+  InspectionControllerListInspectionsData,
+  InspectionControllerListInspectionsResponses,
+  InspectionControllerSubmitInspectionData,
+  InspectionControllerSubmitInspectionResponses,
+  InspectionReportControllerFindOneData,
+  InspectionReportControllerFindOneResponses,
+  InvitationsControllerAcceptInviteData,
+  InvitationsControllerAcceptInviteResponses,
+  InvitationsControllerGetInviteDetailsData,
+  InvitationsControllerGetInviteDetailsResponses,
+  InvitationsControllerInviteData,
+  InvitationsControllerInviteResponses,
+  InvitationsControllerListInvitationsData,
+  InvitationsControllerListInvitationsResponses,
+  InvitationsControllerRevokeInvitationData,
+  InvitationsControllerRevokeInvitationResponses,
   LocationsControllerGetCitiesData,
   LocationsControllerGetCitiesResponses,
   LocationsControllerGetCountriesData,
@@ -135,6 +155,8 @@ import type {
   OnboardingControllerCompleteOnboardingResponses,
   OnboardingControllerGetOnboardingStatusData,
   OnboardingControllerGetOnboardingStatusResponses,
+  OnboardingControllerInviteTeamData,
+  OnboardingControllerInviteTeamResponses,
   OnboardingControllerUpdateCompanyDocumentsData,
   OnboardingControllerUpdateCompanyDocumentsResponses,
   OnboardingControllerUpdateCompanyInfoData,
@@ -157,6 +179,14 @@ import type {
   OrdersControllerPurchaseResponses,
   OrdersControllerUpdateData,
   OrdersControllerUpdateResponses,
+  OrganizationsControllerListMembersData,
+  OrganizationsControllerListMembersResponses,
+  OrganizationsControllerRemoveMemberData,
+  OrganizationsControllerRemoveMemberResponses,
+  OrganizationsControllerUpdateMemberRoleData,
+  OrganizationsControllerUpdateMemberRoleResponses,
+  OrganizationsControllerUpdateOrganizationData,
+  OrganizationsControllerUpdateOrganizationResponses,
   OrgProductsControllerCreateData,
   OrgProductsControllerCreateResponses,
   OrgProductsControllerFindAllData,
@@ -171,6 +201,16 @@ import type {
   ProductsControllerFindAllResponses,
   ProductsControllerFindOneData,
   ProductsControllerFindOneResponses,
+  QqCatalogControllerFindAllCompaniesData,
+  QqCatalogControllerFindAllCompaniesResponses,
+  QqCatalogControllerFindAllFieldsData,
+  QqCatalogControllerFindAllFieldsResponses,
+  QqCatalogControllerFindAllTemplatesData,
+  QqCatalogControllerFindAllTemplatesResponses,
+  QqCatalogControllerFindFieldData,
+  QqCatalogControllerFindFieldResponses,
+  QqCatalogControllerFindTemplateData,
+  QqCatalogControllerFindTemplateResponses,
   RequestsControllerCreateData,
   RequestsControllerCreateResponses,
   RequestsControllerFindAllData,
@@ -209,10 +249,14 @@ import type {
   TransactionsControllerFundEscrowResponses,
   TransactionsControllerGetLogsData,
   TransactionsControllerGetLogsResponses,
+  TransactionsControllerSubmitInspectionData,
+  TransactionsControllerSubmitInspectionResponses,
   TransactionsControllerSubmitMilestoneData,
   TransactionsControllerSubmitMilestoneResponses,
   TransactionsControllerUpdateStatusData,
   TransactionsControllerUpdateStatusResponses,
+  UsersAuthControllerChangePasswordData,
+  UsersAuthControllerChangePasswordResponses,
   UsersAuthControllerForgotPasswordData,
   UsersAuthControllerForgotPasswordResponses,
   UsersAuthControllerGetProfileData,
@@ -223,11 +267,15 @@ import type {
   UsersAuthControllerRegisterResponses,
   UsersAuthControllerResetPasswordData,
   UsersAuthControllerResetPasswordResponses,
+  UsersAuthControllerUpdateProfileData,
+  UsersAuthControllerUpdateProfileResponses,
   UsersAuthControllerVerifyEmailData,
   UsersAuthControllerVerifyEmailErrors,
   UsersAuthControllerVerifyEmailResponses,
   UsersAuthControllerVerifyOtpData,
   UsersAuthControllerVerifyOtpResponses,
+  UsersControllerUpdateAddressData,
+  UsersControllerUpdateAddressResponses,
 } from "./types.gen";
 
 export type Options<
@@ -311,6 +359,28 @@ export const locationsControllerGetCities = <
     unknown,
     ThrowOnError
   >({ url: "/api/v1/locations/cities/{identifier}", ...options });
+
+/**
+ * Update the current user residential address
+ */
+export const usersControllerUpdateAddress = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<UsersControllerUpdateAddressData, ThrowOnError>,
+) =>
+  (options.client ?? client).put<
+    UsersControllerUpdateAddressResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/users/me/address",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
 
 export const usersAuthControllerRegister = <
   ThrowOnError extends boolean = false,
@@ -426,6 +496,124 @@ export const usersAuthControllerGetProfile = <
   >({
     security: [{ scheme: "bearer", type: "http" }],
     url: "/api/v1/auth/me",
+    ...options,
+  });
+
+export const usersAuthControllerUpdateProfile = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<UsersAuthControllerUpdateProfileData, ThrowOnError>,
+) =>
+  (options.client ?? client).patch<
+    UsersAuthControllerUpdateProfileResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/auth/profile",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+export const usersAuthControllerChangePassword = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<UsersAuthControllerChangePasswordData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    UsersAuthControllerChangePasswordResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/auth/change-password",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Update organization details
+ */
+export const organizationsControllerUpdateOrganization = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<OrganizationsControllerUpdateOrganizationData, ThrowOnError>,
+) =>
+  (options.client ?? client).patch<
+    OrganizationsControllerUpdateOrganizationResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/organizations/{orgId}",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * List all members of an organization
+ */
+export const organizationsControllerListMembers = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<OrganizationsControllerListMembersData, ThrowOnError>,
+) =>
+  (options.client ?? client).get<
+    OrganizationsControllerListMembersResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/organizations/{orgId}/members",
+    ...options,
+  });
+
+/**
+ * Update a member role
+ */
+export const organizationsControllerUpdateMemberRole = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<OrganizationsControllerUpdateMemberRoleData, ThrowOnError>,
+) =>
+  (options.client ?? client).patch<
+    OrganizationsControllerUpdateMemberRoleResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/organizations/{orgId}/members/{userId}/role",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Remove a member from the organization
+ */
+export const organizationsControllerRemoveMember = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<OrganizationsControllerRemoveMemberData, ThrowOnError>,
+) =>
+  (options.client ?? client).delete<
+    OrganizationsControllerRemoveMemberResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/organizations/{orgId}/members/{userId}",
     ...options,
   });
 
@@ -811,6 +999,28 @@ export const transactionsControllerApproveMilestone = <
   >({
     security: [{ scheme: "bearer", type: "http" }],
     url: "/api/v1/transactions/{id}/stages/{stageId}/approve-milestone",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Buyer (or admin) submits Q&Q inspection documents (completes INSPECTION stage)
+ */
+export const transactionsControllerSubmitInspection = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<TransactionsControllerSubmitInspectionData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    TransactionsControllerSubmitInspectionResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/transactions/{id}/stages/{stageId}/submit-inspection",
     ...options,
     headers: {
       "Content-Type": "application/json",
@@ -1348,6 +1558,28 @@ export const onboardingControllerUpdateCompanyDocuments = <
   });
 
 /**
+ * Invite team members (skippable)
+ */
+export const onboardingControllerInviteTeam = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<OnboardingControllerInviteTeamData, ThrowOnError>,
+) =>
+  (options.client ?? client).put<
+    OnboardingControllerInviteTeamResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/onboarding/invite-team",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
  * Complete onboarding
  */
 export const onboardingControllerCompleteOnboarding = <
@@ -1362,6 +1594,99 @@ export const onboardingControllerCompleteOnboarding = <
   >({
     security: [{ scheme: "bearer", type: "http" }],
     url: "/api/v1/onboarding/complete",
+    ...options,
+  });
+
+/**
+ * Get invitation details by token (public)
+ */
+export const invitationsControllerGetInviteDetails = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<InvitationsControllerGetInviteDetailsData, ThrowOnError>,
+) =>
+  (options.client ?? client).get<
+    InvitationsControllerGetInviteDetailsResponses,
+    unknown,
+    ThrowOnError
+  >({ url: "/api/v1/invitations/accept/{token}", ...options });
+
+/**
+ * Accept an invitation and create account (public)
+ */
+export const invitationsControllerAcceptInvite = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<InvitationsControllerAcceptInviteData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    InvitationsControllerAcceptInviteResponses,
+    unknown,
+    ThrowOnError
+  >({
+    url: "/api/v1/invitations/accept/{token}",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * List all invitations for an organization
+ */
+export const invitationsControllerListInvitations = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<InvitationsControllerListInvitationsData, ThrowOnError>,
+) =>
+  (options.client ?? client).get<
+    InvitationsControllerListInvitationsResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/invitations/organizations/{orgId}",
+    ...options,
+  });
+
+/**
+ * Send an invitation to join the organization
+ */
+export const invitationsControllerInvite = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<InvitationsControllerInviteData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    InvitationsControllerInviteResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/invitations/organizations/{orgId}",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Revoke an invitation
+ */
+export const invitationsControllerRevokeInvitation = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<InvitationsControllerRevokeInvitationData, ThrowOnError>,
+) =>
+  (options.client ?? client).delete<
+    InvitationsControllerRevokeInvitationResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/invitations/organizations/{orgId}/{inviteId}",
     ...options,
   });
 
@@ -1864,6 +2189,58 @@ export const adminTransactionsControllerReleaseSettlement = <
   });
 
 /**
+ * Admin submits Q&Q inspection documents on behalf of the buyer
+ */
+export const adminTransactionsControllerSubmitInspection = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    AdminTransactionsControllerSubmitInspectionData,
+    ThrowOnError
+  >,
+) =>
+  (options.client ?? client).post<
+    AdminTransactionsControllerSubmitInspectionResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/transactions/{id}/stages/{stageId}/submit-inspection",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Approve or reject submitted Q&Q inspection documents
+ *
+ * APPROVED: completes the INSPECTION stage and advances the workflow. REJECTED: keeps the stage ACTIVE, resets transaction status to INSPECTION_PENDING, and notifies the buyer to re-upload.
+ */
+export const adminTransactionsControllerReviewInspection = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    AdminTransactionsControllerReviewInspectionData,
+    ThrowOnError
+  >,
+) =>
+  (options.client ?? client).patch<
+    AdminTransactionsControllerReviewInspectionResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/transactions/{id}/stages/{stageId}/review-inspection",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
  * List all organizations (Admin)
  */
 export const adminOrganizationsControllerFindAll = <
@@ -2309,4 +2686,154 @@ export const storageControllerGeneratePresignedUrls = <
       "Content-Type": "application/json",
       ...options.headers,
     },
+  });
+
+/**
+ * Get all active Q&Q field definitions
+ */
+export const qqCatalogControllerFindAllFields = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<QqCatalogControllerFindAllFieldsData, ThrowOnError>,
+) =>
+  (options?.client ?? client).get<
+    QqCatalogControllerFindAllFieldsResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/qq-catalog/fields",
+    ...options,
+  });
+
+/**
+ * Get a single Q&Q field definition by key
+ */
+export const qqCatalogControllerFindField = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<QqCatalogControllerFindFieldData, ThrowOnError>,
+) =>
+  (options.client ?? client).get<
+    QqCatalogControllerFindFieldResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/qq-catalog/fields/{key}",
+    ...options,
+  });
+
+/**
+ * Get all active Q&Q templates
+ */
+export const qqCatalogControllerFindAllTemplates = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<QqCatalogControllerFindAllTemplatesData, ThrowOnError>,
+) =>
+  (options?.client ?? client).get<
+    QqCatalogControllerFindAllTemplatesResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/qq-catalog/templates",
+    ...options,
+  });
+
+/**
+ * Get a single Q&Q template by slug
+ */
+export const qqCatalogControllerFindTemplate = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<QqCatalogControllerFindTemplateData, ThrowOnError>,
+) =>
+  (options.client ?? client).get<
+    QqCatalogControllerFindTemplateResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/qq-catalog/templates/{slug}",
+    ...options,
+  });
+
+/**
+ * Get a list of common Q&Q inspection companies
+ */
+export const qqCatalogControllerFindAllCompanies = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<QqCatalogControllerFindAllCompaniesData, ThrowOnError>,
+) =>
+  (options?.client ?? client).get<
+    QqCatalogControllerFindAllCompaniesResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/qq-catalog/companies",
+    ...options,
+  });
+
+/**
+ * Submit an inspection report for a request
+ *
+ * Evaluates each criterion against the provided measured values and stores an InspectionReport. Triggers transaction state transition and notifications.
+ */
+export const inspectionControllerSubmitInspection = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<InspectionControllerSubmitInspectionData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    InspectionControllerSubmitInspectionResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/requests/{requestId}/inspection",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * List inspection reports for a request
+ */
+export const inspectionControllerListInspections = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<InspectionControllerListInspectionsData, ThrowOnError>,
+) =>
+  (options.client ?? client).get<
+    InspectionControllerListInspectionsResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/requests/{requestId}/inspections",
+    ...options,
+  });
+
+/**
+ * Get a single inspection report by ID
+ */
+export const inspectionReportControllerFindOne = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<InspectionReportControllerFindOneData, ThrowOnError>,
+) =>
+  (options.client ?? client).get<
+    InspectionReportControllerFindOneResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/inspection-reports/{id}",
+    ...options,
   });
