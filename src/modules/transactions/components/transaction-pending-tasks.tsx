@@ -1,3 +1,4 @@
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -12,6 +13,31 @@ import type {
 } from "@/lib/api/generated";
 import { useState } from "react";
 import { ReleaseSettlementDialog } from "./release-settlement-dialog";
+
+type AssignedTo = TransactionTaskDto["assignedTo"];
+
+const ASSIGNED_TO_LABELS: Record<AssignedTo, string> = {
+  BUYER: "Buyer",
+  SELLER: "Seller",
+  ADMIN: "Admin",
+};
+
+const ASSIGNED_TO_VARIANTS: Record<
+  AssignedTo,
+  "default" | "secondary" | "outline"
+> = {
+  BUYER: "default",
+  SELLER: "secondary",
+  ADMIN: "outline",
+};
+
+function AssignedToBadge({ assignedTo }: { assignedTo: AssignedTo }) {
+  return (
+    <Badge variant={ASSIGNED_TO_VARIANTS[assignedTo]}>
+      {ASSIGNED_TO_LABELS[assignedTo]}
+    </Badge>
+  );
+}
 
 interface TransactionPendingTasksProps {
   transaction?: TransactionResponseDto;
@@ -59,23 +85,22 @@ export function TransactionPendingTasks({
                 <div>
                   <p className="text-sm font-medium">{task.title}</p>
                   <p className="text-muted-foreground text-xs">
-                    {task.description} •{" "}
-                    <span className="font-medium">
-                      {/*TODO: Fix*/}
-                      {task.assignedTo}
-                    </span>
+                    {task.description}
                   </p>
                 </div>
               </div>
-              {task.action && (
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => handleAction(task)}
-                >
-                  View
-                </Button>
-              )}
+              <div className="flex items-center gap-2">
+                <AssignedToBadge assignedTo={task.assignedTo} />
+                {task.action && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => handleAction(task)}
+                  >
+                    View
+                  </Button>
+                )}
+              </div>
             </div>
           ))}
         </div>

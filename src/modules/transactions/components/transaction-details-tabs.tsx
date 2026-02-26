@@ -4,6 +4,7 @@ import { TransactionDocumentsTab } from "./transaction-documents-tab";
 import { TransactionFinancialsTab } from "./transaction-financials-tab";
 import { TransactionLogisticsTab } from "./transaction-logistics-tab";
 import { TransactionOverviewTab } from "./transaction-overview-tab";
+import { TransactionQQTab } from "./transaction-qq-tab";
 
 interface TransactionDetailsTabsProps {
   transaction: TransactionResponseDto;
@@ -30,6 +31,7 @@ export function TransactionDetailsTabs({
         <TabsTrigger value="documents">Documents & Compliance</TabsTrigger>
         <TabsTrigger value="financials">Financials & Escrow</TabsTrigger>
         <TabsTrigger value="logistics">Logistics</TabsTrigger>
+        <TabsTrigger value="quality">Q &amp; Q</TabsTrigger>
         {/* <TabsTrigger value="audit">Audit Log</TabsTrigger> */}
       </TabsList>
 
@@ -48,6 +50,9 @@ export function TransactionDetailsTabs({
         </TabsContent>
         <TabsContent value="logistics">
           <TransactionLogisticsTab transaction={transaction} />
+        </TabsContent>
+        <TabsContent value="quality">
+          <TransactionQQTab transaction={transaction} />
         </TabsContent>
         {/* <TabsContent value="audit" /> */}
       </div>
