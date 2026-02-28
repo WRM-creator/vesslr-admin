@@ -16,7 +16,7 @@ export default function ProductDetailsPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const currentTab = searchParams.get("tab") || "overview";
 
-  const { data, isLoading, error } = api.products.detail.useQuery({
+  const { data, isLoading, error } = api.admin.products.detail.useQuery({
     path: { id: id! },
   });
 

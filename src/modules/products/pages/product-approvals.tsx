@@ -91,7 +91,7 @@ export default function ProductApprovalsPage() {
     "created[lte]": dateTo || undefined,
   };
 
-  const { data: productsData, isLoading } = api.products.list.useQuery({
+  const { data: productsData, isLoading } = api.admin.products.list.useQuery({
     query: {
       ...queryParams,
       page: queryParams.page.toString(),

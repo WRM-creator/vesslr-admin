@@ -34,7 +34,7 @@ export default function ProductsPage() {
   const queryParams = useMemo(() => {
     const params: Record<string, any> = {};
 
-    if (filters.search) params.name = filters.search; // Assuming backend searches by name
+    if (filters.search) params.search = filters.search;
     if (filters.category !== "all") params.category = filters.category;
     if (filters.merchantId !== "all") params.merchant = filters.merchantId;
     if (filters.status !== "all") params.status = filters.status;
@@ -57,7 +57,7 @@ export default function ProductsPage() {
   }, [filters]);
 
   const { data: productsData, isLoading } =
-    api.products.list.useQuery(queryParams);
+    api.admin.products.list.useQuery({ query: queryParams });
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const rawProducts = ((productsData as any)?.data?.docs as any[]) || [];
 

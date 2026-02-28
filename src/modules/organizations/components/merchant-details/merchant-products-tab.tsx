@@ -37,9 +37,9 @@ export function MerchantProductsTab({ merchantId }: MerchantProductsTabProps) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const params: Record<string, any> = {};
 
-    if (filters.search) params.name = filters.search;
+    if (filters.search) params.search = filters.search;
     if (filters.category !== "all") params.category = filters.category;
-    params.seller = merchantId;
+    params.merchant = merchantId;
     if (filters.status !== "all") params.status = filters.status;
     if (filters.transactionType !== "all")
       params.transactionType = filters.transactionType;
@@ -60,9 +60,9 @@ export function MerchantProductsTab({ merchantId }: MerchantProductsTabProps) {
   }, [filters, merchantId]);
 
   const { data: productsData, isLoading } =
-    api.products.list.useQuery(queryParams);
+    api.admin.products.list.useQuery({ query: queryParams });
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const products = (productsData as any)?.data || [];
+  const products = ((productsData as any)?.data?.docs as any[]) || [];
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleFilterChange = (key: keyof ProductFilters, value: any) => {
