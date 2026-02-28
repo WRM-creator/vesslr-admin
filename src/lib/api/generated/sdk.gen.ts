@@ -23,6 +23,10 @@ import type {
   AdminCategoriesControllerRemoveResponses,
   AdminCategoriesControllerUpdateData,
   AdminCategoriesControllerUpdateResponses,
+  AdminDisputesControllerCreateInformationRequestData,
+  AdminDisputesControllerCreateInformationRequestResponses,
+  AdminDisputesControllerDismissInformationRequestData,
+  AdminDisputesControllerDismissInformationRequestResponses,
   AdminDisputesControllerFindAllData,
   AdminDisputesControllerFindAllResponses,
   AdminDisputesControllerFindOneData,
@@ -101,6 +105,12 @@ import type {
   CategoryGroupsControllerFindOneResponses,
   CategoryGroupsControllerUpdateData,
   CategoryGroupsControllerUpdateResponses,
+  DisputesControllerAddAttachmentData,
+  DisputesControllerAddAttachmentResponses,
+  DisputesControllerFulfillInformationRequestData,
+  DisputesControllerFulfillInformationRequestResponses,
+  DisputesControllerGetByTransactionData,
+  DisputesControllerGetByTransactionResponses,
   DisputesControllerRaiseDisputeData,
   DisputesControllerRaiseDisputeResponses,
   InspectionControllerListInspectionsData,
@@ -1478,6 +1488,71 @@ export const disputesControllerRaiseDispute = <
   });
 
 /**
+ * Get the active dispute for a transaction (for parties)
+ */
+export const disputesControllerGetByTransaction = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<DisputesControllerGetByTransactionData, ThrowOnError>,
+) =>
+  (options.client ?? client).get<
+    DisputesControllerGetByTransactionResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/disputes/transaction/{transactionId}",
+    ...options,
+  });
+
+/**
+ * Add an attachment to an existing dispute (initiator only)
+ */
+export const disputesControllerAddAttachment = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<DisputesControllerAddAttachmentData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    DisputesControllerAddAttachmentResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/disputes/{id}/attachments",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Respond to an admin information request on a dispute
+ */
+export const disputesControllerFulfillInformationRequest = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    DisputesControllerFulfillInformationRequestData,
+    ThrowOnError
+  >,
+) =>
+  (options.client ?? client).post<
+    DisputesControllerFulfillInformationRequestResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/disputes/{id}/requests/{requestId}/respond",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
  * Get current onboarding status
  */
 export const onboardingControllerGetOnboardingStatus = <
@@ -2364,6 +2439,52 @@ export const adminDisputesControllerResolve = <
       "Content-Type": "application/json",
       ...options.headers,
     },
+  });
+
+/**
+ * Create an information request on a dispute (admin)
+ */
+export const adminDisputesControllerCreateInformationRequest = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    AdminDisputesControllerCreateInformationRequestData,
+    ThrowOnError
+  >,
+) =>
+  (options.client ?? client).post<
+    AdminDisputesControllerCreateInformationRequestResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/disputes/{id}/requests",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Dismiss a pending information request (admin)
+ */
+export const adminDisputesControllerDismissInformationRequest = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    AdminDisputesControllerDismissInformationRequestData,
+    ThrowOnError
+  >,
+) =>
+  (options.client ?? client).patch<
+    AdminDisputesControllerDismissInformationRequestResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/disputes/{id}/requests/{requestId}/dismiss",
+    ...options,
   });
 
 /**

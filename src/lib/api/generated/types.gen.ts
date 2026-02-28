@@ -434,6 +434,8 @@ export type CategoryDocumentTemplateDto = {
     | "SETTLEMENT_RELEASED"
     | "CLOSED"
     | "CANCELLED"
+    | "REFUNDED"
+    | "PARTIALLY_REFUNDED"
     | "DISPUTED";
 };
 
@@ -632,7 +634,8 @@ export type TransactionEventDto = {
     | "INSPECTION_SUBMITTED"
     | "INSPECTION_REVIEWED"
     | "DISPUTE_RAISED"
-    | "DISPUTE_RESOLVED";
+    | "DISPUTE_RESOLVED"
+    | "ESCROW_REFUND_INITIATED";
   metadata?: {
     [key: string]: unknown;
   };
@@ -678,7 +681,21 @@ export type TransactionDocumentSlotDto = {
     | "SETTLEMENT_RELEASED"
     | "CLOSED"
     | "CANCELLED"
+    | "REFUNDED"
+    | "PARTIALLY_REFUNDED"
     | "DISPUTED";
+};
+
+export type EscrowResponseDto = {
+  _id: string;
+  status: "FUNDED" | "RELEASED" | "REFUNDED" | "PARTIALLY_REFUNDED";
+  amount: number;
+  currency: string;
+  referenceId?: string | null;
+  fundedAt?: string | null;
+  releasedAt?: string | null;
+  refundedAt?: string | null;
+  refundReferenceId?: string | null;
 };
 
 export type TransactionStageResponseDto = {
@@ -749,6 +766,8 @@ export type TransactionResponseDto = {
     | "SETTLEMENT_RELEASED"
     | "CLOSED"
     | "CANCELLED"
+    | "REFUNDED"
+    | "PARTIALLY_REFUNDED"
     | "DISPUTED";
   workflowType: "PHYSICAL_GOODS" | "SERVICE" | "FINANCIAL";
   events: Array<TransactionEventDto>;
@@ -759,7 +778,7 @@ export type TransactionResponseDto = {
   documents?: {
     [key: string]: unknown;
   };
-  escrow?: string;
+  escrow?: EscrowResponseDto | null;
   assignedLogistics?: {
     [key: string]: unknown;
   };
@@ -789,6 +808,8 @@ export type UpdateTransactionStatusDto = {
     | "SETTLEMENT_RELEASED"
     | "CLOSED"
     | "CANCELLED"
+    | "REFUNDED"
+    | "PARTIALLY_REFUNDED"
     | "DISPUTED";
   /**
    * Reason for the status change (optional)
@@ -1316,6 +1337,17 @@ export type SendMessageDto = {
   text: string;
 };
 
+export type DisputeAttachmentInputDto = {
+  /**
+   * Public URL of the uploaded file
+   */
+  url: string;
+  /**
+   * Display name of the file
+   */
+  name: string;
+};
+
 export type RaiseDisputeDto = {
   /**
    * ID of the transaction being disputed
@@ -1333,6 +1365,10 @@ export type RaiseDisputeDto = {
    * Reason for raising the dispute
    */
   reason: string;
+  /**
+   * Optional supporting documents
+   */
+  attachments?: Array<DisputeAttachmentInputDto>;
 };
 
 export type DisputeResolutionDto = {
@@ -1351,6 +1387,15 @@ export type DisputeResolutionDto = {
   };
 };
 
+export type DisputeAttachmentResponseDto = {
+  url: string;
+  name: string;
+  uploadedAt: string;
+  uploadedByRole: {
+    [key: string]: unknown;
+  };
+};
+
 export type DisputeResponseDto = {
   _id: string;
   transactionId: string;
@@ -1361,12 +1406,39 @@ export type DisputeResponseDto = {
   reason: string;
   status: "OPEN" | "UNDER_REVIEW" | "RESOLVED" | "ESCALATED";
   resolution?: DisputeResolutionDto | null;
+  attachments: Array<DisputeAttachmentResponseDto>;
   createdAt: string;
   updatedAt: string;
 };
 
 export type Dispute = {
   [key: string]: unknown;
+};
+
+export type SingleDisputeResponseDto = {
+  message: string;
+  data: DisputeResponseDto;
+};
+
+export type AddDisputeAttachmentDto = {
+  /**
+   * Public URL of the uploaded file
+   */
+  url: string;
+  /**
+   * Display name of the file
+   */
+  name: string;
+};
+
+export type AttachmentDto = {
+  url: string;
+  name: string;
+};
+
+export type FulfillInformationRequestDto = {
+  message?: string;
+  attachments?: Array<AttachmentDto>;
 };
 
 export type OnboardingStatusResponseDto = {
@@ -1517,6 +1589,8 @@ export type CategoryDocumentTemplateInput = {
     | "SETTLEMENT_RELEASED"
     | "CLOSED"
     | "CANCELLED"
+    | "REFUNDED"
+    | "PARTIALLY_REFUNDED"
     | "DISPUTED";
 };
 
@@ -1641,6 +1715,8 @@ export type AddTransactionRequirementDto = {
     | "SETTLEMENT_RELEASED"
     | "CLOSED"
     | "CANCELLED"
+    | "REFUNDED"
+    | "PARTIALLY_REFUNDED"
     | "DISPUTED";
 };
 
@@ -1688,6 +1764,8 @@ export type UpdateTransactionRequirementDto = {
     | "SETTLEMENT_RELEASED"
     | "CLOSED"
     | "CANCELLED"
+    | "REFUNDED"
+    | "PARTIALLY_REFUNDED"
     | "DISPUTED";
 };
 
@@ -1774,6 +1852,13 @@ export type AdminDisputeAuditEventDto = {
   };
 };
 
+export type AdminDisputeAttachmentDto = {
+  url: string;
+  name: string;
+  uploadedAt: string;
+  uploadedByRole: "BUYER" | "SELLER";
+};
+
 export type AdminDisputeResponseDto = {
   _id: string;
   displayId: number;
@@ -1791,12 +1876,7 @@ export type AdminDisputeResponseDto = {
   createdAt: string;
   updatedAt: string;
   auditLog: Array<AdminDisputeAuditEventDto>;
-  attachments: Array<{
-    url: string;
-    name: string;
-    uploadedAt: string;
-    uploadedByRole: "BUYER" | "SELLER";
-  }>;
+  attachments: Array<AdminDisputeAttachmentDto>;
 };
 
 export type PaginatedAdminDisputesDataDto = {
@@ -1842,6 +1922,17 @@ export type ResolveDisputeDto = {
    * Additional metadata
    */
   metadata?: ResolveDisputeMetadataDto;
+};
+
+export type CreateInformationRequestDto = {
+  requestedFrom: "BUYER" | "SELLER";
+  message: string;
+  requiresDocuments: boolean;
+  documentDescription?: string;
+  /**
+   * ISO 8601 date string for the response deadline
+   */
+  deadline?: string;
 };
 
 export type AcceptRequestOrderDto = {
@@ -3163,6 +3254,53 @@ export type DisputesControllerRaiseDisputeResponses = {
 export type DisputesControllerRaiseDisputeResponse =
   DisputesControllerRaiseDisputeResponses[keyof DisputesControllerRaiseDisputeResponses];
 
+export type DisputesControllerGetByTransactionData = {
+  body?: never;
+  path: {
+    transactionId: string;
+  };
+  query?: never;
+  url: "/api/v1/disputes/transaction/{transactionId}";
+};
+
+export type DisputesControllerGetByTransactionResponses = {
+  200: SingleDisputeResponseDto;
+};
+
+export type DisputesControllerGetByTransactionResponse =
+  DisputesControllerGetByTransactionResponses[keyof DisputesControllerGetByTransactionResponses];
+
+export type DisputesControllerAddAttachmentData = {
+  body: AddDisputeAttachmentDto;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/disputes/{id}/attachments";
+};
+
+export type DisputesControllerAddAttachmentResponses = {
+  200: DisputeResponseDto;
+  201: Dispute;
+};
+
+export type DisputesControllerAddAttachmentResponse =
+  DisputesControllerAddAttachmentResponses[keyof DisputesControllerAddAttachmentResponses];
+
+export type DisputesControllerFulfillInformationRequestData = {
+  body: FulfillInformationRequestDto;
+  path: {
+    id: string;
+    requestId: string;
+  };
+  query?: never;
+  url: "/api/v1/disputes/{id}/requests/{requestId}/respond";
+};
+
+export type DisputesControllerFulfillInformationRequestResponses = {
+  201: unknown;
+};
+
 export type OnboardingControllerGetOnboardingStatusData = {
   body?: never;
   path?: never;
@@ -3947,6 +4085,33 @@ export type AdminDisputesControllerResolveResponses = {
 
 export type AdminDisputesControllerResolveResponse =
   AdminDisputesControllerResolveResponses[keyof AdminDisputesControllerResolveResponses];
+
+export type AdminDisputesControllerCreateInformationRequestData = {
+  body: CreateInformationRequestDto;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/admin/disputes/{id}/requests";
+};
+
+export type AdminDisputesControllerCreateInformationRequestResponses = {
+  201: unknown;
+};
+
+export type AdminDisputesControllerDismissInformationRequestData = {
+  body?: never;
+  path: {
+    id: string;
+    requestId: string;
+  };
+  query?: never;
+  url: "/api/v1/admin/disputes/{id}/requests/{requestId}/dismiss";
+};
+
+export type AdminDisputesControllerDismissInformationRequestResponses = {
+  200: unknown;
+};
 
 export type AdminRequestsControllerFindAllData = {
   body?: never;
