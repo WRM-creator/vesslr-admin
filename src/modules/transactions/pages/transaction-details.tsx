@@ -92,7 +92,7 @@ export default function TransactionDetailsPage() {
         </div>
 
         {/* 2. Orchestration Bar (The Bridge) */}
-        <TransactionOrchestrationBar stages={transaction.stages} />
+        <TransactionOrchestrationBar stages={transaction.stages} transactionStatus={transaction.status} />
 
         {/* 3. Detailed Tabs (The What) */}
         <TransactionDetailsTabs

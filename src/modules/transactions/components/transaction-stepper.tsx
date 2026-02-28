@@ -1,15 +1,32 @@
 import type { TransactionStageResponseDto } from "@/lib/api/generated/types.gen";
 import { cn } from "@/lib/utils";
-import { AlertTriangle, Check } from "lucide-react";
+import { AlertTriangle, Check, X } from "lucide-react";
 
 interface TransactionStepperProps {
   stages?: Array<TransactionStageResponseDto>;
+  transactionStatus?: string;
 }
 
-export function TransactionStepper({ stages = [] }: TransactionStepperProps) {
+export function TransactionStepper({
+  stages = [],
+  transactionStatus,
+}: TransactionStepperProps) {
+  const isCancelled = ["REFUNDED", "CANCELLED", "PARTIALLY_REFUNDED"].includes(
+    transactionStatus ?? "",
+  );
+
+  // Index of the last non-PENDING stage. The cancellation break is injected
+  // immediately after it, before the remaining grey "would-have-been" stages.
+  const breakAfterIndex = isCancelled
+    ? stages.reduce((last, s, i) => (s.status !== "PENDING" ? i : last), -1)
+    : -1;
+
+  // Only show the break when there are remaining stages after the cutoff.
+  const hasBreak = breakAfterIndex >= 0 && breakAfterIndex < stages.length - 1;
+
   return (
     <div className="flex flex-1 items-center gap-2">
-      {stages.map((stage, index) => {
+      {stages.flatMap((stage, index) => {
         const isLast = index === stages.length - 1;
         const isCompleted = stage.status === "COMPLETED";
         const isCurrent = stage.status === "ACTIVE";
@@ -18,7 +35,7 @@ export function TransactionStepper({ stages = [] }: TransactionStepperProps) {
         const nextStage = isLast ? null : stages[index + 1];
         const isNextStepReached = !isLast && nextStage?.status !== "PENDING";
 
-        return (
+        const stageEl = (
           <div key={stage._id} className="contents pb-8">
             <div className="relative flex flex-col items-center gap-1">
               <div
@@ -78,6 +95,28 @@ export function TransactionStepper({ stages = [] }: TransactionStepperProps) {
             )}
           </div>
         );
+
+        if (hasBreak && index === breakAfterIndex) {
+          const breakEl = (
+            <div key="cancellation-break" className="contents">
+              <div className="relative flex flex-col items-center gap-1">
+                <div className="bg-background flex size-6 items-center justify-center rounded-full">
+                  <X className="text-destructive size-4" strokeWidth={2.5} />
+                </div>
+                <span className="text-destructive absolute -bottom-6 left-1/2 -translate-x-1/2 text-center text-xs font-medium whitespace-nowrap">
+                  {transactionStatus === "PARTIALLY_REFUNDED"
+                    ? "Split Settlement"
+                    : "Cancelled"}
+                </span>
+              </div>
+              <div className="bg-border/50 h-0.5 w-8 flex-1" />
+            </div>
+          );
+
+          return [stageEl, breakEl];
+        }
+
+        return [stageEl];
       })}
     </div>
   );

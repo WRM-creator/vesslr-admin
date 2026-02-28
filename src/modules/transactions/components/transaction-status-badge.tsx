@@ -17,6 +17,7 @@ export enum TransactionStatus {
   SETTLEMENT_RELEASED = "SETTLEMENT_RELEASED",
   CLOSED = "CLOSED",
   DISPUTED = "DISPUTED",
+  REFUNDED = "REFUNDED",
 }
 
 export type StatusVariant =
@@ -47,6 +48,7 @@ const statusToVariant: Record<string, StatusVariant> = {
   [TransactionStatus.SETTLEMENT_RELEASED]: "success",
   [TransactionStatus.CLOSED]: "neutral",
   [TransactionStatus.DISPUTED]: "danger",
+  [TransactionStatus.REFUNDED]: "warning",
 };
 
 const variantStyles: Record<StatusVariant, string> = {

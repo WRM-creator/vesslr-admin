@@ -41,8 +41,8 @@ interface DisputeResolutionProps {
 type ActionKey = "RELEASE" | "REFUND" | "SPLIT" | "ESCALATE";
 
 const ACTION_LABELS: Record<ActionKey, string> = {
-  RELEASE: "Release to Seller",
-  REFUND: "Refund to Buyer",
+  RELEASE: "Resolve & Resume Transaction",
+  REFUND: "Cancel & Refund Buyer",
   SPLIT: "Split Settlement",
   ESCALATE: "Escalate Dispute",
 };
@@ -155,14 +155,17 @@ export function DisputeResolution({
                   <ChevronDown className="h-4 w-4 opacity-60" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-[var(--radix-dropdown-menu-trigger-width)]">
+              <DropdownMenuContent
+                align="end"
+                className="w-[var(--radix-dropdown-menu-trigger-width)]"
+              >
                 <DropdownMenuItem
                   onClick={() => setSelectedAction("RELEASE")}
                   className="flex-col items-start gap-0.5"
                 >
                   <div className="flex items-center gap-2 font-medium">
                     <CheckCircle2 className="h-4 w-4" />
-                    Approve & Release to Seller
+                    Resolve {"&"} Resume Transaction
                   </div>
                   <p className="text-muted-foreground pl-6 text-xs">
                     Dispute ruled in seller's favour — release escrowed funds
@@ -189,7 +192,7 @@ export function DisputeResolution({
                 >
                   <div className="flex items-center gap-2 font-medium">
                     <ArrowRightLeft className="h-4 w-4" />
-                    Split Settlement
+                    Cancel & Split Settlement
                   </div>
                   <p className="text-muted-foreground pl-6 text-xs">
                     Divide funds between buyer and seller
@@ -314,7 +317,7 @@ function ResolvedSummary({ dispute }: { dispute: AdminDisputeResponseDto }) {
       <div className="flex items-center justify-between">
         <span className="text-muted-foreground text-xs">Resolved by</span>
         <span className="text-xs font-medium">
-          {resolution.resolvedBy.firstName} {resolution.resolvedBy.lastName}
+          {resolution.resolvedBy?.firstName} {resolution.resolvedBy?.lastName}
         </span>
       </div>
       {resolution.notes && (

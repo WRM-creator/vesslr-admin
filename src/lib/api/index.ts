@@ -11,6 +11,10 @@
  */
 
 import { createMutation, createQuery } from "./factory";
+import {
+  adminDisputesControllerCreateRequest,
+  adminDisputesControllerDismissRequest,
+} from "./disputes";
 
 // Import client config to initialize interceptors
 import "./client-config";
@@ -93,6 +97,18 @@ export const api = {
         "disputes",
         "stats",
       ]),
+      createRequest: createMutation(adminDisputesControllerCreateRequest, {
+        invalidates: (args) => [
+          ["admin", "disputes", "list"],
+          ["admin", "disputes", "detail", args.path.id],
+        ],
+      }),
+      dismissRequest: createMutation(adminDisputesControllerDismissRequest, {
+        invalidates: (args) => [
+          ["admin", "disputes", "list"],
+          ["admin", "disputes", "detail", args.path.id],
+        ],
+      }),
     },
     transactions: {
       list: createQuery(adminTransactionsControllerFindAll, (args) => [

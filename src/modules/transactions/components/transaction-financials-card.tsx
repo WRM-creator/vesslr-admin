@@ -25,14 +25,16 @@ export function TransactionFinancialsCard({
     "CLOSED",
   ].includes(transaction.status);
 
+  const isRefunded = transaction.status === "REFUNDED";
+
   const paymentStatus =
     transaction.status === "SETTLEMENT_RELEASED" ||
     transaction.status === "CLOSED"
       ? TransactionPaymentStatus.RELEASED
-      : isFunded
-        ? TransactionPaymentStatus.FUNDED
-        : transaction.status === "COMPLIANCE_REVIEWED"
-          ? TransactionPaymentStatus.PENDING
+      : isRefunded
+        ? TransactionPaymentStatus.REFUNDED
+        : isFunded
+          ? TransactionPaymentStatus.FUNDED
           : TransactionPaymentStatus.PENDING;
 
   // Find the escrow funded event if it exists
@@ -73,10 +75,16 @@ export function TransactionFinancialsCard({
           <div className="bg-muted/40 border-border/50 rounded-md border p-4">
             <div className="flex items-start gap-3">
               <div
-                className={`mt-0.5 rounded-full p-1 ${isFunded ? "bg-green-100 text-green-600" : "bg-blue-100 text-blue-600"}`}
+                className={`mt-0.5 rounded-full p-1 ${
+                  isRefunded
+                    ? "bg-amber-100 text-amber-600"
+                    : isFunded
+                      ? "bg-green-100 text-green-600"
+                      : "bg-blue-100 text-blue-600"
+                }`}
               >
                 <RefreshCw
-                  className={`size-4 ${!isFunded && "animate-spin-slow"}`}
+                  className={`size-4 ${!isFunded && !isRefunded && "animate-spin-slow"}`}
                 />
               </div>
               <div className="space-y-1">
@@ -84,17 +92,21 @@ export function TransactionFinancialsCard({
                   {transaction.status === "CLOSED" ||
                   transaction.status === "SETTLEMENT_RELEASED"
                     ? "Settlement Released"
-                    : isFunded
-                      ? "Funds Secured"
-                      : "Awaiting Funding"}
+                    : isRefunded
+                      ? "Refunded to Buyer"
+                      : isFunded
+                        ? "Funds Secured"
+                        : "Awaiting Funding"}
                 </p>
                 <p className="text-muted-foreground text-xs">
                   {transaction.status === "CLOSED" ||
                   transaction.status === "SETTLEMENT_RELEASED"
                     ? "Funds have been released to the seller and the transaction is closed."
-                    : isFunded
-                      ? `Funds were successfully secured in escrow on ${new Date(fundingEvent?.timestamp || transaction.updatedAt).toLocaleDateString()}.`
-                      : "The buyer has been notified to fund the escrow account via the platform."}
+                    : isRefunded
+                      ? "Dispute resolved in buyer's favour — escrowed funds have been refunded."
+                      : isFunded
+                        ? `Funds were successfully secured in escrow on ${new Date(fundingEvent?.timestamp || transaction.updatedAt).toLocaleDateString()}.`
+                        : "The buyer has been notified to fund the escrow account via the platform."}
                 </p>
               </div>
             </div>

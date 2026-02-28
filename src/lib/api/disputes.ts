@@ -1,5 +1,25 @@
 import { client } from "@/lib/api/client-config";
 
+export type InformationRequestStatus = "PENDING" | "FULFILLED" | "DISMISSED";
+
+export interface InformationRequest {
+  _id: string;
+  requestedFrom: "BUYER" | "SELLER";
+  requestedBy: string;
+  message: string;
+  requiresDocuments: boolean;
+  documentDescription: string | null;
+  deadline: string | null;
+  status: InformationRequestStatus;
+  response: {
+    message: string | null;
+    attachments: { url: string; name: string }[];
+    submittedBy: string;
+    submittedAt: string;
+  } | null;
+  createdAt: string;
+}
+
 export interface Dispute {
   _id: string;
   transaction: {
@@ -50,6 +70,7 @@ export interface Dispute {
     uploadedBy: string;
     uploadedAt: string;
   }>;
+  informationRequests: InformationRequest[];
 }
 
 export interface GetDisputesParams {
@@ -123,3 +144,28 @@ export const resolveDispute = async (
   });
   return data;
 };
+
+// Factory-compatible wrappers (return raw { data, error } for createMutation)
+export const adminDisputesControllerCreateRequest = (args: {
+  path: { id: string };
+  body: {
+    requestedFrom: "BUYER" | "SELLER";
+    message: string;
+    requiresDocuments: boolean;
+    documentDescription?: string;
+    deadline?: string;
+  };
+}) =>
+  client.request({
+    url: `/api/v1/admin/disputes/${args.path.id}/requests`,
+    method: "POST",
+    body: args.body,
+  });
+
+export const adminDisputesControllerDismissRequest = (args: {
+  path: { id: string; requestId: string };
+}) =>
+  client.request({
+    url: `/api/v1/admin/disputes/${args.path.id}/requests/${args.path.requestId}/dismiss`,
+    method: "PATCH",
+  });
