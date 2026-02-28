@@ -17,7 +17,7 @@ const formatOutcome = (outcome?: string): string => {
   const map: Record<string, string> = {
     PROCEED: "Release to Seller",
     CANCELLED: "Refund to Buyer",
-    PARTIAL_REFUND: "Split Settlement",
+    PARTIAL_REFUND: "Cancel & Split Settlement",
     RE_INSPECT: "Re-inspect",
     MUTUAL_SETTLEMENT: "Mutual Settlement",
     ESCALATED: "Escalated",
