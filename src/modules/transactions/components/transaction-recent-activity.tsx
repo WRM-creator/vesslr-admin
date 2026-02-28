@@ -19,6 +19,7 @@ const TransactionAction = {
   MILESTONE_APPROVED: "MILESTONE_APPROVED",
   INSPECTION_SUBMITTED: "INSPECTION_SUBMITTED",
   INSPECTION_REVIEWED: "INSPECTION_REVIEWED",
+  ESCROW_REFUND_INITIATED: "ESCROW_REFUND_INITIATED",
 } as const;
 
 type TransactionActionType =
@@ -37,7 +38,8 @@ type TransactionActionType =
   | "INSPECTION_SUBMITTED"
   | "INSPECTION_REVIEWED"
   | "DISPUTE_RAISED"
-  | "DISPUTE_RESOLVED";
+  | "DISPUTE_RESOLVED"
+  | "ESCROW_REFUND_INITIATED";
 
 const getLogMessage = (action: TransactionActionType, metadata: any) => {
   switch (action) {
