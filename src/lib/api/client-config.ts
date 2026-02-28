@@ -1,3 +1,4 @@
+import { isTokenExpired } from "./auth";
 import { client } from "./generated/client.gen";
 
 // Configure base URL from environment variable
@@ -24,6 +25,14 @@ client.interceptors.response.use(async (response, request, options) => {
     (options as any)._retry = true;
 
     if (typeof window !== "undefined") {
+      const token = localStorage.getItem("admin_auth_token");
+
+      // If the token is still valid, the 401 is a permissions/endpoint issue —
+      // not an expired session. Let the error propagate without logging out.
+      if (token && !isTokenExpired(token)) {
+        return response;
+      }
+
       const refreshToken = localStorage.getItem("admin_refresh_token");
 
       if (refreshToken) {
