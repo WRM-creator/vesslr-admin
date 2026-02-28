@@ -24,6 +24,15 @@ export interface Dispute {
     lastName: string;
     email: string;
   };
+  type?: string;
+  raisedByRole?: "BUYER" | "SELLER";
+  resolution?: {
+    outcome: string;
+    notes: string;
+    resolvedAt: string;
+    resolvedBy: string;
+    metadata?: any;
+  } | null;
   reason: string;
   status:
     | "open"
@@ -48,6 +57,7 @@ export interface GetDisputesParams {
   limit?: number;
   status?: string;
   respondent?: string;
+  transactionId?: string;
 }
 
 export interface GetDisputesResponse {
@@ -94,7 +104,17 @@ export const getDisputeStats = async () => {
 
 export const resolveDispute = async (
   id: string,
-  payload: { status: string; resolutionNotes: string },
+  payload: {
+    outcome:
+      | "PROCEED"
+      | "CANCELLED"
+      | "PARTIAL_REFUND"
+      | "RE_INSPECT"
+      | "MUTUAL_SETTLEMENT"
+      | "ESCALATED";
+    notes: string;
+    metadata?: { buyerRefundAmount?: number };
+  },
 ) => {
   const { data } = await client.request({
     url: `/api/v1/admin/disputes/${id}/resolve`,
