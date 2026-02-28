@@ -1,52 +1,51 @@
-import { CopyButton } from "@/components/shared/copy-button";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardTitle } from "@/components/ui/card";
+import type { AdminDisputeResponseDto } from "@/lib/api/generated/types.gen";
 import { formatCurrency } from "@/lib/utils";
 import { formatDistanceToNow } from "date-fns";
 import { AlertCircle } from "lucide-react";
-import type { Dispute } from "./dispute-types";
 
 interface DisputeHeaderProps {
-  dispute: Dispute;
+  dispute: AdminDisputeResponseDto;
+  amount: number;
 }
 
-export function DisputeHeader({ dispute }: DisputeHeaderProps) {
+export function DisputeHeader({ dispute, amount }: DisputeHeaderProps) {
+  const category = dispute.type
+    ? dispute.type
+        .replace(/_/g, " ")
+        .toLowerCase()
+        .replace(/\b\w/g, (l) => l.toUpperCase())
+    : "Unknown Category";
+
+  const displayId = `DSP-${String(dispute.displayId).padStart(4, "0")}`;
+
   return (
     <Card className="shadow-none">
       <CardContent className="flex flex-col gap-4 px-4">
         <div className="flex items-start justify-between">
           <div className="space-y-1">
-            <div className="space-y-1">
-              <div className="flex items-center gap-2">
-                <Badge variant="outline">
-                  <AlertCircle className="h-4 w-4" />
-                  {dispute.status}
-                </Badge>
-                <div className="text-muted-foreground flex items-center gap-1 text-xs font-medium">
-                  {formatDistanceToNow(dispute.openedAt, { addSuffix: true })}
-                </div>
-              </div>
-              <h2 className="text-xl font-medium tracking-tight">
-                {dispute.category}
-              </h2>
-              <div className="flex items-center gap-2">
-                <span className="text-muted-foreground font-mono text-xs tracking-wide">
-                  #{dispute.id}
-                </span>
-                <CopyButton
-                  value={dispute.id}
-                  className="text-muted-foreground hover:text-foreground size-3"
-                />
+            <div className="flex items-center gap-2">
+              <Badge variant="outline">
+                <AlertCircle className="h-4 w-4" />
+                {dispute.status}
+              </Badge>
+              <div className="text-muted-foreground flex items-center gap-1 text-xs font-medium">
+                {formatDistanceToNow(new Date(dispute.createdAt), {
+                  addSuffix: true,
+                })}
               </div>
             </div>
+            <h2 className="text-lg font-medium tracking-tight">{category}</h2>
+            <span className="text-muted-foreground font-mono text-xs tracking-wide">
+              {displayId}
+            </span>
           </div>
 
           <div className="space-y-1 text-right">
-            <div className="text-muted-foreground text-sm font-medium tracking-wider">
-              Amount In Dispute
-            </div>
-            <div className="text-destructive text-xl font-semibold">
-              {formatCurrency(dispute.amount)}
+            <CardTitle>Amount In Dispute</CardTitle>
+            <div className="text-destructive text-lg font-semibold">
+              {formatCurrency(amount)}
             </div>
           </div>
         </div>
