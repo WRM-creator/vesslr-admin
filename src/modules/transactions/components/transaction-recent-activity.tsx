@@ -35,7 +35,9 @@ type TransactionActionType =
   | "MILESTONE_SUBMITTED"
   | "MILESTONE_APPROVED"
   | "INSPECTION_SUBMITTED"
-  | "INSPECTION_REVIEWED";
+  | "INSPECTION_REVIEWED"
+  | "DISPUTE_RAISED"
+  | "DISPUTE_RESOLVED";
 
 const getLogMessage = (action: TransactionActionType, metadata: any) => {
   switch (action) {

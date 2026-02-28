@@ -7,6 +7,7 @@ import { type TransactionResponseDto } from "@/lib/api/generated";
 import { type ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
 import { Link } from "react-router-dom";
+import { TransactionStatusBadge } from "../transaction-status-badge";
 
 // TODO: Extract the badges into distinct badge components
 
@@ -15,18 +16,6 @@ const paymentStatusStyles: Record<string, StatusVariant> = {
   unpaid: "danger",
   partial: "warning",
   refunded: "info",
-};
-
-const stateStyles: Record<string, StatusVariant> = {
-  INITIATED: "info",
-  DOCUMENTS_SUBMITTED: "info",
-  COMPLIANCE_REVIEWED: "warning",
-  ESCROW_FUNDED: "success",
-  LOGISTICS_ASSIGNED: "info",
-  IN_TRANSIT: "info",
-  DELIVERY_CONFIRMED: "success",
-  SETTLEMENT_RELEASED: "success",
-  CLOSED: "neutral",
 };
 
 export const transactionsColumns: ColumnDef<TransactionResponseDto>[] = [
@@ -91,7 +80,7 @@ export const transactionsColumns: ColumnDef<TransactionResponseDto>[] = [
     cell: ({ row }) => {
       const state = row.original.status;
       if (!state) return <Badge variant="outline">Unknown</Badge>;
-      return <StatusBadge status={state} variant={stateStyles[state]} />;
+      return <TransactionStatusBadge status={state} />;
     },
   },
   {

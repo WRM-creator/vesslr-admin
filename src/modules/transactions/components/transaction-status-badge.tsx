@@ -9,10 +9,14 @@ export enum TransactionStatus {
   LOGISTICS_ASSIGNED = "LOGISTICS_ASSIGNED",
   IN_TRANSIT = "IN_TRANSIT",
   INSPECTION_PENDING = "INSPECTION_PENDING",
+  INSPECTION_UNDER_REVIEW = "INSPECTION_UNDER_REVIEW",
+  INSPECTION_FAILED = "INSPECTION_FAILED",
+  INSPECTION_PRICE_REVIEW = "INSPECTION_PRICE_REVIEW",
   MILESTONES_IN_PROGRESS = "MILESTONES_IN_PROGRESS",
   DELIVERY_CONFIRMED = "DELIVERY_CONFIRMED",
   SETTLEMENT_RELEASED = "SETTLEMENT_RELEASED",
   CLOSED = "CLOSED",
+  DISPUTED = "DISPUTED",
 }
 
 export type StatusVariant =
@@ -35,10 +39,14 @@ const statusToVariant: Record<string, StatusVariant> = {
   [TransactionStatus.LOGISTICS_ASSIGNED]: "info",
   [TransactionStatus.IN_TRANSIT]: "info",
   [TransactionStatus.INSPECTION_PENDING]: "warning",
+  [TransactionStatus.INSPECTION_UNDER_REVIEW]: "info",
+  [TransactionStatus.INSPECTION_FAILED]: "danger",
+  [TransactionStatus.INSPECTION_PRICE_REVIEW]: "warning",
   [TransactionStatus.MILESTONES_IN_PROGRESS]: "info",
   [TransactionStatus.DELIVERY_CONFIRMED]: "success",
   [TransactionStatus.SETTLEMENT_RELEASED]: "success",
   [TransactionStatus.CLOSED]: "neutral",
+  [TransactionStatus.DISPUTED]: "danger",
 };
 
 const variantStyles: Record<StatusVariant, string> = {

@@ -37,8 +37,6 @@ export default function TransactionDetailsPage() {
     return "No transaction found";
   }
 
-  console.log(transaction);
-
   const order = transaction.order;
   const buyerName = order?.buyerOrganization?.name || "Unknown Buyer";
   const sellerName = order?.sellerOrganization?.name || "Unknown Seller";

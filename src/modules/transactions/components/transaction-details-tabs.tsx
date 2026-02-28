@@ -1,5 +1,7 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { TransactionResponseDto } from "@/lib/api/generated";
+import { AlertTriangle } from "lucide-react";
+import { TransactionDisputeTab } from "./transaction-dispute-tab";
 import { TransactionDocumentsTab } from "./transaction-documents-tab";
 import { TransactionFinancialsTab } from "./transaction-financials-tab";
 import { TransactionLogisticsTab } from "./transaction-logistics-tab";
@@ -32,7 +34,12 @@ export function TransactionDetailsTabs({
         <TabsTrigger value="financials">Financials & Escrow</TabsTrigger>
         <TabsTrigger value="logistics">Logistics</TabsTrigger>
         <TabsTrigger value="quality">Q &amp; Q</TabsTrigger>
-        {/* <TabsTrigger value="audit">Audit Log</TabsTrigger> */}
+        <TabsTrigger value="disputes">
+          {transaction.status === "DISPUTED" && (
+            <AlertTriangle className="h-3.5 w-3.5" />
+          )}
+          Disputes
+        </TabsTrigger>
       </TabsList>
 
       <div className="mt-2">
@@ -54,7 +61,9 @@ export function TransactionDetailsTabs({
         <TabsContent value="quality">
           <TransactionQQTab transaction={transaction} />
         </TabsContent>
-        {/* <TabsContent value="audit" /> */}
+        <TabsContent value="disputes">
+          <TransactionDisputeTab transaction={transaction} />
+        </TabsContent>
       </div>
     </Tabs>
   );
