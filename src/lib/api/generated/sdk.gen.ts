@@ -23,6 +23,14 @@ import type {
   AdminCategoriesControllerRemoveResponses,
   AdminCategoriesControllerUpdateData,
   AdminCategoriesControllerUpdateResponses,
+  AdminDisputesControllerFindAllData,
+  AdminDisputesControllerFindAllResponses,
+  AdminDisputesControllerFindOneData,
+  AdminDisputesControllerFindOneResponses,
+  AdminDisputesControllerGetStatsData,
+  AdminDisputesControllerGetStatsResponses,
+  AdminDisputesControllerResolveData,
+  AdminDisputesControllerResolveResponses,
   AdminNegotiationsControllerFindAllData,
   AdminNegotiationsControllerFindAllResponses,
   AdminNegotiationsControllerFindOneData,
@@ -93,6 +101,8 @@ import type {
   CategoryGroupsControllerFindOneResponses,
   CategoryGroupsControllerUpdateData,
   CategoryGroupsControllerUpdateResponses,
+  DisputesControllerRaiseDisputeData,
+  DisputesControllerRaiseDisputeResponses,
   InspectionControllerListInspectionsData,
   InspectionControllerListInspectionsResponses,
   InspectionControllerSubmitInspectionData,
@@ -1446,6 +1456,28 @@ export const negotiationsControllerReject = <
   });
 
 /**
+ * Raise a dispute on an active transaction stage
+ */
+export const disputesControllerRaiseDispute = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<DisputesControllerRaiseDisputeData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    DisputesControllerRaiseDisputeResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/disputes",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
  * Get current onboarding status
  */
 export const onboardingControllerGetOnboardingStatus = <
@@ -2256,6 +2288,82 @@ export const adminOrganizationsControllerFindAll = <
     security: [{ scheme: "bearer", type: "http" }],
     url: "/api/v1/admin/organizations",
     ...options,
+  });
+
+/**
+ * Get dispute statistics
+ */
+export const adminDisputesControllerGetStats = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<AdminDisputesControllerGetStatsData, ThrowOnError>,
+) =>
+  (options?.client ?? client).get<
+    AdminDisputesControllerGetStatsResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/disputes/stats",
+    ...options,
+  });
+
+/**
+ * List all disputes (admin)
+ */
+export const adminDisputesControllerFindAll = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<AdminDisputesControllerFindAllData, ThrowOnError>,
+) =>
+  (options?.client ?? client).get<
+    AdminDisputesControllerFindAllResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/disputes",
+    ...options,
+  });
+
+/**
+ * Get a single dispute by ID (admin)
+ */
+export const adminDisputesControllerFindOne = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AdminDisputesControllerFindOneData, ThrowOnError>,
+) =>
+  (options.client ?? client).get<
+    AdminDisputesControllerFindOneResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/disputes/{id}",
+    ...options,
+  });
+
+/**
+ * Resolve a dispute (admin)
+ */
+export const adminDisputesControllerResolve = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AdminDisputesControllerResolveData, ThrowOnError>,
+) =>
+  (options.client ?? client).patch<
+    AdminDisputesControllerResolveResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/disputes/{id}/resolve",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
   });
 
 /**

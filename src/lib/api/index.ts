@@ -28,6 +28,10 @@ import {
   adminCategoriesControllerFindOne,
   adminCategoriesControllerRemove,
   adminCategoriesControllerUpdate,
+  adminDisputesControllerFindAll,
+  adminDisputesControllerFindOne,
+  adminDisputesControllerGetStats,
+  adminDisputesControllerResolve,
   adminNegotiationsControllerFindAll,
   adminNegotiationsControllerFindOne,
   adminNegotiationsControllerUpdateStatus,
@@ -47,8 +51,8 @@ import {
   adminTransactionsControllerFindById,
   adminTransactionsControllerGetLogs,
   adminTransactionsControllerReviewDocument,
-  adminTransactionsControllerSubmitInspection,
   adminTransactionsControllerReviewInspection,
+  adminTransactionsControllerSubmitInspection,
   adminTransactionsControllerUpdateRequirement,
   categoryGroupsControllerFindAll,
   categoryGroupsControllerFindOne,
@@ -65,6 +69,31 @@ export const api = {
     profile: createQuery(adminAuthControllerGetProfile, ["auth", "profile"]),
   },
   admin: {
+    disputes: {
+      list: createQuery(adminDisputesControllerFindAll, (args) => [
+        "admin",
+        "disputes",
+        "list",
+        args?.query,
+      ]),
+      detail: createQuery(adminDisputesControllerFindOne, (args) => [
+        "admin",
+        "disputes",
+        "detail",
+        args.path.id,
+      ]),
+      resolve: createMutation(adminDisputesControllerResolve, {
+        invalidates: (args) => [
+          ["admin", "disputes", "list"],
+          ["admin", "disputes", "detail", args.path.id],
+        ],
+      }),
+      stats: createQuery(adminDisputesControllerGetStats, [
+        "admin",
+        "disputes",
+        "stats",
+      ]),
+    },
     transactions: {
       list: createQuery(adminTransactionsControllerFindAll, (args) => [
         "admin",

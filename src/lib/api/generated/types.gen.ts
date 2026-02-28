@@ -432,7 +432,9 @@ export type CategoryDocumentTemplateDto = {
     | "DELIVERY_CONFIRMED"
     | "MILESTONES_IN_PROGRESS"
     | "SETTLEMENT_RELEASED"
-    | "CLOSED";
+    | "CLOSED"
+    | "CANCELLED"
+    | "DISPUTED";
 };
 
 export type CategoryComplianceDto = {
@@ -628,7 +630,9 @@ export type TransactionEventDto = {
     | "MILESTONE_SUBMITTED"
     | "MILESTONE_APPROVED"
     | "INSPECTION_SUBMITTED"
-    | "INSPECTION_REVIEWED";
+    | "INSPECTION_REVIEWED"
+    | "DISPUTE_RAISED"
+    | "DISPUTE_RESOLVED";
   metadata?: {
     [key: string]: unknown;
   };
@@ -672,7 +676,9 @@ export type TransactionDocumentSlotDto = {
     | "DELIVERY_CONFIRMED"
     | "MILESTONES_IN_PROGRESS"
     | "SETTLEMENT_RELEASED"
-    | "CLOSED";
+    | "CLOSED"
+    | "CANCELLED"
+    | "DISPUTED";
 };
 
 export type TransactionStageResponseDto = {
@@ -692,7 +698,7 @@ export type TransactionStageResponseDto = {
   name: string;
   description: string;
   assignedTo: "BUYER" | "SELLER" | "ADMIN" | "SYSTEM";
-  status: "PENDING" | "ACTIVE" | "COMPLETED";
+  status: "PENDING" | "ACTIVE" | "COMPLETED" | "DISPUTED";
   visibility: "SHARED" | "PARTY_ONLY";
   actionTarget?: string | null;
   completedAt?: string | null;
@@ -741,7 +747,9 @@ export type TransactionResponseDto = {
     | "DELIVERY_CONFIRMED"
     | "MILESTONES_IN_PROGRESS"
     | "SETTLEMENT_RELEASED"
-    | "CLOSED";
+    | "CLOSED"
+    | "CANCELLED"
+    | "DISPUTED";
   workflowType: "PHYSICAL_GOODS" | "SERVICE" | "FINANCIAL";
   events: Array<TransactionEventDto>;
   requiredDocuments?: Array<TransactionDocumentSlotDto>;
@@ -779,7 +787,9 @@ export type UpdateTransactionStatusDto = {
     | "DELIVERY_CONFIRMED"
     | "MILESTONES_IN_PROGRESS"
     | "SETTLEMENT_RELEASED"
-    | "CLOSED";
+    | "CLOSED"
+    | "CANCELLED"
+    | "DISPUTED";
   /**
    * Reason for the status change (optional)
    */
@@ -815,29 +825,17 @@ export type AddTransactionDocumentDto = {
 
 export type AssignLogisticsDto = {
   /**
-   * Shipping method used
-   */
-  shippingMethod: string;
-  /**
    * Name of the carrier
    */
   carrierName: string;
-  /**
-   * Name of the vessel or vehicle
-   */
-  vesselName?: string;
   /**
    * Tracking reference number (e.g., Bill of Lading number)
    */
   trackingReference: string;
   /**
-   * Estimated departure date
+   * Direct link to the carrier's shipment tracking page
    */
-  estimatedDeparture: string;
-  /**
-   * Estimated arrival date
-   */
-  estimatedArrival: string;
+  trackingUrl: string;
 };
 
 export type SubmittedDocumentDto = {
@@ -1318,6 +1316,59 @@ export type SendMessageDto = {
   text: string;
 };
 
+export type RaiseDisputeDto = {
+  /**
+   * ID of the transaction being disputed
+   */
+  transactionId: string;
+  /**
+   * ID of the stage being disputed
+   */
+  stageId: string;
+  /**
+   * Category of the dispute
+   */
+  type: "DELIVERY_DISPUTE" | "MILESTONE_DISPUTE" | "INSPECTION_DISPUTE";
+  /**
+   * Reason for raising the dispute
+   */
+  reason: string;
+};
+
+export type DisputeResolutionDto = {
+  outcome:
+    | "PROCEED"
+    | "CANCELLED"
+    | "PARTIAL_REFUND"
+    | "RE_INSPECT"
+    | "MUTUAL_SETTLEMENT"
+    | "ESCALATED";
+  notes: string;
+  resolvedBy: string;
+  resolvedAt: string;
+  metadata: {
+    [key: string]: unknown;
+  };
+};
+
+export type DisputeResponseDto = {
+  _id: string;
+  transactionId: string;
+  stageId: string;
+  type: "DELIVERY_DISPUTE" | "MILESTONE_DISPUTE" | "INSPECTION_DISPUTE";
+  displayId: number;
+  raisedByRole: "BUYER" | "SELLER";
+  reason: string;
+  status: "OPEN" | "UNDER_REVIEW" | "RESOLVED" | "ESCALATED";
+  resolution?: DisputeResolutionDto | null;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type Dispute = {
+  [key: string]: unknown;
+};
+
 export type OnboardingStatusResponseDto = {
   onboardingStep:
     | "residential"
@@ -1464,7 +1515,9 @@ export type CategoryDocumentTemplateInput = {
     | "DELIVERY_CONFIRMED"
     | "MILESTONES_IN_PROGRESS"
     | "SETTLEMENT_RELEASED"
-    | "CLOSED";
+    | "CLOSED"
+    | "CANCELLED"
+    | "DISPUTED";
 };
 
 export type CategoryComplianceInput = {
@@ -1586,7 +1639,9 @@ export type AddTransactionRequirementDto = {
     | "DELIVERY_CONFIRMED"
     | "MILESTONES_IN_PROGRESS"
     | "SETTLEMENT_RELEASED"
-    | "CLOSED";
+    | "CLOSED"
+    | "CANCELLED"
+    | "DISPUTED";
 };
 
 export type UpdateTransactionRequirementDto = {
@@ -1631,7 +1686,9 @@ export type UpdateTransactionRequirementDto = {
     | "DELIVERY_CONFIRMED"
     | "MILESTONES_IN_PROGRESS"
     | "SETTLEMENT_RELEASED"
-    | "CLOSED";
+    | "CLOSED"
+    | "CANCELLED"
+    | "DISPUTED";
 };
 
 export type ReviewTransactionDocumentDto = {
@@ -1654,6 +1711,137 @@ export type ReviewInspectionDto = {
    * Reason for rejection. Required when decision is REJECTED.
    */
   rejectionReason?: string;
+};
+
+export type AdminDisputeResolvedByDto = {
+  _id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+};
+
+export type AdminDisputeResolutionMetadataDto = {
+  buyerRefundAmount?: number;
+};
+
+export type AdminDisputeResolutionDto = {
+  outcome: string;
+  notes: string;
+  resolvedBy: AdminDisputeResolvedByDto;
+  resolvedAt: string;
+  metadata?: AdminDisputeResolutionMetadataDto;
+};
+
+export type AdminDisputeTransactionProductDto = {
+  _id: string;
+  title: string;
+  thumbnail?: string;
+};
+
+export type AdminDisputeTransactionDto = {
+  _id: string;
+  status: string;
+  type: string;
+  product?: AdminDisputeTransactionProductDto;
+};
+
+export type AdminDisputeOrganizationDto = {
+  _id: string;
+  name: string;
+};
+
+export type AdminDisputePartyDto = {
+  _id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  organization: AdminDisputeOrganizationDto;
+};
+
+export type AdminDisputeAuditEventActorDto = {
+  _id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+};
+
+export type AdminDisputeAuditEventDto = {
+  timestamp: string;
+  actor?: AdminDisputeAuditEventActorDto;
+  action: string;
+  metadata?: {
+    [key: string]: unknown;
+  };
+};
+
+export type AdminDisputeResponseDto = {
+  _id: string;
+  displayId: number;
+  type: string;
+  raisedByRole: string;
+  stageId?: string;
+  resolution: AdminDisputeResolutionDto | null;
+  transaction: AdminDisputeTransactionDto;
+  initiator: AdminDisputePartyDto;
+  respondent: AdminDisputePartyDto;
+  reason: string;
+  status: string;
+  amount: number;
+  description: string;
+  createdAt: string;
+  updatedAt: string;
+  auditLog: Array<AdminDisputeAuditEventDto>;
+  attachments: Array<{
+    url: string;
+    name: string;
+    uploadedAt: string;
+    uploadedByRole: "BUYER" | "SELLER";
+  }>;
+};
+
+export type PaginatedAdminDisputesDataDto = {
+  docs: Array<AdminDisputeResponseDto>;
+  totalDocs: number;
+  page: number;
+  limit: number;
+};
+
+export type PaginatedAdminDisputesResponseDto = {
+  message: string;
+  data: PaginatedAdminDisputesDataDto;
+};
+
+export type SingleAdminDisputeResponseDto = {
+  message: string;
+  data: AdminDisputeResponseDto;
+};
+
+export type ResolveDisputeMetadataDto = {
+  /**
+   * Refund amount for buyer
+   */
+  buyerRefundAmount?: number;
+};
+
+export type ResolveDisputeDto = {
+  /**
+   * The outcome of the dispute
+   */
+  outcome:
+    | "PROCEED"
+    | "CANCELLED"
+    | "PARTIAL_REFUND"
+    | "RE_INSPECT"
+    | "MUTUAL_SETTLEMENT"
+    | "ESCALATED";
+  /**
+   * Admin notes regarding the resolution
+   */
+  notes: string;
+  /**
+   * Additional metadata
+   */
+  metadata?: ResolveDisputeMetadataDto;
 };
 
 export type AcceptRequestOrderDto = {
@@ -2957,6 +3145,24 @@ export type NegotiationsControllerRejectResponses = {
 export type NegotiationsControllerRejectResponse =
   NegotiationsControllerRejectResponses[keyof NegotiationsControllerRejectResponses];
 
+export type DisputesControllerRaiseDisputeData = {
+  body: RaiseDisputeDto;
+  path?: never;
+  query?: never;
+  url: "/api/v1/disputes";
+};
+
+export type DisputesControllerRaiseDisputeResponses = {
+  /**
+   * The created dispute
+   */
+  200: DisputeResponseDto;
+  201: Dispute;
+};
+
+export type DisputesControllerRaiseDisputeResponse =
+  DisputesControllerRaiseDisputeResponses[keyof DisputesControllerRaiseDisputeResponses];
+
 export type OnboardingControllerGetOnboardingStatusData = {
   body?: never;
   path?: never;
@@ -3678,6 +3884,69 @@ export type AdminOrganizationsControllerFindAllResponses = {
    */
   200: unknown;
 };
+
+export type AdminDisputesControllerGetStatsData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: "/api/v1/admin/disputes/stats";
+};
+
+export type AdminDisputesControllerGetStatsResponses = {
+  200: unknown;
+};
+
+export type AdminDisputesControllerFindAllData = {
+  body?: never;
+  path?: never;
+  query?: {
+    page?: string;
+    limit?: string;
+    status?: string;
+    respondent?: string;
+    transactionId?: string;
+  };
+  url: "/api/v1/admin/disputes";
+};
+
+export type AdminDisputesControllerFindAllResponses = {
+  200: PaginatedAdminDisputesResponseDto;
+};
+
+export type AdminDisputesControllerFindAllResponse =
+  AdminDisputesControllerFindAllResponses[keyof AdminDisputesControllerFindAllResponses];
+
+export type AdminDisputesControllerFindOneData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/admin/disputes/{id}";
+};
+
+export type AdminDisputesControllerFindOneResponses = {
+  200: SingleAdminDisputeResponseDto;
+};
+
+export type AdminDisputesControllerFindOneResponse =
+  AdminDisputesControllerFindOneResponses[keyof AdminDisputesControllerFindOneResponses];
+
+export type AdminDisputesControllerResolveData = {
+  body: ResolveDisputeDto;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/admin/disputes/{id}/resolve";
+};
+
+export type AdminDisputesControllerResolveResponses = {
+  200: SingleAdminDisputeResponseDto;
+};
+
+export type AdminDisputesControllerResolveResponse =
+  AdminDisputesControllerResolveResponses[keyof AdminDisputesControllerResolveResponses];
 
 export type AdminRequestsControllerFindAllData = {
   body?: never;
