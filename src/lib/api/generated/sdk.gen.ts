@@ -79,6 +79,8 @@ import type {
   AdminTransactionsControllerFindAllResponses,
   AdminTransactionsControllerFindByIdData,
   AdminTransactionsControllerFindByIdResponses,
+  AdminTransactionsControllerGetConversationData,
+  AdminTransactionsControllerGetConversationResponses,
   AdminTransactionsControllerGetLogsData,
   AdminTransactionsControllerGetLogsResponses,
   AdminTransactionsControllerReleaseSettlementData,
@@ -113,6 +115,8 @@ import type {
   DisputesControllerGetByTransactionResponses,
   DisputesControllerRaiseDisputeData,
   DisputesControllerRaiseDisputeResponses,
+  DisputesControllerWithdrawDisputeData,
+  DisputesControllerWithdrawDisputeResponses,
   InspectionControllerListInspectionsData,
   InspectionControllerListInspectionsResponses,
   InspectionControllerSubmitInspectionData,
@@ -249,6 +253,10 @@ import type {
   StaleRequestActionsControllerRespondResponses,
   StorageControllerGeneratePresignedUrlsData,
   StorageControllerGeneratePresignedUrlsResponses,
+  TransactionConversationsControllerGetConversationData,
+  TransactionConversationsControllerGetConversationResponses,
+  TransactionConversationsControllerSendMessageData,
+  TransactionConversationsControllerSendMessageResponses,
   TransactionsControllerAddDocumentData,
   TransactionsControllerAddDocumentResponses,
   TransactionsControllerApproveMilestoneData,
@@ -1049,6 +1057,52 @@ export const transactionsControllerSubmitInspection = <
   });
 
 /**
+ * Get the conversation for a transaction
+ */
+export const transactionConversationsControllerGetConversation = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    TransactionConversationsControllerGetConversationData,
+    ThrowOnError
+  >,
+) =>
+  (options.client ?? client).get<
+    TransactionConversationsControllerGetConversationResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/transactions/{transactionId}/conversation",
+    ...options,
+  });
+
+/**
+ * Send a message in the transaction conversation
+ */
+export const transactionConversationsControllerSendMessage = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    TransactionConversationsControllerSendMessageData,
+    ThrowOnError
+  >,
+) =>
+  (options.client ?? client).post<
+    TransactionConversationsControllerSendMessageResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/transactions/{transactionId}/conversation/messages",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
  * Directly purchase a product (creates matched request and order)
  */
 export const ordersControllerPurchase = <ThrowOnError extends boolean = false>(
@@ -1520,6 +1574,28 @@ export const disputesControllerAddAttachment = <
   >({
     security: [{ scheme: "bearer", type: "http" }],
     url: "/api/v1/disputes/{id}/attachments",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Withdraw a dispute (initiator only)
+ */
+export const disputesControllerWithdrawDispute = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<DisputesControllerWithdrawDisputeData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    DisputesControllerWithdrawDisputeResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/disputes/{id}/withdraw",
     ...options,
     headers: {
       "Content-Type": "application/json",
@@ -2318,6 +2394,27 @@ export const adminTransactionsControllerSubmitInspection = <
       "Content-Type": "application/json",
       ...options.headers,
     },
+  });
+
+/**
+ * Get the transaction conversation (Admin, read-only)
+ */
+export const adminTransactionsControllerGetConversation = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    AdminTransactionsControllerGetConversationData,
+    ThrowOnError
+  >,
+) =>
+  (options.client ?? client).get<
+    AdminTransactionsControllerGetConversationResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/transactions/{id}/conversation",
+    ...options,
   });
 
 /**

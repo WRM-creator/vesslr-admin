@@ -56,8 +56,9 @@ export default function ProductsPage() {
     return params;
   }, [filters]);
 
-  const { data: productsData, isLoading } =
-    api.admin.products.list.useQuery({ query: queryParams });
+  const { data: productsData, isLoading } = api.admin.products.list.useQuery({
+    query: queryParams,
+  });
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const rawProducts = ((productsData as any)?.data?.docs as any[]) || [];
 
@@ -65,11 +66,11 @@ export default function ProductsPage() {
     id: p._id,
     name: p.title || "Untitled",
     category: p.category?.name || "Uncategorized", // Assuming category population or modify as needed
-    merchant: p.seller || "Unknown", // Assuming seller ID or name
+    merchant: p.organization?.name || "Unknown",
     status: p.status || "draft",
     created: p.createdAt,
-    price: p.price || 0,
-    transactionType: p.transactionType || "purchase",
+    price: p.pricePerUnit || 0,
+    transactionType: p.transactionTypes?.[0] || "purchase",
     currency: p.currency || "USD",
     availableQuantity: p.availableQuantity || 0,
     unitOfMeasurement: p.unitOfMeasurement || "unit",
@@ -80,7 +81,9 @@ export default function ProductsPage() {
     query: { type: "merchant", limit: "100" },
   });
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const merchantOptions = (((merchantsData as any)?.data?.docs ?? []) as any[]).map((m) => ({
+  const merchantOptions = (
+    ((merchantsData as any)?.data?.docs ?? []) as any[]
+  ).map((m) => ({
     label: m.name || "Unknown",
     value: m._id || "",
   }));

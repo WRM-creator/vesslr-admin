@@ -127,6 +127,52 @@ export function CategoryGroupPoliciesCard({
           </div>
         </div>
         <Separator />
+        <div className="flex items-center justify-between space-x-2">
+          <div className="flex flex-col space-y-1">
+            <Label htmlFor="order-quantity-limits" className="text-base">
+              Order Quantity Limits
+            </Label>
+            <span className="text-muted-foreground text-sm">
+              Products in this group can define minimum and maximum order
+              quantities.
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
+            {isFieldPending("allowsOrderQuantityLimits") && (
+              <Loader2 className="text-muted-foreground h-4 w-4 animate-spin" />
+            )}
+            <Switch
+              id="order-quantity-limits"
+              checked={categoryGroup.allowsOrderQuantityLimits}
+              onCheckedChange={handleToggle("allowsOrderQuantityLimits")}
+              disabled={isPending}
+            />
+          </div>
+        </div>
+        <Separator />
+        <div className="flex items-center justify-between space-x-2">
+          <div className="flex flex-col space-y-1">
+            <Label htmlFor="inventory-tracking" className="text-base">
+              Inventory Tracking
+            </Label>
+            <span className="text-muted-foreground text-sm">
+              Products in this group can track stock levels and manage
+              availability.
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
+            {isFieldPending("allowsInventoryTracking") && (
+              <Loader2 className="text-muted-foreground h-4 w-4 animate-spin" />
+            )}
+            <Switch
+              id="inventory-tracking"
+              checked={categoryGroup.allowsInventoryTracking}
+              onCheckedChange={handleToggle("allowsInventoryTracking")}
+              disabled={isPending}
+            />
+          </div>
+        </div>
+        <Separator />
         <div className="flex items-center justify-between space-x-2 opacity-60">
           <div className="flex flex-col space-y-1">
             <Label
