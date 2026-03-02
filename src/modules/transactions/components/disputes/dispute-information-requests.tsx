@@ -21,7 +21,7 @@ export function DisputeInformationRequests({
 }: DisputeInformationRequestsProps) {
   const [createOpen, setCreateOpen] = useState(false);
 
-  const isResolved = !!dispute.resolution;
+  const isResolved = !!dispute.resolution || dispute.status === "withdrawn";
   const requests: InformationRequest[] = dispute.informationRequests ?? [];
 
   return (

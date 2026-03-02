@@ -39,6 +39,8 @@ const getAuditLabel = (event: AdminDisputeAuditEventDto): string => {
       return `Resolved: ${formatOutcome(event.metadata?.outcome as string)} by ${actor}`;
     case "ESCALATED":
       return `Escalated by ${actor}`;
+    case "WITHDRAWN":
+      return `Dispute withdrawn by ${actor}`;
     default:
       return event.action.replace(/_/g, " ");
   }
