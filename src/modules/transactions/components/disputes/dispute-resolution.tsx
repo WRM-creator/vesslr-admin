@@ -1,36 +1,14 @@
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { api } from "@/lib/api";
 import type { AdminDisputeResponseDto } from "@/lib/api/generated/types.gen";
 import { formatCurrency } from "@/lib/utils";
-import { format } from "date-fns";
-import {
-  ArrowRightLeft,
-  CheckCircle2,
-  ChevronDown,
-  Flag,
-  Lock,
-  Undo2,
-} from "lucide-react";
-import { type ChangeEvent, useState } from "react";
+import { CheckCircle2, Lock } from "lucide-react";
+import { useState } from "react";
+import { DisputeActionMenu } from "./dispute-action-menu";
+import { DisputeResolutionDialog } from "./dispute-resolution-dialog";
+import { ResolvedSummary } from "./resolved-summary";
+import { WithdrawnSummary } from "./withdrawn-summary";
 
 interface DisputeResolutionProps {
   dispute: AdminDisputeResponseDto;
@@ -39,14 +17,7 @@ interface DisputeResolutionProps {
   onResolved?: () => void;
 }
 
-type ActionKey = "RELEASE" | "REFUND" | "SPLIT" | "ESCALATE";
-
-const ACTION_LABELS: Record<ActionKey, string> = {
-  RELEASE: "Resolve & Resume Transaction",
-  REFUND: "Cancel & Refund Buyer",
-  SPLIT: "Split Settlement",
-  ESCALATE: "Escalate Dispute",
-};
+type ActionKey = "RELEASE" | "REFUND" | "ESCALATE" | "CUSTOM";
 
 export function DisputeResolution({
   dispute,
@@ -55,15 +26,16 @@ export function DisputeResolution({
   onResolved,
 }: DisputeResolutionProps) {
   const [selectedAction, setSelectedAction] = useState<ActionKey | null>(null);
-  const [refundAmount, setRefundAmount] = useState(0);
   const [notes, setNotes] = useState("");
+  const [customProceed, setCustomProceed] = useState(true);
+  const [customRefund, setCustomRefund] = useState(0);
 
   const resolveMutation = api.admin.disputes.resolve.useMutation();
 
   const handleConfirm = () => {
     if (!selectedAction || !notes.trim()) return;
 
-    let outcome: "PROCEED" | "CANCELLED" | "PARTIAL_REFUND" | "ESCALATED";
+    let outcome: "PROCEED" | "CANCELLED" | "ESCALATED";
     switch (selectedAction) {
       case "RELEASE":
         outcome = "PROCEED";
@@ -71,11 +43,11 @@ export function DisputeResolution({
       case "REFUND":
         outcome = "CANCELLED";
         break;
-      case "SPLIT":
-        outcome = "PARTIAL_REFUND";
-        break;
       case "ESCALATE":
         outcome = "ESCALATED";
+        break;
+      case "CUSTOM":
+        outcome = customProceed ? "PROCEED" : "CANCELLED";
         break;
       default:
         return;
@@ -88,8 +60,8 @@ export function DisputeResolution({
           outcome,
           notes,
           metadata:
-            selectedAction === "SPLIT"
-              ? { buyerRefundAmount: refundAmount }
+            selectedAction === "CUSTOM" && customRefund > 0
+              ? { buyerRefundAmount: customRefund }
               : undefined,
         },
       },
@@ -97,6 +69,8 @@ export function DisputeResolution({
         onSuccess: () => {
           setSelectedAction(null);
           setNotes("");
+          setCustomProceed(true);
+          setCustomRefund(0);
           onResolved?.();
         },
         onError: (error: any) => {
@@ -106,14 +80,11 @@ export function DisputeResolution({
     );
   };
 
-  const handleRefundAmountChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const val = Number.parseFloat(e.target.value);
-    if (!Number.isNaN(val) && val <= amount) {
-      setRefundAmount(val);
-    }
+  const handleCancel = () => {
+    setSelectedAction(null);
+    setCustomProceed(true);
+    setCustomRefund(0);
   };
-
-  const sellerAmount = amount - refundAmount;
 
   const isResolved = !!dispute.resolution;
   const isWithdrawn = dispute.status === "withdrawn";
@@ -152,229 +123,32 @@ export function DisputeResolution({
           ) : isResolved ? (
             <ResolvedSummary dispute={dispute} />
           ) : (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="w-full justify-between">
-                  Take Action
-                  <ChevronDown className="h-4 w-4 opacity-60" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent
-                align="end"
-                className="w-[var(--radix-dropdown-menu-trigger-width)]"
-              >
-                <DropdownMenuItem
-                  onClick={() => setSelectedAction("RELEASE")}
-                  className="flex-col items-start gap-0.5"
-                >
-                  <div className="flex items-center gap-2 font-medium">
-                    <CheckCircle2 className="h-4 w-4" />
-                    Resolve {"&"} Resume Transaction
-                  </div>
-                  <p className="text-muted-foreground pl-6 text-xs">
-                    Dispute ruled in seller's favour — release escrowed funds
-                  </p>
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => setSelectedAction("REFUND")}
-                  className="flex-col items-start gap-0.5"
-                >
-                  <div className="flex items-center gap-2 font-medium">
-                    <Undo2 className="h-4 w-4" />
-                    Cancel & Refund Buyer
-                  </div>
-                  <p className="text-muted-foreground pl-6 text-xs">
-                    Dispute ruled in buyer's favour — return full amount
-                  </p>
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => {
-                    setSelectedAction("SPLIT");
-                    setRefundAmount(amount / 2);
-                  }}
-                  className="flex-col items-start gap-0.5"
-                >
-                  <div className="flex items-center gap-2 font-medium">
-                    <ArrowRightLeft className="h-4 w-4" />
-                    Cancel & Split Settlement
-                  </div>
-                  <p className="text-muted-foreground pl-6 text-xs">
-                    Divide funds between buyer and seller
-                  </p>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem
-                  onClick={() => setSelectedAction("ESCALATE")}
-                  className="text-destructive focus:text-destructive flex-col items-start gap-0.5"
-                >
-                  <div className="flex items-center gap-2 font-medium">
-                    <Flag className="h-4 w-4" />
-                    Escalate Dispute
-                  </div>
-                  <p className="text-destructive/70 pl-6 text-xs">
-                    Refer to a senior admin for further review
-                  </p>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <DisputeActionMenu
+              onSelect={(action) => {
+                if (action === "CUSTOM") {
+                  setCustomProceed(true);
+                  setCustomRefund(0);
+                }
+                setSelectedAction(action);
+              }}
+            />
           )}
         </CardContent>
       </Card>
 
-      <Dialog
-        open={!!selectedAction}
-        onOpenChange={(open) => !open && setSelectedAction(null)}
-      >
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>
-              {selectedAction
-                ? ACTION_LABELS[selectedAction]
-                : "Resolve Dispute"}
-            </DialogTitle>
-          </DialogHeader>
-
-          <div className="grid gap-4">
-            {selectedAction === "SPLIT" && (
-              <div className="bg-muted/30 grid gap-4 rounded-lg border p-4">
-                <h4 className="text-sm font-semibold">Split Allocation</h4>
-                <div className="space-y-2">
-                  <Label>Refund to Buyer</Label>
-                  <div className="relative">
-                    <span className="text-muted-foreground absolute top-2.5 left-3 text-sm">
-                      $
-                    </span>
-                    <Input
-                      type="number"
-                      className="pl-6"
-                      value={refundAmount}
-                      onChange={handleRefundAmountChange}
-                      max={amount}
-                    />
-                  </div>
-                </div>
-                <div className="flex justify-between border-t pt-2 text-sm">
-                  <span className="text-muted-foreground">
-                    Seller Receives:
-                  </span>
-                  <span className="font-medium">
-                    {formatCurrency(sellerAmount)}
-                  </span>
-                </div>
-              </div>
-            )}
-
-            <div className="space-y-2">
-              <Label>Admin Decision Note (Required)</Label>
-              <Textarea
-                placeholder="Explain the reasoning for this decision..."
-                className="min-h-[100px]"
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
-              />
-            </div>
-          </div>
-
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setSelectedAction(null)}
-              disabled={resolveMutation.isPending}
-            >
-              Cancel
-            </Button>
-            <Button
-              onClick={handleConfirm}
-              disabled={!notes.trim() || resolveMutation.isPending}
-            >
-              {resolveMutation.isPending
-                ? "Resolving..."
-                : "Confirm Resolution"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <DisputeResolutionDialog
+        selectedAction={selectedAction}
+        notes={notes}
+        setNotes={setNotes}
+        customProceed={customProceed}
+        setCustomProceed={setCustomProceed}
+        customRefund={customRefund}
+        setCustomRefund={setCustomRefund}
+        amount={amount}
+        isPending={resolveMutation.isPending}
+        onConfirm={handleConfirm}
+        onCancel={handleCancel}
+      />
     </>
-  );
-}
-
-function ResolvedSummary({ dispute }: { dispute: AdminDisputeResponseDto }) {
-  const resolution = dispute.resolution!;
-
-  const outcomeLabel: Record<string, string> = {
-    PROCEED: "Released to Seller",
-    CANCELLED: "Refunded to Buyer",
-    PARTIAL_REFUND: "Split Settlement",
-    RE_INSPECT: "Re-inspect",
-    MUTUAL_SETTLEMENT: "Mutual Settlement",
-    ESCALATED: "Escalated",
-  };
-
-  return (
-    <div className="space-y-2 rounded-md border p-3 text-sm">
-      <div className="flex items-center justify-between">
-        <span className="text-muted-foreground text-xs">Outcome</span>
-        <Badge variant="secondary" className="text-[10px]">
-          {outcomeLabel[resolution.outcome] ?? resolution.outcome}
-        </Badge>
-      </div>
-      <div className="flex items-center justify-between">
-        <span className="text-muted-foreground text-xs">Resolved by</span>
-        <span className="text-xs font-medium">
-          {resolution.resolvedBy?.firstName} {resolution.resolvedBy?.lastName}
-        </span>
-      </div>
-      {resolution.notes && (
-        <p className="text-muted-foreground border-t pt-2 text-xs leading-relaxed">
-          {resolution.notes}
-        </p>
-      )}
-    </div>
-  );
-}
-
-function WithdrawnSummary({ dispute }: { dispute: AdminDisputeResponseDto }) {
-  const withdrawal = dispute.withdrawal!;
-  const initiatorName =
-    [dispute.initiator?.firstName, dispute.initiator?.lastName]
-      .filter(Boolean)
-      .join(" ") || "Initiating party";
-
-  return (
-    <div className="space-y-2 rounded-md border border-slate-200 bg-slate-50 p-3 text-sm dark:border-slate-700 dark:bg-slate-900/40">
-      <div className="flex items-center justify-between">
-        <span className="text-muted-foreground text-xs">Withdrawn by</span>
-        <span className="text-xs font-medium">{initiatorName}</span>
-      </div>
-      <div className="flex items-center justify-between">
-        <span className="text-muted-foreground text-xs">Date</span>
-        <span className="text-xs font-medium">
-          {format(new Date(withdrawal.withdrawnAt), "MMM d, yyyy")}
-        </span>
-      </div>
-      <p className="text-muted-foreground border-t pt-2 text-xs leading-relaxed">
-        {withdrawal.reason}
-      </p>
-      {withdrawal.attachments.length > 0 && (
-        <div className="border-t pt-2">
-          <p className="text-muted-foreground mb-1.5 text-xs font-medium">
-            Attachments ({withdrawal.attachments.length})
-          </p>
-          <div className="space-y-1">
-            {withdrawal.attachments.map((a, i) => (
-              <a
-                key={i}
-                href={a.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:bg-muted/50 flex items-center gap-2 rounded border px-2.5 py-1.5 text-xs transition-colors"
-              >
-                <span className="flex-1 truncate font-medium">{a.name}</span>
-              </a>
-            ))}
-          </div>
-        </div>
-      )}
-    </div>
   );
 }
