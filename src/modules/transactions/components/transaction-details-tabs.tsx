@@ -1,6 +1,7 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { TransactionResponseDto } from "@/lib/api/generated";
 import { AlertTriangle } from "lucide-react";
+import { TransactionChatTab } from "./transaction-chat-tab";
 import { TransactionDisputeTab } from "./transaction-dispute-tab";
 import { TransactionDocumentsTab } from "./transaction-documents-tab";
 import { TransactionFinancialsTab } from "./transaction-financials-tab";
@@ -40,6 +41,7 @@ export function TransactionDetailsTabs({
           )}
           Disputes
         </TabsTrigger>
+        <TabsTrigger value="chat">Chat</TabsTrigger>
       </TabsList>
 
       <div className="mt-2">
@@ -63,6 +65,9 @@ export function TransactionDetailsTabs({
         </TabsContent>
         <TabsContent value="disputes">
           <TransactionDisputeTab transaction={transaction} />
+        </TabsContent>
+        <TabsContent value="chat">
+          <TransactionChatTab transactionId={transaction._id} />
         </TabsContent>
       </div>
     </Tabs>
