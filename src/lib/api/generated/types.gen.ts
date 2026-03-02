@@ -1859,6 +1859,12 @@ export type AdminDisputeAttachmentDto = {
   uploadedByRole: "BUYER" | "SELLER";
 };
 
+export type AdminDisputeWithdrawalDto = {
+  reason: string;
+  attachments: Array<AdminDisputeAttachmentDto>;
+  withdrawnAt: string;
+};
+
 export type AdminDisputeResponseDto = {
   _id: string;
   displayId: number;
@@ -1866,6 +1872,7 @@ export type AdminDisputeResponseDto = {
   raisedByRole: string;
   stageId?: string;
   resolution: AdminDisputeResolutionDto | null;
+  withdrawal: AdminDisputeWithdrawalDto | null;
   transaction: AdminDisputeTransactionDto;
   initiator: AdminDisputePartyDto;
   respondent: AdminDisputePartyDto;

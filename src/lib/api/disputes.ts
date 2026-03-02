@@ -59,7 +59,8 @@ export interface Dispute {
     | "under_review"
     | "resolved_refund"
     | "resolved_release"
-    | "dismissed";
+    | "dismissed"
+    | "withdrawn";
   amount: number;
   description: string;
   createdAt: string;

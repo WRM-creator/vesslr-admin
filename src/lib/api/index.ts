@@ -15,6 +15,7 @@ import {
   adminDisputesControllerCreateRequest,
   adminDisputesControllerDismissRequest,
 } from "./disputes";
+import { adminTransactionsControllerGetConversation } from "./transaction-conversations";
 
 // Import client config to initialize interceptors
 import "./client-config";
@@ -173,6 +174,10 @@ export const api = {
             ["admin", "transactions", "detail", args.path.id],
           ],
         },
+      ),
+      conversation: createQuery(
+        adminTransactionsControllerGetConversation,
+        (args) => ["admin", "transactions", "conversation", args.path.id],
       ),
     },
     products: {
