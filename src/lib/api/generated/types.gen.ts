@@ -41,21 +41,51 @@ export type AddressDto = {
 };
 
 export type RegisterOrganizationDto = {
+  /**
+   * The legal name of the organization
+   */
   name: string;
+  /**
+   * Organization type (merchant or customer)
+   */
   type?: "merchant" | "customer";
+  /**
+   * Structured address with state and country
+   */
   address: AddressDto;
 };
 
 export type RegisterDto = {
+  /**
+   * User's email address (used for login)
+   */
   email: string;
+  /**
+   * Password (minimum 8 characters)
+   */
   password: string;
+  /**
+   * User's first name
+   */
   firstName: string;
+  /**
+   * User's last name
+   */
   lastName: string;
+  /**
+   * User's phone number
+   */
   phone: string;
+  /**
+   * Organization details for the user
+   */
   organization: RegisterOrganizationDto;
 };
 
 export type AuthTokenResponseDto = {
+  /**
+   * JWT access token
+   */
   accessToken: string;
   user?: {
     [key: string]: unknown;
@@ -63,7 +93,13 @@ export type AuthTokenResponseDto = {
 };
 
 export type LoginDto = {
+  /**
+   * User's email address
+   */
   email: string;
+  /**
+   * User's password
+   */
   password: string;
 };
 
@@ -76,11 +112,21 @@ export type UserVerifyOtpDto = {
 };
 
 export type ForgotPasswordDto = {
-  [key: string]: unknown;
+  /**
+   * Email to send the password reset link to
+   */
+  email: string;
 };
 
 export type ResetPasswordDto = {
-  [key: string]: unknown;
+  /**
+   * Reset token received via email
+   */
+  token: string;
+  /**
+   * New password
+   */
+  password: string;
 };
 
 export type PopulatedLocationDto = {
@@ -135,13 +181,39 @@ export type UserProfileResponseDto = {
   phone: string;
   country?: PopulatedLocationDto;
   onboardingStep?:
+    | "identity_kyc"
     | "residential"
     | "company_info"
     | "product_categories"
+    | "beneficial_owners"
     | "company_documents"
+    | "declarations_risk"
     | "review"
+    | "status"
     | "complete";
   onboardingCompleted?: boolean;
+  complianceStatus?:
+    | "draft"
+    | "submitted"
+    | "pending_review"
+    | "action_required"
+    | "approved";
+  kycStatus?:
+    | "draft"
+    | "submitted"
+    | "pending_review"
+    | "action_required"
+    | "approved";
+  kybStatus?:
+    | "draft"
+    | "submitted"
+    | "pending_review"
+    | "action_required"
+    | "approved";
+  actionRequiredItems?: Array<string>;
+  submittedAt?: string;
+  reviewedAt?: string;
+  approvedAt?: string;
   residentialAddress?: ResidentialAddressDto;
   organization?: OrganizationDto;
 };
@@ -153,7 +225,14 @@ export type UpdateProfileDto = {
 };
 
 export type ChangePasswordDto = {
-  [key: string]: unknown;
+  /**
+   * Current password for verification
+   */
+  currentPassword: string;
+  /**
+   * New password (min 8 chars)
+   */
+  newPassword: string;
 };
 
 export type UpdateOrganizationDto = {
@@ -318,10 +397,10 @@ export type ProductResponseDto = {
 };
 
 export type LocationDto = {
-  state: string;
-  region: string;
-  country: string;
-  address: string;
+  state?: string;
+  region?: string;
+  country?: string;
+  address?: string;
 };
 
 export type CreateProductDto = {
@@ -329,26 +408,26 @@ export type CreateProductDto = {
   description: string;
   category: string;
   pricePerUnit: number;
-  currency: string;
-  images: Array<string>;
-  documents: Array<string>;
-  features: Array<string>;
-  availableQuantity: number;
-  minimumOrderQuantity: number;
-  maximumOrderQuantity: number;
-  trackInventory: boolean;
-  lowStockThreshold: number;
-  showStockToBuyers: boolean;
-  allowBackorders: boolean;
-  unitOfMeasurement: string;
-  conditions: Array<"New" | "Used - Good" | "Used - Fair" | "Refurbished">;
-  organization: string;
-  location: LocationDto;
-  status: "pending" | "approved" | "rejected";
-  transactionTypes: Array<
+  currency?: string;
+  images?: Array<string>;
+  documents?: Array<string>;
+  features?: Array<string>;
+  availableQuantity?: number;
+  minimumOrderQuantity?: number;
+  maximumOrderQuantity?: number;
+  trackInventory?: boolean;
+  lowStockThreshold?: number;
+  showStockToBuyers?: boolean;
+  allowBackorders?: boolean;
+  unitOfMeasurement?: string;
+  conditions?: Array<"New" | "Used - Good" | "Used - Fair" | "Refurbished">;
+  organization?: string;
+  location?: LocationDto;
+  status?: "pending" | "approved" | "rejected";
+  transactionTypes?: Array<
     "Purchase" | "Lease" | "Charter" | "Bulk Supply" | "Spot Trade"
   >;
-  isActive: boolean;
+  isActive?: boolean;
 };
 
 export type UpdateProductDto = {
@@ -692,9 +771,9 @@ export type TransactionStageResponseDto = {
   assignedTo: "BUYER" | "SELLER" | "ADMIN" | "SYSTEM";
   status: "PENDING" | "ACTIVE" | "COMPLETED" | "DISPUTED";
   visibility: "SHARED" | "PARTY_ONLY";
-  actionTarget?: string;
-  completedAt?: string;
-  completedBy?: string;
+  actionTarget?: string | null;
+  completedAt?: string | null;
+  completedBy?: string | null;
   metadata: {
     [key: string]: unknown;
   };
@@ -1081,7 +1160,7 @@ export type CreateRequestDto = {
    * Duration unit for lease/charter (hour, day, month)
    */
   durationUnit?: string;
-  selectionMode: "open" | "jira-ai" | "direct";
+  selectionMode?: "open" | "jira-ai" | "direct";
   milestones?: Array<RequestMilestoneDto>;
   /**
    * Q&Q acceptance criteria. Supply an empty array or omit when the category group does not have allowsInspection=true.
@@ -1402,7 +1481,9 @@ export type DisputeAttachmentResponseDto = {
   url: string;
   name: string;
   uploadedAt: string;
-  uploadedByRole: string;
+  uploadedByRole: {
+    [key: string]: unknown;
+  };
 };
 
 export type DisputeResponseDto = {
@@ -1418,6 +1499,10 @@ export type DisputeResponseDto = {
   attachments: Array<DisputeAttachmentResponseDto>;
   createdAt: string;
   updatedAt: string;
+};
+
+export type Dispute = {
+  [key: string]: unknown;
 };
 
 export type SingleDisputeResponseDto = {
@@ -1459,7 +1544,8 @@ export type WithdrawDisputeDto = {
 };
 
 export type AttachmentDto = {
-  [key: string]: unknown;
+  url: string;
+  name: string;
 };
 
 export type FulfillInformationRequestDto = {
@@ -1469,15 +1555,88 @@ export type FulfillInformationRequestDto = {
 
 export type OnboardingStatusResponseDto = {
   onboardingStep:
+    | "identity_kyc"
     | "residential"
     | "company_info"
     | "product_categories"
+    | "beneficial_owners"
     | "company_documents"
+    | "declarations_risk"
     | "review"
+    | "status"
     | "complete";
   onboardingCompleted: boolean;
+  complianceStatus:
+    | "draft"
+    | "submitted"
+    | "pending_review"
+    | "action_required"
+    | "approved";
+  kycStatus:
+    | "draft"
+    | "submitted"
+    | "pending_review"
+    | "action_required"
+    | "approved";
+  kybStatus:
+    | "draft"
+    | "submitted"
+    | "pending_review"
+    | "action_required"
+    | "approved";
+  actionRequiredItems?: Array<string>;
+  submittedAt?: string;
+  reviewedAt?: string;
+  approvedAt?: string;
   residentialAddress?: ResidentialAddressDto;
   organization?: OrganizationDto;
+};
+
+export type OnboardingStatusHubResponseDto = {
+  complianceStatus:
+    | "draft"
+    | "submitted"
+    | "pending_review"
+    | "action_required"
+    | "approved";
+  kycStatus:
+    | "draft"
+    | "submitted"
+    | "pending_review"
+    | "action_required"
+    | "approved";
+  kybStatus:
+    | "draft"
+    | "submitted"
+    | "pending_review"
+    | "action_required"
+    | "approved";
+  actionRequiredItems?: Array<string>;
+  submittedAt?: string;
+  reviewedAt?: string;
+  approvedAt?: string;
+  nextAction: string;
+  estimatedTimeline?: string;
+};
+
+export type KycFileMetadataDto = {
+  url: string;
+  name?: string;
+  type?: string;
+  size?: number;
+};
+
+export type UpdateIdentityKycDto = {
+  dateOfBirth: string;
+  nationality: string;
+  idType: "nin" | "passport" | "drivers_license" | "national_id";
+  idNumber: string;
+  nin?: string;
+  bvn?: string;
+  governmentIdDocument?: KycFileMetadataDto;
+  selfieDocument?: KycFileMetadataDto;
+  addressProofDocument?: KycFileMetadataDto;
+  livenessSessionId?: string;
 };
 
 export type UpdateResidentialAddressDto = {
@@ -1502,6 +1661,22 @@ export type UpdateProductCategoriesDto = {
   categories: Array<string>;
 };
 
+export type BeneficialOwnerDto = {
+  fullName: string;
+  ownershipPercent: number;
+  controlPercent?: number;
+  idNumber: string;
+  houseNumber: string;
+  streetAddress: string;
+  city: string;
+  state: string;
+  country: string;
+};
+
+export type UpdateBeneficialOwnersDto = {
+  owners: Array<BeneficialOwnerDto>;
+};
+
 export type FileMetadataDto = {
   url: string;
   name?: string;
@@ -1516,6 +1691,13 @@ export type UpdateCompanyDocumentsDto = {
   certificateOfIncorporation?: string | FileMetadataDto;
   memorandum?: string | FileMetadataDto;
   additionalDocuments?: Array<FileMetadataDto>;
+};
+
+export type UpdateDeclarationsRiskDto = {
+  isPep: boolean;
+  pepDetails?: string;
+  sanctionsDeclaration: boolean;
+  sourceOfFunds: string;
 };
 
 export type InviteItemDto = {
@@ -1540,15 +1722,50 @@ export type CreateInvitationDto = {
 };
 
 export type AdminLoginDto = {
-  [key: string]: unknown;
+  /**
+   * Admin's email address
+   */
+  email: string;
+  /**
+   * Admin's password
+   */
+  password: string;
 };
 
 export type AdminVerifyOtpDto = {
-  [key: string]: unknown;
+  email: string;
+  otp: string;
 };
 
 export type CreateAdminDto = {
-  [key: string]: unknown;
+  /**
+   * Admin's email address
+   */
+  email: string;
+  /**
+   * Initial password (users should change this later)
+   */
+  password: string;
+  /**
+   * Full name of the admin
+   */
+  name: string;
+  /**
+   * Role assigned to the admin (e.g. 'super-admin', 'support')
+   */
+  role: string;
+  /**
+   * Department the admin belongs to
+   */
+  department?: string;
+  /**
+   * List of permissions granted to the admin
+   */
+  permissions?: Array<string>;
+  /**
+   * Whether the admin account is active
+   */
+  isActive?: boolean;
 };
 
 export type CategoryDocumentTemplateInput = {
@@ -1617,7 +1834,7 @@ export type CreateCategoryDto = {
   /**
    * Whether the category is active
    */
-  isActive: boolean;
+  isActive?: boolean;
 };
 
 export type UpdateCategoryDto = {
@@ -1997,25 +2214,49 @@ export type PaginatedNotificationsResponseDto = {
   data: NotificationsPaginationDataDto;
 };
 
+export type ReviewComplianceDto = {
+  decision: "approved" | "action_required";
+  reasons?: Array<string>;
+};
+
 export type UpdateCategoryGroupDto = {
   requiresLogistics?: boolean;
   allowsInspection?: boolean;
   milestoneDelivery?: boolean;
   allowsOrderQuantityLimits?: boolean;
   allowsInventoryTracking?: boolean;
-  measurementType?: Array<"count" | "volume" | "mass" | "time">;
-  transactionTypes?: Array<
-    "Purchase" | "Lease" | "Charter" | "Bulk Supply" | "Spot Trade"
-  >;
-  conditions?: Array<"New" | "Used - Good" | "Used - Fair" | "Refurbished">;
+  measurementType?: "count" | "volume" | "mass" | "time";
+  transactionTypes?:
+    | "Purchase"
+    | "Lease"
+    | "Charter"
+    | "Bulk Supply"
+    | "Spot Trade";
+  conditions?: "New" | "Used - Good" | "Used - Fair" | "Refurbished";
   allowedCurrencies?: Array<"NGN" | "USD" | "GBP" | "EUR">;
 };
 
+export type GeneratePresignedUrlDto = {
+  filename: string;
+  contentType: string;
+};
+
 export type GeneratePresignedUrlsDto = {
-  [key: string]: unknown;
+  files: Array<GeneratePresignedUrlDto>;
 };
 
 export type PresignedUrlResponseDto = {
+  key: string;
+  url: string;
+  publicUrl: string;
+  filename: string;
+};
+
+export type QqFieldDef = {
+  [key: string]: unknown;
+};
+
+export type QqTemplate = {
   [key: string]: unknown;
 };
 
@@ -2054,6 +2295,10 @@ export type SubmitInspectionDto = {
   notes?: string;
 };
 
+export type InspectionReport = {
+  [key: string]: unknown;
+};
+
 export type AppControllerGetHelloData = {
   body?: never;
   path?: never;
@@ -2062,8 +2307,11 @@ export type AppControllerGetHelloData = {
 };
 
 export type AppControllerGetHelloResponses = {
-  200: unknown;
+  200: string;
 };
+
+export type AppControllerGetHelloResponse =
+  AppControllerGetHelloResponses[keyof AppControllerGetHelloResponses];
 
 export type LocationsControllerGetRegionsData = {
   body?: never;
@@ -2165,7 +2413,13 @@ export type UsersAuthControllerLoginResponses = {
    * Returns OTP challenge
    */
   200: unknown;
+  201: {
+    [key: string]: unknown;
+  };
 };
+
+export type UsersAuthControllerLoginResponse =
+  UsersAuthControllerLoginResponses[keyof UsersAuthControllerLoginResponses];
 
 export type UsersAuthControllerVerifyOtpData = {
   body: UserVerifyOtpDto;
@@ -2176,6 +2430,9 @@ export type UsersAuthControllerVerifyOtpData = {
 
 export type UsersAuthControllerVerifyOtpResponses = {
   200: AuthTokenResponseDto;
+  201: {
+    [key: string]: unknown;
+  };
 };
 
 export type UsersAuthControllerVerifyOtpResponse =
@@ -2269,6 +2526,18 @@ export type UsersAuthControllerChangePasswordResponses = {
    * Password changed successfully
    */
   200: unknown;
+  201: unknown;
+};
+
+export type ComplianceControllerSmileIdWebhookData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: "/api/v1/compliance/smile-id/webhook";
+};
+
+export type ComplianceControllerSmileIdWebhookResponses = {
+  200: unknown;
 };
 
 export type OrganizationsControllerUpdateOrganizationData = {
@@ -2281,8 +2550,13 @@ export type OrganizationsControllerUpdateOrganizationData = {
 };
 
 export type OrganizationsControllerUpdateOrganizationResponses = {
-  200: unknown;
+  200: {
+    [key: string]: unknown;
+  };
 };
+
+export type OrganizationsControllerUpdateOrganizationResponse =
+  OrganizationsControllerUpdateOrganizationResponses[keyof OrganizationsControllerUpdateOrganizationResponses];
 
 export type OrganizationsControllerListMembersData = {
   body?: never;
@@ -2294,8 +2568,13 @@ export type OrganizationsControllerListMembersData = {
 };
 
 export type OrganizationsControllerListMembersResponses = {
-  200: unknown;
+  200: Array<{
+    [key: string]: unknown;
+  }>;
 };
+
+export type OrganizationsControllerListMembersResponse =
+  OrganizationsControllerListMembersResponses[keyof OrganizationsControllerListMembersResponses];
 
 export type OrganizationsControllerUpdateMemberRoleData = {
   body: UpdateRoleDto;
@@ -2308,8 +2587,13 @@ export type OrganizationsControllerUpdateMemberRoleData = {
 };
 
 export type OrganizationsControllerUpdateMemberRoleResponses = {
-  200: unknown;
+  200: {
+    [key: string]: unknown;
+  };
 };
+
+export type OrganizationsControllerUpdateMemberRoleResponse =
+  OrganizationsControllerUpdateMemberRoleResponses[keyof OrganizationsControllerUpdateMemberRoleResponses];
 
 export type OrganizationsControllerRemoveMemberData = {
   body?: never;
@@ -2487,7 +2771,13 @@ export type TransactionsControllerCreateResponses = {
    * The created transaction
    */
   200: unknown;
+  201: {
+    [key: string]: unknown;
+  };
 };
+
+export type TransactionsControllerCreateResponse =
+  TransactionsControllerCreateResponses[keyof TransactionsControllerCreateResponses];
 
 export type TransactionsControllerFindByOrderIdData = {
   body?: never;
@@ -2560,6 +2850,9 @@ export type TransactionsControllerAddDocumentResponses = {
    * The updated transaction
    */
   200: TransactionResponseDto;
+  201: {
+    [key: string]: unknown;
+  };
 };
 
 export type TransactionsControllerAddDocumentResponse =
@@ -2614,6 +2907,9 @@ export type TransactionsControllerAssignLogisticsResponses = {
    * Logistics assigned successfully.
    */
   200: TransactionResponseDto;
+  201: {
+    [key: string]: unknown;
+  };
 };
 
 export type TransactionsControllerAssignLogisticsResponse =
@@ -2633,6 +2929,9 @@ export type TransactionsControllerFundEscrowResponses = {
    * The updated transaction
    */
   200: TransactionResponseDto;
+  201: {
+    [key: string]: unknown;
+  };
 };
 
 export type TransactionsControllerFundEscrowResponse =
@@ -2652,6 +2951,9 @@ export type TransactionsControllerConfirmDeliveryResponses = {
    * The updated transaction
    */
   200: TransactionResponseDto;
+  201: {
+    [key: string]: unknown;
+  };
 };
 
 export type TransactionsControllerConfirmDeliveryResponse =
@@ -2672,6 +2974,9 @@ export type TransactionsControllerSubmitMilestoneResponses = {
    * Milestone submitted successfully.
    */
   200: TransactionResponseDto;
+  201: {
+    [key: string]: unknown;
+  };
 };
 
 export type TransactionsControllerSubmitMilestoneResponse =
@@ -2692,6 +2997,9 @@ export type TransactionsControllerApproveMilestoneResponses = {
    * Milestone approved successfully.
    */
   200: TransactionResponseDto;
+  201: {
+    [key: string]: unknown;
+  };
 };
 
 export type TransactionsControllerApproveMilestoneResponse =
@@ -2712,6 +3020,9 @@ export type TransactionsControllerSubmitInspectionResponses = {
    * Inspection documents submitted successfully.
    */
   200: TransactionResponseDto;
+  201: {
+    [key: string]: unknown;
+  };
 };
 
 export type TransactionsControllerSubmitInspectionResponse =
@@ -2744,6 +3055,7 @@ export type TransactionConversationsControllerSendMessageData = {
 
 export type TransactionConversationsControllerSendMessageResponses = {
   200: TransactionConversationResponseDto;
+  201: TransactionConversationResponseDto;
 };
 
 export type TransactionConversationsControllerSendMessageResponse =
@@ -2761,6 +3073,9 @@ export type OrdersControllerPurchaseResponses = {
    * The created order in pending status
    */
   200: OrderResponseDto;
+  201: {
+    [key: string]: unknown;
+  };
 };
 
 export type OrdersControllerPurchaseResponse =
@@ -2840,6 +3155,9 @@ export type OrdersControllerConfirmData = {
 
 export type OrdersControllerConfirmResponses = {
   200: OrderResponseDto;
+  201: {
+    [key: string]: unknown;
+  };
 };
 
 export type OrdersControllerConfirmResponse =
@@ -2885,6 +3203,9 @@ export type OrdersControllerCancelData = {
 
 export type OrdersControllerCancelResponses = {
   200: OrderResponseDto;
+  201: {
+    [key: string]: unknown;
+  };
 };
 
 export type OrdersControllerCancelResponse =
@@ -2913,6 +3234,9 @@ export type RequestsControllerCreateData = {
 
 export type RequestsControllerCreateResponses = {
   200: RequestResponseDto;
+  201: {
+    [key: string]: unknown;
+  };
 };
 
 export type RequestsControllerCreateResponse =
@@ -3084,6 +3408,7 @@ export type NegotiationsControllerCreateData = {
 
 export type NegotiationsControllerCreateResponses = {
   200: NegotiationResponseDto;
+  201: NegotiationResponseDto;
 };
 
 export type NegotiationsControllerCreateResponse =
@@ -3116,6 +3441,7 @@ export type NegotiationsControllerCounterOfferData = {
 
 export type NegotiationsControllerCounterOfferResponses = {
   200: NegotiationResponseDto;
+  201: NegotiationResponseDto;
 };
 
 export type NegotiationsControllerCounterOfferResponse =
@@ -3132,6 +3458,7 @@ export type NegotiationsControllerSendMessageData = {
 
 export type NegotiationsControllerSendMessageResponses = {
   200: NegotiationResponseDto;
+  201: NegotiationResponseDto;
 };
 
 export type NegotiationsControllerSendMessageResponse =
@@ -3148,6 +3475,7 @@ export type NegotiationsControllerAcceptData = {
 
 export type NegotiationsControllerAcceptResponses = {
   200: NegotiationResponseDto;
+  201: NegotiationResponseDto;
 };
 
 export type NegotiationsControllerAcceptResponse =
@@ -3164,6 +3492,7 @@ export type NegotiationsControllerConfirmData = {
 
 export type NegotiationsControllerConfirmResponses = {
   200: NegotiationResponseDto;
+  201: NegotiationResponseDto;
 };
 
 export type NegotiationsControllerConfirmResponse =
@@ -3180,6 +3509,7 @@ export type NegotiationsControllerRejectData = {
 
 export type NegotiationsControllerRejectResponses = {
   200: NegotiationResponseDto;
+  201: NegotiationResponseDto;
 };
 
 export type NegotiationsControllerRejectResponse =
@@ -3197,6 +3527,7 @@ export type DisputesControllerRaiseDisputeResponses = {
    * The created dispute
    */
   200: DisputeResponseDto;
+  201: Dispute;
 };
 
 export type DisputesControllerRaiseDisputeResponse =
@@ -3229,6 +3560,7 @@ export type DisputesControllerAddAttachmentData = {
 
 export type DisputesControllerAddAttachmentResponses = {
   200: DisputeResponseDto;
+  201: Dispute;
 };
 
 export type DisputesControllerAddAttachmentResponse =
@@ -3245,6 +3577,7 @@ export type DisputesControllerWithdrawDisputeData = {
 
 export type DisputesControllerWithdrawDisputeResponses = {
   200: DisputeResponseDto;
+  201: unknown;
 };
 
 export type DisputesControllerWithdrawDisputeResponse =
@@ -3280,6 +3613,40 @@ export type OnboardingControllerGetOnboardingStatusResponses = {
 
 export type OnboardingControllerGetOnboardingStatusResponse =
   OnboardingControllerGetOnboardingStatusResponses[keyof OnboardingControllerGetOnboardingStatusResponses];
+
+export type OnboardingControllerGetStatusHubData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: "/api/v1/onboarding/status";
+};
+
+export type OnboardingControllerGetStatusHubResponses = {
+  /**
+   * Verification status data retrieved
+   */
+  200: OnboardingStatusHubResponseDto;
+};
+
+export type OnboardingControllerGetStatusHubResponse =
+  OnboardingControllerGetStatusHubResponses[keyof OnboardingControllerGetStatusHubResponses];
+
+export type OnboardingControllerUpdateIdentityKycData = {
+  body: UpdateIdentityKycDto;
+  path?: never;
+  query?: never;
+  url: "/api/v1/onboarding/identity-kyc";
+};
+
+export type OnboardingControllerUpdateIdentityKycResponses = {
+  /**
+   * Identity details updated
+   */
+  200: OnboardingStatusResponseDto;
+};
+
+export type OnboardingControllerUpdateIdentityKycResponse =
+  OnboardingControllerUpdateIdentityKycResponses[keyof OnboardingControllerUpdateIdentityKycResponses];
 
 export type OnboardingControllerUpdateResidentialData = {
   body: UpdateResidentialAddressDto;
@@ -3332,6 +3699,23 @@ export type OnboardingControllerUpdateProductCategoriesResponses = {
 export type OnboardingControllerUpdateProductCategoriesResponse =
   OnboardingControllerUpdateProductCategoriesResponses[keyof OnboardingControllerUpdateProductCategoriesResponses];
 
+export type OnboardingControllerUpdateBeneficialOwnersData = {
+  body: UpdateBeneficialOwnersDto;
+  path?: never;
+  query?: never;
+  url: "/api/v1/onboarding/beneficial-owners";
+};
+
+export type OnboardingControllerUpdateBeneficialOwnersResponses = {
+  /**
+   * Beneficial owners updated
+   */
+  200: OnboardingStatusResponseDto;
+};
+
+export type OnboardingControllerUpdateBeneficialOwnersResponse =
+  OnboardingControllerUpdateBeneficialOwnersResponses[keyof OnboardingControllerUpdateBeneficialOwnersResponses];
+
 export type OnboardingControllerUpdateCompanyDocumentsData = {
   body: UpdateCompanyDocumentsDto;
   path?: never;
@@ -3348,6 +3732,23 @@ export type OnboardingControllerUpdateCompanyDocumentsResponses = {
 
 export type OnboardingControllerUpdateCompanyDocumentsResponse =
   OnboardingControllerUpdateCompanyDocumentsResponses[keyof OnboardingControllerUpdateCompanyDocumentsResponses];
+
+export type OnboardingControllerUpdateDeclarationsRiskData = {
+  body: UpdateDeclarationsRiskDto;
+  path?: never;
+  query?: never;
+  url: "/api/v1/onboarding/declarations-risk";
+};
+
+export type OnboardingControllerUpdateDeclarationsRiskResponses = {
+  /**
+   * Declarations and risk data updated
+   */
+  200: OnboardingStatusResponseDto;
+};
+
+export type OnboardingControllerUpdateDeclarationsRiskResponse =
+  OnboardingControllerUpdateDeclarationsRiskResponses[keyof OnboardingControllerUpdateDeclarationsRiskResponses];
 
 export type OnboardingControllerInviteTeamData = {
   body: InviteTeamDto;
@@ -3366,6 +3767,26 @@ export type OnboardingControllerInviteTeamResponses = {
 export type OnboardingControllerInviteTeamResponse =
   OnboardingControllerInviteTeamResponses[keyof OnboardingControllerInviteTeamResponses];
 
+export type OnboardingControllerGenerateLivenessTokenData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: "/api/v1/onboarding/liveness-token";
+};
+
+export type OnboardingControllerGenerateLivenessTokenResponses = {
+  /**
+   * Liveness token generated
+   */
+  201: {
+    authToken?: string;
+    sessionId?: string;
+  };
+};
+
+export type OnboardingControllerGenerateLivenessTokenResponse =
+  OnboardingControllerGenerateLivenessTokenResponses[keyof OnboardingControllerGenerateLivenessTokenResponses];
+
 export type OnboardingControllerCompleteOnboardingData = {
   body?: never;
   path?: never;
@@ -3375,9 +3796,10 @@ export type OnboardingControllerCompleteOnboardingData = {
 
 export type OnboardingControllerCompleteOnboardingResponses = {
   /**
-   * Onboarding completed
+   * Compliance package submitted for review
    */
   200: OnboardingStatusResponseDto;
+  201: unknown;
 };
 
 export type OnboardingControllerCompleteOnboardingResponse =
@@ -3419,8 +3841,13 @@ export type InvitationsControllerListInvitationsData = {
 };
 
 export type InvitationsControllerListInvitationsResponses = {
-  200: unknown;
+  200: Array<{
+    [key: string]: unknown;
+  }>;
 };
+
+export type InvitationsControllerListInvitationsResponse =
+  InvitationsControllerListInvitationsResponses[keyof InvitationsControllerListInvitationsResponses];
 
 export type InvitationsControllerInviteData = {
   body: CreateInvitationDto;
@@ -3432,8 +3859,13 @@ export type InvitationsControllerInviteData = {
 };
 
 export type InvitationsControllerInviteResponses = {
-  201: unknown;
+  201: {
+    [key: string]: unknown;
+  };
 };
+
+export type InvitationsControllerInviteResponse =
+  InvitationsControllerInviteResponses[keyof InvitationsControllerInviteResponses];
 
 export type InvitationsControllerRevokeInvitationData = {
   body?: never;
@@ -3546,7 +3978,13 @@ export type AdminAuthControllerLoginResponses = {
    * Returns OTP challenge
    */
   200: unknown;
+  201: {
+    [key: string]: unknown;
+  };
 };
+
+export type AdminAuthControllerLoginResponse =
+  AdminAuthControllerLoginResponses[keyof AdminAuthControllerLoginResponses];
 
 export type AdminAuthControllerVerifyOtpData = {
   body: AdminVerifyOtpDto;
@@ -3560,7 +3998,13 @@ export type AdminAuthControllerVerifyOtpResponses = {
    * Returns access token and user info
    */
   200: unknown;
+  201: {
+    [key: string]: unknown;
+  };
 };
+
+export type AdminAuthControllerVerifyOtpResponse =
+  AdminAuthControllerVerifyOtpResponses[keyof AdminAuthControllerVerifyOtpResponses];
 
 export type AdminAuthControllerCreateAdminData = {
   body: CreateAdminDto;
@@ -3570,8 +4014,13 @@ export type AdminAuthControllerCreateAdminData = {
 };
 
 export type AdminAuthControllerCreateAdminResponses = {
-  201: unknown;
+  201: {
+    [key: string]: unknown;
+  };
 };
+
+export type AdminAuthControllerCreateAdminResponse =
+  AdminAuthControllerCreateAdminResponses[keyof AdminAuthControllerCreateAdminResponses];
 
 export type AdminAuthControllerChangePasswordData = {
   body: ChangePasswordDto;
@@ -3592,8 +4041,13 @@ export type AdminAuthControllerGetProfileData = {
 };
 
 export type AdminAuthControllerGetProfileResponses = {
-  200: unknown;
+  200: {
+    [key: string]: unknown;
+  };
 };
+
+export type AdminAuthControllerGetProfileResponse =
+  AdminAuthControllerGetProfileResponses[keyof AdminAuthControllerGetProfileResponses];
 
 export type AdminCategoriesControllerFindAllData = {
   body?: never;
@@ -3754,6 +4208,9 @@ export type AdminTransactionsControllerAddDocumentResponses = {
    * The updated transaction
    */
   200: TransactionResponseDto;
+  201: {
+    [key: string]: unknown;
+  };
 };
 
 export type AdminTransactionsControllerAddDocumentResponse =
@@ -3773,6 +4230,9 @@ export type AdminTransactionsControllerAddRequirementResponses = {
    * The updated transaction
    */
   200: TransactionResponseDto;
+  201: {
+    [key: string]: unknown;
+  };
 };
 
 export type AdminTransactionsControllerAddRequirementResponse =
@@ -3871,6 +4331,9 @@ export type AdminTransactionsControllerReleaseSettlementResponses = {
    * The updated transaction
    */
   200: TransactionResponseDto;
+  201: {
+    [key: string]: unknown;
+  };
 };
 
 export type AdminTransactionsControllerReleaseSettlementResponse =
@@ -3891,6 +4354,9 @@ export type AdminTransactionsControllerSubmitInspectionResponses = {
    * Inspection documents submitted successfully.
    */
   200: TransactionResponseDto;
+  201: {
+    [key: string]: unknown;
+  };
 };
 
 export type AdminTransactionsControllerSubmitInspectionResponse =
@@ -4097,8 +4563,13 @@ export type AdminRequestsControllerAcceptRequestData = {
 };
 
 export type AdminRequestsControllerAcceptRequestResponses = {
-  201: unknown;
+  201: {
+    [key: string]: unknown;
+  };
 };
+
+export type AdminRequestsControllerAcceptRequestResponse =
+  AdminRequestsControllerAcceptRequestResponses[keyof AdminRequestsControllerAcceptRequestResponses];
 
 export type AdminNegotiationsControllerFindAllData = {
   body?: never;
@@ -4238,6 +4709,80 @@ export type NotificationsControllerMarkAllAsReadResponses = {
   201: unknown;
 };
 
+export type AdminComplianceControllerListCasesData = {
+  body?: never;
+  path?: never;
+  query?: {
+    page?: string;
+    limit?: string;
+    status?:
+      | "draft"
+      | "submitted"
+      | "pending_review"
+      | "action_required"
+      | "approved";
+    country?: string;
+    type?: "merchant" | "customer";
+    search?: string;
+  };
+  url: "/api/v1/admin/compliance/cases";
+};
+
+export type AdminComplianceControllerListCasesResponses = {
+  /**
+   * Compliance cases list
+   */
+  200: unknown;
+};
+
+export type AdminComplianceControllerGetCaseData = {
+  body?: never;
+  path: {
+    organizationId: string;
+  };
+  query?: never;
+  url: "/api/v1/admin/compliance/cases/{organizationId}";
+};
+
+export type AdminComplianceControllerGetCaseResponses = {
+  /**
+   * Compliance case details
+   */
+  200: unknown;
+};
+
+export type AdminComplianceControllerReviewKycData = {
+  body: ReviewComplianceDto;
+  path: {
+    userId: string;
+  };
+  query?: never;
+  url: "/api/v1/admin/compliance/kyc/{userId}";
+};
+
+export type AdminComplianceControllerReviewKycResponses = {
+  /**
+   * KYC review decision applied
+   */
+  200: unknown;
+};
+
+export type AdminComplianceControllerReviewKybData = {
+  body: ReviewComplianceDto;
+  path: {
+    organizationId: string;
+  };
+  query?: never;
+  url: "/api/v1/admin/compliance/kyb/{organizationId}";
+};
+
+export type AdminComplianceControllerReviewKybResponses = {
+  /**
+   * KYB review decision applied
+   */
+  200: unknown;
+};
+
 export type CategoryGroupsControllerFindAllData = {
   body?: never;
   path?: never;
@@ -4319,8 +4864,13 @@ export type OrgProductsControllerCreateData = {
 };
 
 export type OrgProductsControllerCreateResponses = {
-  201: unknown;
+  201: {
+    [key: string]: unknown;
+  };
 };
+
+export type OrgProductsControllerCreateResponse =
+  OrgProductsControllerCreateResponses[keyof OrgProductsControllerCreateResponses];
 
 export type OrgProductsControllerRemoveData = {
   body?: never;
@@ -4333,8 +4883,13 @@ export type OrgProductsControllerRemoveData = {
 };
 
 export type OrgProductsControllerRemoveResponses = {
-  200: unknown;
+  200: {
+    [key: string]: unknown;
+  };
 };
+
+export type OrgProductsControllerRemoveResponse =
+  OrgProductsControllerRemoveResponses[keyof OrgProductsControllerRemoveResponses];
 
 export type OrgProductsControllerFindOneData = {
   body?: never;
@@ -4364,8 +4919,13 @@ export type OrgProductsControllerUpdateData = {
 };
 
 export type OrgProductsControllerUpdateResponses = {
-  200: unknown;
+  200: {
+    [key: string]: unknown;
+  };
 };
+
+export type OrgProductsControllerUpdateResponse =
+  OrgProductsControllerUpdateResponses[keyof OrgProductsControllerUpdateResponses];
 
 export type StorageControllerGeneratePresignedUrlsData = {
   body: GeneratePresignedUrlsDto;
@@ -4376,6 +4936,7 @@ export type StorageControllerGeneratePresignedUrlsData = {
 
 export type StorageControllerGeneratePresignedUrlsResponses = {
   200: Array<PresignedUrlResponseDto>;
+  201: Array<PresignedUrlResponseDto>;
 };
 
 export type StorageControllerGeneratePresignedUrlsResponse =
@@ -4389,8 +4950,11 @@ export type QqCatalogControllerFindAllFieldsData = {
 };
 
 export type QqCatalogControllerFindAllFieldsResponses = {
-  200: unknown;
+  200: Array<QqFieldDef>;
 };
+
+export type QqCatalogControllerFindAllFieldsResponse =
+  QqCatalogControllerFindAllFieldsResponses[keyof QqCatalogControllerFindAllFieldsResponses];
 
 export type QqCatalogControllerFindFieldData = {
   body?: never;
@@ -4405,8 +4969,11 @@ export type QqCatalogControllerFindFieldData = {
 };
 
 export type QqCatalogControllerFindFieldResponses = {
-  200: unknown;
+  200: QqFieldDef;
 };
+
+export type QqCatalogControllerFindFieldResponse =
+  QqCatalogControllerFindFieldResponses[keyof QqCatalogControllerFindFieldResponses];
 
 export type QqCatalogControllerFindAllTemplatesData = {
   body?: never;
@@ -4416,8 +4983,11 @@ export type QqCatalogControllerFindAllTemplatesData = {
 };
 
 export type QqCatalogControllerFindAllTemplatesResponses = {
-  200: unknown;
+  200: Array<QqTemplate>;
 };
+
+export type QqCatalogControllerFindAllTemplatesResponse =
+  QqCatalogControllerFindAllTemplatesResponses[keyof QqCatalogControllerFindAllTemplatesResponses];
 
 export type QqCatalogControllerFindTemplateData = {
   body?: never;
@@ -4432,8 +5002,11 @@ export type QqCatalogControllerFindTemplateData = {
 };
 
 export type QqCatalogControllerFindTemplateResponses = {
-  200: unknown;
+  200: QqTemplate;
 };
+
+export type QqCatalogControllerFindTemplateResponse =
+  QqCatalogControllerFindTemplateResponses[keyof QqCatalogControllerFindTemplateResponses];
 
 export type QqCatalogControllerFindAllCompaniesData = {
   body?: never;
@@ -4443,8 +5016,13 @@ export type QqCatalogControllerFindAllCompaniesData = {
 };
 
 export type QqCatalogControllerFindAllCompaniesResponses = {
-  200: unknown;
+  200: {
+    [key: string]: unknown;
+  };
 };
+
+export type QqCatalogControllerFindAllCompaniesResponse =
+  QqCatalogControllerFindAllCompaniesResponses[keyof QqCatalogControllerFindAllCompaniesResponses];
 
 export type InspectionControllerSubmitInspectionData = {
   body: SubmitInspectionDto;
@@ -4459,8 +5037,11 @@ export type InspectionControllerSubmitInspectionData = {
 };
 
 export type InspectionControllerSubmitInspectionResponses = {
-  201: unknown;
+  201: InspectionReport;
 };
+
+export type InspectionControllerSubmitInspectionResponse =
+  InspectionControllerSubmitInspectionResponses[keyof InspectionControllerSubmitInspectionResponses];
 
 export type InspectionControllerListInspectionsData = {
   body?: never;
@@ -4475,8 +5056,11 @@ export type InspectionControllerListInspectionsData = {
 };
 
 export type InspectionControllerListInspectionsResponses = {
-  200: unknown;
+  200: Array<InspectionReport>;
 };
+
+export type InspectionControllerListInspectionsResponse =
+  InspectionControllerListInspectionsResponses[keyof InspectionControllerListInspectionsResponses];
 
 export type InspectionReportControllerFindOneData = {
   body?: never;
@@ -4491,5 +5075,58 @@ export type InspectionReportControllerFindOneData = {
 };
 
 export type InspectionReportControllerFindOneResponses = {
-  200: unknown;
+  200: InspectionReport;
 };
+
+export type InspectionReportControllerFindOneResponse =
+  InspectionReportControllerFindOneResponses[keyof InspectionReportControllerFindOneResponses];
+
+export type PlacesControllerAutocompleteData = {
+  body?: never;
+  path?: never;
+  query: {
+    /**
+     * Search input text
+     */
+    input: string;
+    /**
+     * Session token for billing grouping
+     */
+    sessiontoken: string;
+  };
+  url: "/api/v1/places/autocomplete";
+};
+
+export type PlacesControllerAutocompleteResponses = {
+  200: Array<{
+    [key: string]: unknown;
+  }>;
+};
+
+export type PlacesControllerAutocompleteResponse =
+  PlacesControllerAutocompleteResponses[keyof PlacesControllerAutocompleteResponses];
+
+export type PlacesControllerGetDetailsData = {
+  body?: never;
+  path?: never;
+  query: {
+    /**
+     * Google Place ID
+     */
+    placeId: string;
+    /**
+     * Session token for billing grouping
+     */
+    sessiontoken: string;
+  };
+  url: "/api/v1/places/details";
+};
+
+export type PlacesControllerGetDetailsResponses = {
+  200: Array<{
+    [key: string]: unknown;
+  }>;
+};
+
+export type PlacesControllerGetDetailsResponse =
+  PlacesControllerGetDetailsResponses[keyof PlacesControllerGetDetailsResponses];

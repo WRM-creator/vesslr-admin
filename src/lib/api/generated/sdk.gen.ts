@@ -23,6 +23,14 @@ import type {
   AdminCategoriesControllerRemoveResponses,
   AdminCategoriesControllerUpdateData,
   AdminCategoriesControllerUpdateResponses,
+  AdminComplianceControllerGetCaseData,
+  AdminComplianceControllerGetCaseResponses,
+  AdminComplianceControllerListCasesData,
+  AdminComplianceControllerListCasesResponses,
+  AdminComplianceControllerReviewKybData,
+  AdminComplianceControllerReviewKybResponses,
+  AdminComplianceControllerReviewKycData,
+  AdminComplianceControllerReviewKycResponses,
   AdminDisputesControllerCreateInformationRequestData,
   AdminDisputesControllerCreateInformationRequestResponses,
   AdminDisputesControllerDismissInformationRequestData,
@@ -107,6 +115,8 @@ import type {
   CategoryGroupsControllerFindOneResponses,
   CategoryGroupsControllerUpdateData,
   CategoryGroupsControllerUpdateResponses,
+  ComplianceControllerSmileIdWebhookData,
+  ComplianceControllerSmileIdWebhookResponses,
   DisputesControllerAddAttachmentData,
   DisputesControllerAddAttachmentResponses,
   DisputesControllerFulfillInformationRequestData,
@@ -177,14 +187,24 @@ import type {
   NotificationsControllerMarkAsReadResponses,
   OnboardingControllerCompleteOnboardingData,
   OnboardingControllerCompleteOnboardingResponses,
+  OnboardingControllerGenerateLivenessTokenData,
+  OnboardingControllerGenerateLivenessTokenResponses,
   OnboardingControllerGetOnboardingStatusData,
   OnboardingControllerGetOnboardingStatusResponses,
+  OnboardingControllerGetStatusHubData,
+  OnboardingControllerGetStatusHubResponses,
   OnboardingControllerInviteTeamData,
   OnboardingControllerInviteTeamResponses,
+  OnboardingControllerUpdateBeneficialOwnersData,
+  OnboardingControllerUpdateBeneficialOwnersResponses,
   OnboardingControllerUpdateCompanyDocumentsData,
   OnboardingControllerUpdateCompanyDocumentsResponses,
   OnboardingControllerUpdateCompanyInfoData,
   OnboardingControllerUpdateCompanyInfoResponses,
+  OnboardingControllerUpdateDeclarationsRiskData,
+  OnboardingControllerUpdateDeclarationsRiskResponses,
+  OnboardingControllerUpdateIdentityKycData,
+  OnboardingControllerUpdateIdentityKycResponses,
   OnboardingControllerUpdateProductCategoriesData,
   OnboardingControllerUpdateProductCategoriesResponses,
   OnboardingControllerUpdateResidentialData,
@@ -221,6 +241,10 @@ import type {
   OrgProductsControllerRemoveResponses,
   OrgProductsControllerUpdateData,
   OrgProductsControllerUpdateResponses,
+  PlacesControllerAutocompleteData,
+  PlacesControllerAutocompleteResponses,
+  PlacesControllerGetDetailsData,
+  PlacesControllerGetDetailsResponses,
   ProductsControllerFindAllData,
   ProductsControllerFindAllResponses,
   ProductsControllerFindOneData,
@@ -564,6 +588,20 @@ export const usersAuthControllerChangePassword = <
       ...options.headers,
     },
   });
+
+/**
+ * Handle Smile ID webhook events
+ */
+export const complianceControllerSmileIdWebhook = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<ComplianceControllerSmileIdWebhookData, ThrowOnError>,
+) =>
+  (options?.client ?? client).post<
+    ComplianceControllerSmileIdWebhookResponses,
+    unknown,
+    ThrowOnError
+  >({ url: "/api/v1/compliance/smile-id/webhook", ...options });
 
 /**
  * Update organization details
@@ -1647,6 +1685,46 @@ export const onboardingControllerGetOnboardingStatus = <
   });
 
 /**
+ * Get verification status hub data
+ */
+export const onboardingControllerGetStatusHub = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<OnboardingControllerGetStatusHubData, ThrowOnError>,
+) =>
+  (options?.client ?? client).get<
+    OnboardingControllerGetStatusHubResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/onboarding/status",
+    ...options,
+  });
+
+/**
+ * Update identity and KYC details
+ */
+export const onboardingControllerUpdateIdentityKyc = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<OnboardingControllerUpdateIdentityKycData, ThrowOnError>,
+) =>
+  (options.client ?? client).put<
+    OnboardingControllerUpdateIdentityKycResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/onboarding/identity-kyc",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
  * Update residential address
  */
 export const onboardingControllerUpdateResidential = <
@@ -1716,6 +1794,31 @@ export const onboardingControllerUpdateProductCategories = <
   });
 
 /**
+ * Update beneficial owners
+ */
+export const onboardingControllerUpdateBeneficialOwners = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    OnboardingControllerUpdateBeneficialOwnersData,
+    ThrowOnError
+  >,
+) =>
+  (options.client ?? client).put<
+    OnboardingControllerUpdateBeneficialOwnersResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/onboarding/beneficial-owners",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
  * Update company documents
  */
 export const onboardingControllerUpdateCompanyDocuments = <
@@ -1733,6 +1836,31 @@ export const onboardingControllerUpdateCompanyDocuments = <
   >({
     security: [{ scheme: "bearer", type: "http" }],
     url: "/api/v1/onboarding/company-documents",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Update declarations and risk data
+ */
+export const onboardingControllerUpdateDeclarationsRisk = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    OnboardingControllerUpdateDeclarationsRiskData,
+    ThrowOnError
+  >,
+) =>
+  (options.client ?? client).put<
+    OnboardingControllerUpdateDeclarationsRiskResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/onboarding/declarations-risk",
     ...options,
     headers: {
       "Content-Type": "application/json",
@@ -1760,6 +1888,27 @@ export const onboardingControllerInviteTeam = <
       "Content-Type": "application/json",
       ...options.headers,
     },
+  });
+
+/**
+ * Generate YouVerify liveness SDK token
+ */
+export const onboardingControllerGenerateLivenessToken = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<
+    OnboardingControllerGenerateLivenessTokenData,
+    ThrowOnError
+  >,
+) =>
+  (options?.client ?? client).post<
+    OnboardingControllerGenerateLivenessTokenResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/onboarding/liveness-token",
+    ...options,
   });
 
 /**
@@ -2865,6 +3014,86 @@ export const notificationsControllerMarkAllAsRead = <
   });
 
 /**
+ * List compliance cases
+ */
+export const adminComplianceControllerListCases = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<AdminComplianceControllerListCasesData, ThrowOnError>,
+) =>
+  (options?.client ?? client).get<
+    AdminComplianceControllerListCasesResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/compliance/cases",
+    ...options,
+  });
+
+/**
+ * Get a compliance case by organization ID
+ */
+export const adminComplianceControllerGetCase = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AdminComplianceControllerGetCaseData, ThrowOnError>,
+) =>
+  (options.client ?? client).get<
+    AdminComplianceControllerGetCaseResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/compliance/cases/{organizationId}",
+    ...options,
+  });
+
+/**
+ * Review user KYC profile
+ */
+export const adminComplianceControllerReviewKyc = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AdminComplianceControllerReviewKycData, ThrowOnError>,
+) =>
+  (options.client ?? client).patch<
+    AdminComplianceControllerReviewKycResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/compliance/kyc/{userId}",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Review organization KYB profile
+ */
+export const adminComplianceControllerReviewKyb = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AdminComplianceControllerReviewKybData, ThrowOnError>,
+) =>
+  (options.client ?? client).patch<
+    AdminComplianceControllerReviewKybResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/compliance/kyb/{organizationId}",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
  * Get all category groups
  */
 export const categoryGroupsControllerFindAll = <
@@ -3161,5 +3390,41 @@ export const inspectionReportControllerFindOne = <
   >({
     security: [{ scheme: "bearer", type: "http" }],
     url: "/api/v1/inspection-reports/{id}",
+    ...options,
+  });
+
+/**
+ * Autocomplete address via Google Places API
+ */
+export const placesControllerAutocomplete = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<PlacesControllerAutocompleteData, ThrowOnError>,
+) =>
+  (options.client ?? client).get<
+    PlacesControllerAutocompleteResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/places/autocomplete",
+    ...options,
+  });
+
+/**
+ * Get address components for a place ID
+ */
+export const placesControllerGetDetails = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<PlacesControllerGetDetailsData, ThrowOnError>,
+) =>
+  (options.client ?? client).get<
+    PlacesControllerGetDetailsResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/places/details",
     ...options,
   });
