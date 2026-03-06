@@ -1,10 +1,20 @@
 import type { AdminDisputeResponseDto } from "@/lib/api/generated/types.gen";
 import { format } from "date-fns";
 
+type DisputeWithdrawal = {
+  withdrawnAt: string;
+  reason: string;
+  attachments: Array<{ url: string; name: string }>;
+};
+
+type DisputeWithWithdrawal = AdminDisputeResponseDto & {
+  withdrawal?: DisputeWithdrawal | null;
+};
+
 export function WithdrawnSummary({
   dispute,
 }: {
-  dispute: AdminDisputeResponseDto;
+  dispute: DisputeWithWithdrawal;
 }) {
   const withdrawal = dispute.withdrawal!;
   const initiatorName =

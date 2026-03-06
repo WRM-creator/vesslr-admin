@@ -5,8 +5,12 @@ import { formatCurrency } from "@/lib/utils";
 import { format, formatDistanceToNow } from "date-fns";
 import { AlertCircle, CheckCircle2, Undo2 } from "lucide-react";
 
+type DisputeWithWithdrawal = AdminDisputeResponseDto & {
+  withdrawal?: { withdrawnAt: string; reason: string } | null;
+};
+
 interface DisputeHeaderProps {
-  dispute: AdminDisputeResponseDto;
+  dispute: DisputeWithWithdrawal;
   amount: number;
 }
 
