@@ -1,14 +1,14 @@
 import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
 import {
   Sheet,
   SheetContent,
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
+import { Skeleton } from "@/components/ui/skeleton";
 import { ChevronLeftIcon, ChevronRightIcon, FileTextIcon } from "lucide-react";
 import { useState } from "react";
-import type { ViewableItem } from "./placeholder-data";
+import type { ViewableItem } from "./types";
 
 interface DocumentViewerSheetProps {
   open: boolean;

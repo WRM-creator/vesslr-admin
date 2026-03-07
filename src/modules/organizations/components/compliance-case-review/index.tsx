@@ -5,15 +5,17 @@ import type { ComplianceCaseDetailDto } from "@/lib/api/generated";
 import { useState } from "react";
 import { ApproveDialog } from "./approve-dialog";
 import { AutomatedChecks } from "./automated-checks";
-import { toComplianceCase } from "./compliance-utils";
+import { CompanyDetails } from "./company-details";
+import { REGISTRY_SOURCE, toComplianceCase } from "./compliance-utils";
 import { DecisionHistory } from "./decision-history";
 import { DeclarationsSection } from "./declarations-section";
 import { DocumentViewerSheet } from "./document-viewer-sheet";
 import { DocumentsGrid } from "./documents-grid";
 import { IdentityImages } from "./identity-images";
-import type { ViewableItem } from "./placeholder-data";
+import { RegistryPeople } from "./registry-people";
 import { RequestActionDialog } from "./request-action-dialog";
 import { StatusBadge } from "./status-badge";
+import type { ViewableItem } from "./types";
 
 export function ComplianceCaseReview({
   organizationId,
@@ -115,9 +117,6 @@ export function ComplianceCaseReview({
     );
   }
 
-  const isPending =
-    data.kycStatus === "pending_review" || data.kybStatus === "pending_review";
-
   return (
     <div className="space-y-6">
       {/* Action bar */}
@@ -132,26 +131,30 @@ export function ComplianceCaseReview({
             <StatusBadge status={data.kybStatus} />
           </div>
         </div>
-        {isPending && (
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
-              onClick={() => setRequestActionOpen(true)}
-              disabled={isSubmitting}
-            >
-              Request Action
-            </Button>
-            <Button
-              onClick={() => setApproveOpen(true)}
-              disabled={isSubmitting}
-            >
-              Approve
-            </Button>
-          </div>
-        )}
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            onClick={() => setRequestActionOpen(true)}
+            disabled={isSubmitting}
+          >
+            Request Action
+          </Button>
+          <Button onClick={() => setApproveOpen(true)} disabled={isSubmitting}>
+            Approve
+          </Button>
+        </div>
       </div>
 
       <AutomatedChecks kyc={data.checks.kyc} kyb={data.checks.kyb} />
+      {data.registryData?.companyInformation && (
+        <CompanyDetails
+          info={data.registryData.companyInformation}
+          registrySource={
+            REGISTRY_SOURCE[data.organization.countryCode] ?? "Registry"
+          }
+        />
+      )}
+      {data.registryData && <RegistryPeople registryData={data.registryData} />}
       <IdentityImages items={data.identityImages} onSelect={openViewer} />
       <DocumentsGrid items={data.documents} onSelect={openViewer} />
       <DeclarationsSection declarations={data.declarations} />

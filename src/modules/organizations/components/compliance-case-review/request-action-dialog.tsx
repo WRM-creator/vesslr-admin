@@ -57,7 +57,7 @@ export function RequestActionDialog({
 
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
-      <AlertDialogContent className="max-w-md">
+      <AlertDialogContent className="max-w-md" onInteractOutside={() => onOpenChange(false)}>
         <AlertDialogHeader>
           <AlertDialogTitle>Request Action</AlertDialogTitle>
           <AlertDialogDescription>

@@ -4,7 +4,7 @@ import { generatePdfThumbnail } from "@/lib/pdf-utils";
 import { cn } from "@/lib/utils";
 import { FileTextIcon } from "lucide-react";
 import { useEffect, useState } from "react";
-import type { ViewableItem } from "./placeholder-data";
+import type { ViewableItem } from "./types";
 
 interface DocumentsGridProps {
   items: ViewableItem[];
@@ -57,7 +57,7 @@ function DocumentThumbnail({ item }: { item: ViewableItem }) {
 
   return (
     <FileTextIcon
-      className="text-muted-foreground size-8 transition-colors group-hover:text-foreground"
+      className="text-muted-foreground group-hover:text-foreground size-8 transition-colors"
       strokeWidth={1.2}
     />
   );
@@ -77,16 +77,16 @@ export function DocumentsGrid({ items, onSelect }: DocumentsGridProps) {
             onClick={() => onSelect(index, items)}
             className={cn(
               "group flex flex-col overflow-hidden rounded-lg border text-left transition-colors",
-              "hover:border-ring hover:bg-accent/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+              "hover:border-ring hover:bg-accent/30 focus-visible:ring-ring focus-visible:ring-2 focus-visible:outline-none",
             )}
           >
             <div className="bg-muted flex h-32 items-center justify-center overflow-hidden">
               <DocumentThumbnail item={item} />
             </div>
             <div className="space-y-1.5 p-3">
-              <p className="text-sm font-medium leading-tight">{item.label}</p>
+              <p className="text-sm leading-tight font-medium">{item.label}</p>
               {item.source === "smile_id" ? (
-                <Badge className="bg-green-100 text-green-700 hover:bg-green-100 text-xs">
+                <Badge className="bg-green-100 text-xs text-green-700 hover:bg-green-100">
                   Smile ID ✓
                 </Badge>
               ) : (

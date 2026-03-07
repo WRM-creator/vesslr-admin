@@ -17,10 +17,15 @@ interface ApproveDialogProps {
   isSubmitting: boolean;
 }
 
-export function ApproveDialog({ open, onOpenChange, onConfirm, isSubmitting }: ApproveDialogProps) {
+export function ApproveDialog({
+  open,
+  onOpenChange,
+  onConfirm,
+  isSubmitting,
+}: ApproveDialogProps) {
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
-      <AlertDialogContent>
+      <AlertDialogContent onInteractOutside={() => onOpenChange(false)}>
         <AlertDialogHeader>
           <AlertDialogTitle>Approve Application</AlertDialogTitle>
           <AlertDialogDescription>
@@ -30,11 +35,7 @@ export function ApproveDialog({ open, onOpenChange, onConfirm, isSubmitting }: A
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel disabled={isSubmitting}>Cancel</AlertDialogCancel>
-          <AlertDialogAction
-            className="bg-green-600 hover:bg-green-700"
-            onClick={onConfirm}
-            disabled={isSubmitting}
-          >
+          <AlertDialogAction onClick={onConfirm} disabled={isSubmitting}>
             {isSubmitting ? <Spinner className="size-4" /> : "Approve"}
           </AlertDialogAction>
         </AlertDialogFooter>

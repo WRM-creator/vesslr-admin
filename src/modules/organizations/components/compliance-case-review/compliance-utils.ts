@@ -1,5 +1,8 @@
-import type { ComplianceCaseDetailDto, FileMetadataDto } from "@/lib/api/generated";
-import type { ComplianceCase, ViewableItem } from "./placeholder-data";
+import type {
+  ComplianceCaseDetailDto,
+  FileMetadataDto,
+} from "@/lib/api/generated";
+import type { ComplianceCase, ViewableItem } from "./types";
 
 export const REGISTRY_SOURCE: Record<string, string> = {
   NG: "CAC",
@@ -32,32 +35,80 @@ export function toComplianceCase(raw: ComplianceCaseDetailDto): ComplianceCase {
   const documents: ViewableItem[] = [];
   const docs = kyb.documents;
   if (docs.searchCertificate)
-    documents.push(toViewableItem(docs.searchCertificate, "Search Certificate", "smile_id"));
+    documents.push(
+      toViewableItem(docs.searchCertificate, "Search Certificate", "smile_id"),
+    );
   if (docs.certificateOfIncorporation)
-    documents.push(toViewableItem(docs.certificateOfIncorporation, "Certificate of Incorporation", "uploaded"));
+    documents.push(
+      toViewableItem(
+        docs.certificateOfIncorporation,
+        "Certificate of Incorporation",
+        "uploaded",
+      ),
+    );
   if (docs.memorandumArticles)
-    documents.push(toViewableItem(docs.memorandumArticles, "Memorandum & Articles", "uploaded"));
+    documents.push(
+      toViewableItem(
+        docs.memorandumArticles,
+        "Memorandum & Articles",
+        "uploaded",
+      ),
+    );
   if (docs.proofOfBusinessAddress)
-    documents.push(toViewableItem(docs.proofOfBusinessAddress, "Proof of Business Address", "uploaded"));
+    documents.push(
+      toViewableItem(
+        docs.proofOfBusinessAddress,
+        "Proof of Business Address",
+        "uploaded",
+      ),
+    );
   if (docs.boardResolution)
-    documents.push(toViewableItem(docs.boardResolution, "Board Resolution", "uploaded"));
+    documents.push(
+      toViewableItem(docs.boardResolution, "Board Resolution", "uploaded"),
+    );
   if (docs.pscRegister)
-    documents.push(toViewableItem(docs.pscRegister, "PSC Register", "uploaded"));
+    documents.push(
+      toViewableItem(docs.pscRegister, "PSC Register", "uploaded"),
+    );
   if (docs.taxIdEvidence)
-    documents.push(toViewableItem(docs.taxIdEvidence, "Tax ID Evidence", "uploaded"));
+    documents.push(
+      toViewableItem(docs.taxIdEvidence, "Tax ID Evidence", "uploaded"),
+    );
   for (const additional of docs.additionalDocuments ?? []) {
-    documents.push(toViewableItem(additional, additional.name ?? "Additional Document", "uploaded"));
+    documents.push(
+      toViewableItem(
+        additional,
+        additional.name ?? "Additional Document",
+        "uploaded",
+      ),
+    );
   }
 
   const identityImages: ViewableItem[] = [];
   if (kyc?.identity?.selfie)
-    identityImages.push(toViewableItem(kyc.identity.selfie, "Selfie", "smile_id"));
+    identityImages.push(
+      toViewableItem(kyc.identity.selfie, "Selfie", "smile_id"),
+    );
   if (kyc?.identity?.governmentId)
-    identityImages.push(toViewableItem(kyc.identity.governmentId, "Government ID (Front)", "smile_id"));
+    identityImages.push(
+      toViewableItem(
+        kyc.identity.governmentId,
+        "Government ID (Front)",
+        "smile_id",
+      ),
+    );
   if (kyc?.identity?.governmentIdBack)
-    identityImages.push(toViewableItem(kyc.identity.governmentIdBack, "Government ID (Back)", "smile_id"));
+    identityImages.push(
+      toViewableItem(
+        kyc.identity.governmentIdBack,
+        "Government ID (Back)",
+        "smile_id",
+      ),
+    );
   if (kyc?.identity?.addressProof)
-    identityImages.push(toViewableItem(kyc.identity.addressProof, "Address Proof", "uploaded"));
+    identityImages.push(
+      toViewableItem(kyc.identity.addressProof, "Address Proof", "uploaded"),
+    );
 
   return {
     organization: {
@@ -80,10 +131,11 @@ export function toComplianceCase(raw: ComplianceCaseDetailDto): ComplianceCase {
         status: kyb.checks?.registry?.status ?? "manual_review",
         rcNumber: snap.rcNumber ?? "",
         companyName: snap.name ?? "",
-        directorsFound: 0,
+        directorsFound: snap.directorsCount ?? 0,
         registrySource: REGISTRY_SOURCE[snap.countryCode ?? ""] ?? "Registry",
       },
     },
+    registryData: kyb.registryData,
     documents,
     identityImages,
     declarations: {

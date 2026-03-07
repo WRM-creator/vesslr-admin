@@ -1,11 +1,34 @@
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { UserIcon } from "lucide-react";
-import type { ViewableItem } from "./placeholder-data";
+import { useState } from "react";
+import type { ViewableItem } from "./types";
 
 interface IdentityImagesProps {
   items: ViewableItem[];
   onSelect: (index: number, list: ViewableItem[]) => void;
+}
+
+function IdentityThumbnail({ item }: { item: ViewableItem }) {
+  const [error, setError] = useState(false);
+
+  if (!error) {
+    return (
+      <img
+        src={item.url}
+        alt={item.label}
+        className="h-full w-full object-cover"
+        onError={() => setError(true)}
+      />
+    );
+  }
+
+  return (
+    <UserIcon
+      className="text-muted-foreground group-hover:text-foreground size-8 transition-colors"
+      strokeWidth={1.2}
+    />
+  );
 }
 
 export function IdentityImages({ items, onSelect }: IdentityImagesProps) {
@@ -26,11 +49,8 @@ export function IdentityImages({ items, onSelect }: IdentityImagesProps) {
               "hover:border-ring hover:bg-accent/30 focus-visible:ring-ring focus-visible:ring-2 focus-visible:outline-none",
             )}
           >
-            <div className="bg-muted flex h-32 items-center justify-center">
-              <UserIcon
-                className="text-muted-foreground group-hover:text-foreground size-8 transition-colors"
-                strokeWidth={1.2}
-              />
+            <div className="bg-muted flex h-32 items-center justify-center overflow-hidden">
+              <IdentityThumbnail item={item} />
             </div>
             <div className="space-y-1.5 p-3">
               <p className="text-sm leading-tight font-medium">{item.label}</p>

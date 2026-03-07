@@ -2223,6 +2223,7 @@ export type CompanySnapshotDto = {
   taxId?: string;
   businessType?: "bn" | "co" | "it";
   postalAddress?: string;
+  directorsCount?: number;
 };
 
 export type KybDocumentsDto = {
@@ -2256,6 +2257,76 @@ export type SubmittedByUserDto = {
   email?: string;
 };
 
+export type RegistryCompanyInfoDto = {
+  legalName?: string;
+  companyType?: string;
+  country?: string;
+  address?: string;
+  state?: string;
+  registrationNumber?: string;
+  industry?: string;
+  taxId?: string;
+  registrationDate?: string;
+  authorizedShareCapital?: string;
+  status?: string;
+};
+
+export type RegistryPersonDto = {
+  name?: string;
+  occupation?: string;
+  nationality?: string;
+  dateOfBirth?: string;
+  gender?: string;
+  shareholdings?: string;
+  idType?: string;
+  idNumber?: string;
+  address?: string;
+  phoneNumber?: string;
+};
+
+export type RegistryBeneficialOwnerDto = {
+  name?: string;
+  shareholdings?: string;
+  shareholderType?: string;
+  nationality?: string;
+  gender?: string;
+  address?: string;
+  phoneNumber?: string;
+  registrationNumber?: string;
+};
+
+export type RegistryTrusteeDto = {
+  name?: string;
+  trusteeType?: string;
+  isChairman?: boolean;
+  occupation?: string;
+  nationality?: string;
+  gender?: string;
+  address?: string;
+  phoneNumber?: string;
+  email?: string;
+  dateOfBirth?: string;
+  dateOfAppointment?: string;
+  registrationNumber?: string;
+};
+
+export type RegistryFiduciaryDto = {
+  name?: string;
+  fiduciaryType?: string;
+  status?: string;
+  address?: string;
+  registrationNumber?: string;
+};
+
+export type RegistryDataDto = {
+  companyInformation?: RegistryCompanyInfoDto;
+  directors?: Array<RegistryPersonDto>;
+  beneficialOwners?: Array<RegistryBeneficialOwnerDto>;
+  proprietors?: Array<RegistryPersonDto>;
+  trustees?: Array<RegistryTrusteeDto>;
+  fiduciaries?: Array<RegistryFiduciaryDto>;
+};
+
 export type KybProfileDto = {
   _id: string;
   status:
@@ -2269,6 +2340,7 @@ export type KybProfileDto = {
   checks: KybChecksDto;
   actionRequiredReasons: Array<string>;
   submittedByUser?: SubmittedByUserDto;
+  registryData?: RegistryDataDto;
 };
 
 export type IdentitySnapshotDto = {

@@ -1,27 +1,35 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import type { ComplianceCase } from "./placeholder-data";
+import { cn } from "@/lib/utils";
+import type { ComplianceCase } from "./types";
 
 interface DeclarationsSectionProps {
   declarations: ComplianceCase["declarations"];
 }
 
-export function DeclarationsSection({ declarations }: DeclarationsSectionProps) {
+export function DeclarationsSection({
+  declarations,
+}: DeclarationsSectionProps) {
   return (
     <div className="space-y-3">
       <h3 className="text-sm font-semibold">Declarations</h3>
       <div className="grid grid-cols-3 gap-4">
-        <Card>
+        <Card
+          className={cn({
+            "border-orange-500": declarations.isPep,
+          })}
+        >
           <CardHeader className="pb-2">
-            <CardTitle className="text-muted-foreground text-xs font-medium uppercase tracking-wide">
+            <CardTitle className="text-muted-foreground text-xs font-medium tracking-wide uppercase">
               PEP Status
             </CardTitle>
           </CardHeader>
           <CardContent>
             {declarations.isPep ? (
               <div className="space-y-1">
-                <p className="text-sm font-medium text-amber-600">PEP</p>
                 {declarations.pepDetails && (
-                  <p className="text-muted-foreground text-sm">{declarations.pepDetails}</p>
+                  <p className="text-muted-foreground text-sm">
+                    {declarations.pepDetails}
+                  </p>
                 )}
               </div>
             ) : (
@@ -32,7 +40,7 @@ export function DeclarationsSection({ declarations }: DeclarationsSectionProps) 
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-muted-foreground text-xs font-medium uppercase tracking-wide">
+            <CardTitle className="text-muted-foreground text-xs font-medium tracking-wide uppercase">
               Source of Funds
             </CardTitle>
           </CardHeader>
@@ -43,7 +51,7 @@ export function DeclarationsSection({ declarations }: DeclarationsSectionProps) 
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-muted-foreground text-xs font-medium uppercase tracking-wide">
+            <CardTitle className="text-muted-foreground text-xs font-medium tracking-wide uppercase">
               Sanctions
             </CardTitle>
           </CardHeader>

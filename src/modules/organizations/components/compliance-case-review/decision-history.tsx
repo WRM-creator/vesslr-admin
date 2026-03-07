@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
-import type { ComplianceCase } from "./placeholder-data";
+import type { ComplianceCase } from "./types";
 
 interface DecisionHistoryProps {
   events: ComplianceCase["events"];
@@ -34,14 +34,16 @@ export function DecisionHistory({ events }: DecisionHistoryProps) {
       </CardHeader>
       <CardContent>
         {events.length === 0 ? (
-          <p className="text-muted-foreground text-sm">No previous decisions.</p>
+          <p className="text-muted-foreground text-sm">
+            No previous decisions.
+          </p>
         ) : (
           <div className="space-y-2">
             {events.map((event) => (
               <div
                 key={event.id}
                 className={cn(
-                  "border-l-2 pl-4 py-2 space-y-1",
+                  "space-y-1 border-l-2 py-2 pl-4",
                   borderColor(event.eventType),
                 )}
               >
@@ -60,13 +62,14 @@ export function DecisionHistory({ events }: DecisionHistoryProps) {
                       ? "By System"
                       : "By User"}
                 </p>
-                {event.metadata?.reasons && event.metadata.reasons.length > 0 && (
-                  <ul className="text-muted-foreground mt-1 list-inside list-disc space-y-0.5 text-xs">
-                    {event.metadata.reasons.map((r) => (
-                      <li key={r}>{r}</li>
-                    ))}
-                  </ul>
-                )}
+                {event.metadata?.reasons &&
+                  event.metadata.reasons.length > 0 && (
+                    <ul className="text-muted-foreground mt-1 list-inside list-disc space-y-0.5 text-xs">
+                      {event.metadata.reasons.map((r) => (
+                        <li key={r}>{r}</li>
+                      ))}
+                    </ul>
+                  )}
               </div>
             ))}
           </div>
