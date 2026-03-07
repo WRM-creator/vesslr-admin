@@ -1,5 +1,5 @@
 import { useOutletContext } from "react-router-dom";
-import { MerchantComplianceTab } from "../components/merchant-details/merchant-compliance-tab";
+import { ComplianceCaseReview } from "../components/compliance-case-review";
 import { MerchantDisputesTab } from "../components/merchant-details/merchant-disputes-tab";
 import { MerchantFinancialsTab } from "../components/merchant-details/merchant-financials-tab";
 import { MerchantOverviewTab } from "../components/merchant-details/merchant-overview-tab";
@@ -30,7 +30,7 @@ export function OrganizationProductsRoute() {
 
 export function OrganizationComplianceRoute() {
   const { organization } = useOutletContext<OrganizationContext>();
-  return <MerchantComplianceTab organization={organization} />;
+  return <ComplianceCaseReview organizationId={organization._id} />;
 }
 
 export function OrganizationFinancialsRoute() {

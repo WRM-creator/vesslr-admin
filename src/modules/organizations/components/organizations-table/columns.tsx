@@ -1,5 +1,6 @@
 "use client";
 
+import { TruncatedList } from "@/components/shared/truncated-list";
 import { Badge } from "@/components/ui/badge";
 import type { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
@@ -7,11 +8,11 @@ import { format } from "date-fns";
 export interface OrganizationTableItem {
   _id: string;
   name: string;
-  email: string; // Business email
+  email: string;
+  location: string;
+  categories: string[];
   verificationStatus: "unverified" | "pending" | "verified" | "rejected";
-  industrySectors: string[];
   createdAt: string;
-  // type: "merchant" | "customer"; // In case we mix them later
 }
 
 const statusStyles: Record<
@@ -38,18 +39,21 @@ export const columns: ColumnDef<OrganizationTableItem>[] = [
     ),
   },
   {
-    accessorKey: "industrySectors",
-    header: "Industry",
-    cell: ({ row }) => {
-      const sectors = row.original.industrySectors;
-      return sectors && sectors.length > 0 ? (
-        <Badge variant="outline" className="font-normal">
-          {sectors[0]}
-        </Badge>
+    accessorKey: "location",
+    header: "Location",
+    cell: ({ row }) =>
+      row.original.location ? (
+        <span className="text-sm">{row.original.location}</span>
       ) : (
         <span className="text-muted-foreground text-xs">-</span>
-      );
-    },
+      ),
+  },
+  {
+    accessorKey: "categories",
+    header: "Category Groups",
+    cell: ({ row }) => (
+      <TruncatedList items={row.original.categories} maxVisible={2} />
+    ),
   },
   {
     accessorKey: "verificationStatus",

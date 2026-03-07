@@ -187,16 +187,14 @@ import type {
   NotificationsControllerMarkAsReadResponses,
   OnboardingControllerCompleteOnboardingData,
   OnboardingControllerCompleteOnboardingResponses,
-  OnboardingControllerGenerateLivenessTokenData,
-  OnboardingControllerGenerateLivenessTokenResponses,
   OnboardingControllerGetOnboardingStatusData,
   OnboardingControllerGetOnboardingStatusResponses,
+  OnboardingControllerGetSmileLinkData,
+  OnboardingControllerGetSmileLinkResponses,
   OnboardingControllerGetStatusHubData,
   OnboardingControllerGetStatusHubResponses,
   OnboardingControllerInviteTeamData,
   OnboardingControllerInviteTeamResponses,
-  OnboardingControllerUpdateBeneficialOwnersData,
-  OnboardingControllerUpdateBeneficialOwnersResponses,
   OnboardingControllerUpdateCompanyDocumentsData,
   OnboardingControllerUpdateCompanyDocumentsResponses,
   OnboardingControllerUpdateCompanyInfoData,
@@ -602,6 +600,24 @@ export const complianceControllerSmileIdWebhook = <
     unknown,
     ThrowOnError
   >({ url: "/api/v1/compliance/smile-id/webhook", ...options });
+
+export const storageControllerGeneratePresignedUrls = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<StorageControllerGeneratePresignedUrlsData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    StorageControllerGeneratePresignedUrlsResponses,
+    unknown,
+    ThrowOnError
+  >({
+    url: "/api/v1/storage/presigned-urls",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
 
 /**
  * Update organization details
@@ -1794,31 +1810,6 @@ export const onboardingControllerUpdateProductCategories = <
   });
 
 /**
- * Update beneficial owners
- */
-export const onboardingControllerUpdateBeneficialOwners = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<
-    OnboardingControllerUpdateBeneficialOwnersData,
-    ThrowOnError
-  >,
-) =>
-  (options.client ?? client).put<
-    OnboardingControllerUpdateBeneficialOwnersResponses,
-    unknown,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/api/v1/onboarding/beneficial-owners",
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options.headers,
-    },
-  });
-
-/**
  * Update company documents
  */
 export const onboardingControllerUpdateCompanyDocuments = <
@@ -1891,23 +1882,20 @@ export const onboardingControllerInviteTeam = <
   });
 
 /**
- * Generate YouVerify liveness SDK token
+ * Get or create a Smile ID verification link for this user
  */
-export const onboardingControllerGenerateLivenessToken = <
+export const onboardingControllerGetSmileLink = <
   ThrowOnError extends boolean = false,
 >(
-  options?: Options<
-    OnboardingControllerGenerateLivenessTokenData,
-    ThrowOnError
-  >,
+  options?: Options<OnboardingControllerGetSmileLinkData, ThrowOnError>,
 ) =>
   (options?.client ?? client).post<
-    OnboardingControllerGenerateLivenessTokenResponses,
+    OnboardingControllerGetSmileLinkResponses,
     unknown,
     ThrowOnError
   >({
     security: [{ scheme: "bearer", type: "http" }],
-    url: "/api/v1/onboarding/liveness-token",
+    url: "/api/v1/onboarding/identity-kyc/smile-link",
     ...options,
   });
 
@@ -3218,24 +3206,6 @@ export const orgProductsControllerUpdate = <
   >({
     security: [{ scheme: "bearer", type: "http" }],
     url: "/api/v1/organizations/{orgId}/products/{productId}",
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options.headers,
-    },
-  });
-
-export const storageControllerGeneratePresignedUrls = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<StorageControllerGeneratePresignedUrlsData, ThrowOnError>,
-) =>
-  (options.client ?? client).post<
-    StorageControllerGeneratePresignedUrlsResponses,
-    unknown,
-    ThrowOnError
-  >({
-    url: "/api/v1/storage/presigned-urls",
     ...options,
     headers: {
       "Content-Type": "application/json",

@@ -33,6 +33,9 @@ import {
   adminCategoriesControllerFindOne,
   adminCategoriesControllerRemove,
   adminCategoriesControllerUpdate,
+  adminComplianceControllerGetCase,
+  adminComplianceControllerReviewKyb,
+  adminComplianceControllerReviewKyc,
   adminDisputesControllerFindAll,
   adminDisputesControllerFindOne,
   adminDisputesControllerGetStats,
@@ -45,7 +48,7 @@ import {
   adminProductsControllerFindAll,
   adminProductsControllerFindOne,
   adminProductsControllerRemove,
-  adminProductsControllerUpdate, // Add import
+  adminProductsControllerUpdate,
   adminRequestsControllerAcceptRequest,
   adminRequestsControllerFindAll,
   adminRequestsControllerFindOne,
@@ -264,6 +267,22 @@ export const api = {
           ["admin", "negotiations", "list"],
           ["admin", "negotiations", "detail", args.path.id],
         ],
+      }),
+    },
+    compliance: {
+      getCase: createQuery(adminComplianceControllerGetCase, (args) => [
+        "admin",
+        "compliance",
+        "case",
+        args.path.organizationId,
+      ]),
+      reviewKyb: createMutation(adminComplianceControllerReviewKyb, {
+        invalidates: (args) => [
+          ["admin", "compliance", "case", args.path.organizationId],
+        ],
+      }),
+      reviewKyc: createMutation(adminComplianceControllerReviewKyc, {
+        invalidates: (args) => [["admin", "compliance", "case"]],
       }),
     },
   },

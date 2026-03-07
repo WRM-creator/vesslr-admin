@@ -2,7 +2,6 @@ import { cn } from "@/lib/utils";
 import {
   ArrowRightLeft,
   Building2Icon,
-  BuildingIcon,
   ClipboardCheck,
   ClipboardList,
   Command,
@@ -65,17 +64,12 @@ const navGroups: NavGroup[] = [
     label: "Organizations",
     items: [
       {
-        title: "Merchants",
-        url: "/merchants",
+        title: "Organizations",
+        url: "/organizations",
         icon: Building2Icon,
       },
       {
-        title: "Customers",
-        url: "/customers",
-        icon: BuildingIcon,
-      },
-      {
-        title: "Registrations",
+        title: "Onboarding",
         url: "/registrations",
         icon: ClipboardCheck,
       },

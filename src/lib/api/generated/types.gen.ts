@@ -185,7 +185,6 @@ export type UserProfileResponseDto = {
     | "residential"
     | "company_info"
     | "product_categories"
-    | "beneficial_owners"
     | "company_documents"
     | "declarations_risk"
     | "review"
@@ -233,6 +232,22 @@ export type ChangePasswordDto = {
    * New password (min 8 chars)
    */
   newPassword: string;
+};
+
+export type GeneratePresignedUrlDto = {
+  filename: string;
+  contentType: string;
+};
+
+export type GeneratePresignedUrlsDto = {
+  files: Array<GeneratePresignedUrlDto>;
+};
+
+export type PresignedUrlResponseDto = {
+  key: string;
+  url: string;
+  publicUrl: string;
+  filename: string;
 };
 
 export type UpdateOrganizationDto = {
@@ -1559,7 +1574,6 @@ export type OnboardingStatusResponseDto = {
     | "residential"
     | "company_info"
     | "product_categories"
-    | "beneficial_owners"
     | "company_documents"
     | "declarations_risk"
     | "review"
@@ -1588,6 +1602,7 @@ export type OnboardingStatusResponseDto = {
   submittedAt?: string;
   reviewedAt?: string;
   approvedAt?: string;
+  smileVerificationStatus?: "pending" | "passed" | "manual_review" | "failed";
   residentialAddress?: ResidentialAddressDto;
   organization?: OrganizationDto;
 };
@@ -1627,10 +1642,10 @@ export type KycFileMetadataDto = {
 };
 
 export type UpdateIdentityKycDto = {
-  dateOfBirth: string;
+  dateOfBirth?: string;
   nationality: string;
-  idType: "nin" | "passport" | "drivers_license" | "national_id";
-  idNumber: string;
+  idType?: "nin" | "passport" | "drivers_license" | "national_id";
+  idNumber?: string;
   nin?: string;
   bvn?: string;
   governmentIdDocument?: KycFileMetadataDto;
@@ -1652,6 +1667,8 @@ export type UpdateCompanyInfoDto = {
   name: string;
   description?: string;
   address: AddressDto;
+  businessType?: "bn" | "co" | "it";
+  postalAddress?: string;
 };
 
 export type UpdateProductCategoriesDto = {
@@ -1659,22 +1676,6 @@ export type UpdateProductCategoriesDto = {
    * Array of Category IDs
    */
   categories: Array<string>;
-};
-
-export type BeneficialOwnerDto = {
-  fullName: string;
-  ownershipPercent: number;
-  controlPercent?: number;
-  idNumber: string;
-  houseNumber: string;
-  streetAddress: string;
-  city: string;
-  state: string;
-  country: string;
-};
-
-export type UpdateBeneficialOwnersDto = {
-  owners: Array<BeneficialOwnerDto>;
 };
 
 export type FileMetadataDto = {
@@ -2214,6 +2215,134 @@ export type PaginatedNotificationsResponseDto = {
   data: NotificationsPaginationDataDto;
 };
 
+export type CompanySnapshotDto = {
+  name?: string;
+  type?: "merchant" | "customer";
+  countryCode?: string;
+  rcNumber?: string;
+  taxId?: string;
+  businessType?: "bn" | "co" | "it";
+  postalAddress?: string;
+};
+
+export type KybDocumentsDto = {
+  searchCertificate?: FileMetadataDto;
+  certificateOfIncorporation?: FileMetadataDto;
+  memorandumArticles?: FileMetadataDto;
+  proofOfBusinessAddress?: FileMetadataDto;
+  boardResolution?: FileMetadataDto;
+  pscRegister?: FileMetadataDto;
+  taxIdEvidence?: FileMetadataDto;
+  additionalDocuments: Array<FileMetadataDto>;
+};
+
+export type ComplianceCheckDto = {
+  status?: "passed" | "manual_review" | "failed";
+  provider?: string;
+  referenceId?: string;
+  checkedAt?: string;
+};
+
+export type KybChecksDto = {
+  registry?: ComplianceCheckDto;
+  sanctions?: ComplianceCheckDto;
+  smileJobId?: string;
+};
+
+export type SubmittedByUserDto = {
+  _id: string;
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+};
+
+export type KybProfileDto = {
+  _id: string;
+  status:
+    | "draft"
+    | "submitted"
+    | "pending_review"
+    | "action_required"
+    | "approved";
+  companySnapshot: CompanySnapshotDto;
+  documents: KybDocumentsDto;
+  checks: KybChecksDto;
+  actionRequiredReasons: Array<string>;
+  submittedByUser?: SubmittedByUserDto;
+};
+
+export type IdentitySnapshotDto = {
+  idType?: "nin" | "passport" | "drivers_license" | "national_id";
+  idNumber?: string;
+  governmentId?: FileMetadataDto;
+  governmentIdBack?: FileMetadataDto;
+  selfie?: FileMetadataDto;
+  addressProof?: FileMetadataDto;
+  smileVerificationStatus?: "pending" | "passed" | "manual_review" | "failed";
+};
+
+export type DeclarationsSnapshotDto = {
+  isPep: boolean;
+  pepDetails?: string;
+  sanctionsDeclaration: boolean;
+  sourceOfFunds?: string;
+};
+
+export type KycChecksDto = {
+  identity?: ComplianceCheckDto;
+  sanctions?: ComplianceCheckDto;
+  pep?: ComplianceCheckDto;
+};
+
+export type KycUserDto = {
+  _id: string;
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+  role?: string;
+};
+
+export type KycProfileDto = {
+  _id: string;
+  status:
+    | "draft"
+    | "submitted"
+    | "pending_review"
+    | "action_required"
+    | "approved";
+  identity: IdentitySnapshotDto;
+  declarations: DeclarationsSnapshotDto;
+  checks: KycChecksDto;
+  actionRequiredReasons: Array<string>;
+  user?: KycUserDto;
+};
+
+export type ComplianceEventDto = {
+  _id: string;
+  eventType: string;
+  actorType: "user" | "admin" | "system";
+  actorId?: string;
+  fromStatus?: string;
+  toStatus?: string;
+  metadata?: {
+    [key: string]: unknown;
+  };
+  createdAt: string;
+};
+
+export type ComplianceCaseDetailDto = {
+  organizationId: string;
+  kybProfile: KybProfileDto;
+  kycProfiles: Array<KycProfileDto>;
+  complianceStatus:
+    | "draft"
+    | "submitted"
+    | "pending_review"
+    | "action_required"
+    | "approved";
+  events: Array<ComplianceEventDto>;
+};
+
 export type ReviewComplianceDto = {
   decision: "approved" | "action_required";
   reasons?: Array<string>;
@@ -2234,22 +2363,6 @@ export type UpdateCategoryGroupDto = {
     | "Spot Trade";
   conditions?: "New" | "Used - Good" | "Used - Fair" | "Refurbished";
   allowedCurrencies?: Array<"NGN" | "USD" | "GBP" | "EUR">;
-};
-
-export type GeneratePresignedUrlDto = {
-  filename: string;
-  contentType: string;
-};
-
-export type GeneratePresignedUrlsDto = {
-  files: Array<GeneratePresignedUrlDto>;
-};
-
-export type PresignedUrlResponseDto = {
-  key: string;
-  url: string;
-  publicUrl: string;
-  filename: string;
 };
 
 export type QqFieldDef = {
@@ -2539,6 +2652,21 @@ export type ComplianceControllerSmileIdWebhookData = {
 export type ComplianceControllerSmileIdWebhookResponses = {
   200: unknown;
 };
+
+export type StorageControllerGeneratePresignedUrlsData = {
+  body: GeneratePresignedUrlsDto;
+  path?: never;
+  query?: never;
+  url: "/api/v1/storage/presigned-urls";
+};
+
+export type StorageControllerGeneratePresignedUrlsResponses = {
+  200: Array<PresignedUrlResponseDto>;
+  201: Array<PresignedUrlResponseDto>;
+};
+
+export type StorageControllerGeneratePresignedUrlsResponse =
+  StorageControllerGeneratePresignedUrlsResponses[keyof StorageControllerGeneratePresignedUrlsResponses];
 
 export type OrganizationsControllerUpdateOrganizationData = {
   body: UpdateOrganizationDto;
@@ -3699,23 +3827,6 @@ export type OnboardingControllerUpdateProductCategoriesResponses = {
 export type OnboardingControllerUpdateProductCategoriesResponse =
   OnboardingControllerUpdateProductCategoriesResponses[keyof OnboardingControllerUpdateProductCategoriesResponses];
 
-export type OnboardingControllerUpdateBeneficialOwnersData = {
-  body: UpdateBeneficialOwnersDto;
-  path?: never;
-  query?: never;
-  url: "/api/v1/onboarding/beneficial-owners";
-};
-
-export type OnboardingControllerUpdateBeneficialOwnersResponses = {
-  /**
-   * Beneficial owners updated
-   */
-  200: OnboardingStatusResponseDto;
-};
-
-export type OnboardingControllerUpdateBeneficialOwnersResponse =
-  OnboardingControllerUpdateBeneficialOwnersResponses[keyof OnboardingControllerUpdateBeneficialOwnersResponses];
-
 export type OnboardingControllerUpdateCompanyDocumentsData = {
   body: UpdateCompanyDocumentsDto;
   path?: never;
@@ -3767,25 +3878,24 @@ export type OnboardingControllerInviteTeamResponses = {
 export type OnboardingControllerInviteTeamResponse =
   OnboardingControllerInviteTeamResponses[keyof OnboardingControllerInviteTeamResponses];
 
-export type OnboardingControllerGenerateLivenessTokenData = {
+export type OnboardingControllerGetSmileLinkData = {
   body?: never;
   path?: never;
   query?: never;
-  url: "/api/v1/onboarding/liveness-token";
+  url: "/api/v1/onboarding/identity-kyc/smile-link";
 };
 
-export type OnboardingControllerGenerateLivenessTokenResponses = {
+export type OnboardingControllerGetSmileLinkResponses = {
   /**
-   * Liveness token generated
+   * Smile ID verification link
    */
   201: {
-    authToken?: string;
-    sessionId?: string;
+    url?: string;
   };
 };
 
-export type OnboardingControllerGenerateLivenessTokenResponse =
-  OnboardingControllerGenerateLivenessTokenResponses[keyof OnboardingControllerGenerateLivenessTokenResponses];
+export type OnboardingControllerGetSmileLinkResponse =
+  OnboardingControllerGetSmileLinkResponses[keyof OnboardingControllerGetSmileLinkResponses];
 
 export type OnboardingControllerCompleteOnboardingData = {
   body?: never;
@@ -4412,6 +4522,7 @@ export type AdminOrganizationsControllerFindAllData = {
     limit?: string;
     type?: string;
     search?: string;
+    onboardingStep?: string;
   };
   url: "/api/v1/admin/organizations";
 };
@@ -4745,11 +4856,11 @@ export type AdminComplianceControllerGetCaseData = {
 };
 
 export type AdminComplianceControllerGetCaseResponses = {
-  /**
-   * Compliance case details
-   */
-  200: unknown;
+  200: ComplianceCaseDetailDto;
 };
+
+export type AdminComplianceControllerGetCaseResponse =
+  AdminComplianceControllerGetCaseResponses[keyof AdminComplianceControllerGetCaseResponses];
 
 export type AdminComplianceControllerReviewKycData = {
   body: ReviewComplianceDto;
@@ -4926,21 +5037,6 @@ export type OrgProductsControllerUpdateResponses = {
 
 export type OrgProductsControllerUpdateResponse =
   OrgProductsControllerUpdateResponses[keyof OrgProductsControllerUpdateResponses];
-
-export type StorageControllerGeneratePresignedUrlsData = {
-  body: GeneratePresignedUrlsDto;
-  path?: never;
-  query?: never;
-  url: "/api/v1/storage/presigned-urls";
-};
-
-export type StorageControllerGeneratePresignedUrlsResponses = {
-  200: Array<PresignedUrlResponseDto>;
-  201: Array<PresignedUrlResponseDto>;
-};
-
-export type StorageControllerGeneratePresignedUrlsResponse =
-  StorageControllerGeneratePresignedUrlsResponses[keyof StorageControllerGeneratePresignedUrlsResponses];
 
 export type QqCatalogControllerFindAllFieldsData = {
   body?: never;

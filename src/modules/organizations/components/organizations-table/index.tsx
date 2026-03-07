@@ -1,10 +1,15 @@
 import { DataTable } from "@/components/shared/data-table";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { SearchIcon } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { columns, type OrganizationTableItem } from "./columns";
-// import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group"; // Assuming this exists or using standard Input
-import { Input } from "@/components/ui/input"; // Fallback to standard Input if InputGroup not found globally
 
 interface TabItem {
   label: string;
@@ -38,27 +43,22 @@ export function OrganizationsTable({
 
   return (
     <div className="space-y-4">
-      {/* Search Bar and Tabs if provided */}
       {(onSearchChange || tabs) && (
-        <div className="flex items-center justify-between gap-4">
-          {tabs && activeTab && onTabChange ? (
-            <Tabs
-              defaultValue={tabs[0].value}
-              value={activeTab}
-              onValueChange={onTabChange}
-            >
-              <TabsList>
+        <div className="flex items-center justify-between gap-2">
+          {tabs && activeTab && onTabChange && (
+            <Select value={activeTab} onValueChange={onTabChange}>
+              <SelectTrigger className="w-[200px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
                 {tabs.map((tab) => (
-                  <TabsTrigger key={tab.value} value={tab.value}>
+                  <SelectItem key={tab.value} value={tab.value}>
                     {tab.label}
-                  </TabsTrigger>
+                  </SelectItem>
                 ))}
-              </TabsList>
-            </Tabs>
-          ) : (
-            <div /> /* Spacer if no tabs */
+              </SelectContent>
+            </Select>
           )}
-
           {onSearchChange && (
             <div className="relative max-w-sm flex-1">
               <SearchIcon className="text-muted-foreground absolute top-2.5 left-2.5 h-4 w-4" />

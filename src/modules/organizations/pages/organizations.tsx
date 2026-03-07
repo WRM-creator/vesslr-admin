@@ -5,29 +5,30 @@ import { Page } from "@/components/shared/page";
 import { PageHeader } from "@/components/shared/page-header";
 import { api } from "@/lib/api";
 import { parseAsInteger, parseAsString, useQueryState } from "nuqs";
-import { useNavigate } from "react-router-dom";
 import { OrganizationsTable } from "../components/organizations-table";
 
-export default function PendingApprovalsPage() {
-  const navigate = useNavigate();
+const TABS = [
+  { label: "All", value: "all" },
+  { label: "Merchants", value: "merchant" },
+  { label: "Customers", value: "customer" },
+];
+
+export default function OrganizationsPage() {
   const [search, setSearch] = useQueryState(
     "search",
     parseAsString.withDefault("").withOptions({ throttleMs: 500 }),
   );
 
-  const [step, setStep] = useQueryState(
-    "step",
-    parseAsString.withDefault("all"),
-  );
-
   const [page, setPage] = useQueryState("page", parseAsInteger.withDefault(1));
+
+  const [type, setType] = useQueryState("type", parseAsString.withDefault("all"));
 
   const { data, isLoading } = api.organizations.list.useQuery({
     query: {
       page: String(page),
       limit: "10",
+      type: type === "all" ? undefined : (type as "merchant" | "customer"),
       search: search || undefined,
-      onboardingStep: step === "all" ? undefined : step,
     },
   });
 
@@ -35,41 +36,45 @@ export default function PendingApprovalsPage() {
   const responseData = (data as any)?.data;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const organizations = (responseData?.docs ?? []).map((item: any) => ({
-    _id: item._id!,
-    name: item.name!,
-    email: item.email!,
+    _id: item._id,
+    name: item.name,
+    email: item.email,
+    location: [item.address?.state?.name, item.address?.country?.name]
+      .filter(Boolean)
+      .join(", "),
+    categories: [
+      ...new Map(
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (item.categories ?? [])
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          .map((c: any) => c?.group)
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          .filter((g: any) => g && typeof g === "object" && g._id)
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          .map((g: any) => [String(g._id), g.name])
+      ).values(),
+    ],
     verificationStatus: item.verificationStatus || "unverified",
-    industrySectors: item.industrySectors || [],
-    createdAt: item.createdAt!,
+    createdAt: item.createdAt,
   }));
 
   return (
     <Page>
-      <PageHeader title="Onboarding" />
+      <PageHeader title="Organizations" />
       <OrganizationsTable
         data={organizations}
         search={search || ""}
         onSearchChange={setSearch}
         isLoading={isLoading}
-        title="Onboarding"
-        tabs={[
-          { label: "All", value: "all" },
-          { label: "Identity KYC", value: "identity_kyc" },
-          { label: "Residential", value: "residential" },
-          { label: "Company Info", value: "company_info" },
-          { label: "Product Categories", value: "product_categories" },
-          { label: "Company Documents", value: "company_documents" },
-          { label: "Declarations & Risk", value: "declarations_risk" },
-          { label: "Review", value: "review" },
-          { label: "Pending Review", value: "status" },
-          { label: "Complete", value: "complete" },
-        ]}
-        activeTab={step}
-        onTabChange={setStep}
-        onRowClick={(row) => {
-          navigate(`/registrations/${row.original._id}`, {
-            state: { name: row.original.name },
-          });
+        title="Organizations"
+        onRowClick={(row) =>
+          window.open(`/organizations/${row.original._id}`, "_self")
+        }
+        tabs={TABS}
+        activeTab={type}
+        onTabChange={(value) => {
+          setType(value);
+          setPage(1);
         }}
       />
       <DataPagination
