@@ -14,6 +14,7 @@ import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
 import { ApproveProductDialog } from "../components/product-details/approve-product-dialog";
+import { DelistProductDialog } from "../components/product-details/delist-product-dialog";
 import { ProductOverviewTab } from "../components/product-details/product-overview-tab";
 import { RejectProductDialog } from "../components/product-details/reject-product-dialog";
 
@@ -21,14 +22,15 @@ const STATUS_VARIANT = {
   approved: "success",
   rejected: "danger",
   pending: "warning",
+  delisted: "neutral",
 } as const;
 
 export default function ProductDetailsPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const [activeAction, setActiveAction] = useState<"approve" | "reject" | null>(
-    null,
-  );
+  const [activeAction, setActiveAction] = useState<
+    "approve" | "reject" | "delist" | null
+  >(null);
 
   const { data, isLoading, error } = api.admin.products.detail.useQuery({
     path: { id: id! },
@@ -75,6 +77,28 @@ export default function ProductDetailsPage() {
     );
   };
 
+  const handleDelist = (reason: string) => {
+    updateProduct(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      {
+        path: { id: id! },
+        body: {
+          status: "delisted" as any,
+          ...(reason && { delistReason: reason as any }),
+        },
+      },
+      {
+        onSuccess: () => {
+          toast.success("Product delisted");
+          setActiveAction(null);
+        },
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        onError: (e: any) =>
+          toast.error(e.message || "Failed to delist product"),
+      },
+    );
+  };
+
   if (isLoading) {
     return (
       <Page>
@@ -114,7 +138,7 @@ export default function ProductDetailsPage() {
                 "neutral"
               }
             />
-            {status === "pending" && (
+            {(status === "pending" || status === "rejected") && (
               <>
                 <Button
                   size="sm"
@@ -132,6 +156,25 @@ export default function ProductDetailsPage() {
                   Approve
                 </Button>
               </>
+            )}
+            {status === "approved" && (
+              <Button
+                size="sm"
+                variant="destructive-outline"
+                onClick={() => setActiveAction("delist")}
+                disabled={isPending}
+              >
+                Delist
+              </Button>
+            )}
+            {status === "delisted" && (
+              <Button
+                size="sm"
+                onClick={() => setActiveAction("approve")}
+                disabled={isPending}
+              >
+                Re-approve
+              </Button>
             )}
           </div>
         }
@@ -225,6 +268,12 @@ export default function ProductDetailsPage() {
         open={activeAction === "reject"}
         onOpenChange={(open) => !open && setActiveAction(null)}
         onConfirm={handleReject}
+        isSubmitting={isPending}
+      />
+      <DelistProductDialog
+        open={activeAction === "delist"}
+        onOpenChange={(open) => !open && setActiveAction(null)}
+        onConfirm={handleDelist}
         isSubmitting={isPending}
       />
     </Page>
