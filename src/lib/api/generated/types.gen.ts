@@ -135,6 +135,27 @@ export type PopulatedLocationDto = {
   iso2?: string;
 };
 
+export type StructuredReasonDto = {
+  target:
+    | "cac_certificate"
+    | "proof_of_address"
+    | "company_name"
+    | "rc_number"
+    | "director_id"
+    | "director_info"
+    | "id_document"
+    | "selfie_liveness";
+  issue:
+    | "unreadable"
+    | "expired"
+    | "missing"
+    | "mismatch"
+    | "invalid"
+    | "incomplete"
+    | "failed";
+  note?: string;
+};
+
 export type ResidentialAddressDto = {
   houseNumber?: string;
   streetAddress?: string;
@@ -209,7 +230,7 @@ export type UserProfileResponseDto = {
     | "pending_review"
     | "action_required"
     | "approved";
-  actionRequiredItems?: Array<string>;
+  actionRequiredItems?: Array<StructuredReasonDto>;
   submittedAt?: string;
   reviewedAt?: string;
   approvedAt?: string;
@@ -1598,7 +1619,7 @@ export type OnboardingStatusResponseDto = {
     | "pending_review"
     | "action_required"
     | "approved";
-  actionRequiredItems?: Array<string>;
+  actionRequiredItems?: Array<StructuredReasonDto>;
   submittedAt?: string;
   reviewedAt?: string;
   approvedAt?: string;
@@ -1626,7 +1647,7 @@ export type OnboardingStatusHubResponseDto = {
     | "pending_review"
     | "action_required"
     | "approved";
-  actionRequiredItems?: Array<string>;
+  actionRequiredItems?: Array<StructuredReasonDto>;
   submittedAt?: string;
   reviewedAt?: string;
   approvedAt?: string;
@@ -1644,6 +1665,7 @@ export type KycFileMetadataDto = {
 export type UpdateIdentityKycDto = {
   dateOfBirth?: string;
   nationality: string;
+  nationalityCode?: string;
   idType?: "nin" | "passport" | "drivers_license" | "national_id";
   idNumber?: string;
   nin?: string;
@@ -2338,7 +2360,7 @@ export type KybProfileDto = {
   companySnapshot: CompanySnapshotDto;
   documents: KybDocumentsDto;
   checks: KybChecksDto;
-  actionRequiredReasons: Array<string>;
+  actionRequiredReasons: Array<StructuredReasonDto>;
   submittedByUser?: SubmittedByUserDto;
   registryData?: RegistryDataDto;
 };
@@ -2385,7 +2407,7 @@ export type KycProfileDto = {
   identity: IdentitySnapshotDto;
   declarations: DeclarationsSnapshotDto;
   checks: KycChecksDto;
-  actionRequiredReasons: Array<string>;
+  actionRequiredReasons: Array<StructuredReasonDto>;
   user?: KycUserDto;
 };
 
@@ -2417,7 +2439,7 @@ export type ComplianceCaseDetailDto = {
 
 export type ReviewComplianceDto = {
   decision: "approved" | "action_required";
-  reasons?: Array<string>;
+  reasons?: Array<StructuredReasonDto>;
 };
 
 export type UpdateCategoryGroupDto = {

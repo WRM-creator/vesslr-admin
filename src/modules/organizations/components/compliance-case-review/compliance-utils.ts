@@ -149,7 +149,7 @@ export function toComplianceCase(raw: ComplianceCaseDetailDto): ComplianceCase {
       eventType: e.eventType,
       actorType: e.actorType,
       createdAt: e.createdAt,
-      metadata: e.metadata as { reasons?: string[] } | undefined,
+      metadata: e.metadata as { reasons?: Array<{ target: string; issue: string; note?: string }> } | undefined,
     })),
   };
 }

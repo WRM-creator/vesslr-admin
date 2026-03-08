@@ -48,6 +48,6 @@ export interface ComplianceCase {
     actorType: "admin" | "system" | "user";
     actorName?: string;
     createdAt: string;
-    metadata?: { reasons?: string[] };
+    metadata?: { reasons?: Array<{ target: string; issue: string; note?: string }> };
   }>;
 }

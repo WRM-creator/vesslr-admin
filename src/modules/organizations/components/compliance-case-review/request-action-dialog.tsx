@@ -12,21 +12,25 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Spinner } from "@/components/ui/spinner";
 import { Textarea } from "@/components/ui/textarea";
+import type { StructuredReasonDto } from "@/lib/api/generated";
 import { useState } from "react";
+import {
+  REASON_GROUPS,
+  reasonKey,
+  type ReasonOption,
+} from "./reason-options";
 
-const ACTION_REASONS = [
-  "Document unreadable or expired",
-  "Name mismatch between documents",
-  "Missing required document",
-  "Address inconsistency",
-  "ID number not matching records",
-];
+const REQUEST_ACTION_COPY = {
+  KYB: "Request Action — Business Verification",
+  KYC: "Request Action — Identity Verification",
+};
 
 interface RequestActionDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onConfirm: (reasons: string[]) => void;
+  onConfirm: (reasons: StructuredReasonDto[]) => void;
   isSubmitting: boolean;
+  reviewType: "KYB" | "KYC";
 }
 
 export function RequestActionDialog({
@@ -34,70 +38,113 @@ export function RequestActionDialog({
   onOpenChange,
   onConfirm,
   isSubmitting,
+  reviewType,
 }: RequestActionDialogProps) {
-  const [selectedReasons, setSelectedReasons] = useState<string[]>([]);
-  const [customReason, setCustomReason] = useState("");
+  const [selected, setSelected] = useState<ReasonOption[]>([]);
+  const [note, setNote] = useState("");
 
-  const toggleReason = (reason: string) => {
-    setSelectedReasons((prev) =>
-      prev.includes(reason) ? prev.filter((r) => r !== reason) : [...prev, reason],
+  const groups = REASON_GROUPS[reviewType];
+
+  const toggle = (option: ReasonOption) => {
+    const key = reasonKey(option);
+    setSelected((prev) =>
+      prev.some((o) => reasonKey(o) === key)
+        ? prev.filter((o) => reasonKey(o) !== key)
+        : [...prev, option],
     );
   };
 
-  const handleCancel = () => {
-    setSelectedReasons([]);
-    setCustomReason("");
+  const isSelected = (option: ReasonOption) =>
+    selected.some((o) => reasonKey(o) === reasonKey(option));
+
+  const reset = () => {
+    setSelected([]);
+    setNote("");
   };
 
   const handleConfirm = () => {
-    onConfirm([...selectedReasons, customReason].filter(Boolean));
-    setSelectedReasons([]);
-    setCustomReason("");
+    const reasons: StructuredReasonDto[] = selected.map((o, i) => ({
+      target: o.target,
+      issue: o.issue,
+      ...(i === selected.length - 1 && note.trim()
+        ? { note: note.trim() }
+        : {}),
+    }));
+    onConfirm(reasons);
+    reset();
   };
+
+  const handleCancel = () => {
+    reset();
+  };
+
+  const canSubmit = selected.length > 0;
 
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
-      <AlertDialogContent className="max-w-md" onInteractOutside={() => onOpenChange(false)}>
+      <AlertDialogContent
+        className="max-w-md"
+        onInteractOutside={() => onOpenChange(false)}
+      >
         <AlertDialogHeader>
-          <AlertDialogTitle>Request Action</AlertDialogTitle>
+          <AlertDialogTitle>{REQUEST_ACTION_COPY[reviewType]}</AlertDialogTitle>
           <AlertDialogDescription>
-            Select the reasons for requesting action. These will be sent to the
+            Select all items that need attention. These will be sent to the
             applicant.
           </AlertDialogDescription>
         </AlertDialogHeader>
-        <div className="space-y-3 py-2">
-          {ACTION_REASONS.map((reason) => (
-            <div key={reason} className="flex items-center gap-3">
-              <Checkbox
-                id={reason}
-                checked={selectedReasons.includes(reason)}
-                onCheckedChange={() => toggleReason(reason)}
-              />
-              <Label htmlFor={reason} className="cursor-pointer text-sm font-normal">
-                {reason}
-              </Label>
+
+        <div className="max-h-80 space-y-5 overflow-y-auto py-1 pr-1">
+          {groups.map((group) => (
+            <div key={group.heading}>
+              <p className="text-muted-foreground mb-2 text-xs font-semibold uppercase tracking-wide">
+                {group.heading}
+              </p>
+              <div className="space-y-2">
+                {group.options.map((option) => {
+                  const key = reasonKey(option);
+                  return (
+                    <div key={key} className="flex items-start gap-3">
+                      <Checkbox
+                        id={key}
+                        checked={isSelected(option)}
+                        onCheckedChange={() => toggle(option)}
+                        className="mt-0.5"
+                      />
+                      <Label
+                        htmlFor={key}
+                        className="cursor-pointer text-sm font-normal leading-snug"
+                      >
+                        {option.label}
+                      </Label>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           ))}
-          <div className="pt-2">
-            <Label htmlFor="custom-reason" className="mb-1.5 block text-sm">
+
+          <div>
+            <Label htmlFor="action-note" className="mb-1.5 block text-sm">
               Additional notes (optional)
             </Label>
             <Textarea
-              id="custom-reason"
-              placeholder="Any other details..."
-              value={customReason}
-              onChange={(e) => setCustomReason(e.target.value)}
+              id="action-note"
+              placeholder="Any other details for the applicant..."
+              value={note}
+              onChange={(e) => setNote(e.target.value)}
               rows={3}
             />
           </div>
         </div>
+
         <AlertDialogFooter>
           <AlertDialogCancel disabled={isSubmitting} onClick={handleCancel}>
             Cancel
           </AlertDialogCancel>
           <AlertDialogAction
             onClick={handleConfirm}
-            disabled={(selectedReasons.length === 0 && !customReason.trim()) || isSubmitting}
+            disabled={!canSubmit || isSubmitting}
           >
             {isSubmitting ? <Spinner className="size-4" /> : "Send Request"}
           </AlertDialogAction>

@@ -65,8 +65,11 @@ export function DecisionHistory({ events }: DecisionHistoryProps) {
                 {event.metadata?.reasons &&
                   event.metadata.reasons.length > 0 && (
                     <ul className="text-muted-foreground mt-1 list-inside list-disc space-y-0.5 text-xs">
-                      {event.metadata.reasons.map((r) => (
-                        <li key={r}>{r}</li>
+                      {event.metadata.reasons.map((r, i) => (
+                        <li key={i}>
+                          {r.target} — {r.issue}
+                          {r.note ? `: ${r.note}` : ""}
+                        </li>
                       ))}
                     </ul>
                   )}

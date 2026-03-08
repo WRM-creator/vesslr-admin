@@ -1,7 +1,6 @@
-import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { api } from "@/lib/api";
-import type { ComplianceCaseDetailDto } from "@/lib/api/generated";
+import type { ComplianceCaseDetailDto, StructuredReasonDto } from "@/lib/api/generated";
 import { useState } from "react";
 import { ApproveDialog } from "./approve-dialog";
 import { AutomatedChecks } from "./automated-checks";
@@ -14,8 +13,12 @@ import { DocumentsGrid } from "./documents-grid";
 import { IdentityImages } from "./identity-images";
 import { RegistryPeople } from "./registry-people";
 import { RequestActionDialog } from "./request-action-dialog";
-import { StatusBadge } from "./status-badge";
 import type { ViewableItem } from "./types";
+
+type ActiveReview = {
+  type: "KYB" | "KYC";
+  action: "approve" | "request_action";
+} | null;
 
 export function ComplianceCaseReview({
   organizationId,
@@ -42,13 +45,11 @@ export function ComplianceCaseReview({
     api.admin.compliance.reviewKyb.useMutation();
   const { mutate: reviewKyc, isPending: isKycPending } =
     api.admin.compliance.reviewKyc.useMutation();
-  const isSubmitting = isKybPending || isKycPending;
 
   const [viewerOpen, setViewerOpen] = useState(false);
   const [viewerItems, setViewerItems] = useState<ViewableItem[]>([]);
   const [viewerIndex, setViewerIndex] = useState(0);
-  const [approveOpen, setApproveOpen] = useState(false);
-  const [requestActionOpen, setRequestActionOpen] = useState(false);
+  const [activeReview, setActiveReview] = useState<ActiveReview>(null);
 
   const openViewer = (index: number, list: ViewableItem[]) => {
     setViewerItems(list);
@@ -56,48 +57,36 @@ export function ComplianceCaseReview({
     setViewerOpen(true);
   };
 
-  const handleApprove = () => {
+  const handleApproveKyb = () => {
     reviewKyb(
       { path: { organizationId }, body: { decision: "approved" } },
-      {
-        onSuccess: () => {
-          if (primaryUserId) {
-            reviewKyc(
-              {
-                path: { userId: primaryUserId },
-                body: { decision: "approved" },
-              },
-              { onSuccess: () => setApproveOpen(false) },
-            );
-          } else {
-            setApproveOpen(false);
-          }
-        },
-      },
+      { onSuccess: () => setActiveReview(null) },
     );
   };
 
-  const handleRequestAction = (reasons: string[]) => {
+  const handleApproveKyc = () => {
+    if (!primaryUserId) return;
+    reviewKyc(
+      { path: { userId: primaryUserId }, body: { decision: "approved" } },
+      { onSuccess: () => setActiveReview(null) },
+    );
+  };
+
+  const handleRequestActionKyb = (reasons: StructuredReasonDto[]) => {
     reviewKyb(
+      { path: { organizationId }, body: { decision: "action_required", reasons } },
+      { onSuccess: () => setActiveReview(null) },
+    );
+  };
+
+  const handleRequestActionKyc = (reasons: StructuredReasonDto[]) => {
+    if (!primaryUserId) return;
+    reviewKyc(
       {
-        path: { organizationId },
+        path: { userId: primaryUserId },
         body: { decision: "action_required", reasons },
       },
-      {
-        onSuccess: () => {
-          if (primaryUserId) {
-            reviewKyc(
-              {
-                path: { userId: primaryUserId },
-                body: { decision: "action_required", reasons },
-              },
-              { onSuccess: () => setRequestActionOpen(false) },
-            );
-          } else {
-            setRequestActionOpen(false);
-          }
-        },
-      },
+      { onSuccess: () => setActiveReview(null) },
     );
   };
 
@@ -119,33 +108,22 @@ export function ComplianceCaseReview({
 
   return (
     <div className="space-y-6">
-      {/* Action bar */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-1.5">
-            <span className="text-muted-foreground text-xs">KYC</span>
-            <StatusBadge status={data.kycStatus} />
-          </div>
-          <div className="flex items-center gap-1.5">
-            <span className="text-muted-foreground text-xs">KYB</span>
-            <StatusBadge status={data.kybStatus} />
-          </div>
-        </div>
-        <div className="flex gap-2">
-          <Button
-            variant="outline"
-            onClick={() => setRequestActionOpen(true)}
-            disabled={isSubmitting}
-          >
-            Request Action
-          </Button>
-          <Button onClick={() => setApproveOpen(true)} disabled={isSubmitting}>
-            Approve
-          </Button>
-        </div>
-      </div>
-
-      <AutomatedChecks kyc={data.checks.kyc} kyb={data.checks.kyb} />
+      <AutomatedChecks
+        kyc={data.checks.kyc}
+        kyb={data.checks.kyb}
+        kycReviewStatus={data.kycStatus}
+        kybReviewStatus={data.kybStatus}
+        onApproveKyc={() => setActiveReview({ type: "KYC", action: "approve" })}
+        onRequestActionKyc={() =>
+          setActiveReview({ type: "KYC", action: "request_action" })
+        }
+        onApproveKyb={() => setActiveReview({ type: "KYB", action: "approve" })}
+        onRequestActionKyb={() =>
+          setActiveReview({ type: "KYB", action: "request_action" })
+        }
+        isKycSubmitting={isKycPending}
+        isKybSubmitting={isKybPending}
+      />
       {data.registryData?.companyInformation && (
         <CompanyDetails
           info={data.registryData.companyInformation}
@@ -169,17 +147,29 @@ export function ComplianceCaseReview({
       />
 
       <ApproveDialog
-        open={approveOpen}
-        onOpenChange={setApproveOpen}
-        onConfirm={handleApprove}
-        isSubmitting={isSubmitting}
+        open={activeReview?.action === "approve"}
+        onOpenChange={(open) => !open && setActiveReview(null)}
+        reviewType={activeReview?.type ?? "KYB"}
+        onConfirm={
+          activeReview?.type === "KYC" ? handleApproveKyc : handleApproveKyb
+        }
+        isSubmitting={
+          activeReview?.type === "KYC" ? isKycPending : isKybPending
+        }
       />
 
       <RequestActionDialog
-        open={requestActionOpen}
-        onOpenChange={setRequestActionOpen}
-        onConfirm={handleRequestAction}
-        isSubmitting={isSubmitting}
+        open={activeReview?.action === "request_action"}
+        onOpenChange={(open) => !open && setActiveReview(null)}
+        reviewType={activeReview?.type ?? "KYB"}
+        onConfirm={
+          activeReview?.type === "KYC"
+            ? handleRequestActionKyc
+            : handleRequestActionKyb
+        }
+        isSubmitting={
+          activeReview?.type === "KYC" ? isKycPending : isKybPending
+        }
       />
     </div>
   );
