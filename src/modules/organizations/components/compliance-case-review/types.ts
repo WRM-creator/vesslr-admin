@@ -1,6 +1,7 @@
 import type { RegistryDataDto } from "@/lib/api/generated";
 
-export type { ViewableItem } from "@/components/shared/viewable-item";
+import type { ViewableItem } from "@/components/shared/viewable-item";
+export type { ViewableItem };
 
 export interface ComplianceCase {
   organization: {
