@@ -292,6 +292,7 @@ export type CategoryGroupDto = {
   slug: string;
   type: string;
   isActive: boolean;
+  image?: string;
   requiresLogistics: boolean;
   allowsInspection: boolean;
   milestoneDelivery: boolean;
@@ -368,8 +369,10 @@ export type PopulatedProductResponseDto = {
   conditions?: Array<"New" | "Used - Good" | "Used - Fair" | "Refurbished">;
   organization?: ProductOrganizationDto;
   location?: PopulatedProductLocationDto;
-  status?: "pending" | "approved" | "rejected";
+  status?: "pending" | "approved" | "rejected" | "delisted";
   rejectionReason?: string;
+  delistReason?: string;
+  resubmissionCount?: number;
   isActive?: boolean;
   createdAt?: string;
   updatedAt?: string;
@@ -423,8 +426,10 @@ export type ProductResponseDto = {
   conditions?: Array<"New" | "Used - Good" | "Used - Fair" | "Refurbished">;
   organization?: ProductOrganizationDto;
   location?: ProductLocationDto;
-  status?: "pending" | "approved" | "rejected";
+  status?: "pending" | "approved" | "rejected" | "delisted";
   rejectionReason?: string;
+  delistReason?: string;
+  resubmissionCount?: number;
   isActive?: boolean;
   createdAt?: string;
   updatedAt?: string;
@@ -461,7 +466,8 @@ export type CreateProductDto = {
   conditions?: Array<"New" | "Used - Good" | "Used - Fair" | "Refurbished">;
   organization?: string;
   location?: LocationDto;
-  status?: "pending" | "approved" | "rejected";
+  status?: "pending" | "approved" | "rejected" | "delisted";
+  delistReason?: string;
   transactionTypes?: Array<
     "Purchase" | "Lease" | "Charter" | "Bulk Supply" | "Spot Trade"
   >;
@@ -489,7 +495,8 @@ export type UpdateProductDto = {
   conditions?: Array<"New" | "Used - Good" | "Used - Fair" | "Refurbished">;
   organization?: string;
   location?: LocationDto;
-  status?: "pending" | "approved" | "rejected";
+  status?: "pending" | "approved" | "rejected" | "delisted";
+  delistReason?: string;
   transactionTypes?: Array<
     "Purchase" | "Lease" | "Charter" | "Bulk Supply" | "Spot Trade"
   >;
@@ -2453,6 +2460,10 @@ export type ReviewComplianceDto = {
 };
 
 export type UpdateCategoryGroupDto = {
+  name?: string;
+  type?: "equipment-and-products" | "services";
+  isActive?: boolean;
+  image?: string;
   requiresLogistics?: boolean;
   allowsInspection?: boolean;
   milestoneDelivery?: boolean;
@@ -2960,6 +2971,22 @@ export type MyProductsControllerUpdateResponses = {
 
 export type MyProductsControllerUpdateResponse =
   MyProductsControllerUpdateResponses[keyof MyProductsControllerUpdateResponses];
+
+export type MyProductsControllerResubmitData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/products/mine/{id}/resubmit";
+};
+
+export type MyProductsControllerResubmitResponses = {
+  200: ProductResponseDto;
+};
+
+export type MyProductsControllerResubmitResponse =
+  MyProductsControllerResubmitResponses[keyof MyProductsControllerResubmitResponses];
 
 export type CategoriesControllerFindAllData = {
   body?: never;

@@ -161,6 +161,8 @@ import type {
   MyProductsControllerFindOneResponses,
   MyProductsControllerRemoveData,
   MyProductsControllerRemoveResponses,
+  MyProductsControllerResubmitData,
+  MyProductsControllerResubmitResponses,
   MyProductsControllerUpdateData,
   MyProductsControllerUpdateResponses,
   NegotiationsControllerAcceptData,
@@ -810,6 +812,21 @@ export const myProductsControllerUpdate = <
       "Content-Type": "application/json",
       ...options.headers,
     },
+  });
+
+export const myProductsControllerResubmit = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<MyProductsControllerResubmitData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    MyProductsControllerResubmitResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/products/mine/{id}/resubmit",
+    ...options,
   });
 
 /**
