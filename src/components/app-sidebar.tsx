@@ -88,11 +88,6 @@ const navGroups: NavGroup[] = [
         url: "/products",
         icon: Package,
       },
-      {
-        title: "Product Approvals",
-        url: "/product-approvals",
-        icon: ClipboardCheck,
-      },
     ],
   },
   {

@@ -59,6 +59,8 @@ import type {
   AdminNotificationsControllerMarkAsReadResponses,
   AdminOrganizationsControllerFindAllData,
   AdminOrganizationsControllerFindAllResponses,
+  AdminProductsControllerApproveData,
+  AdminProductsControllerApproveResponses,
   AdminProductsControllerCreateData,
   AdminProductsControllerCreateResponses,
   AdminProductsControllerFindAllData,
@@ -195,6 +197,8 @@ import type {
   OnboardingControllerGetStatusHubResponses,
   OnboardingControllerInviteTeamData,
   OnboardingControllerInviteTeamResponses,
+  OnboardingControllerPatchCompanyDocumentsData,
+  OnboardingControllerPatchCompanyDocumentsResponses,
   OnboardingControllerUpdateCompanyDocumentsData,
   OnboardingControllerUpdateCompanyDocumentsResponses,
   OnboardingControllerUpdateCompanyInfoData,
@@ -1810,6 +1814,28 @@ export const onboardingControllerUpdateProductCategories = <
   });
 
 /**
+ * Partially update company documents (correction flow)
+ */
+export const onboardingControllerPatchCompanyDocuments = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<OnboardingControllerPatchCompanyDocumentsData, ThrowOnError>,
+) =>
+  (options.client ?? client).patch<
+    OnboardingControllerPatchCompanyDocumentsResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/onboarding/company-documents",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
  * Update company documents
  */
 export const onboardingControllerUpdateCompanyDocuments = <
@@ -2106,6 +2132,24 @@ export const adminProductsControllerUpdate = <
       "Content-Type": "application/json",
       ...options.headers,
     },
+  });
+
+/**
+ * Approve a product (Admin) — requires org KYB approved
+ */
+export const adminProductsControllerApprove = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AdminProductsControllerApproveData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    AdminProductsControllerApproveResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/products/{id}/approve",
+    ...options,
   });
 
 /**

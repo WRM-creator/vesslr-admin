@@ -1,12 +1,6 @@
 import type { RegistryDataDto } from "@/lib/api/generated";
 
-export interface ViewableItem {
-  url: string;
-  name: string;
-  type: string;
-  source: "smile_id" | "uploaded";
-  label: string;
-}
+export type { ViewableItem } from "@/components/shared/viewable-item";
 
 export interface ComplianceCase {
   organization: {

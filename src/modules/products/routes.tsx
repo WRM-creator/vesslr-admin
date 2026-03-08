@@ -9,12 +9,6 @@ export const productsRoutes: RouteObject[] = [
   },
 
   {
-    path: "product-approvals",
-    lazy: async () => ({
-      Component: (await import("./pages/product-approvals")).default,
-    }),
-  },
-  {
     path: "products/:id",
     lazy: async () => ({
       Component: (await import("./pages/product-details")).default,

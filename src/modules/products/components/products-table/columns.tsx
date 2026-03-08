@@ -84,10 +84,10 @@ export const productsColumns: ColumnDef<Product>[] = [
     accessorKey: "price",
     header: "Price",
     cell: ({ row }) => {
-      const amount = parseFloat(row.original.price.toString());
+      const amount = parseFloat(row.original.price?.toString() ?? "0");
       const formatted = new Intl.NumberFormat("en-US", {
         style: "currency",
-        currency: row.original.currency,
+        currency: row.original.currency || "USD",
       }).format(amount);
       return <div className="font-medium">{formatted}</div>;
     },

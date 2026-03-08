@@ -369,6 +369,7 @@ export type PopulatedProductResponseDto = {
   organization?: ProductOrganizationDto;
   location?: PopulatedProductLocationDto;
   status?: "pending" | "approved" | "rejected";
+  rejectionReason?: string;
   isActive?: boolean;
   createdAt?: string;
   updatedAt?: string;
@@ -423,6 +424,7 @@ export type ProductResponseDto = {
   organization?: ProductOrganizationDto;
   location?: ProductLocationDto;
   status?: "pending" | "approved" | "rejected";
+  rejectionReason?: string;
   isActive?: boolean;
   createdAt?: string;
   updatedAt?: string;
@@ -464,6 +466,7 @@ export type CreateProductDto = {
     "Purchase" | "Lease" | "Charter" | "Bulk Supply" | "Spot Trade"
   >;
   isActive?: boolean;
+  rejectionReason?: string;
 };
 
 export type UpdateProductDto = {
@@ -491,6 +494,7 @@ export type UpdateProductDto = {
     "Purchase" | "Lease" | "Charter" | "Bulk Supply" | "Spot Trade"
   >;
   isActive?: boolean;
+  rejectionReason?: string;
 };
 
 export type CategoryDocumentTemplateDto = {
@@ -1651,6 +1655,7 @@ export type OnboardingStatusHubResponseDto = {
   submittedAt?: string;
   reviewedAt?: string;
   approvedAt?: string;
+  smileVerificationStatus?: string;
   nextAction: string;
   estimatedTimeline?: string;
 };
@@ -1714,6 +1719,11 @@ export type UpdateCompanyDocumentsDto = {
   certificateOfIncorporation?: string | FileMetadataDto;
   memorandum?: string | FileMetadataDto;
   additionalDocuments?: Array<FileMetadataDto>;
+};
+
+export type PatchCompanyDocumentsDto = {
+  proofOfResidenceFile?: string | FileMetadataDto;
+  certificateOfIncorporation?: string | FileMetadataDto;
 };
 
 export type UpdateDeclarationsRiskDto = {
@@ -3921,6 +3931,23 @@ export type OnboardingControllerUpdateProductCategoriesResponses = {
 export type OnboardingControllerUpdateProductCategoriesResponse =
   OnboardingControllerUpdateProductCategoriesResponses[keyof OnboardingControllerUpdateProductCategoriesResponses];
 
+export type OnboardingControllerPatchCompanyDocumentsData = {
+  body: PatchCompanyDocumentsDto;
+  path?: never;
+  query?: never;
+  url: "/api/v1/onboarding/company-documents";
+};
+
+export type OnboardingControllerPatchCompanyDocumentsResponses = {
+  /**
+   * Company documents patched
+   */
+  200: OnboardingStatusResponseDto;
+};
+
+export type OnboardingControllerPatchCompanyDocumentsResponse =
+  OnboardingControllerPatchCompanyDocumentsResponses[keyof OnboardingControllerPatchCompanyDocumentsResponses];
+
 export type OnboardingControllerUpdateCompanyDocumentsData = {
   body: UpdateCompanyDocumentsDto;
   path?: never;
@@ -4169,6 +4196,22 @@ export type AdminProductsControllerUpdateResponses = {
 
 export type AdminProductsControllerUpdateResponse =
   AdminProductsControllerUpdateResponses[keyof AdminProductsControllerUpdateResponses];
+
+export type AdminProductsControllerApproveData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/admin/products/{id}/approve";
+};
+
+export type AdminProductsControllerApproveResponses = {
+  200: ProductResponseDto;
+};
+
+export type AdminProductsControllerApproveResponse =
+  AdminProductsControllerApproveResponses[keyof AdminProductsControllerApproveResponses];
 
 export type AdminAuthControllerLoginData = {
   body: AdminLoginDto;
