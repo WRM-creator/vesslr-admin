@@ -207,7 +207,6 @@ export type UserProfileResponseDto = {
     | "company_info"
     | "product_categories"
     | "company_documents"
-    | "declarations_risk"
     | "review"
     | "status"
     | "complete";
@@ -995,6 +994,31 @@ export type SubmitInspectionDocumentsDto = {
   documents: Array<InspectionDocumentDto>;
 };
 
+export type EscrowWithTransactionResponseDto = {
+  _id: string;
+  status: "FUNDED" | "RELEASED" | "REFUNDED" | "PARTIALLY_REFUNDED";
+  amount: number;
+  currency: string;
+  referenceId?: string | null;
+  fundedAt?: string | null;
+  releasedAt?: string | null;
+  refundedAt?: string | null;
+  refundReferenceId?: string | null;
+  transactionId: string;
+  transactionDisplayId: number;
+  transactionStatus: string;
+  orderId: string;
+  productTitle: string;
+  userRole: "buyer" | "seller";
+};
+
+export type EscrowSummaryResponseDto = {
+  inEscrow: number;
+  released: number;
+  refunded: number;
+  currency: string;
+};
+
 export type ConversationMessageResponseDto = {
   _id: string;
   text: string;
@@ -1607,7 +1631,6 @@ export type OnboardingStatusResponseDto = {
     | "company_info"
     | "product_categories"
     | "company_documents"
-    | "declarations_risk"
     | "review"
     | "status"
     | "complete";
@@ -1731,13 +1754,6 @@ export type UpdateCompanyDocumentsDto = {
 export type PatchCompanyDocumentsDto = {
   proofOfResidenceFile?: string | FileMetadataDto;
   certificateOfIncorporation?: string | FileMetadataDto;
-};
-
-export type UpdateDeclarationsRiskDto = {
-  isPep: boolean;
-  pepDetails?: string;
-  sanctionsDeclaration: boolean;
-  sourceOfFunds: string;
 };
 
 export type InviteItemDto = {
@@ -1872,6 +1888,10 @@ export type CreateCategoryDto = {
   requiredDocuments?: Array<CategoryDocumentTemplateInput>;
   compliance?: CategoryComplianceInput;
   /**
+   * ID of the category group this category belongs to
+   */
+  group?: string;
+  /**
    * Whether the category is active
    */
   isActive?: boolean;
@@ -1900,6 +1920,10 @@ export type UpdateCategoryDto = {
   image?: string;
   requiredDocuments?: Array<CategoryDocumentTemplateInput>;
   compliance?: CategoryComplianceInput;
+  /**
+   * ID of the category group this category belongs to
+   */
+  group?: string;
   /**
    * Whether the category is active
    */
@@ -3287,6 +3311,34 @@ export type TransactionsControllerSubmitInspectionResponses = {
 export type TransactionsControllerSubmitInspectionResponse =
   TransactionsControllerSubmitInspectionResponses[keyof TransactionsControllerSubmitInspectionResponses];
 
+export type EscrowsControllerGetMyEscrowsData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: "/api/v1/escrows/my";
+};
+
+export type EscrowsControllerGetMyEscrowsResponses = {
+  200: Array<EscrowWithTransactionResponseDto>;
+};
+
+export type EscrowsControllerGetMyEscrowsResponse =
+  EscrowsControllerGetMyEscrowsResponses[keyof EscrowsControllerGetMyEscrowsResponses];
+
+export type EscrowsControllerGetMySummaryData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: "/api/v1/escrows/summary";
+};
+
+export type EscrowsControllerGetMySummaryResponses = {
+  200: EscrowSummaryResponseDto;
+};
+
+export type EscrowsControllerGetMySummaryResponse =
+  EscrowsControllerGetMySummaryResponses[keyof EscrowsControllerGetMySummaryResponses];
+
 export type TransactionConversationsControllerGetConversationData = {
   body?: never;
   path: {
@@ -3992,23 +4044,6 @@ export type OnboardingControllerUpdateCompanyDocumentsResponses = {
 export type OnboardingControllerUpdateCompanyDocumentsResponse =
   OnboardingControllerUpdateCompanyDocumentsResponses[keyof OnboardingControllerUpdateCompanyDocumentsResponses];
 
-export type OnboardingControllerUpdateDeclarationsRiskData = {
-  body: UpdateDeclarationsRiskDto;
-  path?: never;
-  query?: never;
-  url: "/api/v1/onboarding/declarations-risk";
-};
-
-export type OnboardingControllerUpdateDeclarationsRiskResponses = {
-  /**
-   * Declarations and risk data updated
-   */
-  200: OnboardingStatusResponseDto;
-};
-
-export type OnboardingControllerUpdateDeclarationsRiskResponse =
-  OnboardingControllerUpdateDeclarationsRiskResponses[keyof OnboardingControllerUpdateDeclarationsRiskResponses];
-
 export type OnboardingControllerInviteTeamData = {
   body: InviteTeamDto;
   path?: never;
@@ -4326,7 +4361,12 @@ export type AdminAuthControllerGetProfileResponse =
 export type AdminCategoriesControllerFindAllData = {
   body?: never;
   path?: never;
-  query?: never;
+  query?: {
+    /**
+     * Filter by category group ID
+     */
+    groupId?: string;
+  };
   url: "/api/v1/admin/categories";
 };
 

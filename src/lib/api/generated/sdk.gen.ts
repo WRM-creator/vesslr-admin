@@ -129,6 +129,10 @@ import type {
   DisputesControllerRaiseDisputeResponses,
   DisputesControllerWithdrawDisputeData,
   DisputesControllerWithdrawDisputeResponses,
+  EscrowsControllerGetMyEscrowsData,
+  EscrowsControllerGetMyEscrowsResponses,
+  EscrowsControllerGetMySummaryData,
+  EscrowsControllerGetMySummaryResponses,
   InspectionControllerListInspectionsData,
   InspectionControllerListInspectionsResponses,
   InspectionControllerSubmitInspectionData,
@@ -205,8 +209,6 @@ import type {
   OnboardingControllerUpdateCompanyDocumentsResponses,
   OnboardingControllerUpdateCompanyInfoData,
   OnboardingControllerUpdateCompanyInfoResponses,
-  OnboardingControllerUpdateDeclarationsRiskData,
-  OnboardingControllerUpdateDeclarationsRiskResponses,
   OnboardingControllerUpdateIdentityKycData,
   OnboardingControllerUpdateIdentityKycResponses,
   OnboardingControllerUpdateProductCategoriesData,
@@ -1132,6 +1134,42 @@ export const transactionsControllerSubmitInspection = <
   });
 
 /**
+ * Get current user escrow activity
+ */
+export const escrowsControllerGetMyEscrows = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<EscrowsControllerGetMyEscrowsData, ThrowOnError>,
+) =>
+  (options?.client ?? client).get<
+    EscrowsControllerGetMyEscrowsResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/escrows/my",
+    ...options,
+  });
+
+/**
+ * Get current user escrow summary totals
+ */
+export const escrowsControllerGetMySummary = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<EscrowsControllerGetMySummaryData, ThrowOnError>,
+) =>
+  (options?.client ?? client).get<
+    EscrowsControllerGetMySummaryResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/escrows/summary",
+    ...options,
+  });
+
+/**
  * Get the conversation for a transaction
  */
 export const transactionConversationsControllerGetConversation = <
@@ -1870,31 +1908,6 @@ export const onboardingControllerUpdateCompanyDocuments = <
   >({
     security: [{ scheme: "bearer", type: "http" }],
     url: "/api/v1/onboarding/company-documents",
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options.headers,
-    },
-  });
-
-/**
- * Update declarations and risk data
- */
-export const onboardingControllerUpdateDeclarationsRisk = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<
-    OnboardingControllerUpdateDeclarationsRiskData,
-    ThrowOnError
-  >,
-) =>
-  (options.client ?? client).put<
-    OnboardingControllerUpdateDeclarationsRiskResponses,
-    unknown,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/api/v1/onboarding/declarations-risk",
     ...options,
     headers: {
       "Content-Type": "application/json",

@@ -311,7 +311,11 @@ export const api = {
     ]),
   },
   categories: {
-    list: createQuery(adminCategoriesControllerFindAll, ["categories", "list"]),
+    list: createQuery(adminCategoriesControllerFindAll, (args) => [
+      "categories",
+      "list",
+      args?.query?.groupId,
+    ]),
     detail: createQuery(adminCategoriesControllerFindOne, (args) => [
       "categories",
       "detail",
