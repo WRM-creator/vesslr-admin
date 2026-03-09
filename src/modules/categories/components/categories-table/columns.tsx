@@ -1,54 +1,29 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
 import type { ColumnDef } from "@tanstack/react-table";
-import { ArrowRight } from "lucide-react";
-import type { NavigateFunction } from "react-router-dom";
-
-// Valid status types derived from the Category interface
-// type CategoryStatus = Category["identity"]["status"];
-
-// const statusStyles: Record<
-//   CategoryStatus,
-//   "default" | "secondary" | "outline" | "destructive"
-// > = {
-//   active: "default",
-//   draft: "secondary",
-//   deprecated: "destructive",
-// };
 
 export interface CategoryTableItem {
   _id: string;
   name: string;
   slug: string;
-  type?: string;
   isActive: boolean;
 }
 
 export const getCategoriesColumns = (
-  navigate: NavigateFunction,
+  onToggleActive: (id: string, current: boolean) => void,
+  isPending: boolean,
 ): ColumnDef<CategoryTableItem>[] => [
   {
     accessorKey: "name",
     header: "Category",
-    cell: ({ row }) => {
-      return (
-        <div className="flex flex-col">
-          <span className="text-sm font-medium">{row.original.name}</span>
-          <span className="text-muted-foreground text-xs">
-            {row.original.slug}
-          </span>
-        </div>
-      );
-    },
-  },
-  {
-    accessorKey: "type",
-    header: "Type",
     cell: ({ row }) => (
-      <span className="text-muted-foreground text-sm capitalize">
-        {(row.original.type || "equipment-and-products").replace(/-/g, " ")}
-      </span>
+      <div className="flex flex-col">
+        <span className="text-sm font-medium">{row.original.name}</span>
+        <span className="text-muted-foreground text-xs">
+          {row.original.slug}
+        </span>
+      </div>
     ),
   },
   {
@@ -64,21 +39,17 @@ export const getCategoriesColumns = (
   },
   {
     id: "actions",
-    cell: ({ row }) => {
-      return (
-        <div className="flex justify-end">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={(e) => {
-              e.stopPropagation();
-              navigate(`/categories/${row.original._id}`);
-            }}
-          >
-            <ArrowRight className="text-muted-foreground size-4" />
-          </Button>
-        </div>
-      );
-    },
+    header: () => <span className="flex justify-end">Active</span>,
+    cell: ({ row }) => (
+      <div className="flex justify-end">
+        <Switch
+          checked={row.original.isActive}
+          disabled={isPending}
+          onCheckedChange={() =>
+            onToggleActive(row.original._id, row.original.isActive)
+          }
+        />
+      </div>
+    ),
   },
 ];

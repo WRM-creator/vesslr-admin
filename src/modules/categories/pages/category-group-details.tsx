@@ -6,6 +6,7 @@ import { useAppBreadcrumbLabel } from "@/contexts/breadcrumb-context";
 import { api } from "@/lib/api";
 import { useParams } from "react-router-dom";
 import { CategoryGroupAllowedOptionsCard } from "../components/category-group-allowed-options-card";
+import { CategoryGroupCategoriesCard } from "../components/category-group-categories-card";
 import { CategoryGroupOverviewCard } from "../components/category-group-overview-card";
 import { CategoryGroupPoliciesCard } from "../components/category-group-policies-card";
 
@@ -49,6 +50,7 @@ export default function CategoryGroupDetailsPage() {
         <CategoryGroupOverviewCard categoryGroup={categoryGroup} />
         <CategoryGroupAllowedOptionsCard categoryGroup={categoryGroup} />
         <CategoryGroupPoliciesCard categoryGroup={categoryGroup} />
+        <CategoryGroupCategoriesCard categoryGroup={categoryGroup} />
       </div>
     </Page>
   );

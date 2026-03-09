@@ -1,13 +1,9 @@
 import { DataPagination } from "@/components/shared/data-pagination";
 import { Page } from "@/components/shared/page";
 import { PageHeader } from "@/components/shared/page-header";
-import { Button } from "@/components/ui/button";
-
 import { api } from "@/lib/api";
-import { PlusIcon } from "lucide-react";
 import { parseAsString, useQueryState } from "nuqs";
 import { useState } from "react";
-import { Link } from "react-router-dom";
 import { CategoryGroupsTable } from "../components/category-groups-table";
 
 export default function CategoriesPage() {
@@ -55,13 +51,6 @@ export default function CategoriesPage() {
       <PageHeader
         title="Category Groups"
         description="Manage product category groups and their configuration rules."
-        endContent={
-          <Button asChild>
-            <Link to="/categories/new">
-              <PlusIcon /> Create Category Group
-            </Link>
-          </Button>
-        }
       />
 
       <div className="space-y-4">
@@ -72,6 +61,7 @@ export default function CategoriesPage() {
             slug: item.slug || "",
             type: item.type || "equipment-and-products",
             isActive: !!item.isActive,
+            image: item.image,
           }))}
           isLoading={isLoading}
           activeTab={type ?? "all"}

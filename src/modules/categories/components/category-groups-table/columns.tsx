@@ -1,5 +1,6 @@
 "use client";
 
+import { Thumbnail } from "@/components/shared/thumbnail";
 import { Button } from "@/components/ui/button";
 import type { ColumnDef } from "@tanstack/react-table";
 import { ArrowRight } from "lucide-react";
@@ -11,6 +12,7 @@ export interface CategoryGroupTableItem {
   slug: string;
   type?: string;
   isActive: boolean;
+  image?: string;
 }
 
 export const getCategoryGroupsColumns = (
@@ -19,16 +21,17 @@ export const getCategoryGroupsColumns = (
   {
     accessorKey: "name",
     header: "Category",
-    cell: ({ row }) => {
-      return (
+    cell: ({ row }) => (
+      <div className="flex items-center gap-3">
+        <Thumbnail src={row.original.image} alt={row.original.name} size="sm" />
         <div className="flex flex-col">
           <span className="text-sm font-medium">{row.original.name}</span>
           <span className="text-muted-foreground text-xs">
             {row.original.slug}
           </span>
         </div>
-      );
-    },
+      </div>
+    ),
   },
   {
     accessorKey: "type",
