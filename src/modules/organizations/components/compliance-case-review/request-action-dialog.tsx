@@ -14,11 +14,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { Textarea } from "@/components/ui/textarea";
 import type { StructuredReasonDto } from "@/lib/api/generated";
 import { useState } from "react";
-import {
-  REASON_GROUPS,
-  reasonKey,
-  type ReasonOption,
-} from "./reason-options";
+import { REASON_GROUPS, reasonKey, type ReasonOption } from "./reason-options";
 
 const REQUEST_ACTION_COPY = {
   KYB: "Request Action — Business Verification",
@@ -97,7 +93,7 @@ export function RequestActionDialog({
         <div className="max-h-80 space-y-5 overflow-y-auto py-1 pr-1">
           {groups.map((group) => (
             <div key={group.heading}>
-              <p className="text-muted-foreground mb-2 text-xs font-semibold uppercase tracking-wide">
+              <p className="text-muted-foreground mb-2 text-xs font-semibold tracking-wide uppercase">
                 {group.heading}
               </p>
               <div className="space-y-2">
@@ -113,7 +109,7 @@ export function RequestActionDialog({
                       />
                       <Label
                         htmlFor={key}
-                        className="cursor-pointer text-sm font-normal leading-snug"
+                        className="cursor-pointer text-sm leading-snug font-normal"
                       >
                         {option.label}
                       </Label>
@@ -130,7 +126,7 @@ export function RequestActionDialog({
             </Label>
             <Textarea
               id="action-note"
-              placeholder="Any other details for the applicant..."
+              placeholder="Any other details for the organization..."
               value={note}
               onChange={(e) => setNote(e.target.value)}
               rows={3}
