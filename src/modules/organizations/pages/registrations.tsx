@@ -59,7 +59,6 @@ export default function PendingApprovalsPage() {
           { label: "Company Info", value: "company_info" },
           { label: "Product Categories", value: "product_categories" },
           { label: "Company Documents", value: "company_documents" },
-          { label: "Declarations & Risk", value: "declarations_risk" },
           { label: "Review", value: "review" },
           { label: "Pending Review", value: "status" },
           { label: "Complete", value: "complete" },

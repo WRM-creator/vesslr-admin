@@ -31,12 +31,6 @@ export interface ComplianceCase {
   registryData?: RegistryDataDto;
   documents: ViewableItem[];
   identityImages: ViewableItem[];
-  declarations: {
-    isPep: boolean;
-    pepDetails?: string;
-    sourceOfFunds: string;
-    sanctionsDeclaration: boolean;
-  };
   events: Array<{
     id: string;
     eventType: string;

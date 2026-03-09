@@ -138,12 +138,6 @@ export function toComplianceCase(raw: ComplianceCaseDetailDto): ComplianceCase {
     registryData: kyb.registryData,
     documents,
     identityImages,
-    declarations: {
-      isPep: kyc?.declarations?.isPep ?? false,
-      pepDetails: kyc?.declarations?.pepDetails,
-      sourceOfFunds: kyc?.declarations?.sourceOfFunds ?? "",
-      sanctionsDeclaration: kyc?.declarations?.sanctionsDeclaration ?? false,
-    },
     events: raw.events.map((e) => ({
       id: e._id,
       eventType: e.eventType,

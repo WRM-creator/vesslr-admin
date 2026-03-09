@@ -7,7 +7,6 @@ import { AutomatedChecks } from "./automated-checks";
 import { CompanyDetails } from "./company-details";
 import { REGISTRY_SOURCE, toComplianceCase } from "./compliance-utils";
 import { DecisionHistory } from "./decision-history";
-import { DeclarationsSection } from "./declarations-section";
 import { DocumentViewerSheet } from "./document-viewer-sheet";
 import { DocumentsGrid } from "./documents-grid";
 import { IdentityImages } from "./identity-images";
@@ -135,7 +134,6 @@ export function ComplianceCaseReview({
       {data.registryData && <RegistryPeople registryData={data.registryData} />}
       <IdentityImages items={data.identityImages} onSelect={openViewer} />
       <DocumentsGrid items={data.documents} onSelect={openViewer} />
-      <DeclarationsSection declarations={data.declarations} />
       <DecisionHistory events={data.events} />
 
       <DocumentViewerSheet
