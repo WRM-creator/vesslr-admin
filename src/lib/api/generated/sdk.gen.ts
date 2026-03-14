@@ -133,6 +133,8 @@ import type {
   EscrowsControllerGetMyEscrowsResponses,
   EscrowsControllerGetMySummaryData,
   EscrowsControllerGetMySummaryResponses,
+  FlutterwaveWebhooksControllerHandleWebhookData,
+  FlutterwaveWebhooksControllerHandleWebhookResponses,
   InspectionControllerListInspectionsData,
   InspectionControllerListInspectionsResponses,
   InspectionControllerSubmitInspectionData,
@@ -205,6 +207,8 @@ import type {
   OnboardingControllerInviteTeamResponses,
   OnboardingControllerPatchCompanyDocumentsData,
   OnboardingControllerPatchCompanyDocumentsResponses,
+  OnboardingControllerReEnrollIdentityKycData,
+  OnboardingControllerReEnrollIdentityKycResponses,
   OnboardingControllerUpdateCompanyDocumentsData,
   OnboardingControllerUpdateCompanyDocumentsResponses,
   OnboardingControllerUpdateCompanyInfoData,
@@ -229,10 +233,16 @@ import type {
   OrdersControllerPurchaseResponses,
   OrdersControllerUpdateData,
   OrdersControllerUpdateResponses,
+  OrganizationsControllerGetBankDetailsData,
+  OrganizationsControllerGetBankDetailsResponses,
   OrganizationsControllerListMembersData,
   OrganizationsControllerListMembersResponses,
   OrganizationsControllerRemoveMemberData,
   OrganizationsControllerRemoveMemberResponses,
+  OrganizationsControllerResolveAccountData,
+  OrganizationsControllerResolveAccountResponses,
+  OrganizationsControllerUpdateBankDetailsData,
+  OrganizationsControllerUpdateBankDetailsResponses,
   OrganizationsControllerUpdateMemberRoleData,
   OrganizationsControllerUpdateMemberRoleResponses,
   OrganizationsControllerUpdateOrganizationData,
@@ -283,6 +293,16 @@ import type {
   StaleRequestActionsControllerRespondResponses,
   StorageControllerGeneratePresignedUrlsData,
   StorageControllerGeneratePresignedUrlsResponses,
+  SuppliersControllerCreateData,
+  SuppliersControllerCreateResponses,
+  SuppliersControllerFindAllData,
+  SuppliersControllerFindAllResponses,
+  SuppliersControllerFindOneData,
+  SuppliersControllerFindOneResponses,
+  SuppliersControllerRemoveData,
+  SuppliersControllerRemoveResponses,
+  SuppliersControllerUpdateData,
+  SuppliersControllerUpdateResponses,
   TransactionConversationsControllerGetConversationData,
   TransactionConversationsControllerGetConversationResponses,
   TransactionConversationsControllerSendMessageData,
@@ -307,6 +327,8 @@ import type {
   TransactionsControllerFundEscrowResponses,
   TransactionsControllerGetLogsData,
   TransactionsControllerGetLogsResponses,
+  TransactionsControllerGetVirtualAccountData,
+  TransactionsControllerGetVirtualAccountResponses,
   TransactionsControllerSubmitInspectionData,
   TransactionsControllerSubmitInspectionResponses,
   TransactionsControllerSubmitMilestoneData,
@@ -334,6 +356,16 @@ import type {
   UsersAuthControllerVerifyOtpResponses,
   UsersControllerUpdateAddressData,
   UsersControllerUpdateAddressResponses,
+  WalletControllerDisburseData,
+  WalletControllerDisburseResponses,
+  WalletControllerFundEscrowData,
+  WalletControllerFundEscrowResponses,
+  WalletControllerGetBalanceData,
+  WalletControllerGetBalanceResponses,
+  WalletControllerGetFundDetailsData,
+  WalletControllerGetFundDetailsResponses,
+  WalletControllerGetTransactionsData,
+  WalletControllerGetTransactionsResponses,
 } from "./types.gen";
 
 export type Options<
@@ -707,6 +739,68 @@ export const organizationsControllerRemoveMember = <
     ...options,
   });
 
+/**
+ * Get saved NGN bank details (account number masked)
+ */
+export const organizationsControllerGetBankDetails = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<OrganizationsControllerGetBankDetailsData, ThrowOnError>,
+) =>
+  (options.client ?? client).get<
+    OrganizationsControllerGetBankDetailsResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/organizations/{orgId}/bank-details",
+    ...options,
+  });
+
+/**
+ * Save verified NGN bank account details for the organization
+ */
+export const organizationsControllerUpdateBankDetails = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<OrganizationsControllerUpdateBankDetailsData, ThrowOnError>,
+) =>
+  (options.client ?? client).patch<
+    OrganizationsControllerUpdateBankDetailsResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/organizations/{orgId}/bank-details",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Verify a bank account and return the account name (before saving)
+ */
+export const organizationsControllerResolveAccount = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<OrganizationsControllerResolveAccountData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    OrganizationsControllerResolveAccountResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/organizations/{orgId}/bank-details/resolve",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
 export const productsControllerFindAll = <ThrowOnError extends boolean = false>(
   options?: Options<ProductsControllerFindAllData, ThrowOnError>,
 ) =>
@@ -1025,6 +1119,24 @@ export const transactionsControllerAssignLogistics = <
       "Content-Type": "application/json",
       ...options.headers,
     },
+  });
+
+/**
+ * Get the NGN virtual account for funding the escrow (buyer only)
+ */
+export const transactionsControllerGetVirtualAccount = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<TransactionsControllerGetVirtualAccountData, ThrowOnError>,
+) =>
+  (options.client ?? client).get<
+    TransactionsControllerGetVirtualAccountResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/transactions/{id}/virtual-account",
+    ...options,
   });
 
 /**
@@ -1632,6 +1744,83 @@ export const negotiationsControllerReject = <
     ...options,
   });
 
+export const suppliersControllerFindAll = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<SuppliersControllerFindAllData, ThrowOnError>,
+) =>
+  (options?.client ?? client).get<
+    SuppliersControllerFindAllResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/suppliers",
+    ...options,
+  });
+
+export const suppliersControllerCreate = <ThrowOnError extends boolean = false>(
+  options: Options<SuppliersControllerCreateData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    SuppliersControllerCreateResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/suppliers",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+export const suppliersControllerRemove = <ThrowOnError extends boolean = false>(
+  options: Options<SuppliersControllerRemoveData, ThrowOnError>,
+) =>
+  (options.client ?? client).delete<
+    SuppliersControllerRemoveResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/suppliers/{id}",
+    ...options,
+  });
+
+export const suppliersControllerFindOne = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<SuppliersControllerFindOneData, ThrowOnError>,
+) =>
+  (options.client ?? client).get<
+    SuppliersControllerFindOneResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/suppliers/{id}",
+    ...options,
+  });
+
+export const suppliersControllerUpdate = <ThrowOnError extends boolean = false>(
+  options: Options<SuppliersControllerUpdateData, ThrowOnError>,
+) =>
+  (options.client ?? client).patch<
+    SuppliersControllerUpdateResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/suppliers/{id}",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
 /**
  * Raise a dispute on an active transaction stage
  */
@@ -1952,6 +2141,24 @@ export const onboardingControllerGetSmileLink = <
   >({
     security: [{ scheme: "bearer", type: "http" }],
     url: "/api/v1/onboarding/identity-kyc/smile-link",
+    ...options,
+  });
+
+/**
+ * Reset SmileID enrollment to allow re-verification
+ */
+export const onboardingControllerReEnrollIdentityKyc = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<OnboardingControllerReEnrollIdentityKycData, ThrowOnError>,
+) =>
+  (options?.client ?? client).post<
+    OnboardingControllerReEnrollIdentityKycResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/onboarding/identity-kyc/re-enroll",
     ...options,
   });
 
@@ -3471,4 +3678,117 @@ export const placesControllerGetDetails = <
     security: [{ scheme: "bearer", type: "http" }],
     url: "/api/v1/places/details",
     ...options,
+  });
+
+/**
+ * Handle Flutterwave webhook events (public)
+ */
+export const flutterwaveWebhooksControllerHandleWebhook = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    FlutterwaveWebhooksControllerHandleWebhookData,
+    ThrowOnError
+  >,
+) =>
+  (options.client ?? client).post<
+    FlutterwaveWebhooksControllerHandleWebhookResponses,
+    unknown,
+    ThrowOnError
+  >({ url: "/api/v1/flutterwave/webhooks", ...options });
+
+/**
+ * Get NGN wallet balance (creates subaccount on first call)
+ */
+export const walletControllerGetBalance = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<WalletControllerGetBalanceData, ThrowOnError>,
+) =>
+  (options?.client ?? client).get<
+    WalletControllerGetBalanceResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/wallet/balance",
+    ...options,
+  });
+
+/**
+ * Get NGN virtual account details for funding the wallet
+ */
+export const walletControllerGetFundDetails = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<WalletControllerGetFundDetailsData, ThrowOnError>,
+) =>
+  (options?.client ?? client).get<
+    WalletControllerGetFundDetailsResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/wallet/fund-details",
+    ...options,
+  });
+
+/**
+ * Get wallet transaction history
+ */
+export const walletControllerGetTransactions = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<WalletControllerGetTransactionsData, ThrowOnError>,
+) =>
+  (options?.client ?? client).get<
+    WalletControllerGetTransactionsResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/wallet/transactions",
+    ...options,
+  });
+
+/**
+ * Initiate an NGN bank transfer from the wallet
+ */
+export const walletControllerDisburse = <ThrowOnError extends boolean = false>(
+  options: Options<WalletControllerDisburseData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    WalletControllerDisburseResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/wallet/disburse",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Fund a transaction escrow from the wallet
+ */
+export const walletControllerFundEscrow = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<WalletControllerFundEscrowData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    WalletControllerFundEscrowResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/wallet/fund-escrow",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
   });

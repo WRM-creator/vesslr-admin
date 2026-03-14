@@ -1,6 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import type { NegotiationResponseDto } from "@/lib/api/generated/types.gen";
-import { cn, formatCurrency } from "@/lib/utils";
+import { formatCurrency } from "@/lib/currency";
+import { cn } from "@/lib/utils";
 import { useOfferCountdown } from "@/modules/negotiations/hooks/use-offer-countdown";
 
 interface AdminAcceptOfferCardProps {

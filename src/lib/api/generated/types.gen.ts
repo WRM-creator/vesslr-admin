@@ -190,6 +190,8 @@ export type OrganizationDto = {
   proofOfResidenceFile?: string | FileMetadataResponseDto;
   certificateOfIncorporation?: string | FileMetadataResponseDto;
   memorandum?: string | FileMetadataResponseDto;
+  boardResolution?: FileMetadataResponseDto;
+  pscRegister?: FileMetadataResponseDto;
   additionalDocuments?: Array<FileMetadataResponseDto>;
   categories?: Array<OnboardingCategoryDto>;
 };
@@ -235,6 +237,7 @@ export type UserProfileResponseDto = {
   approvedAt?: string;
   residentialAddress?: ResidentialAddressDto;
   organization?: OrganizationDto;
+  profileImage?: string;
 };
 
 export type UpdateProfileDto = {
@@ -285,6 +288,22 @@ export type UpdateRoleDto = {
   role: "admin" | "member" | "viewer";
 };
 
+export type ResolveBankAccountDto = {
+  accountNumber: string;
+  bankCode: string;
+};
+
+export type UpdateBankDetailsDto = {
+  /**
+   * 10-digit NUBAN account number
+   */
+  accountNumber: string;
+  /**
+   * Flutterwave bank code (from GET /banks/NG)
+   */
+  bankCode: string;
+};
+
 export type CategoryGroupDto = {
   _id: string;
   name: string;
@@ -304,7 +323,7 @@ export type CategoryGroupDto = {
     "Purchase" | "Lease" | "Charter" | "Bulk Supply" | "Spot Trade"
   >;
   conditions: Array<"New" | "Used - Good" | "Used - Fair" | "Refurbished">;
-  allowedCurrencies: Array<"NGN" | "USD" | "GBP" | "EUR">;
+  allowedCurrencies: Array<"NGN" | "USD" | "EUR">;
 };
 
 export type ProductCategoryDto = {
@@ -354,7 +373,7 @@ export type PopulatedProductResponseDto = {
   description?: string;
   category?: ProductCategoryDto;
   pricePerUnit: number;
-  currency?: string;
+  currency?: "NGN" | "USD" | "EUR";
   images?: Array<string>;
   features?: Array<string>;
   availableQuantity?: number;
@@ -411,7 +430,7 @@ export type ProductResponseDto = {
   description?: string;
   category?: ProductCategoryDto;
   pricePerUnit: number;
-  currency?: string;
+  currency?: "NGN" | "USD" | "EUR";
   images?: Array<string>;
   features?: Array<string>;
   availableQuantity?: number;
@@ -450,7 +469,7 @@ export type CreateProductDto = {
   description: string;
   category: string;
   pricePerUnit: number;
-  currency?: string;
+  currency?: "NGN" | "USD" | "EUR";
   images?: Array<string>;
   documents?: Array<string>;
   features?: Array<string>;
@@ -479,7 +498,7 @@ export type UpdateProductDto = {
   description?: string;
   category?: string;
   pricePerUnit?: number;
-  currency?: string;
+  currency?: "NGN" | "USD" | "EUR";
   images?: Array<string>;
   documents?: Array<string>;
   features?: Array<string>;
@@ -698,7 +717,7 @@ export type OrderResponseDto = {
   quantity: number;
   unitOfMeasurement: string;
   pricePerUnit: number;
-  currency: string;
+  currency: "NGN" | "USD" | "EUR";
   totalAmount: number;
   condition?: string;
   buyerDocuments?: Array<OrderDocumentDto>;
@@ -788,9 +807,15 @@ export type TransactionDocumentSlotDto = {
 
 export type EscrowResponseDto = {
   _id: string;
-  status: "FUNDED" | "RELEASED" | "REFUNDED" | "PARTIALLY_REFUNDED";
+  status:
+    | "FUNDED"
+    | "RELEASE_PENDING"
+    | "RELEASED"
+    | "REFUND_PENDING"
+    | "REFUNDED"
+    | "PARTIALLY_REFUNDED";
   amount: number;
-  currency: string;
+  currency: "NGN" | "USD" | "EUR";
   referenceId?: string | null;
   fundedAt?: string | null;
   releasedAt?: string | null;
@@ -959,6 +984,29 @@ export type AssignLogisticsDto = {
   trackingUrl: string;
 };
 
+export type VirtualAccountResponseDto = {
+  /**
+   * NGN bank account number to transfer funds to
+   */
+  accountNumber: string;
+  /**
+   * Name of the bank holding the virtual account
+   */
+  bankName: string;
+  /**
+   * Transfer narration to use
+   */
+  narration: string;
+  /**
+   * Exact NGN amount to transfer
+   */
+  amount: number;
+  /**
+   * Currency (always NGN for virtual accounts)
+   */
+  currency: "NGN" | "USD" | "EUR";
+};
+
 export type SubmittedDocumentDto = {
   name: string;
   url: string;
@@ -996,9 +1044,15 @@ export type SubmitInspectionDocumentsDto = {
 
 export type EscrowWithTransactionResponseDto = {
   _id: string;
-  status: "FUNDED" | "RELEASED" | "REFUNDED" | "PARTIALLY_REFUNDED";
+  status:
+    | "FUNDED"
+    | "RELEASE_PENDING"
+    | "RELEASED"
+    | "REFUND_PENDING"
+    | "REFUNDED"
+    | "PARTIALLY_REFUNDED";
   amount: number;
-  currency: string;
+  currency: "NGN" | "USD" | "EUR";
   referenceId?: string | null;
   fundedAt?: string | null;
   releasedAt?: string | null;
@@ -1016,7 +1070,7 @@ export type EscrowSummaryResponseDto = {
   inEscrow: number;
   released: number;
   refunded: number;
-  currency: string;
+  currency: "NGN" | "USD" | "EUR";
 };
 
 export type ConversationMessageResponseDto = {
@@ -1159,7 +1213,7 @@ export type RecommendationFeedItemDto = {
   targetPricePerUnit: number;
   duration?: number;
   durationUnit?: string;
-  currency: "NGN" | "USD" | "GBP" | "EUR";
+  currency: "NGN" | "USD" | "EUR";
   transactionType: Array<string>;
   condition?: Array<string>;
   description?: string;
@@ -1210,7 +1264,7 @@ export type CreateRequestDto = {
   state: Array<string>;
   unitOfMeasurement: string;
   targetPricePerUnit: number;
-  currency: "NGN" | "USD" | "GBP" | "EUR";
+  currency: "NGN" | "USD" | "EUR";
   /**
    * List of transaction types
    */
@@ -1269,7 +1323,7 @@ export type RequestResponseDto = {
   targetPricePerUnit: number;
   duration?: number;
   durationUnit?: string;
-  currency: "NGN" | "USD" | "GBP" | "EUR";
+  currency: "NGN" | "USD" | "EUR";
   transactionType: Array<string>;
   condition?: Array<string>;
   description?: string;
@@ -1306,7 +1360,7 @@ export type UpdateRequestDto = {
   state?: Array<string>;
   unitOfMeasurement?: string;
   targetPricePerUnit?: number;
-  currency?: "NGN" | "USD" | "GBP" | "EUR";
+  currency?: "NGN" | "USD" | "EUR";
   /**
    * List of transaction types
    */
@@ -1351,7 +1405,7 @@ export type CreateNegotiationDto = {
   product?: string;
   pricePerUnit: number;
   quantity: number;
-  currency: "NGN" | "USD" | "GBP" | "EUR";
+  currency: "NGN" | "USD" | "EUR";
   unitOfMeasurement: string;
   transactionType?:
     | "Purchase"
@@ -1384,7 +1438,7 @@ export type NegotiationRequestDto = {
   status?: string;
   quantity?: number;
   targetPricePerUnit?: number;
-  currency?: string;
+  currency?: "NGN" | "USD" | "EUR";
   unitOfMeasurement?: string;
   transactionType?: Array<string>;
   condition?: Array<string>;
@@ -1401,7 +1455,7 @@ export type NegotiationOrganizationDto = {
 export type NegotiationOffer = {
   pricePerUnit: number;
   quantity: number;
-  currency: "NGN" | "USD" | "GBP" | "EUR";
+  currency: "NGN" | "USD" | "EUR";
   unitOfMeasurement: string;
   transactionType?:
     | "Purchase"
@@ -1469,7 +1523,7 @@ export type PaginatedNegotiationsResponseDto = {
 export type CounterOfferDto = {
   pricePerUnit: number;
   quantity: number;
-  currency: "NGN" | "USD" | "GBP" | "EUR";
+  currency: "NGN" | "USD" | "EUR";
   unitOfMeasurement: string;
   transactionType?:
     | "Purchase"
@@ -1496,6 +1550,91 @@ export type SendMessageDto = {
    * Text message content
    */
   text: string;
+};
+
+export type CreateSupplierDto = {
+  name: string;
+  businessType: string;
+  taxId: string;
+  email: string;
+  phoneNumber: string;
+  phoneNumber2?: string;
+  country: string;
+  state: string;
+  city: string;
+  address: string;
+  bankName: string;
+  accountNumber: string;
+  accountName: string;
+  currency: "NGN" | "USD" | "EUR";
+};
+
+export type SupplierContactDto = {
+  email: string;
+  phone: string;
+  phone2?: string;
+};
+
+export type SupplierCityDto = {
+  _id: string;
+  name: string;
+};
+
+export type SupplierStateDto = {
+  _id: string;
+  name: string;
+  iso2: string;
+};
+
+export type SupplierCountryDto = {
+  _id: string;
+  name: string;
+  iso2: string;
+};
+
+export type SupplierAddressDto = {
+  street: string;
+  city: SupplierCityDto;
+  state: SupplierStateDto;
+  country: SupplierCountryDto;
+};
+
+export type SupplierBankDetailsDto = {
+  bankName: string;
+  accountNumber: string;
+  accountName: string;
+  currency: "NGN" | "USD" | "EUR";
+};
+
+export type SupplierResponseDto = {
+  _id: string;
+  displayId: number;
+  name: string;
+  businessType: string;
+  taxId: string;
+  contact: SupplierContactDto;
+  address: SupplierAddressDto;
+  bankDetails: SupplierBankDetailsDto;
+  status: "active" | "inactive";
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type UpdateSupplierDto = {
+  name?: string;
+  businessType?: string;
+  taxId?: string;
+  email?: string;
+  phoneNumber?: string;
+  phoneNumber2?: string;
+  country?: string;
+  state?: string;
+  city?: string;
+  address?: string;
+  bankName?: string;
+  accountNumber?: string;
+  accountName?: string;
+  currency?: "NGN" | "USD" | "EUR";
 };
 
 export type DisputeAttachmentInputDto = {
@@ -1748,6 +1887,8 @@ export type UpdateCompanyDocumentsDto = {
   proofOfResidenceFile?: string | FileMetadataDto;
   certificateOfIncorporation?: string | FileMetadataDto;
   memorandum?: string | FileMetadataDto;
+  boardResolution?: FileMetadataDto;
+  pscRegister?: FileMetadataDto;
   additionalDocuments?: Array<FileMetadataDto>;
 };
 
@@ -2245,7 +2386,7 @@ export type AcceptRequestOrderDto = {
   quantity: number;
   unitOfMeasurement: string;
   pricePerUnit: number;
-  currency: "NGN" | "USD" | "GBP" | "EUR";
+  currency: "NGN" | "USD" | "EUR";
   condition?: "New" | "Used - Good" | "Used - Fair" | "Refurbished";
   notes?: string;
 };
@@ -2501,7 +2642,7 @@ export type UpdateCategoryGroupDto = {
     | "Bulk Supply"
     | "Spot Trade";
   conditions?: "New" | "Used - Good" | "Used - Fair" | "Refurbished";
-  allowedCurrencies?: Array<"NGN" | "USD" | "GBP" | "EUR">;
+  allowedCurrencies?: Array<"NGN" | "USD" | "EUR">;
 };
 
 export type QqFieldDef = {
@@ -2549,6 +2690,53 @@ export type SubmitInspectionDto = {
 
 export type InspectionReport = {
   [key: string]: unknown;
+};
+
+export type WalletBalanceResponseDto = {
+  currency: "NGN" | "USD" | "EUR";
+  balance: number;
+};
+
+export type WalletFundDetailsResponseDto = {
+  accountNumber: string;
+  bankName: string;
+};
+
+export type WalletTransactionResponseDto = {
+  id: string;
+  currency: "NGN" | "USD" | "EUR";
+  amount: number;
+  type: "credit" | "debit";
+  narration: string;
+  status: string;
+  createdAt: string;
+  reference?: string;
+};
+
+export type WalletDisburseDto = {
+  /**
+   * Amount in NGN
+   */
+  amount: number;
+  accountNumber: string;
+  /**
+   * Bank code
+   */
+  bankCode: string;
+  accountName: string;
+  narration: string;
+};
+
+export type WalletDisburseResponseDto = {
+  transferId: string;
+  status: string;
+};
+
+export type WalletFundEscrowDto = {
+  /**
+   * Transaction ID to fund escrow for
+   */
+  transactionId: string;
 };
 
 export type AppControllerGetHelloData = {
@@ -2876,6 +3064,60 @@ export type OrganizationsControllerRemoveMemberResponses = {
   200: unknown;
 };
 
+export type OrganizationsControllerGetBankDetailsData = {
+  body?: never;
+  path: {
+    orgId: string;
+  };
+  query?: never;
+  url: "/api/v1/organizations/{orgId}/bank-details";
+};
+
+export type OrganizationsControllerGetBankDetailsResponses = {
+  200: {
+    [key: string]: unknown;
+  };
+};
+
+export type OrganizationsControllerGetBankDetailsResponse =
+  OrganizationsControllerGetBankDetailsResponses[keyof OrganizationsControllerGetBankDetailsResponses];
+
+export type OrganizationsControllerUpdateBankDetailsData = {
+  body: UpdateBankDetailsDto;
+  path: {
+    orgId: string;
+  };
+  query?: never;
+  url: "/api/v1/organizations/{orgId}/bank-details";
+};
+
+export type OrganizationsControllerUpdateBankDetailsResponses = {
+  200: {
+    [key: string]: unknown;
+  };
+};
+
+export type OrganizationsControllerUpdateBankDetailsResponse =
+  OrganizationsControllerUpdateBankDetailsResponses[keyof OrganizationsControllerUpdateBankDetailsResponses];
+
+export type OrganizationsControllerResolveAccountData = {
+  body: ResolveBankAccountDto;
+  path: {
+    orgId: string;
+  };
+  query?: never;
+  url: "/api/v1/organizations/{orgId}/bank-details/resolve";
+};
+
+export type OrganizationsControllerResolveAccountResponses = {
+  201: {
+    [key: string]: unknown;
+  };
+};
+
+export type OrganizationsControllerResolveAccountResponse =
+  OrganizationsControllerResolveAccountResponses[keyof OrganizationsControllerResolveAccountResponses];
+
 export type ProductsControllerFindAllData = {
   body?: never;
   path?: never;
@@ -3197,6 +3439,25 @@ export type TransactionsControllerAssignLogisticsResponses = {
 
 export type TransactionsControllerAssignLogisticsResponse =
   TransactionsControllerAssignLogisticsResponses[keyof TransactionsControllerAssignLogisticsResponses];
+
+export type TransactionsControllerGetVirtualAccountData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/transactions/{id}/virtual-account";
+};
+
+export type TransactionsControllerGetVirtualAccountResponses = {
+  /**
+   * Virtual account details for the NGN bank transfer
+   */
+  200: VirtualAccountResponseDto;
+};
+
+export type TransactionsControllerGetVirtualAccountResponse =
+  TransactionsControllerGetVirtualAccountResponses[keyof TransactionsControllerGetVirtualAccountResponses];
 
 export type TransactionsControllerFundEscrowData = {
   body?: never;
@@ -3826,6 +4087,79 @@ export type NegotiationsControllerRejectResponses = {
 export type NegotiationsControllerRejectResponse =
   NegotiationsControllerRejectResponses[keyof NegotiationsControllerRejectResponses];
 
+export type SuppliersControllerFindAllData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: "/api/v1/suppliers";
+};
+
+export type SuppliersControllerFindAllResponses = {
+  200: Array<SupplierResponseDto>;
+};
+
+export type SuppliersControllerFindAllResponse =
+  SuppliersControllerFindAllResponses[keyof SuppliersControllerFindAllResponses];
+
+export type SuppliersControllerCreateData = {
+  body: CreateSupplierDto;
+  path?: never;
+  query?: never;
+  url: "/api/v1/suppliers";
+};
+
+export type SuppliersControllerCreateResponses = {
+  201: SupplierResponseDto;
+};
+
+export type SuppliersControllerCreateResponse =
+  SuppliersControllerCreateResponses[keyof SuppliersControllerCreateResponses];
+
+export type SuppliersControllerRemoveData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/suppliers/{id}";
+};
+
+export type SuppliersControllerRemoveResponses = {
+  200: unknown;
+};
+
+export type SuppliersControllerFindOneData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/suppliers/{id}";
+};
+
+export type SuppliersControllerFindOneResponses = {
+  200: SupplierResponseDto;
+};
+
+export type SuppliersControllerFindOneResponse =
+  SuppliersControllerFindOneResponses[keyof SuppliersControllerFindOneResponses];
+
+export type SuppliersControllerUpdateData = {
+  body: UpdateSupplierDto;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/suppliers/{id}";
+};
+
+export type SuppliersControllerUpdateResponses = {
+  200: SupplierResponseDto;
+};
+
+export type SuppliersControllerUpdateResponse =
+  SuppliersControllerUpdateResponses[keyof SuppliersControllerUpdateResponses];
+
 export type DisputesControllerRaiseDisputeData = {
   body: RaiseDisputeDto;
   path?: never;
@@ -4079,6 +4413,20 @@ export type OnboardingControllerGetSmileLinkResponses = {
 
 export type OnboardingControllerGetSmileLinkResponse =
   OnboardingControllerGetSmileLinkResponses[keyof OnboardingControllerGetSmileLinkResponses];
+
+export type OnboardingControllerReEnrollIdentityKycData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: "/api/v1/onboarding/identity-kyc/re-enroll";
+};
+
+export type OnboardingControllerReEnrollIdentityKycResponses = {
+  /**
+   * Re-enrollment allowed
+   */
+  201: unknown;
+};
 
 export type OnboardingControllerCompleteOnboardingData = {
   body?: never;
@@ -5430,3 +5778,87 @@ export type PlacesControllerGetDetailsResponses = {
 
 export type PlacesControllerGetDetailsResponse =
   PlacesControllerGetDetailsResponses[keyof PlacesControllerGetDetailsResponses];
+
+export type FlutterwaveWebhooksControllerHandleWebhookData = {
+  body?: never;
+  headers: {
+    "verif-hash": string;
+  };
+  path?: never;
+  query?: never;
+  url: "/api/v1/flutterwave/webhooks";
+};
+
+export type FlutterwaveWebhooksControllerHandleWebhookResponses = {
+  200: unknown;
+};
+
+export type WalletControllerGetBalanceData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: "/api/v1/wallet/balance";
+};
+
+export type WalletControllerGetBalanceResponses = {
+  200: WalletBalanceResponseDto;
+};
+
+export type WalletControllerGetBalanceResponse =
+  WalletControllerGetBalanceResponses[keyof WalletControllerGetBalanceResponses];
+
+export type WalletControllerGetFundDetailsData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: "/api/v1/wallet/fund-details";
+};
+
+export type WalletControllerGetFundDetailsResponses = {
+  200: WalletFundDetailsResponseDto;
+};
+
+export type WalletControllerGetFundDetailsResponse =
+  WalletControllerGetFundDetailsResponses[keyof WalletControllerGetFundDetailsResponses];
+
+export type WalletControllerGetTransactionsData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: "/api/v1/wallet/transactions";
+};
+
+export type WalletControllerGetTransactionsResponses = {
+  200: Array<WalletTransactionResponseDto>;
+};
+
+export type WalletControllerGetTransactionsResponse =
+  WalletControllerGetTransactionsResponses[keyof WalletControllerGetTransactionsResponses];
+
+export type WalletControllerDisburseData = {
+  body: WalletDisburseDto;
+  path?: never;
+  query?: never;
+  url: "/api/v1/wallet/disburse";
+};
+
+export type WalletControllerDisburseResponses = {
+  200: WalletDisburseResponseDto;
+};
+
+export type WalletControllerDisburseResponse =
+  WalletControllerDisburseResponses[keyof WalletControllerDisburseResponses];
+
+export type WalletControllerFundEscrowData = {
+  body: WalletFundEscrowDto;
+  path?: never;
+  query?: never;
+  url: "/api/v1/wallet/fund-escrow";
+};
+
+export type WalletControllerFundEscrowResponses = {
+  /**
+   * The updated transaction with escrow created
+   */
+  200: unknown;
+};

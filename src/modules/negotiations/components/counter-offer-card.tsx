@@ -1,4 +1,5 @@
 import { Card, CardContent } from "@/components/ui/card";
+import { formatCurrency } from "@/lib/currency";
 import { cn } from "@/lib/utils";
 import { useOfferCountdown } from "@/modules/negotiations/hooks/use-offer-countdown";
 
@@ -8,13 +9,6 @@ interface OfferCardProps {
   previousOffer?: any;
   isLatestOffer?: boolean;
   offerExpiresAt?: string;
-}
-
-function formatCurrency(amount: number, currency: string) {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: currency || "USD",
-  }).format(amount);
 }
 
 function OldValue({ value }: { value: string | number }) {

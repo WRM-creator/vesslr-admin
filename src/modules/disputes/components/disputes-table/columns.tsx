@@ -1,6 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 import type { Dispute } from "@/lib/api/disputes";
-import { formatCurrency, formatDateTime } from "@/lib/utils";
+import { formatCurrency } from "@/lib/currency";
+import { formatDateTime } from "@/lib/utils";
 import type { ColumnDef } from "@tanstack/react-table";
 import { Link } from "react-router-dom";
 

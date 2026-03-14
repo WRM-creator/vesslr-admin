@@ -1,6 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import type { AdminDisputeResponseDto } from "@/lib/api/generated/types.gen";
-import { formatCurrency } from "@/lib/utils";
+import { formatCurrency } from "@/lib/currency";
 
 const outcomeLabel: Record<string, string> = {
   PROCEED: "Resumed",

@@ -1,4 +1,4 @@
-import { formatCurrency } from "@/lib/utils";
+import { formatCurrency } from "@/lib/currency";
 import { StatsCard } from "@/modules/dashboard/components/stats-card";
 import { AlertCircle, CheckCircle, DollarSign, Lock } from "lucide-react";
 

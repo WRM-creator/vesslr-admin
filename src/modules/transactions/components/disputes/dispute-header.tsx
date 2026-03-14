@@ -1,7 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import type { AdminDisputeResponseDto } from "@/lib/api/generated/types.gen";
-import { formatCurrency } from "@/lib/utils";
+import { formatCurrency } from "@/lib/currency";
 import { format, formatDistanceToNow } from "date-fns";
 import { AlertCircle, CheckCircle2, Undo2 } from "lucide-react";
 

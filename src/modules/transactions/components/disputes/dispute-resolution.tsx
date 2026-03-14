@@ -2,7 +2,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { api } from "@/lib/api";
 import type { AdminDisputeResponseDto } from "@/lib/api/generated/types.gen";
-import { formatCurrency } from "@/lib/utils";
+import { formatCurrency } from "@/lib/currency";
 import { CheckCircle2, Lock } from "lucide-react";
 import { useState } from "react";
 import { DisputeActionMenu } from "./dispute-action-menu";

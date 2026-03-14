@@ -1,5 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { formatCurrency } from "@/lib/currency";
 import { format } from "date-fns";
 import { AlertTriangle, Clock, ShieldCheck } from "lucide-react";
 import type { EscrowDetails } from "../lib/escrow-details-model";
@@ -24,13 +25,6 @@ export function EscrowOverviewCard({ data }: EscrowOverviewCardProps) {
       default:
         return "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-400";
     }
-  };
-
-  const formatCurrency = (amount: number, currency: string) => {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency,
-    }).format(amount);
   };
 
   return (

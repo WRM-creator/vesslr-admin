@@ -29,7 +29,7 @@ function formatDate(iso?: string) {
   }
 }
 
-function formatCurrency(value?: string) {
+function formatShareCapital(value?: string) {
   if (!value || value === "N/A") return undefined;
   const n = Number(value);
   if (isNaN(n)) return value;
@@ -59,7 +59,7 @@ export function CompanyDetails({ info, registrySource }: CompanyDetailsProps) {
           <Field label="Registration number" value={info.registrationNumber} />
           <Field label="Registration date" value={formatDate(info.registrationDate)} />
           <Field label="Industry" value={info.industry} />
-          <Field label="Authorized share capital" value={formatCurrency(info.authorizedShareCapital)} />
+          <Field label="Authorized share capital" value={formatShareCapital(info.authorizedShareCapital)} />
           <Field label="Tax ID" value={info.taxId} />
           <Field label="Country" value={info.country} />
           <Field label="State" value={info.state} />

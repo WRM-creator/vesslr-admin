@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { formatCurrency } from "@/lib/currency";
 import { format } from "date-fns";
 import { Banknote, Calendar } from "lucide-react";
 import type { EscrowDetails } from "../lib/escrow-details-model";
@@ -12,13 +13,6 @@ interface EscrowFinancialDetailsCardProps {
 export function EscrowFinancialDetailsCard({
   data,
 }: EscrowFinancialDetailsCardProps) {
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: data.currency,
-    }).format(amount);
-  };
-
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -30,19 +24,19 @@ export function EscrowFinancialDetailsCard({
           <div className="space-y-2 text-sm">
             <div className="flex justify-between">
               <span className="text-muted-foreground">Subtotal</span>
-              <span>{formatCurrency(data.subtotal)}</span>
+              <span>{formatCurrency(data.subtotal, data.currency)}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-muted-foreground">Platform Fee</span>
-              <span>{formatCurrency(data.platformFee)}</span>
+              <span>{formatCurrency(data.platformFee, data.currency)}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-muted-foreground">Escrow Fee</span>
-              <span>{formatCurrency(data.escrowFee)}</span>
+              <span>{formatCurrency(data.escrowFee, data.currency)}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-muted-foreground">Tax</span>
-              <span>{formatCurrency(data.tax)}</span>
+              <span>{formatCurrency(data.tax, data.currency)}</span>
             </div>
           </div>
 
@@ -51,7 +45,7 @@ export function EscrowFinancialDetailsCard({
           <div className="flex items-center justify-between font-bold">
             <span>Amount Secured</span>
             <span className="text-primary text-lg">
-              {formatCurrency(data.amountSecured)}
+              {formatCurrency(data.amountSecured, data.currency)}
             </span>
           </div>
 
