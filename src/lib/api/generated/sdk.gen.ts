@@ -151,6 +151,22 @@ import type {
   InvitationsControllerListInvitationsResponses,
   InvitationsControllerRevokeInvitationData,
   InvitationsControllerRevokeInvitationResponses,
+  InvoicesControllerCreateData,
+  InvoicesControllerCreateResponses,
+  InvoicesControllerDeleteData,
+  InvoicesControllerDeleteResponses,
+  InvoicesControllerFindAllData,
+  InvoicesControllerFindAllResponses,
+  InvoicesControllerFindOneData,
+  InvoicesControllerFindOneResponses,
+  InvoicesControllerMarkPaidData,
+  InvoicesControllerMarkPaidResponses,
+  InvoicesControllerSendData,
+  InvoicesControllerSendResponses,
+  InvoicesControllerUpdateData,
+  InvoicesControllerUpdateResponses,
+  InvoicesWebhooksControllerHandlePaymentWebhookData,
+  InvoicesWebhooksControllerHandlePaymentWebhookResponses,
   LocationsControllerGetCitiesData,
   LocationsControllerGetCitiesResponses,
   LocationsControllerGetCountriesData,
@@ -205,10 +221,14 @@ import type {
   OnboardingControllerGetStatusHubResponses,
   OnboardingControllerInviteTeamData,
   OnboardingControllerInviteTeamResponses,
+  OnboardingControllerLookupBusinessData,
+  OnboardingControllerLookupBusinessResponses,
   OnboardingControllerPatchCompanyDocumentsData,
   OnboardingControllerPatchCompanyDocumentsResponses,
   OnboardingControllerReEnrollIdentityKycData,
   OnboardingControllerReEnrollIdentityKycResponses,
+  OnboardingControllerUpdateBusinessAddressData,
+  OnboardingControllerUpdateBusinessAddressResponses,
   OnboardingControllerUpdateCompanyDocumentsData,
   OnboardingControllerUpdateCompanyDocumentsResponses,
   OnboardingControllerUpdateCompanyInfoData,
@@ -1744,6 +1764,145 @@ export const negotiationsControllerReject = <
     ...options,
   });
 
+/**
+ * List invoices for the current organization
+ */
+export const invoicesControllerFindAll = <ThrowOnError extends boolean = false>(
+  options?: Options<InvoicesControllerFindAllData, ThrowOnError>,
+) =>
+  (options?.client ?? client).get<
+    InvoicesControllerFindAllResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/invoices",
+    ...options,
+  });
+
+/**
+ * Create a new invoice (saved as draft)
+ */
+export const invoicesControllerCreate = <ThrowOnError extends boolean = false>(
+  options: Options<InvoicesControllerCreateData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    InvoicesControllerCreateResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/invoices",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Delete a draft invoice
+ */
+export const invoicesControllerDelete = <ThrowOnError extends boolean = false>(
+  options: Options<InvoicesControllerDeleteData, ThrowOnError>,
+) =>
+  (options.client ?? client).delete<
+    InvoicesControllerDeleteResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/invoices/{id}",
+    ...options,
+  });
+
+/**
+ * Get a single invoice by ID
+ */
+export const invoicesControllerFindOne = <ThrowOnError extends boolean = false>(
+  options: Options<InvoicesControllerFindOneData, ThrowOnError>,
+) =>
+  (options.client ?? client).get<
+    InvoicesControllerFindOneResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/invoices/{id}",
+    ...options,
+  });
+
+/**
+ * Update a draft invoice
+ */
+export const invoicesControllerUpdate = <ThrowOnError extends boolean = false>(
+  options: Options<InvoicesControllerUpdateData, ThrowOnError>,
+) =>
+  (options.client ?? client).patch<
+    InvoicesControllerUpdateResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/invoices/{id}",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Send invoice to customer (generates payment link, sends email)
+ */
+export const invoicesControllerSend = <ThrowOnError extends boolean = false>(
+  options: Options<InvoicesControllerSendData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    InvoicesControllerSendResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/invoices/{id}/send",
+    ...options,
+  });
+
+/**
+ * Manually mark an invoice as paid
+ */
+export const invoicesControllerMarkPaid = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<InvoicesControllerMarkPaidData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    InvoicesControllerMarkPaidResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/invoices/{id}/mark-paid",
+    ...options,
+  });
+
+/**
+ * Handle payment provider webhook for invoices (public)
+ */
+export const invoicesWebhooksControllerHandlePaymentWebhook = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<
+    InvoicesWebhooksControllerHandlePaymentWebhookData,
+    ThrowOnError
+  >,
+) =>
+  (options?.client ?? client).post<
+    InvoicesWebhooksControllerHandlePaymentWebhookResponses,
+    unknown,
+    ThrowOnError
+  >({ url: "/api/v1/invoices/webhooks/payment", ...options });
+
 export const suppliersControllerFindAll = <
   ThrowOnError extends boolean = false,
 >(
@@ -2011,6 +2170,28 @@ export const onboardingControllerUpdateResidential = <
   });
 
 /**
+ * Lookup company by CAC registration number
+ */
+export const onboardingControllerLookupBusiness = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<OnboardingControllerLookupBusinessData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    OnboardingControllerLookupBusinessResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/onboarding/lookup-business",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
  * Update company information
  */
 export const onboardingControllerUpdateCompanyInfo = <
@@ -2025,6 +2206,28 @@ export const onboardingControllerUpdateCompanyInfo = <
   >({
     security: [{ scheme: "bearer", type: "http" }],
     url: "/api/v1/onboarding/company-info",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Update business address
+ */
+export const onboardingControllerUpdateBusinessAddress = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<OnboardingControllerUpdateBusinessAddressData, ThrowOnError>,
+) =>
+  (options.client ?? client).put<
+    OnboardingControllerUpdateBusinessAddressResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/onboarding/business-address",
     ...options,
     headers: {
       "Content-Type": "application/json",

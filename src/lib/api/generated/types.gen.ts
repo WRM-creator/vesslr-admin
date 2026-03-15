@@ -27,7 +27,6 @@ export type City = {
 };
 
 export type UpdateAddressDto = {
-  houseNumber?: string;
   streetAddress?: string;
   city?: string;
   state?: string;
@@ -157,7 +156,6 @@ export type StructuredReasonDto = {
 };
 
 export type ResidentialAddressDto = {
-  houseNumber?: string;
   streetAddress?: string;
   city?: PopulatedLocationDto;
   state?: PopulatedLocationDto;
@@ -187,6 +185,8 @@ export type OrganizationDto = {
   phoneNumber?: string;
   rcNumber?: string;
   taxId?: string;
+  businessType?: "bn" | "co" | "it";
+  companyType?: string;
   proofOfResidenceFile?: string | FileMetadataResponseDto;
   certificateOfIncorporation?: string | FileMetadataResponseDto;
   memorandum?: string | FileMetadataResponseDto;
@@ -1552,6 +1552,102 @@ export type SendMessageDto = {
   text: string;
 };
 
+export type InvoiceItemDto = {
+  description: string;
+  quantity: number;
+  price: number;
+  amount: number;
+};
+
+export type CreateInvoiceDto = {
+  customerName: string;
+  customerEmail?: string;
+  title: string;
+  currency: "NGN" | "USD" | "EUR";
+  /**
+   * ISO 8601 date string
+   */
+  dueDate: string;
+  transactionType: string;
+  items: Array<InvoiceItemDto>;
+  taxType: "fixed" | "percentage";
+  taxValue?: number;
+  discountType: "fixed" | "percentage";
+  discountValue?: number;
+  notes?: string;
+};
+
+export type InvoiceOrganizationDto = {
+  _id: string;
+  name: string;
+};
+
+export type InvoiceItemResponseDto = {
+  description: string;
+  quantity: number;
+  price: number;
+  amount: number;
+};
+
+export type InvoiceResponseDto = {
+  _id: string;
+  organization?: InvoiceOrganizationDto;
+  displayId: number;
+  customerName: string;
+  customerEmail?: string;
+  title: string;
+  currency: string;
+  dueDate: string;
+  transactionType: string;
+  items: Array<InvoiceItemResponseDto>;
+  taxType: "fixed" | "percentage";
+  taxValue: number;
+  discountType: "fixed" | "percentage";
+  discountValue: number;
+  subtotal: number;
+  taxAmount: number;
+  discountAmount: number;
+  total: number;
+  notes?: string;
+  status: "draft" | "pending" | "paid";
+  sentAt?: string;
+  paidAt?: string;
+  paymentLinkUrl?: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type InvoicesPaginationDataDto = {
+  docs: Array<InvoiceResponseDto>;
+  totalDocs: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+};
+
+export type PaginatedInvoicesResponseDto = {
+  message: string;
+  data: InvoicesPaginationDataDto;
+};
+
+export type UpdateInvoiceDto = {
+  customerName?: string;
+  customerEmail?: string;
+  title?: string;
+  currency?: "NGN" | "USD" | "EUR";
+  /**
+   * ISO 8601 date string
+   */
+  dueDate?: string;
+  transactionType?: string;
+  items?: Array<InvoiceItemDto>;
+  taxType?: "fixed" | "percentage";
+  taxValue?: number;
+  discountType?: "fixed" | "percentage";
+  discountValue?: number;
+  notes?: string;
+};
+
 export type CreateSupplierDto = {
   name: string;
   businessType: string;
@@ -1851,7 +1947,6 @@ export type UpdateIdentityKycDto = {
 };
 
 export type UpdateResidentialAddressDto = {
-  houseNumber?: string;
   streetAddress?: string;
   city?: string;
   state: string;
@@ -1859,12 +1954,39 @@ export type UpdateResidentialAddressDto = {
   postalCode?: string;
 };
 
+export type LookupBusinessDto = {
+  /**
+   * CAC registration number (digits only)
+   */
+  rcNumber: string;
+  /**
+   * Business registration type
+   */
+  businessType: "bn" | "co" | "it";
+};
+
 export type UpdateCompanyInfoDto = {
   name: string;
-  description?: string;
-  address: AddressDto;
+  /**
+   * CAC registration number
+   */
+  rcNumber: string;
+  businessType: "bn" | "co" | "it";
+  /**
+   * Company type from CAC registry
+   */
+  companyType?: string;
+};
+
+export type UpdateBusinessAddressDto = {
+  streetAddress?: string;
+  state: string;
+  city?: string;
+  country: string;
+  postalCode?: string;
   businessType?: "bn" | "co" | "it";
   postalAddress?: string;
+  proofOfResidenceFile?: string | FileMetadataDto;
 };
 
 export type UpdateProductCategoriesDto = {
@@ -1883,17 +2005,13 @@ export type FileMetadataDto = {
 
 export type UpdateCompanyDocumentsDto = {
   rcNumber: string;
-  taxId?: string;
-  proofOfResidenceFile?: string | FileMetadataDto;
   certificateOfIncorporation?: string | FileMetadataDto;
   memorandum?: string | FileMetadataDto;
-  boardResolution?: FileMetadataDto;
-  pscRegister?: FileMetadataDto;
+  shareholderStructure?: FileMetadataDto;
   additionalDocuments?: Array<FileMetadataDto>;
 };
 
 export type PatchCompanyDocumentsDto = {
-  proofOfResidenceFile?: string | FileMetadataDto;
   certificateOfIncorporation?: string | FileMetadataDto;
 };
 
@@ -4087,6 +4205,133 @@ export type NegotiationsControllerRejectResponses = {
 export type NegotiationsControllerRejectResponse =
   NegotiationsControllerRejectResponses[keyof NegotiationsControllerRejectResponses];
 
+export type InvoicesControllerFindAllData = {
+  body?: never;
+  path?: never;
+  query?: {
+    page?: string;
+    limit?: string;
+    status?: "draft" | "pending" | "paid";
+    /**
+     * Search by customer name or title
+     */
+    search?: string;
+  };
+  url: "/api/v1/invoices";
+};
+
+export type InvoicesControllerFindAllResponses = {
+  200: PaginatedInvoicesResponseDto;
+};
+
+export type InvoicesControllerFindAllResponse =
+  InvoicesControllerFindAllResponses[keyof InvoicesControllerFindAllResponses];
+
+export type InvoicesControllerCreateData = {
+  body: CreateInvoiceDto;
+  path?: never;
+  query?: never;
+  url: "/api/v1/invoices";
+};
+
+export type InvoicesControllerCreateResponses = {
+  200: InvoiceResponseDto;
+  201: unknown;
+};
+
+export type InvoicesControllerCreateResponse =
+  InvoicesControllerCreateResponses[keyof InvoicesControllerCreateResponses];
+
+export type InvoicesControllerDeleteData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/invoices/{id}";
+};
+
+export type InvoicesControllerDeleteResponses = {
+  200: unknown;
+};
+
+export type InvoicesControllerFindOneData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/invoices/{id}";
+};
+
+export type InvoicesControllerFindOneResponses = {
+  200: InvoiceResponseDto;
+};
+
+export type InvoicesControllerFindOneResponse =
+  InvoicesControllerFindOneResponses[keyof InvoicesControllerFindOneResponses];
+
+export type InvoicesControllerUpdateData = {
+  body: UpdateInvoiceDto;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/invoices/{id}";
+};
+
+export type InvoicesControllerUpdateResponses = {
+  200: InvoiceResponseDto;
+};
+
+export type InvoicesControllerUpdateResponse =
+  InvoicesControllerUpdateResponses[keyof InvoicesControllerUpdateResponses];
+
+export type InvoicesControllerSendData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/invoices/{id}/send";
+};
+
+export type InvoicesControllerSendResponses = {
+  200: InvoiceResponseDto;
+  201: unknown;
+};
+
+export type InvoicesControllerSendResponse =
+  InvoicesControllerSendResponses[keyof InvoicesControllerSendResponses];
+
+export type InvoicesControllerMarkPaidData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/invoices/{id}/mark-paid";
+};
+
+export type InvoicesControllerMarkPaidResponses = {
+  200: InvoiceResponseDto;
+  201: unknown;
+};
+
+export type InvoicesControllerMarkPaidResponse =
+  InvoicesControllerMarkPaidResponses[keyof InvoicesControllerMarkPaidResponses];
+
+export type InvoicesWebhooksControllerHandlePaymentWebhookData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: "/api/v1/invoices/webhooks/payment";
+};
+
+export type InvoicesWebhooksControllerHandlePaymentWebhookResponses = {
+  200: unknown;
+};
+
 export type SuppliersControllerFindAllData = {
   body?: never;
   path?: never;
@@ -4310,6 +4555,28 @@ export type OnboardingControllerUpdateResidentialResponses = {
 export type OnboardingControllerUpdateResidentialResponse =
   OnboardingControllerUpdateResidentialResponses[keyof OnboardingControllerUpdateResidentialResponses];
 
+export type OnboardingControllerLookupBusinessData = {
+  body: LookupBusinessDto;
+  path?: never;
+  query?: never;
+  url: "/api/v1/onboarding/lookup-business";
+};
+
+export type OnboardingControllerLookupBusinessResponses = {
+  /**
+   * Business lookup result
+   */
+  201: {
+    companyName?: string;
+    companyType?: string;
+    registrationNumber?: string;
+    status?: string;
+  };
+};
+
+export type OnboardingControllerLookupBusinessResponse =
+  OnboardingControllerLookupBusinessResponses[keyof OnboardingControllerLookupBusinessResponses];
+
 export type OnboardingControllerUpdateCompanyInfoData = {
   body: UpdateCompanyInfoDto;
   path?: never;
@@ -4326,6 +4593,23 @@ export type OnboardingControllerUpdateCompanyInfoResponses = {
 
 export type OnboardingControllerUpdateCompanyInfoResponse =
   OnboardingControllerUpdateCompanyInfoResponses[keyof OnboardingControllerUpdateCompanyInfoResponses];
+
+export type OnboardingControllerUpdateBusinessAddressData = {
+  body: UpdateBusinessAddressDto;
+  path?: never;
+  query?: never;
+  url: "/api/v1/onboarding/business-address";
+};
+
+export type OnboardingControllerUpdateBusinessAddressResponses = {
+  /**
+   * Business address updated
+   */
+  200: OnboardingStatusResponseDto;
+};
+
+export type OnboardingControllerUpdateBusinessAddressResponse =
+  OnboardingControllerUpdateBusinessAddressResponses[keyof OnboardingControllerUpdateBusinessAddressResponses];
 
 export type OnboardingControllerUpdateProductCategoriesData = {
   body: UpdateProductCategoriesDto;

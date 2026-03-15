@@ -156,8 +156,7 @@ export function MerchantOverviewTab({
               <p className="mt-1 text-sm [overflow-wrap:anywhere] whitespace-pre-wrap">
                 {organization.address
                   ? [
-                      organization.address.houseNumber,
-                      organization.address.street,
+                      organization.address.streetAddress,
                       organization.address.city,
                       organization.address.state,
                       organization.address.country,
