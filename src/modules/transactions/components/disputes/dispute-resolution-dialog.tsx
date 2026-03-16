@@ -9,7 +9,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { formatCurrency } from "@/lib/currency";
+import { formatCurrency, fromMinorUnit, toMinorUnit } from "@/lib/currency";
 
 type ActionKey = "RELEASE" | "REFUND" | "ESCALATE" | "CUSTOM";
 
@@ -108,14 +108,15 @@ export function DisputeResolutionDialog({
                       value={customRefund || ""}
                       onChange={(e) => {
                         const val = Number.parseFloat(e.target.value);
-                        if (!Number.isNaN(val) && val >= 0 && val <= amount) {
+                        const amountMajor = fromMinorUnit(amount);
+                        if (!Number.isNaN(val) && val >= 0 && val <= amountMajor) {
                           setCustomRefund(val);
                         } else if (!e.target.value) {
                           setCustomRefund(0);
                         }
                       }}
                       min={0}
-                      max={amount}
+                      max={fromMinorUnit(amount)}
                     />
                   </div>
                   <span className="text-muted-foreground text-xs">
@@ -128,7 +129,7 @@ export function DisputeResolutionDialog({
                       Seller receives:
                     </span>
                     <span className="font-medium">
-                      {formatCurrency(amount - customRefund)}
+                      {formatCurrency(amount - toMinorUnit(customRefund))}
                     </span>
                   </div>
                 )}

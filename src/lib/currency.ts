@@ -6,20 +6,25 @@ interface FormatCurrencyOptions {
 }
 
 /**
- * Format a monetary amount with its currency symbol.
+ * Format a monetary amount (in **minor units**) with its currency symbol.
+ *
+ * All API values are in minor units (kobo/cents). This function converts
+ * to major units internally before formatting.
  *
  * @example
- * formatCurrency(50000, 'NGN')                                    // '₦50,000'
- * formatCurrency(1234.56, 'USD', { maximumFractionDigits: 2 })    // '$1,234.56'
- * formatCurrency(1500000, 'NGN', { compact: true })               // '₦1.5M'
+ * formatCurrency(5000000, 'NGN')                                  // '₦50,000'
+ * formatCurrency(123456, 'USD', { maximumFractionDigits: 2 })     // '$1,234.56'
+ * formatCurrency(150000000, 'NGN', { compact: true })             // '₦1.5M'
  * formatCurrency(null, 'USD')                                     // '-'
  */
 export function formatCurrency(
-  amount: number | null | undefined,
+  amountInMinorUnits: number | null | undefined,
   currency: string = "NGN",
   options: FormatCurrencyOptions = {},
 ): string {
-  if (amount == null || isNaN(amount)) return "-";
+  if (amountInMinorUnits == null || isNaN(amountInMinorUnits)) return "-";
+
+  const majorAmount = fromMinorUnit(amountInMinorUnits);
 
   const {
     locale = "en-US",
@@ -34,5 +39,26 @@ export function formatCurrency(
     minimumFractionDigits,
     maximumFractionDigits,
     ...(compact && { notation: "compact" as const, compactDisplay: "short" as const }),
-  }).format(amount);
+  }).format(majorAmount);
+}
+
+const MINOR_UNIT_MULTIPLIERS: Record<string, number> = {
+  NGN: 100,
+  USD: 100,
+  EUR: 100,
+  GBP: 100,
+};
+
+const DEFAULT_MULTIPLIER = 100;
+
+/** Convert minor units from API to major units for display. */
+export function fromMinorUnit(amount: number, currency: string = "NGN"): number {
+  const multiplier = MINOR_UNIT_MULTIPLIERS[currency] ?? DEFAULT_MULTIPLIER;
+  return amount / multiplier;
+}
+
+/** Convert user input (major units) to minor units for API submission. */
+export function toMinorUnit(amount: number, currency: string = "NGN"): number {
+  const multiplier = MINOR_UNIT_MULTIPLIERS[currency] ?? DEFAULT_MULTIPLIER;
+  return Math.round(amount * multiplier);
 }
