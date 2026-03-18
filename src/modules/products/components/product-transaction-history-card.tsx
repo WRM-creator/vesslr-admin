@@ -7,6 +7,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { formatCurrency } from "@/lib/currency";
 import { format } from "date-fns";
 import { ExternalLink } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -81,10 +82,7 @@ export function ProductTransactionHistoryCard({
                   </TableCell>
                   <TableCell className="font-medium">{tx.buyer}</TableCell>
                   <TableCell>
-                    {new Intl.NumberFormat("en-US", {
-                      style: "currency",
-                      currency: tx.currency,
-                    }).format(tx.value)}
+                    {formatCurrency(tx.value, tx.currency)}
                   </TableCell>
                   <TableCell>
                     <Badge

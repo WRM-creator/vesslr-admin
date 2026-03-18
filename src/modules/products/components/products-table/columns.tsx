@@ -12,6 +12,7 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
 import { MoreHorizontal } from "lucide-react";
 import { Link } from "react-router-dom";
+import { formatCurrency } from "@/lib/currency";
 import type { Product } from "../../lib/product-details-model";
 
 const statusStyles: Record<
@@ -85,11 +86,7 @@ export const productsColumns: ColumnDef<Product>[] = [
     header: "Price",
     cell: ({ row }) => {
       const amount = parseFloat(row.original.price?.toString() ?? "0");
-      const formatted = new Intl.NumberFormat("en-US", {
-        style: "currency",
-        currency: row.original.currency || "USD",
-      }).format(amount);
-      return <div className="font-medium">{formatted}</div>;
+      return <div className="font-medium">{formatCurrency(amount, row.original.currency || "USD")}</div>;
     },
   },
   {

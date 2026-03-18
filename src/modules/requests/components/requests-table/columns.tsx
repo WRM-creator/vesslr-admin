@@ -11,6 +11,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { type RequestResponseDto } from "@/lib/api/generated";
+import { formatCurrency } from "@/lib/currency";
 import { type ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
 import { MoreVertical } from "lucide-react";
@@ -116,10 +117,7 @@ export const requestColumns: ColumnDef<AdminRequest>[] = [
 
       return (
         <div className="font-medium">
-          {new Intl.NumberFormat("en-US", {
-            style: "currency",
-            currency: currency,
-          }).format(price)}
+          {formatCurrency(price, currency)}
         </div>
       );
     },

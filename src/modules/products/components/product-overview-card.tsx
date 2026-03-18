@@ -1,4 +1,5 @@
 import { Badge } from "@/components/ui/badge";
+import { formatCurrency } from "@/lib/currency";
 import { Box, Calendar, Package } from "lucide-react";
 import type { ProductDetails } from "../lib/product-details-model";
 
@@ -19,10 +20,7 @@ const statusStyles: Record<
 };
 
 export function ProductOverviewCard({ data }: ProductOverviewCardProps) {
-  const formattedPrice = new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: data.currency,
-  }).format(data.price);
+  const formattedPrice = formatCurrency(data.price, data.currency);
 
   return (
     <div className="space-y-6">

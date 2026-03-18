@@ -4,6 +4,7 @@ import {
 } from "@/components/shared/status-badge";
 import { Badge } from "@/components/ui/badge";
 import { type TransactionResponseDto } from "@/lib/api/generated";
+import { formatCurrency } from "@/lib/currency";
 import { type ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
 import { Link } from "react-router-dom";
@@ -57,12 +58,7 @@ export const transactionsColumns: ColumnDef<TransactionResponseDto>[] = [
     header: "Value",
     cell: ({ row }) => {
       const value = row.original.order.totalAmount;
-      const formatted = new Intl.NumberFormat("en-US", {
-        style: "currency",
-        currency: row.original.order.currency || "USD",
-      }).format(value);
-
-      return <div className="font-medium">{formatted}</div>;
+      return <div className="font-medium">{formatCurrency(value, row.original.order.currency || "USD")}</div>;
     },
   },
   {

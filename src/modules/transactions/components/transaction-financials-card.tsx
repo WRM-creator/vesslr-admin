@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import type { TransactionResponseDto } from "@/lib/api/generated";
+import { formatCurrency } from "@/lib/currency";
 import { AlertCircle, ExternalLink, RefreshCw, RotateCw } from "lucide-react";
 import {
   TransactionPaymentStatus,
@@ -122,30 +123,20 @@ export function TransactionFinancialsCard({
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-muted-foreground">Total Amount</span>
                   <span className="font-medium">
-                    {new Intl.NumberFormat("en-US", {
-                      style: "currency",
-                      currency: amountConfig.currency,
-                    }).format(amountConfig.total)}
+                    {formatCurrency(amountConfig.total, amountConfig.currency)}
                   </span>
                 </div>
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-muted-foreground">Platform Fees</span>
                   <span className="text-red-600">
-                    -{" "}
-                    {new Intl.NumberFormat("en-US", {
-                      style: "currency",
-                      currency: amountConfig.currency,
-                    }).format(amountConfig.fees)}
+                    - {formatCurrency(amountConfig.fees, amountConfig.currency)}
                   </span>
                 </div>
                 <Separator />
                 <div className="flex items-center justify-between text-base font-semibold">
                   <span>Net Escrowed</span>
                   <span>
-                    {new Intl.NumberFormat("en-US", {
-                      style: "currency",
-                      currency: amountConfig.currency,
-                    }).format(netEscrow)}
+                    {formatCurrency(netEscrow, amountConfig.currency)}
                   </span>
                 </div>
               </div>

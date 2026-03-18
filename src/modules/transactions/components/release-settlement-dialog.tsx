@@ -13,6 +13,7 @@ import {
   type TransactionResponseDto,
   adminTransactionsControllerReleaseSettlement,
 } from "@/lib/api/generated";
+import { formatCurrency } from "@/lib/currency";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { AlertCircle, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
@@ -84,10 +85,7 @@ export function ReleaseSettlementDialog({
                 Total Transaction Value
               </span>
               <span className="font-medium">
-                {new Intl.NumberFormat("en-US", {
-                  style: "currency",
-                  currency: amountConfig.currency,
-                }).format(amountConfig.total)}
+                {formatCurrency(amountConfig.total, amountConfig.currency)}
               </span>
             </div>
             <div className="flex items-center justify-between text-sm">
@@ -95,21 +93,14 @@ export function ReleaseSettlementDialog({
                 Platform Fees (0.3%)
               </span>
               <span className="text-red-600">
-                -{" "}
-                {new Intl.NumberFormat("en-US", {
-                  style: "currency",
-                  currency: amountConfig.currency,
-                }).format(amountConfig.fees)}
+                - {formatCurrency(amountConfig.fees, amountConfig.currency)}
               </span>
             </div>
             <Separator />
             <div className="flex items-center justify-between text-base font-semibold">
               <span>Net Payout to Seller</span>
               <span className="text-green-600">
-                {new Intl.NumberFormat("en-US", {
-                  style: "currency",
-                  currency: amountConfig.currency,
-                }).format(netEscrow)}
+                {formatCurrency(netEscrow, amountConfig.currency)}
               </span>
             </div>
           </div>

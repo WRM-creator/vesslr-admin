@@ -8,6 +8,7 @@ import { Separator } from "@/components/ui/separator";
 import { Spinner } from "@/components/ui/spinner";
 import { useAppBreadcrumbLabel } from "@/contexts/breadcrumb-context";
 import { api } from "@/lib/api";
+import { formatCurrency } from "@/lib/currency";
 import { format } from "date-fns";
 import { ArrowLeft, Building2, RefreshCw, Tag } from "lucide-react";
 import { useState } from "react";
@@ -202,10 +203,7 @@ export default function ProductDetailsPage() {
                     Price per unit
                   </p>
                   <p className="text-sm font-semibold">
-                    {new Intl.NumberFormat("en-US", {
-                      style: "currency",
-                      currency: product.currency || "USD",
-                    }).format(product.pricePerUnit)}
+                    {formatCurrency(product.pricePerUnit, product.currency || "USD")}
                   </p>
                 </div>
                 {product.organization?.name && (

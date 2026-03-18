@@ -10,6 +10,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { api } from "@/lib/api";
+import { formatCurrency } from "@/lib/currency";
 import { format } from "date-fns";
 import { ArrowUpRight } from "lucide-react";
 import { useMemo } from "react";
@@ -64,10 +65,7 @@ export function RecentTransactionsTable() {
                   transaction.displayId?.toString() || transaction._id;
                 const customerName =
                   transaction.order?.buyerOrganization?.name || "Unknown";
-                const amount = new Intl.NumberFormat("en-US", {
-                  style: "currency",
-                  currency: transaction.order?.currency || "USD",
-                }).format(transaction.order?.totalAmount || 0);
+                const amount = formatCurrency(transaction.order?.totalAmount || 0, transaction.order?.currency || "USD");
 
                 return (
                   <TableRow key={transaction._id}>

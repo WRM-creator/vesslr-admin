@@ -9,6 +9,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { formatCurrency } from "@/lib/currency";
 import type { ColumnDef } from "@tanstack/react-table";
 import { formatDistanceToNow } from "date-fns";
 import { MoreHorizontal } from "lucide-react";
@@ -64,11 +65,7 @@ export const escrowsColumns: ColumnDef<any>[] = [
     header: "Value",
     cell: ({ row }) => {
       const amount = row.original.amount || 0;
-      const formatted = new Intl.NumberFormat("en-US", {
-        style: "currency",
-        currency: row.original.currency || "NGN",
-      }).format(amount);
-      return <div className="font-mono font-medium">{formatted}</div>;
+      return <div className="font-mono font-medium">{formatCurrency(amount, row.original.currency || "NGN")}</div>;
     },
   },
   {
