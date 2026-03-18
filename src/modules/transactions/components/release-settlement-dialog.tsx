@@ -60,12 +60,9 @@ export function ReleaseSettlementDialog({
 
   if (!transaction) return null;
 
-  const amountConfig = {
-    currency: transaction.order.currency || "USD",
-    total: transaction.order.totalAmount || 0,
-    fees: (transaction.order.totalAmount || 0) * 0.003, // Mock 0.3% fee
-  };
-  const netEscrow = amountConfig.total - amountConfig.fees;
+  const currency = transaction.escrow?.currency || transaction.order.currency || "USD";
+  const escrowAmount = transaction.escrow?.amount || 0;
+  const totalAmount = transaction.order.totalAmount || 0;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -85,22 +82,14 @@ export function ReleaseSettlementDialog({
                 Total Transaction Value
               </span>
               <span className="font-medium">
-                {formatCurrency(amountConfig.total, amountConfig.currency)}
-              </span>
-            </div>
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">
-                Platform Fees (0.3%)
-              </span>
-              <span className="text-red-600">
-                - {formatCurrency(amountConfig.fees, amountConfig.currency)}
+                {formatCurrency(totalAmount, currency)}
               </span>
             </div>
             <Separator />
             <div className="flex items-center justify-between text-base font-semibold">
-              <span>Net Payout to Seller</span>
+              <span>Amount to Release</span>
               <span className="text-green-600">
-                {formatCurrency(netEscrow, amountConfig.currency)}
+                {formatCurrency(escrowAmount, currency)}
               </span>
             </div>
           </div>
