@@ -22,7 +22,7 @@ export function NavUser() {
   const { isMobile } = useSidebar();
   const { logout } = useAuth();
 
-  const { data: profileData } = api.auth.profile.useQuery();
+  const { data: profileData } = api.auth.profile.useQuery({});
   const profile = profileData as unknown as { email?: string; role?: string };
 
   const email = profile?.email ?? "";
