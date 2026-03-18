@@ -28,21 +28,6 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { useSidebar } from "@/components/ui/sidebar";
 
-// This is sample data.
-const data = {
-  user: {
-    name: "Michael",
-    email: "mike@vesslr.com",
-    avatar: "/avatars/shadcn.jpg",
-  },
-  teams: [
-    {
-      name: "Vesslr Admin",
-      logo: Command,
-      plan: "Enterprise",
-    },
-  ],
-};
 
 const navGroups: NavGroup[] = [
   {
