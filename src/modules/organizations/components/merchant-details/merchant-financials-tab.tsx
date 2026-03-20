@@ -1,141 +1,193 @@
+import { api } from "@/lib/api";
+import type { AccountBalanceResponseDto } from "@/lib/api/generated";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import { formatCurrency } from "@/lib/currency";
 import {
-  AlertCircleIcon,
+  CheckCircleIcon,
   CreditCardIcon,
-  DollarSignIcon,
   LockIcon,
-  TrendingUpIcon,
+  ReceiptTextIcon,
   WalletIcon,
 } from "lucide-react";
-import { MerchantInvoicesTable } from "./merchant-invoices-table";
+import { useMemo } from "react";
 import { MerchantLedgerTable } from "./merchant-ledger-table";
+import {
+  toLedgerEntry,
+  type JournalEntryResponse,
+} from "./merchant-ledger-table/types";
 
 interface MerchantFinancialsTabProps {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   organization: any;
 }
 
+function useAccountBalance(orgId: string, suffix: string) {
+  const code = `ORG:${orgId}:${suffix}`;
+  const { data, isLoading } = api.admin.ledger.account.useQuery(
+    { path: { code } },
+    { enabled: !!orgId, retry: false },
+  );
+  const account = data as AccountBalanceResponseDto | undefined;
+  return {
+    balance: account?.balance ?? 0,
+    currency: account?.currency ?? "NGN",
+    isLoading,
+  };
+}
+
 export function MerchantFinancialsTab({
   organization,
 }: MerchantFinancialsTabProps) {
-  const bankAccounts = organization.bankAccounts || [];
+  const orgId = organization._id as string;
+  const bankDetails = organization.bankDetails;
 
-  // TODO: Connect to API when stats endpoint is available (e.g. /api/v1/vendors/{id}/stats)
-  const stats = [
-    {
-      label: "Wallet Balance",
-      value: "$12,450.00",
-      icon: WalletIcon,
-      description: "Available for withdrawal",
-    },
-    {
-      label: "Escrow Balance",
-      value: "$45,230.00",
-      icon: LockIcon,
-      description: "Locked in active trades",
-    },
-    {
-      label: "Funds on Hold",
-      value: "$2,100.00",
-      icon: AlertCircleIcon,
-      description: "Disputed transactions",
-      variant: "destructive",
-    },
-    {
-      label: "Total Volume (GMV)",
-      value: "$1.2M",
-      icon: TrendingUpIcon,
-      description: "Lifetime value",
-    },
-    {
-      label: "Net Revenue",
-      value: "$18,400.00",
-      icon: DollarSignIcon,
-      description: "Fees collected",
-    },
-  ];
+  const wallet = useAccountBalance(orgId, "WALLET");
+  const escrow = useAccountBalance(orgId, "PAYABLE");
+  const receivable = useAccountBalance(orgId, "RECEIVABLE");
 
-  // Vendor payments API not yet available — use empty ledger
-  const isLedgerLoading = false;
-  const ledger: Array<{ id: string; date: string; type: string; amount: string; status: string }> = [];
+  const walletCode = `ORG:${orgId}:WALLET`;
+  const { data: statementData, isLoading: statementLoading } =
+    api.admin.ledger.statement.useQuery(
+      { path: { code: walletCode }, query: { limit: "50" } },
+      { enabled: !!orgId, retry: false },
+    );
 
-  // TODO: Connect to API when invoices endpoint supports merchant filtering (e.g. /api/v1/invoices?merchantId={id})
-  const invoices = [
-    {
-      id: "INV-2024-001",
-      date: "2024-03-01",
-      amount: "$450.00",
-      status: "Paid",
-    },
-    {
-      id: "INV-2024-002",
-      date: "2024-02-01",
-      amount: "$320.00",
-      status: "Paid",
-    },
-  ];
+  const ledgerEntries = useMemo(() => {
+    if (!statementData) return [];
+    const entries = statementData as unknown as JournalEntryResponse[];
+    return entries.map((e) => toLedgerEntry(e, walletCode));
+  }, [statementData, walletCode]);
+
+  const balanceLoading = wallet.isLoading || escrow.isLoading || receivable.isLoading;
+  const currency = wallet.currency;
 
   return (
     <div className="@container space-y-6">
-      {/* Top Row: Stat Cards */}
-      <div className="grid grid-cols-1 gap-4 @md:grid-cols-2 @lg:grid-cols-3 @4xl:grid-cols-5">
-        {stats.map((stat) => (
-          <Card key={stat.label}>
-            <CardHeader className="max-h-5 pb-2">
-              <CardTitle className="text-muted-foreground text-sm font-medium">
-                {stat.label}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stat.value}</div>
-              <p className="text-muted-foreground text-xs">
-                {stat.description}
-              </p>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Payout Methods</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          <div>
-            <h4 className="mb-3 flex items-center gap-2 text-sm font-semibold">
-              <CreditCardIcon className="h-4 w-4" /> Bank Accounts
-            </h4>
-            {bankAccounts.length > 0 ? (
-              <div className="space-y-3">
-                {bankAccounts.map((account: any, index: number) => (
-                  <div key={index} className="rounded-lg border p-3 text-sm">
-                    <div className="mb-1 flex items-center justify-between">
-                      <span className="font-medium">{account.bankName}</span>
-                      <Badge variant="outline" className="text-[10px]">
-                        {account.currency}
-                      </Badge>
-                    </div>
-                    <p className="text-muted-foreground text-xs">
-                      {account.accountName}
-                    </p>
-                    <p className="mt-1 font-mono text-xs">
-                      {account.accountNumber}
-                    </p>
-                  </div>
-                ))}
+      {/* Balance Overview Card */}
+      <Card className="border-primary/20 bg-[#040404] text-white">
+        <CardContent className="p-6">
+          <div className="flex flex-col gap-6 @2xl:flex-row @2xl:items-end @2xl:justify-between">
+            {/* Wallet Balance — hero stat */}
+            <div>
+              <div className="mb-1 flex items-center gap-2 text-sm font-medium text-white/60">
+                <WalletIcon className="h-4 w-4" />
+                Wallet Balance
               </div>
-            ) : (
-              <p className="text-muted-foreground text-sm italic">
-                No bank accounts linked.
-              </p>
-            )}
+              {balanceLoading ? (
+                <Skeleton className="h-10 w-48 bg-white/10" />
+              ) : (
+                <div className="text-4xl font-semibold tracking-tight">
+                  {formatCurrency(wallet.balance, currency, {
+                    maximumFractionDigits: 2,
+                  })}
+                </div>
+              )}
+            </div>
+
+            {/* Secondary stats */}
+            <div className="flex items-center gap-6 border-t border-white/10 pt-4 @lg:border-t-0 @lg:border-l @lg:pt-0 @lg:pl-6">
+              <div className="flex items-center gap-3">
+                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-white/10">
+                  <LockIcon className="h-4 w-4 text-blue-400" />
+                </div>
+                <div>
+                  <p className="text-xs text-white/50">Escrow Locked</p>
+                  {balanceLoading ? (
+                    <Skeleton className="h-7 w-28 bg-white/10" />
+                  ) : (
+                    <p className="text-lg font-semibold">
+                      {formatCurrency(escrow.balance, currency, {
+                        maximumFractionDigits: 2,
+                      })}
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              <div className="h-8 w-px bg-white/10" />
+
+              <div className="flex items-center gap-3">
+                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-white/10">
+                  <ReceiptTextIcon className="h-4 w-4 text-amber-400" />
+                </div>
+                <div>
+                  <p className="text-xs text-white/50">Receivables</p>
+                  {balanceLoading ? (
+                    <Skeleton className="h-7 w-28 bg-white/10" />
+                  ) : (
+                    <p className="text-lg font-semibold">
+                      {formatCurrency(receivable.balance, currency, {
+                        maximumFractionDigits: 2,
+                      })}
+                    </p>
+                  )}
+                </div>
+              </div>
+            </div>
           </div>
         </CardContent>
       </Card>
 
-      <MerchantLedgerTable data={ledger} isLoading={isLedgerLoading} />
-      <MerchantInvoicesTable data={invoices} />
+      {/* Payout Method */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <CreditCardIcon className="h-4 w-4" />
+            Payout Method
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {bankDetails ? (
+            <div className="rounded-lg border p-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium">
+                        {bankDetails.bankName}
+                      </span>
+                      <Badge variant="outline" className="text-[10px]">
+                        {bankDetails.currency}
+                      </Badge>
+                      {bankDetails.verifiedAt ? (
+                        <Badge
+                          variant="outline"
+                          className="gap-1 border-green-200 bg-green-50 text-[10px] text-green-700 dark:border-green-800 dark:bg-green-900/20 dark:text-green-400"
+                        >
+                          <CheckCircleIcon className="h-3 w-3" />
+                          Verified
+                        </Badge>
+                      ) : (
+                        <Badge
+                          variant="outline"
+                          className="text-[10px] text-yellow-700 dark:text-yellow-400"
+                        >
+                          Unverified
+                        </Badge>
+                      )}
+                    </div>
+                    <p className="text-muted-foreground mt-1 text-sm">
+                      {bankDetails.accountName}
+                    </p>
+                    <p className="mt-0.5 font-mono text-sm">
+                      {bankDetails.accountNumber}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <p className="text-muted-foreground text-sm italic">
+              No bank account linked.
+            </p>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Ledger History */}
+      <MerchantLedgerTable data={ledgerEntries} isLoading={statementLoading} />
     </div>
   );
 }
