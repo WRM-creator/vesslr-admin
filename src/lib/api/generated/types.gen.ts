@@ -175,7 +175,7 @@ export type OnboardingCategoryDto = {
   name: string;
 };
 
-export type OrganizationDto = {
+export type OnboardingOrganizationDto = {
   _id: string;
   name: string;
   description?: string;
@@ -187,6 +187,15 @@ export type OrganizationDto = {
   taxId?: string;
   businessType?: "bn" | "co" | "it";
   companyType?: string;
+  website?: string;
+  socialLinks?: Array<string>;
+  directors?: Array<{
+    [key: string]: unknown;
+  }>;
+  beneficialOwners?: Array<{
+    [key: string]: unknown;
+  }>;
+  logo?: FileMetadataResponseDto;
   proofOfResidenceFile?: string | FileMetadataResponseDto;
   certificateOfIncorporation?: string | FileMetadataResponseDto;
   memorandum?: string | FileMetadataResponseDto;
@@ -236,7 +245,7 @@ export type UserProfileResponseDto = {
   reviewedAt?: string;
   approvedAt?: string;
   residentialAddress?: ResidentialAddressDto;
-  organization?: OrganizationDto;
+  organization?: OnboardingOrganizationDto;
   profileImage?: string;
 };
 
@@ -247,13 +256,7 @@ export type UpdateProfileDto = {
 };
 
 export type ChangePasswordDto = {
-  /**
-   * Current password for verification
-   */
   currentPassword: string;
-  /**
-   * New password (min 8 chars)
-   */
   newPassword: string;
 };
 
@@ -304,26 +307,10 @@ export type UpdateBankDetailsDto = {
   bankCode: string;
 };
 
-export type CategoryGroupDto = {
+export type ProductCategoryGroupDto = {
   _id: string;
   name: string;
-  slug: string;
-  type: string;
-  isActive: boolean;
-  image?: string;
-  requiresLogistics: boolean;
-  allowsInspection: boolean;
-  milestoneDelivery: boolean;
-  requiresEscrow: boolean;
-  requiresCompliance: boolean;
-  allowsOrderQuantityLimits: boolean;
-  allowsInventoryTracking: boolean;
-  measurementType: Array<"count" | "volume" | "mass" | "time">;
-  transactionTypes: Array<
-    "Purchase" | "Lease" | "Charter" | "Bulk Supply" | "Spot Trade"
-  >;
-  conditions: Array<"New" | "Used - Good" | "Used - Fair" | "Refurbished">;
-  allowedCurrencies: Array<"NGN" | "USD" | "EUR">;
+  allowsInventoryTracking?: boolean;
 };
 
 export type ProductCategoryDto = {
@@ -331,7 +318,7 @@ export type ProductCategoryDto = {
   name: string;
   slug?: string;
   type?: "product" | "service";
-  group?: CategoryGroupDto;
+  group?: ProductCategoryGroupDto;
 };
 
 export type ProductOrganizationDto = {
@@ -339,13 +326,13 @@ export type ProductOrganizationDto = {
   name: string;
 };
 
-export type StateDto = {
+export type ProductStateDto = {
   _id: string;
   name: string;
   iso2: string;
 };
 
-export type RegionDto = {
+export type ProductRegionDto = {
   _id: string;
   name: string;
 };
@@ -357,8 +344,8 @@ export type CountryDto = {
 };
 
 export type PopulatedProductLocationDto = {
-  state?: StateDto;
-  region?: RegionDto;
+  state?: ProductStateDto;
+  region?: ProductRegionDto;
   country?: CountryDto;
   address?: string;
 };
@@ -372,6 +359,9 @@ export type PopulatedProductResponseDto = {
   title: string;
   description?: string;
   category?: ProductCategoryDto;
+  /**
+   * Price per unit in minor currency units (kobo/cents)
+   */
   pricePerUnit: number;
   currency?: "NGN" | "USD" | "EUR";
   images?: Array<string>;
@@ -414,8 +404,8 @@ export type PaginatedProductsResponseDto = {
 };
 
 export type ProductLocationDto = {
-  state?: StateDto;
-  region?: RegionDto;
+  state?: ProductStateDto;
+  region?: ProductRegionDto;
   country?: CountryDto;
   address?: string;
 };
@@ -429,6 +419,9 @@ export type ProductResponseDto = {
   title: string;
   description?: string;
   category?: ProductCategoryDto;
+  /**
+   * Price per unit in minor currency units (kobo/cents)
+   */
   pricePerUnit: number;
   currency?: "NGN" | "USD" | "EUR";
   images?: Array<string>;
@@ -468,6 +461,9 @@ export type CreateProductDto = {
   title: string;
   description: string;
   category: string;
+  /**
+   * Price per unit in minor currency units (kobo/cents)
+   */
   pricePerUnit: number;
   currency?: "NGN" | "USD" | "EUR";
   images?: Array<string>;
@@ -497,6 +493,9 @@ export type UpdateProductDto = {
   title?: string;
   description?: string;
   category?: string;
+  /**
+   * Price per unit in minor currency units (kobo/cents)
+   */
   pricePerUnit?: number;
   currency?: "NGN" | "USD" | "EUR";
   images?: Array<string>;
@@ -560,6 +559,28 @@ export type CategoryComplianceDto = {
   isHazardous: boolean;
   isRegulated: boolean;
   riskLevel: "LOW" | "MEDIUM" | "HIGH";
+};
+
+export type CategoryGroupDto = {
+  _id: string;
+  name: string;
+  slug: string;
+  type: string;
+  isActive: boolean;
+  image?: string;
+  requiresLogistics: boolean;
+  allowsInspection: boolean;
+  milestoneDelivery: boolean;
+  requiresEscrow: boolean;
+  requiresCompliance: boolean;
+  allowsOrderQuantityLimits: boolean;
+  allowsInventoryTracking: boolean;
+  measurementType: Array<"count" | "volume" | "mass" | "time">;
+  transactionTypes: Array<
+    "Purchase" | "Lease" | "Charter" | "Bulk Supply" | "Spot Trade"
+  >;
+  conditions: Array<"New" | "Used - Good" | "Used - Fair" | "Refurbished">;
+  allowedCurrencies: Array<"NGN" | "USD" | "EUR">;
 };
 
 export type CategoryDto = {
@@ -680,6 +701,9 @@ export type OrderRequestDto = {
   region?: Array<OrderRegionDto>;
   country?: Array<OrderCountryDto>;
   state?: Array<OrderStateDto>;
+  /**
+   * Target price per unit in minor currency units (kobo/cents)
+   */
   targetPricePerUnit?: number;
   quantity?: number;
   unitOfMeasurement?: string;
@@ -691,6 +715,9 @@ export type OrderRequestDto = {
 export type OrderProductDto = {
   _id: string;
   title: string;
+  /**
+   * Price per unit in minor currency units (kobo/cents)
+   */
   pricePerUnit?: number;
   images?: Array<string>;
 };
@@ -716,8 +743,14 @@ export type OrderResponseDto = {
   transactionType: string;
   quantity: number;
   unitOfMeasurement: string;
+  /**
+   * Price per unit in minor currency units (kobo/cents)
+   */
   pricePerUnit: number;
   currency: "NGN" | "USD" | "EUR";
+  /**
+   * Total amount in minor currency units (kobo/cents)
+   */
   totalAmount: number;
   condition?: string;
   buyerDocuments?: Array<OrderDocumentDto>;
@@ -814,6 +847,9 @@ export type EscrowResponseDto = {
     | "REFUND_PENDING"
     | "REFUNDED"
     | "PARTIALLY_REFUNDED";
+  /**
+   * Amount in minor currency units (kobo/cents)
+   */
   amount: number;
   currency: "NGN" | "USD" | "EUR";
   referenceId?: string | null;
@@ -998,7 +1034,7 @@ export type VirtualAccountResponseDto = {
    */
   narration: string;
   /**
-   * Exact NGN amount to transfer
+   * Exact amount to transfer in minor currency units (kobo)
    */
   amount: number;
   /**
@@ -1051,6 +1087,9 @@ export type EscrowWithTransactionResponseDto = {
     | "REFUND_PENDING"
     | "REFUNDED"
     | "PARTIALLY_REFUNDED";
+  /**
+   * Amount in minor currency units (kobo/cents)
+   */
   amount: number;
   currency: "NGN" | "USD" | "EUR";
   referenceId?: string | null;
@@ -1067,8 +1106,17 @@ export type EscrowWithTransactionResponseDto = {
 };
 
 export type EscrowSummaryResponseDto = {
+  /**
+   * Total in escrow in minor currency units (kobo/cents)
+   */
   inEscrow: number;
+  /**
+   * Total released in minor currency units (kobo/cents)
+   */
   released: number;
+  /**
+   * Total refunded in minor currency units (kobo/cents)
+   */
   refunded: number;
   currency: "NGN" | "USD" | "EUR";
 };
@@ -1095,6 +1143,11 @@ export type SendConversationMessageDto = {
    * Message text content
    */
   text: string;
+};
+
+export type CreateOrderDocumentDto = {
+  name: string;
+  url: string;
 };
 
 export type PurchaseProductDto = {
@@ -1131,7 +1184,7 @@ export type PurchaseProductDto = {
     country?: string;
     address?: string;
   };
-  buyerDocuments?: Array<OrderDocumentDto>;
+  buyerDocuments?: Array<CreateOrderDocumentDto>;
   /**
    * Q&Q acceptance criteria (only when category group allowsInspection=true)
    */
@@ -1168,8 +1221,8 @@ export type PaginatedOrdersResponseDto = {
 };
 
 export type UpdateOrderDto = {
-  buyerDocuments?: Array<OrderDocumentDto>;
-  sellerDocuments?: Array<OrderDocumentDto>;
+  buyerDocuments?: Array<CreateOrderDocumentDto>;
+  sellerDocuments?: Array<CreateOrderDocumentDto>;
   notes?: string;
 };
 
@@ -1185,12 +1238,22 @@ export type ConfirmOrderDto = {
   milestones?: Array<ConfirmOrderMilestoneDto>;
 };
 
+export type RequestCategoryGroupDto = {
+  _id: string;
+  name: string;
+};
+
 export type RequestCategoryDto = {
   _id: string;
   name: string;
-  group?: CategoryGroupDto;
+  group?: RequestCategoryGroupDto;
   type?: string;
   image?: string;
+};
+
+export type RequestRegionDto = {
+  _id: string;
+  name: string;
 };
 
 export type RequestCountryDto = {
@@ -1200,15 +1263,20 @@ export type RequestCountryDto = {
   region: string;
 };
 
+export type RequestStateDto = {
+  _id: string;
+  name: string;
+};
+
 export type RecommendationFeedItemDto = {
   _id: string;
   name: string;
   quantity: number;
   category: RequestCategoryDto;
   image?: string;
-  region: Array<RegionDto>;
+  region: Array<RequestRegionDto>;
   country: Array<RequestCountryDto>;
-  state: Array<StateDto>;
+  state: Array<RequestStateDto>;
   unitOfMeasurement: string;
   targetPricePerUnit: number;
   duration?: number;
@@ -1263,6 +1331,9 @@ export type CreateRequestDto = {
   country: Array<string>;
   state: Array<string>;
   unitOfMeasurement: string;
+  /**
+   * Target price per unit in minor currency units (kobo/cents)
+   */
   targetPricePerUnit: number;
   currency: "NGN" | "USD" | "EUR";
   /**
@@ -1305,6 +1376,12 @@ export type RequesterDto = {
   phone?: string;
 };
 
+export type RequestOrganizationDto = {
+  _id: string;
+  name: string;
+  type: string;
+};
+
 export type MatchedSellerDto = {
   _id: string;
   name: string;
@@ -1316,10 +1393,13 @@ export type RequestResponseDto = {
   quantity: number;
   category: RequestCategoryDto;
   requester: RequesterDto;
-  region: Array<RegionDto>;
+  region: Array<RequestRegionDto>;
   country: Array<RequestCountryDto>;
-  state: Array<StateDto>;
+  state: Array<RequestStateDto>;
   unitOfMeasurement: string;
+  /**
+   * Target price per unit in minor currency units (kobo/cents)
+   */
   targetPricePerUnit: number;
   duration?: number;
   durationUnit?: string;
@@ -1329,7 +1409,7 @@ export type RequestResponseDto = {
   description?: string;
   documents: Array<string>;
   selectionMode: string;
-  organization: OrganizationDto;
+  organization: RequestOrganizationDto;
   displayId: number;
   status: string;
   matchedSeller?: MatchedSellerDto;
@@ -1359,6 +1439,9 @@ export type UpdateRequestDto = {
   country?: Array<string>;
   state?: Array<string>;
   unitOfMeasurement?: string;
+  /**
+   * Target price per unit in minor currency units (kobo/cents)
+   */
   targetPricePerUnit?: number;
   currency?: "NGN" | "USD" | "EUR";
   /**
@@ -1437,6 +1520,9 @@ export type NegotiationRequestDto = {
   displayId?: number;
   status?: string;
   quantity?: number;
+  /**
+   * Target price per unit in minor currency units (kobo/cents)
+   */
   targetPricePerUnit?: number;
   currency?: "NGN" | "USD" | "EUR";
   unitOfMeasurement?: string;
@@ -1521,6 +1607,9 @@ export type PaginatedNegotiationsResponseDto = {
 };
 
 export type CounterOfferDto = {
+  /**
+   * Price per unit in minor currency units (kobo/cents)
+   */
   pricePerUnit: number;
   quantity: number;
   currency: "NGN" | "USD" | "EUR";
@@ -1555,7 +1644,13 @@ export type SendMessageDto = {
 export type InvoiceItemDto = {
   description: string;
   quantity: number;
+  /**
+   * Unit price in minor currency units (kobo/cents)
+   */
   price: number;
+  /**
+   * Line total in minor currency units (kobo/cents)
+   */
   amount: number;
 };
 
@@ -1571,8 +1666,14 @@ export type CreateInvoiceDto = {
   transactionType: string;
   items: Array<InvoiceItemDto>;
   taxType: "fixed" | "percentage";
+  /**
+   * Tax value — in minor currency units (kobo/cents) if FIXED, or percentage if PERCENTAGE
+   */
   taxValue?: number;
   discountType: "fixed" | "percentage";
+  /**
+   * Discount value — in minor currency units (kobo/cents) if FIXED, or percentage if PERCENTAGE
+   */
   discountValue?: number;
   notes?: string;
 };
@@ -1585,7 +1686,13 @@ export type InvoiceOrganizationDto = {
 export type InvoiceItemResponseDto = {
   description: string;
   quantity: number;
+  /**
+   * Unit price in minor currency units (kobo/cents)
+   */
   price: number;
+  /**
+   * Line total in minor currency units (kobo/cents)
+   */
   amount: number;
 };
 
@@ -1601,12 +1708,30 @@ export type InvoiceResponseDto = {
   transactionType: string;
   items: Array<InvoiceItemResponseDto>;
   taxType: "fixed" | "percentage";
+  /**
+   * Tax value — in minor currency units if FIXED, or percentage if PERCENTAGE
+   */
   taxValue: number;
   discountType: "fixed" | "percentage";
+  /**
+   * Discount value — in minor currency units if FIXED, or percentage if PERCENTAGE
+   */
   discountValue: number;
+  /**
+   * Subtotal in minor currency units (kobo/cents)
+   */
   subtotal: number;
+  /**
+   * Tax amount in minor currency units (kobo/cents)
+   */
   taxAmount: number;
+  /**
+   * Discount amount in minor currency units (kobo/cents)
+   */
   discountAmount: number;
+  /**
+   * Total in minor currency units (kobo/cents)
+   */
   total: number;
   notes?: string;
   status: "draft" | "pending" | "paid";
@@ -1642,8 +1767,14 @@ export type UpdateInvoiceDto = {
   transactionType?: string;
   items?: Array<InvoiceItemDto>;
   taxType?: "fixed" | "percentage";
+  /**
+   * Tax value — in minor currency units (kobo/cents) if FIXED, or percentage if PERCENTAGE
+   */
   taxValue?: number;
   discountType?: "fixed" | "percentage";
+  /**
+   * Discount value — in minor currency units (kobo/cents) if FIXED, or percentage if PERCENTAGE
+   */
   discountValue?: number;
   notes?: string;
 };
@@ -1894,7 +2025,7 @@ export type OnboardingStatusResponseDto = {
   approvedAt?: string;
   smileVerificationStatus?: "pending" | "passed" | "manual_review" | "failed";
   residentialAddress?: ResidentialAddressDto;
-  organization?: OrganizationDto;
+  organization?: OnboardingOrganizationDto;
 };
 
 export type OnboardingStatusHubResponseDto = {
@@ -1976,6 +2107,17 @@ export type UpdateCompanyInfoDto = {
    * Company type from CAC registry
    */
   companyType?: string;
+  /**
+   * Tax identification number
+   */
+  taxId: string;
+};
+
+export type FileMetadataDto = {
+  url: string;
+  name?: string;
+  type?: string;
+  size?: number;
 };
 
 export type UpdateBusinessAddressDto = {
@@ -1986,7 +2128,13 @@ export type UpdateBusinessAddressDto = {
   postalCode?: string;
   businessType?: "bn" | "co" | "it";
   postalAddress?: string;
+  email?: string;
+  phoneNumber?: string;
+  description?: string;
+  website?: string;
+  socialLinks?: Array<string>;
   proofOfResidenceFile?: string | FileMetadataDto;
+  logo?: FileMetadataDto;
 };
 
 export type UpdateProductCategoriesDto = {
@@ -1996,23 +2144,64 @@ export type UpdateProductCategoriesDto = {
   categories: Array<string>;
 };
 
-export type FileMetadataDto = {
-  url: string;
-  name?: string;
-  type?: string;
-  size?: number;
-};
-
 export type UpdateCompanyDocumentsDto = {
   rcNumber: string;
   certificateOfIncorporation?: string | FileMetadataDto;
   memorandum?: string | FileMetadataDto;
   shareholderStructure?: FileMetadataDto;
+  taxIdDocument?: FileMetadataDto;
   additionalDocuments?: Array<FileMetadataDto>;
 };
 
 export type PatchCompanyDocumentsDto = {
   certificateOfIncorporation?: string | FileMetadataDto;
+};
+
+export type RepresentativeAddressDto = {
+  streetAddress: string;
+  country: string;
+  state: string;
+  city: string;
+  postalCode?: string;
+};
+
+export type PepRelationDto = {
+  name: string;
+  position: string;
+};
+
+export type UpdateBusinessRepresentativeDto = {
+  isDirector: boolean;
+  ownsMoreThanFivePercent: boolean;
+  firstName: string;
+  lastName: string;
+  email: string;
+  bvn: string;
+  phoneNumber: string;
+  nationality: string;
+  address: RepresentativeAddressDto;
+  idDocumentType: "nin" | "passport";
+  idDocumentNumber: string;
+  idDocument?: string | FileMetadataDto;
+  isPep: boolean;
+  pepRelations?: Array<PepRelationDto>;
+  attestation: boolean;
+};
+
+export type UpdatePersonInfoDto = {
+  ownsMoreThanFivePercent: boolean;
+  email: string;
+  phoneNumber: string;
+  bvn: string;
+  nationality: string;
+  streetAddress: string;
+  state: string;
+  city: string;
+  postalCode?: string;
+  idDocumentType: "nin" | "passport";
+  idDocumentNumber: string;
+  idExpiryDate?: string;
+  idDocument?: string | FileMetadataDto;
 };
 
 export type InviteItemDto = {
@@ -2081,6 +2270,17 @@ export type CreateAdminDto = {
    * Whether the admin account is active
    */
   isActive?: boolean;
+};
+
+export type AdminChangePasswordDto = {
+  /**
+   * Current password for verification
+   */
+  currentPassword: string;
+  /**
+   * New password (min 8 chars)
+   */
+  newPassword: string;
 };
 
 export type CategoryDocumentTemplateInput = {
@@ -2548,15 +2748,22 @@ export type CompanySnapshotDto = {
   directorsCount?: number;
 };
 
+export type ComplianceFileMetadataDto = {
+  url: string;
+  name?: string;
+  type?: string;
+  size?: number;
+};
+
 export type KybDocumentsDto = {
-  searchCertificate?: FileMetadataDto;
-  certificateOfIncorporation?: FileMetadataDto;
-  memorandumArticles?: FileMetadataDto;
-  proofOfBusinessAddress?: FileMetadataDto;
-  boardResolution?: FileMetadataDto;
-  pscRegister?: FileMetadataDto;
-  taxIdEvidence?: FileMetadataDto;
-  additionalDocuments: Array<FileMetadataDto>;
+  searchCertificate?: ComplianceFileMetadataDto;
+  certificateOfIncorporation?: ComplianceFileMetadataDto;
+  memorandumArticles?: ComplianceFileMetadataDto;
+  proofOfBusinessAddress?: ComplianceFileMetadataDto;
+  boardResolution?: ComplianceFileMetadataDto;
+  pscRegister?: ComplianceFileMetadataDto;
+  taxIdEvidence?: ComplianceFileMetadataDto;
+  additionalDocuments: Array<ComplianceFileMetadataDto>;
 };
 
 export type ComplianceCheckDto = {
@@ -2668,10 +2875,10 @@ export type KybProfileDto = {
 export type IdentitySnapshotDto = {
   idType?: "nin" | "passport" | "drivers_license" | "national_id";
   idNumber?: string;
-  governmentId?: FileMetadataDto;
-  governmentIdBack?: FileMetadataDto;
-  selfie?: FileMetadataDto;
-  addressProof?: FileMetadataDto;
+  governmentId?: ComplianceFileMetadataDto;
+  governmentIdBack?: ComplianceFileMetadataDto;
+  selfie?: ComplianceFileMetadataDto;
+  addressProof?: ComplianceFileMetadataDto;
   smileVerificationStatus?: "pending" | "passed" | "manual_review" | "failed";
 };
 
@@ -2740,6 +2947,61 @@ export type ComplianceCaseDetailDto = {
 export type ReviewComplianceDto = {
   decision: "approved" | "action_required";
   reasons?: Array<StructuredReasonDto>;
+};
+
+export type AccountBalanceResponseDto = {
+  accountCode: string;
+  accountType: string;
+  entityType: string;
+  entityId?: string | null;
+  description: string;
+  currency: string;
+  isActive: boolean;
+  /**
+   * Balance in minor currency units (kobo/cents)
+   */
+  balance: number;
+  internalReconciledUpTo?: string | null;
+  externalReconciledUpTo?: string | null;
+};
+
+export type ReverseEntryDto = {
+  /**
+   * Reason for the reversal
+   */
+  reason: string;
+};
+
+export type ManualAdjustmentDto = {
+  /**
+   * Entry description
+   */
+  description: string;
+  /**
+   * Reason for the manual adjustment
+   */
+  reason: string;
+  /**
+   * Balanced ledger lines
+   */
+  lines: Array<{
+    accountCode?: string;
+    debit?: number;
+    credit?: number;
+    currency?: string;
+  }>;
+  /**
+   * Transaction ID for context
+   */
+  transactionId?: string;
+  /**
+   * Escrow ID for context
+   */
+  escrowId?: string;
+  /**
+   * Invoice ID for context
+   */
+  invoiceId?: string;
 };
 
 export type UpdateCategoryGroupDto = {
@@ -2812,6 +3074,9 @@ export type InspectionReport = {
 
 export type WalletBalanceResponseDto = {
   currency: "NGN" | "USD" | "EUR";
+  /**
+   * Balance in minor currency units (kobo)
+   */
   balance: number;
 };
 
@@ -2823,6 +3088,9 @@ export type WalletFundDetailsResponseDto = {
 export type WalletTransactionResponseDto = {
   id: string;
   currency: "NGN" | "USD" | "EUR";
+  /**
+   * Amount in minor currency units (kobo)
+   */
   amount: number;
   type: "credit" | "debit";
   narration: string;
@@ -2833,7 +3101,7 @@ export type WalletTransactionResponseDto = {
 
 export type WalletDisburseDto = {
   /**
-   * Amount in NGN
+   * Amount in minor currency units (kobo)
    */
   amount: number;
   accountNumber: string;
@@ -4571,6 +4839,7 @@ export type OnboardingControllerLookupBusinessResponses = {
     companyType?: string;
     registrationNumber?: string;
     status?: string;
+    taxId?: string;
   };
 };
 
@@ -4662,6 +4931,83 @@ export type OnboardingControllerUpdateCompanyDocumentsResponses = {
 export type OnboardingControllerUpdateCompanyDocumentsResponse =
   OnboardingControllerUpdateCompanyDocumentsResponses[keyof OnboardingControllerUpdateCompanyDocumentsResponses];
 
+export type OnboardingControllerUpdateBusinessRepresentativeData = {
+  body: UpdateBusinessRepresentativeDto;
+  path?: never;
+  query?: never;
+  url: "/api/v1/onboarding/business-representative";
+};
+
+export type OnboardingControllerUpdateBusinessRepresentativeResponses = {
+  /**
+   * Business representative updated
+   */
+  200: OnboardingStatusResponseDto;
+};
+
+export type OnboardingControllerUpdateBusinessRepresentativeResponse =
+  OnboardingControllerUpdateBusinessRepresentativeResponses[keyof OnboardingControllerUpdateBusinessRepresentativeResponses];
+
+export type OnboardingControllerUpdateDirectorData = {
+  body: UpdatePersonInfoDto;
+  path: {
+    personId: string;
+  };
+  query?: never;
+  url: "/api/v1/onboarding/directors/{personId}";
+};
+
+export type OnboardingControllerUpdateDirectorResponses = {
+  200: OnboardingStatusResponseDto;
+};
+
+export type OnboardingControllerUpdateDirectorResponse =
+  OnboardingControllerUpdateDirectorResponses[keyof OnboardingControllerUpdateDirectorResponses];
+
+export type OnboardingControllerAdvanceDirectorsData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: "/api/v1/onboarding/directors/advance";
+};
+
+export type OnboardingControllerAdvanceDirectorsResponses = {
+  201: OnboardingStatusResponseDto;
+};
+
+export type OnboardingControllerAdvanceDirectorsResponse =
+  OnboardingControllerAdvanceDirectorsResponses[keyof OnboardingControllerAdvanceDirectorsResponses];
+
+export type OnboardingControllerUpdateBeneficialOwnerData = {
+  body: UpdatePersonInfoDto;
+  path: {
+    personId: string;
+  };
+  query?: never;
+  url: "/api/v1/onboarding/beneficial-owners/{personId}";
+};
+
+export type OnboardingControllerUpdateBeneficialOwnerResponses = {
+  200: OnboardingStatusResponseDto;
+};
+
+export type OnboardingControllerUpdateBeneficialOwnerResponse =
+  OnboardingControllerUpdateBeneficialOwnerResponses[keyof OnboardingControllerUpdateBeneficialOwnerResponses];
+
+export type OnboardingControllerAdvanceBeneficialOwnersData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: "/api/v1/onboarding/beneficial-owners/advance";
+};
+
+export type OnboardingControllerAdvanceBeneficialOwnersResponses = {
+  201: OnboardingStatusResponseDto;
+};
+
+export type OnboardingControllerAdvanceBeneficialOwnersResponse =
+  OnboardingControllerAdvanceBeneficialOwnersResponses[keyof OnboardingControllerAdvanceBeneficialOwnersResponses];
+
 export type OnboardingControllerInviteTeamData = {
   body: InviteTeamDto;
   path?: never;
@@ -4678,6 +5024,27 @@ export type OnboardingControllerInviteTeamResponses = {
 
 export type OnboardingControllerInviteTeamResponse =
   OnboardingControllerInviteTeamResponses[keyof OnboardingControllerInviteTeamResponses];
+
+export type OnboardingControllerGenerateBiometricKycTokenData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: "/api/v1/onboarding/biometric-kyc/token";
+};
+
+export type OnboardingControllerGenerateBiometricKycTokenResponses = {
+  /**
+   * Web token for Smile ID Web Integration
+   */
+  201: {
+    token?: string;
+    callbackUrl?: string;
+    partnerId?: string;
+  };
+};
+
+export type OnboardingControllerGenerateBiometricKycTokenResponse =
+  OnboardingControllerGenerateBiometricKycTokenResponses[keyof OnboardingControllerGenerateBiometricKycTokenResponses];
 
 export type OnboardingControllerGetSmileLinkData = {
   body?: never;
@@ -4964,7 +5331,7 @@ export type AdminAuthControllerCreateAdminResponse =
   AdminAuthControllerCreateAdminResponses[keyof AdminAuthControllerCreateAdminResponses];
 
 export type AdminAuthControllerChangePasswordData = {
-  body: ChangePasswordDto;
+  body: AdminChangePasswordDto;
   path?: never;
   query?: never;
   url: "/api/v1/admin/auth/change-password";
@@ -5091,6 +5458,10 @@ export type AdminTransactionsControllerFindAllData = {
      * Filter by status
      */
     status?: string;
+    /**
+     * Filter by seller organization ID
+     */
+    seller?: string;
   };
   url: "/api/v1/admin/transactions";
 };
@@ -5359,6 +5730,7 @@ export type AdminOrganizationsControllerFindAllData = {
     type?: string;
     search?: string;
     onboardingStep?: string;
+    approved?: string;
   };
   url: "/api/v1/admin/organizations";
 };
@@ -5369,6 +5741,40 @@ export type AdminOrganizationsControllerFindAllResponses = {
    */
   200: unknown;
 };
+
+export type AdminOrganizationsControllerFindOneData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/admin/organizations/{id}";
+};
+
+export type AdminOrganizationsControllerFindOneResponses = {
+  /**
+   * Organization details
+   */
+  200: unknown;
+};
+
+export type AdminOrganizationsControllerListMembersData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/admin/organizations/{id}/members";
+};
+
+export type AdminOrganizationsControllerListMembersResponses = {
+  200: Array<{
+    [key: string]: unknown;
+  }>;
+};
+
+export type AdminOrganizationsControllerListMembersResponse =
+  AdminOrganizationsControllerListMembersResponses[keyof AdminOrganizationsControllerListMembersResponses];
 
 export type AdminDisputesControllerGetStatsData = {
   body?: never;
@@ -5729,6 +6135,214 @@ export type AdminComplianceControllerReviewKybResponses = {
    */
   200: unknown;
 };
+
+export type AdminLedgerControllerListAccountsData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: "/api/v1/admin/ledger/accounts";
+};
+
+export type AdminLedgerControllerListAccountsResponses = {
+  200: Array<AccountBalanceResponseDto>;
+};
+
+export type AdminLedgerControllerListAccountsResponse =
+  AdminLedgerControllerListAccountsResponses[keyof AdminLedgerControllerListAccountsResponses];
+
+export type AdminLedgerControllerGetAccountData = {
+  body?: never;
+  path: {
+    /**
+     * Account code (URL-encoded if contains colons)
+     */
+    code: string;
+  };
+  query?: never;
+  url: "/api/v1/admin/ledger/accounts/{code}";
+};
+
+export type AdminLedgerControllerGetAccountResponses = {
+  200: AccountBalanceResponseDto;
+};
+
+export type AdminLedgerControllerGetAccountResponse =
+  AdminLedgerControllerGetAccountResponses[keyof AdminLedgerControllerGetAccountResponses];
+
+export type AdminLedgerControllerGetStatementData = {
+  body?: never;
+  path: {
+    code: string;
+  };
+  query?: {
+    /**
+     * ISO date string
+     */
+    from?: string;
+    /**
+     * ISO date string
+     */
+    to?: string;
+    limit?: string;
+    offset?: string;
+  };
+  url: "/api/v1/admin/ledger/accounts/{code}/statement";
+};
+
+export type AdminLedgerControllerGetStatementResponses = {
+  200: Array<{
+    [key: string]: unknown;
+  }>;
+};
+
+export type AdminLedgerControllerGetStatementResponse =
+  AdminLedgerControllerGetStatementResponses[keyof AdminLedgerControllerGetStatementResponses];
+
+export type AdminLedgerControllerQueryEntriesData = {
+  body?: never;
+  path?: never;
+  query?: {
+    transactionId?: string;
+    escrowId?: string;
+    limit?: string;
+    offset?: string;
+  };
+  url: "/api/v1/admin/ledger/entries";
+};
+
+export type AdminLedgerControllerQueryEntriesResponses = {
+  200: Array<{
+    [key: string]: unknown;
+  }>;
+};
+
+export type AdminLedgerControllerQueryEntriesResponse =
+  AdminLedgerControllerQueryEntriesResponses[keyof AdminLedgerControllerQueryEntriesResponses];
+
+export type AdminLedgerControllerPostManualAdjustmentData = {
+  body: ManualAdjustmentDto;
+  path?: never;
+  query?: never;
+  url: "/api/v1/admin/ledger/entries";
+};
+
+export type AdminLedgerControllerPostManualAdjustmentResponses = {
+  201: {
+    [key: string]: unknown;
+  };
+};
+
+export type AdminLedgerControllerPostManualAdjustmentResponse =
+  AdminLedgerControllerPostManualAdjustmentResponses[keyof AdminLedgerControllerPostManualAdjustmentResponses];
+
+export type AdminLedgerControllerGetEntryData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/admin/ledger/entries/{id}";
+};
+
+export type AdminLedgerControllerGetEntryResponses = {
+  200: {
+    [key: string]: unknown;
+  };
+};
+
+export type AdminLedgerControllerGetEntryResponse =
+  AdminLedgerControllerGetEntryResponses[keyof AdminLedgerControllerGetEntryResponses];
+
+export type AdminLedgerControllerReverseEntryData = {
+  body: ReverseEntryDto;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/admin/ledger/entries/{id}/reverse";
+};
+
+export type AdminLedgerControllerReverseEntryResponses = {
+  201: {
+    [key: string]: unknown;
+  };
+};
+
+export type AdminLedgerControllerReverseEntryResponse =
+  AdminLedgerControllerReverseEntryResponses[keyof AdminLedgerControllerReverseEntryResponses];
+
+export type AdminLedgerControllerListReconciliationRunsData = {
+  body?: never;
+  path?: never;
+  query?: {
+    /**
+     * INTERNAL or EXTERNAL
+     */
+    scope?: string;
+    limit?: string;
+    offset?: string;
+  };
+  url: "/api/v1/admin/ledger/reconciliation/runs";
+};
+
+export type AdminLedgerControllerListReconciliationRunsResponses = {
+  200: Array<{
+    [key: string]: unknown;
+  }>;
+};
+
+export type AdminLedgerControllerListReconciliationRunsResponse =
+  AdminLedgerControllerListReconciliationRunsResponses[keyof AdminLedgerControllerListReconciliationRunsResponses];
+
+export type AdminLedgerControllerGetReconciliationRunData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/admin/ledger/reconciliation/runs/{id}";
+};
+
+export type AdminLedgerControllerGetReconciliationRunResponses = {
+  200: {
+    [key: string]: unknown;
+  };
+};
+
+export type AdminLedgerControllerGetReconciliationRunResponse =
+  AdminLedgerControllerGetReconciliationRunResponses[keyof AdminLedgerControllerGetReconciliationRunResponses];
+
+export type AdminLedgerControllerTriggerInternalReconciliationData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: "/api/v1/admin/ledger/reconciliation/run-internal";
+};
+
+export type AdminLedgerControllerTriggerInternalReconciliationResponses = {
+  201: {
+    [key: string]: unknown;
+  };
+};
+
+export type AdminLedgerControllerTriggerInternalReconciliationResponse =
+  AdminLedgerControllerTriggerInternalReconciliationResponses[keyof AdminLedgerControllerTriggerInternalReconciliationResponses];
+
+export type AdminLedgerControllerTriggerExternalReconciliationData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: "/api/v1/admin/ledger/reconciliation/run-external";
+};
+
+export type AdminLedgerControllerTriggerExternalReconciliationResponses = {
+  201: {
+    [key: string]: unknown;
+  };
+};
+
+export type AdminLedgerControllerTriggerExternalReconciliationResponse =
+  AdminLedgerControllerTriggerExternalReconciliationResponses[keyof AdminLedgerControllerTriggerExternalReconciliationResponses];
 
 export type CategoryGroupsControllerFindAllData = {
   body?: never;

@@ -43,6 +43,28 @@ import type {
   AdminDisputesControllerGetStatsResponses,
   AdminDisputesControllerResolveData,
   AdminDisputesControllerResolveResponses,
+  AdminLedgerControllerGetAccountData,
+  AdminLedgerControllerGetAccountResponses,
+  AdminLedgerControllerGetEntryData,
+  AdminLedgerControllerGetEntryResponses,
+  AdminLedgerControllerGetReconciliationRunData,
+  AdminLedgerControllerGetReconciliationRunResponses,
+  AdminLedgerControllerGetStatementData,
+  AdminLedgerControllerGetStatementResponses,
+  AdminLedgerControllerListAccountsData,
+  AdminLedgerControllerListAccountsResponses,
+  AdminLedgerControllerListReconciliationRunsData,
+  AdminLedgerControllerListReconciliationRunsResponses,
+  AdminLedgerControllerPostManualAdjustmentData,
+  AdminLedgerControllerPostManualAdjustmentResponses,
+  AdminLedgerControllerQueryEntriesData,
+  AdminLedgerControllerQueryEntriesResponses,
+  AdminLedgerControllerReverseEntryData,
+  AdminLedgerControllerReverseEntryResponses,
+  AdminLedgerControllerTriggerExternalReconciliationData,
+  AdminLedgerControllerTriggerExternalReconciliationResponses,
+  AdminLedgerControllerTriggerInternalReconciliationData,
+  AdminLedgerControllerTriggerInternalReconciliationResponses,
   AdminNegotiationsControllerFindAllData,
   AdminNegotiationsControllerFindAllResponses,
   AdminNegotiationsControllerFindOneData,
@@ -59,6 +81,10 @@ import type {
   AdminNotificationsControllerMarkAsReadResponses,
   AdminOrganizationsControllerFindAllData,
   AdminOrganizationsControllerFindAllResponses,
+  AdminOrganizationsControllerFindOneData,
+  AdminOrganizationsControllerFindOneResponses,
+  AdminOrganizationsControllerListMembersData,
+  AdminOrganizationsControllerListMembersResponses,
   AdminProductsControllerApproveData,
   AdminProductsControllerApproveResponses,
   AdminProductsControllerCreateData,
@@ -211,8 +237,14 @@ import type {
   NotificationsControllerMarkAllAsReadResponses,
   NotificationsControllerMarkAsReadData,
   NotificationsControllerMarkAsReadResponses,
+  OnboardingControllerAdvanceBeneficialOwnersData,
+  OnboardingControllerAdvanceBeneficialOwnersResponses,
+  OnboardingControllerAdvanceDirectorsData,
+  OnboardingControllerAdvanceDirectorsResponses,
   OnboardingControllerCompleteOnboardingData,
   OnboardingControllerCompleteOnboardingResponses,
+  OnboardingControllerGenerateBiometricKycTokenData,
+  OnboardingControllerGenerateBiometricKycTokenResponses,
   OnboardingControllerGetOnboardingStatusData,
   OnboardingControllerGetOnboardingStatusResponses,
   OnboardingControllerGetSmileLinkData,
@@ -227,12 +259,18 @@ import type {
   OnboardingControllerPatchCompanyDocumentsResponses,
   OnboardingControllerReEnrollIdentityKycData,
   OnboardingControllerReEnrollIdentityKycResponses,
+  OnboardingControllerUpdateBeneficialOwnerData,
+  OnboardingControllerUpdateBeneficialOwnerResponses,
   OnboardingControllerUpdateBusinessAddressData,
   OnboardingControllerUpdateBusinessAddressResponses,
+  OnboardingControllerUpdateBusinessRepresentativeData,
+  OnboardingControllerUpdateBusinessRepresentativeResponses,
   OnboardingControllerUpdateCompanyDocumentsData,
   OnboardingControllerUpdateCompanyDocumentsResponses,
   OnboardingControllerUpdateCompanyInfoData,
   OnboardingControllerUpdateCompanyInfoResponses,
+  OnboardingControllerUpdateDirectorData,
+  OnboardingControllerUpdateDirectorResponses,
   OnboardingControllerUpdateIdentityKycData,
   OnboardingControllerUpdateIdentityKycResponses,
   OnboardingControllerUpdateProductCategoriesData,
@@ -2308,6 +2346,114 @@ export const onboardingControllerUpdateCompanyDocuments = <
   });
 
 /**
+ * Update business representative details
+ */
+export const onboardingControllerUpdateBusinessRepresentative = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    OnboardingControllerUpdateBusinessRepresentativeData,
+    ThrowOnError
+  >,
+) =>
+  (options.client ?? client).put<
+    OnboardingControllerUpdateBusinessRepresentativeResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/onboarding/business-representative",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Update a single director's information
+ */
+export const onboardingControllerUpdateDirector = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<OnboardingControllerUpdateDirectorData, ThrowOnError>,
+) =>
+  (options.client ?? client).put<
+    OnboardingControllerUpdateDirectorResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/onboarding/directors/{personId}",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Validate all directors completed and advance step
+ */
+export const onboardingControllerAdvanceDirectors = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<OnboardingControllerAdvanceDirectorsData, ThrowOnError>,
+) =>
+  (options?.client ?? client).post<
+    OnboardingControllerAdvanceDirectorsResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/onboarding/directors/advance",
+    ...options,
+  });
+
+/**
+ * Update a single beneficial owner's information
+ */
+export const onboardingControllerUpdateBeneficialOwner = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<OnboardingControllerUpdateBeneficialOwnerData, ThrowOnError>,
+) =>
+  (options.client ?? client).put<
+    OnboardingControllerUpdateBeneficialOwnerResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/onboarding/beneficial-owners/{personId}",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Validate all beneficial owners completed and advance step
+ */
+export const onboardingControllerAdvanceBeneficialOwners = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<
+    OnboardingControllerAdvanceBeneficialOwnersData,
+    ThrowOnError
+  >,
+) =>
+  (options?.client ?? client).post<
+    OnboardingControllerAdvanceBeneficialOwnersResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/onboarding/beneficial-owners/advance",
+    ...options,
+  });
+
+/**
  * Invite team members (skippable)
  */
 export const onboardingControllerInviteTeam = <
@@ -2327,6 +2473,27 @@ export const onboardingControllerInviteTeam = <
       "Content-Type": "application/json",
       ...options.headers,
     },
+  });
+
+/**
+ * Generate a Smile ID web token for Biometric KYC
+ */
+export const onboardingControllerGenerateBiometricKycToken = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<
+    OnboardingControllerGenerateBiometricKycTokenData,
+    ThrowOnError
+  >,
+) =>
+  (options?.client ?? client).post<
+    OnboardingControllerGenerateBiometricKycTokenResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/onboarding/biometric-kyc/token",
+    ...options,
   });
 
 /**
@@ -3084,6 +3251,42 @@ export const adminOrganizationsControllerFindAll = <
   });
 
 /**
+ * Get organization details (Admin)
+ */
+export const adminOrganizationsControllerFindOne = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AdminOrganizationsControllerFindOneData, ThrowOnError>,
+) =>
+  (options.client ?? client).get<
+    AdminOrganizationsControllerFindOneResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/organizations/{id}",
+    ...options,
+  });
+
+/**
+ * List members of an organization (Admin)
+ */
+export const adminOrganizationsControllerListMembers = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AdminOrganizationsControllerListMembersData, ThrowOnError>,
+) =>
+  (options.client ?? client).get<
+    AdminOrganizationsControllerListMembersResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/organizations/{id}/members",
+    ...options,
+  });
+
+/**
  * Get dispute statistics
  */
 export const adminDisputesControllerGetStats = <
@@ -3563,6 +3766,221 @@ export const adminComplianceControllerReviewKyb = <
       "Content-Type": "application/json",
       ...options.headers,
     },
+  });
+
+/**
+ * List all ledger accounts with balances
+ */
+export const adminLedgerControllerListAccounts = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<AdminLedgerControllerListAccountsData, ThrowOnError>,
+) =>
+  (options?.client ?? client).get<
+    AdminLedgerControllerListAccountsResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/ledger/accounts",
+    ...options,
+  });
+
+/**
+ * Get a single ledger account with balance
+ */
+export const adminLedgerControllerGetAccount = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AdminLedgerControllerGetAccountData, ThrowOnError>,
+) =>
+  (options.client ?? client).get<
+    AdminLedgerControllerGetAccountResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/ledger/accounts/{code}",
+    ...options,
+  });
+
+/**
+ * Get paginated journal entries for an account
+ */
+export const adminLedgerControllerGetStatement = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AdminLedgerControllerGetStatementData, ThrowOnError>,
+) =>
+  (options.client ?? client).get<
+    AdminLedgerControllerGetStatementResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/ledger/accounts/{code}/statement",
+    ...options,
+  });
+
+/**
+ * Query journal entries by transactionId or escrowId
+ */
+export const adminLedgerControllerQueryEntries = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<AdminLedgerControllerQueryEntriesData, ThrowOnError>,
+) =>
+  (options?.client ?? client).get<
+    AdminLedgerControllerQueryEntriesResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/ledger/entries",
+    ...options,
+  });
+
+/**
+ * Post a manual adjustment entry
+ */
+export const adminLedgerControllerPostManualAdjustment = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AdminLedgerControllerPostManualAdjustmentData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    AdminLedgerControllerPostManualAdjustmentResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/ledger/entries",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Get a single journal entry by ID
+ */
+export const adminLedgerControllerGetEntry = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AdminLedgerControllerGetEntryData, ThrowOnError>,
+) =>
+  (options.client ?? client).get<
+    AdminLedgerControllerGetEntryResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/ledger/entries/{id}",
+    ...options,
+  });
+
+/**
+ * Reverse a journal entry
+ */
+export const adminLedgerControllerReverseEntry = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AdminLedgerControllerReverseEntryData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    AdminLedgerControllerReverseEntryResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/ledger/entries/{id}/reverse",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * List past reconciliation runs
+ */
+export const adminLedgerControllerListReconciliationRuns = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<
+    AdminLedgerControllerListReconciliationRunsData,
+    ThrowOnError
+  >,
+) =>
+  (options?.client ?? client).get<
+    AdminLedgerControllerListReconciliationRunsResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/ledger/reconciliation/runs",
+    ...options,
+  });
+
+/**
+ * Get a single reconciliation run with discrepancies
+ */
+export const adminLedgerControllerGetReconciliationRun = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AdminLedgerControllerGetReconciliationRunData, ThrowOnError>,
+) =>
+  (options.client ?? client).get<
+    AdminLedgerControllerGetReconciliationRunResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/ledger/reconciliation/runs/{id}",
+    ...options,
+  });
+
+/**
+ * Trigger an internal reconciliation run now
+ */
+export const adminLedgerControllerTriggerInternalReconciliation = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<
+    AdminLedgerControllerTriggerInternalReconciliationData,
+    ThrowOnError
+  >,
+) =>
+  (options?.client ?? client).post<
+    AdminLedgerControllerTriggerInternalReconciliationResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/ledger/reconciliation/run-internal",
+    ...options,
+  });
+
+/**
+ * Trigger an external reconciliation run now
+ */
+export const adminLedgerControllerTriggerExternalReconciliation = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<
+    AdminLedgerControllerTriggerExternalReconciliationData,
+    ThrowOnError
+  >,
+) =>
+  (options?.client ?? client).post<
+    AdminLedgerControllerTriggerExternalReconciliationResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/ledger/reconciliation/run-external",
+    ...options,
   });
 
 /**
