@@ -28,6 +28,7 @@ export default function PendingApprovalsPage() {
       limit: "10",
       search: search || undefined,
       onboardingStep: step === "all" ? undefined : step,
+      approved: "false",
     },
   });
 
@@ -38,8 +39,18 @@ export default function PendingApprovalsPage() {
     _id: item._id!,
     name: item.name!,
     email: item.email!,
+    location: [item.address?.state?.name, item.address?.country?.name]
+      .filter(Boolean)
+      .join(", "),
+    categories: [
+      ...new Map(
+        (item.categories ?? [])
+          .map((c: any) => c?.group)
+          .filter((g: any) => g && typeof g === "object" && g._id)
+          .map((g: any) => [String(g._id), g.name]),
+      ).values(),
+    ],
     verificationStatus: item.verificationStatus || "unverified",
-    industrySectors: item.industrySectors || [],
     createdAt: item.createdAt!,
   }));
 

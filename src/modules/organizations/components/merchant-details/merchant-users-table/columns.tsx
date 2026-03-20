@@ -17,13 +17,11 @@ export interface MerchantUser {
   firstName: string;
   lastName: string;
   email: string;
-  roleInOrganization?: string;
-  jobPosition?: string;
-  phoneNumber?: string;
-  emailVerified?: boolean;
+  role?: string;
+  phone?: string;
+  isEmailVerified?: boolean;
   onboardingCompleted?: boolean;
   createdAt?: string | Date;
-  status?: string;
 }
 
 export const merchantUserColumns: ColumnDef<MerchantUser>[] = [
@@ -43,33 +41,24 @@ export const merchantUserColumns: ColumnDef<MerchantUser>[] = [
     },
   },
   {
-    accessorKey: "roleInOrganization",
+    accessorKey: "role",
     header: "Role",
     cell: ({ row }) => {
       return (
-        <span className="capitalize">
-          {row.original.roleInOrganization || "Member"}
-        </span>
+        <span className="capitalize">{row.original.role || "Member"}</span>
       );
     },
   },
   {
-    accessorKey: "jobPosition",
-    header: "Job Title",
-    cell: ({ row }) => row.original.jobPosition || "-",
-  },
-  {
-    accessorKey: "phoneNumber",
+    accessorKey: "phone",
     header: "Phone",
-    cell: ({ row }) => row.original.phoneNumber || "-",
+    cell: ({ row }) => row.original.phone || "-",
   },
   {
     accessorKey: "status",
     header: "Status",
     cell: ({ row }) => {
-      // Logic to determine status if not explicitly provided
-      const isVerified = row.original.emailVerified;
-      // const isCompleted = row.original.onboardingCompleted;
+      const isVerified = row.original.isEmailVerified;
 
       let status = "Active";
       let variant: "default" | "secondary" | "outline" | "destructive" =

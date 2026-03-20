@@ -1,5 +1,7 @@
+import { api } from "@/lib/api";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   GlobeIcon,
   InstagramIcon,
@@ -14,19 +16,39 @@ interface MerchantOverviewTabProps {
 export function MerchantOverviewTab({
   organization,
 }: MerchantOverviewTabProps) {
+  const orgId = organization._id as string;
+
+  const { data: productsData, isLoading: productsLoading } =
+    api.admin.products.list.useQuery(
+      { query: { merchant: orgId, limit: "1" } },
+      { enabled: !!orgId },
+    );
+
+  const { data: transactionsData, isLoading: transactionsLoading } =
+    api.admin.transactions.list.useQuery(
+      { query: { seller: orgId, limit: "1" } },
+      { enabled: !!orgId },
+    );
+
+  const { data: disputesData, isLoading: disputesLoading } =
+    api.admin.disputes.list.useQuery(
+      { query: { respondent: orgId, limit: "1" } },
+      { enabled: !!orgId },
+    );
+
+  const totalProducts =
+    (productsData as any)?.data?.totalDocs ?? 0;
+  const totalOrders =
+    (transactionsData as any)?.data?.totalDocs ?? 0;
+  const totalDisputes =
+    (disputesData as any)?.data?.totalDocs ?? 0;
+  const statsLoading = productsLoading || transactionsLoading || disputesLoading;
+
   const analytics = [
-    {
-      label: "Total Products",
-      value: 0,
-      formatter: (v: number) => v.toString(),
-    }, // Placeholder
-    { label: "Total Orders", value: 0, formatter: (v: number) => v.toString() }, // Placeholder
-    {
-      label: "Total Disputes",
-      value: 0,
-      formatter: (v: number) => v.toString(),
-    }, // Placeholder
-    { label: "Trust Score", value: "-", formatter: (v: string) => v },
+    { label: "Total Products", value: totalProducts },
+    { label: "Total Orders", value: totalOrders },
+    { label: "Total Disputes", value: totalDisputes },
+    { label: "Trust Score", value: "-" },
   ];
 
   return (
@@ -41,9 +63,11 @@ export function MerchantOverviewTab({
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">
-                {item.formatter(item.value as never)}
-              </div>
+              {statsLoading && item.label !== "Trust Score" ? (
+                <Skeleton className="h-8 w-16" />
+              ) : (
+                <div className="text-2xl font-bold">{item.value}</div>
+              )}
             </CardContent>
           </Card>
         ))}
@@ -157,9 +181,9 @@ export function MerchantOverviewTab({
                 {organization.address
                   ? [
                       organization.address.streetAddress,
-                      organization.address.city,
-                      organization.address.state,
-                      organization.address.country,
+                      organization.address.city?.name,
+                      organization.address.state?.name,
+                      organization.address.country?.name,
                     ]
                       .filter(Boolean)
                       .join(", ")

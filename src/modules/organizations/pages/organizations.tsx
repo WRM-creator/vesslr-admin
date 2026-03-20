@@ -29,6 +29,7 @@ export default function OrganizationsPage() {
       limit: "10",
       type: type === "all" ? undefined : (type as "merchant" | "customer"),
       search: search || undefined,
+      approved: "true",
     },
   });
 
