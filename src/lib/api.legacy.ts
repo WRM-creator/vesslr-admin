@@ -6,8 +6,7 @@ import axios from "axios";
 import { getAuthToken, clearAuthTokens } from "@/lib/api/auth";
 
 const api = axios.create({
-  // Set VITE_API_BASE to full base: e.g. http://localhost:8001/api/v1
-  baseURL: import.meta.env.VITE_API_BASE || "http://localhost:8001/api/v1",
+  baseURL: `${import.meta.env.VITE_API_BASE_URL || "http://localhost:8001"}/api/v1`,
   withCredentials: false, // using Bearer token, not cookies
 });
 

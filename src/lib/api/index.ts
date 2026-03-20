@@ -34,16 +34,20 @@ import {
   adminCategoriesControllerRemove,
   adminCategoriesControllerUpdate,
   adminComplianceControllerGetCase,
+  adminLedgerControllerGetAccount,
+  adminLedgerControllerGetStatement,
   adminComplianceControllerReviewKyb,
   adminComplianceControllerReviewKyc,
   adminDisputesControllerFindAll,
   adminDisputesControllerFindOne,
   adminDisputesControllerGetStats,
   adminDisputesControllerResolve,
+  adminOrganizationsControllerListMembers,
   adminNegotiationsControllerFindAll,
   adminNegotiationsControllerFindOne,
   adminNegotiationsControllerUpdateStatus,
   adminOrganizationsControllerFindAll,
+  adminOrganizationsControllerFindOne,
   adminProductsControllerCreate,
   adminProductsControllerFindAll,
   adminProductsControllerFindOne,
@@ -216,10 +220,16 @@ export const api = {
         "list",
         args?.query,
       ]),
-      detail: createQuery(adminRequestsControllerFindOne, (args) => [
+      detail: createQuery(adminOrganizationsControllerFindOne, (args) => [
         "admin",
-        "requests",
+        "organizations",
         "detail",
+        args.path.id,
+      ]),
+      members: createQuery(adminOrganizationsControllerListMembers, (args) => [
+        "admin",
+        "organizations",
+        "members",
         args.path.id,
       ]),
     },
@@ -269,6 +279,21 @@ export const api = {
         ],
       }),
     },
+    ledger: {
+      account: createQuery(adminLedgerControllerGetAccount, (args) => [
+        "admin",
+        "ledger",
+        "account",
+        args.path.code,
+      ]),
+      statement: createQuery(adminLedgerControllerGetStatement, (args) => [
+        "admin",
+        "ledger",
+        "statement",
+        args.path.code,
+        args?.query,
+      ]),
+    },
     compliance: {
       getCase: createQuery(adminComplianceControllerGetCase, (args) => [
         "admin",
@@ -304,7 +329,7 @@ export const api = {
       "list",
       args?.query,
     ]),
-    detail: createQuery(adminRequestsControllerFindOne, (args) => [
+    detail: createQuery(adminOrganizationsControllerFindOne, (args) => [
       "organizations",
       "detail",
       args.path.id,
