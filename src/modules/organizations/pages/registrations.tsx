@@ -17,7 +17,7 @@ export default function PendingApprovalsPage() {
 
   const [step, setStep] = useQueryState(
     "step",
-    parseAsString.withDefault("all"),
+    parseAsString.withDefault("status"),
   );
 
   const [page, setPage] = useQueryState("page", parseAsInteger.withDefault(1));
