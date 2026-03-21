@@ -3004,6 +3004,74 @@ export type ManualAdjustmentDto = {
   invoiceId?: string;
 };
 
+export type DashboardStatsDto = {
+  /**
+   * Number of non-terminal transactions
+   */
+  activeTransactions: number;
+  /**
+   * Total escrow currently held (minor units)
+   */
+  totalEscrowHeld: number;
+  /**
+   * Transaction volume in the last 30 days (minor units)
+   */
+  transactionVolume30d: number;
+  /**
+   * Compliance cases awaiting admin review
+   */
+  pendingComplianceReviews: number;
+  /**
+   * Products awaiting admin approval
+   */
+  pendingProductApprovals: number;
+  /**
+   * Open disputes needing resolution
+   */
+  openDisputes: number;
+  /**
+   * Organizations with incomplete onboarding
+   */
+  pendingRegistrations: number;
+  /**
+   * Total registered organizations
+   */
+  totalOrganizations: number;
+  /**
+   * Total merchant organizations
+   */
+  totalMerchants: number;
+  /**
+   * Total customer organizations
+   */
+  totalCustomers: number;
+  /**
+   * Total products on the platform
+   */
+  totalProducts: number;
+  /**
+   * Approved products
+   */
+  approvedProducts: number;
+  /**
+   * Pending products
+   */
+  pendingProducts: number;
+  /**
+   * Completed transactions
+   */
+  completedTransactions: number;
+  /**
+   * Currency for monetary values
+   */
+  currency: string;
+};
+
+export type DashboardStatsResponseDto = {
+  message: string;
+  data: DashboardStatsDto;
+};
+
 export type UpdateCategoryGroupDto = {
   name?: string;
   type?: "equipment-and-products" | "services";
@@ -6343,6 +6411,20 @@ export type AdminLedgerControllerTriggerExternalReconciliationResponses = {
 
 export type AdminLedgerControllerTriggerExternalReconciliationResponse =
   AdminLedgerControllerTriggerExternalReconciliationResponses[keyof AdminLedgerControllerTriggerExternalReconciliationResponses];
+
+export type AdminDashboardControllerGetStatsData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: "/api/v1/admin/dashboard/stats";
+};
+
+export type AdminDashboardControllerGetStatsResponses = {
+  200: DashboardStatsResponseDto;
+};
+
+export type AdminDashboardControllerGetStatsResponse =
+  AdminDashboardControllerGetStatsResponses[keyof AdminDashboardControllerGetStatsResponses];
 
 export type CategoryGroupsControllerFindAllData = {
   body?: never;

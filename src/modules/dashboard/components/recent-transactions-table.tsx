@@ -1,112 +1,143 @@
+import { DataTable } from "@/components/shared/data-table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+  Card,
+  CardAction,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { api } from "@/lib/api";
 import { formatCurrency } from "@/lib/currency";
-import { format } from "date-fns";
+import type { ColumnDef } from "@tanstack/react-table";
 import { ArrowUpRight } from "lucide-react";
 import { useMemo } from "react";
 import { Link } from "react-router-dom";
 
-export function RecentTransactionsTable() {
-  const { data: transactionsData, isLoading } =
-    api.admin.transactions.list.useQuery({
-      query: { page: "1", limit: "5" },
-    });
+interface TransactionRow {
+  _id: string;
+  displayId: string;
+  buyer: string;
+  type: string;
+  status: string;
+  amount: string;
+}
 
-  const recentTransactions = useMemo(() => {
-    return transactionsData?.data?.docs || [];
-  }, [transactionsData]);
+function getStatusStyle(status: string) {
+  switch (status) {
+    case "CLOSED":
+    case "SETTLEMENT_RELEASED":
+    case "DELIVERY_CONFIRMED":
+      return "border-green-200 bg-green-50 text-green-700";
+    case "DISPUTED":
+      return "border-red-200 bg-red-50 text-red-700";
+    case "IN_TRANSIT":
+    case "LOGISTICS_ASSIGNED":
+      return "border-blue-200 bg-blue-50 text-blue-700";
+    case "ESCROW_FUNDED":
+    case "INITIATED":
+    case "DOCUMENTS_SUBMITTED":
+      return "border-amber-200 bg-amber-50 text-amber-700";
+    case "CANCELLED":
+    case "REFUNDED":
+      return "border-gray-200 bg-gray-50 text-gray-600";
+    default:
+      return "";
+  }
+}
+
+const columns: ColumnDef<TransactionRow>[] = [
+  {
+    accessorKey: "displayId",
+    header: "ID",
+    cell: ({ row }) => (
+      <span className="font-medium">#{row.original.displayId}</span>
+    ),
+  },
+  {
+    accessorKey: "buyer",
+    header: "Buyer",
+    cell: ({ row }) => (
+      <span className="text-sm">{row.original.buyer}</span>
+    ),
+  },
+  {
+    accessorKey: "type",
+    header: "Type",
+    cell: ({ row }) => (
+      <Badge variant="outline" className="text-xs font-medium">
+        {row.original.type}
+      </Badge>
+    ),
+  },
+  {
+    accessorKey: "status",
+    header: "Status",
+    cell: ({ row }) => (
+      <Badge
+        variant="outline"
+        className={`text-xs font-medium ${getStatusStyle(row.original.status)}`}
+      >
+        {row.original.status.toLowerCase().replace(/_/g, " ")}
+      </Badge>
+    ),
+  },
+  {
+    accessorKey: "amount",
+    header: "Amount",
+    meta: { className: "text-right" },
+    cell: ({ row }) => (
+      <span className="text-right text-sm font-medium">
+        {row.original.amount}
+      </span>
+    ),
+  },
+];
+
+export function RecentTransactionsTable() {
+  const { data, isLoading } = api.admin.transactions.list.useQuery({
+    query: { page: "1", limit: "5" },
+  });
+
+  const rows = useMemo<TransactionRow[]>(() => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const docs = (data?.data as any)?.docs;
+    if (!Array.isArray(docs)) return [];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return docs.map((tx: any) => ({
+      _id: tx._id,
+      displayId: tx.displayId?.toString() ?? tx._id,
+      buyer: tx.order?.buyerOrganization?.name ?? "Unknown",
+      type: tx.order?.transactionType ?? "Purchase",
+      status: tx.status ?? "INITIATED",
+      amount: formatCurrency(
+        tx.order?.totalAmount ?? 0,
+        tx.order?.currency ?? "NGN",
+      ),
+    }));
+  }, [data]);
 
   return (
-    <Card className="h-full xl:col-span-2">
-      <CardHeader className="flex flex-row items-center">
-        <div className="grid gap-2">
-          <CardTitle>Recent Transactions</CardTitle>
-          <p className="text-muted-foreground text-sm">
-            Recent activity from your platform.
-          </p>
-        </div>
-        <Button asChild size="sm" className="ml-auto gap-1">
-          <Link to="/transactions">
-            View All
-            <ArrowUpRight className="h-4 w-4" />
-          </Link>
-        </Button>
+    <Card className="h-full">
+      <CardHeader>
+        <CardTitle>Recent Transactions</CardTitle>
+        <CardAction>
+          <Button asChild variant="ghost" size="sm" className="gap-1">
+            <Link to="/transactions">
+              View All
+              <ArrowUpRight className="h-4 w-4" />
+            </Link>
+          </Button>
+        </CardAction>
       </CardHeader>
       <CardContent>
-        {isLoading ? (
-          <div className="text-muted-foreground flex h-32 items-center justify-center text-sm">
-            Loading...
-          </div>
-        ) : (
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Transaction</TableHead>
-                <TableHead>Customer</TableHead>
-                <TableHead className="hidden xl:table-column">Type</TableHead>
-                <TableHead className="hidden xl:table-column">Status</TableHead>
-                <TableHead className="hidden xl:table-column">Date</TableHead>
-                <TableHead className="text-right">Amount</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {recentTransactions.map((transaction) => {
-                const displayId =
-                  transaction.displayId?.toString() || transaction._id;
-                const customerName =
-                  transaction.order?.buyerOrganization?.name || "Unknown";
-                const amount = formatCurrency(transaction.order?.totalAmount || 0, transaction.order?.currency || "USD");
-
-                return (
-                  <TableRow key={transaction._id}>
-                    <TableCell>
-                      <div className="font-medium">
-                        #{displayId.replace("#", "")}
-                      </div>
-                      <div className="text-muted-foreground hidden text-sm md:inline">
-                        {customerName}
-                      </div>
-                    </TableCell>
-                    <TableCell className="hidden xl:table-cell">
-                      {customerName}
-                    </TableCell>
-                    <TableCell className="hidden xl:table-cell">
-                      <Badge className="text-xs" variant="outline">
-                        {transaction.order?.transactionType || "Purchase"}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="hidden xl:table-cell">
-                      <Badge
-                        className="text-xs"
-                        variant={
-                          transaction.status === "CLOSED"
-                            ? "default"
-                            : "secondary"
-                        }
-                      >
-                        {transaction.status.toLowerCase().replace("_", " ")}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="hidden md:table-cell lg:hidden xl:table-column">
-                      {format(new Date(transaction.createdAt), "yyyy-MM-dd")}
-                    </TableCell>
-                    <TableCell className="text-right">{amount}</TableCell>
-                  </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
-        )}
+        <DataTable
+          columns={columns}
+          data={rows}
+          isLoading={isLoading}
+          emptyContent="No transactions yet."
+        />
       </CardContent>
     </Card>
   );

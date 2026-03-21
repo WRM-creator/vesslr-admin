@@ -72,6 +72,7 @@ import {
   productsControllerFindAll,
   productsControllerFindOne,
   storageControllerGeneratePresignedUrls,
+  adminDashboardControllerGetStats,
 } from "./generated";
 
 export const api = {
@@ -81,6 +82,13 @@ export const api = {
     profile: createQuery(adminAuthControllerGetProfile, ["auth", "profile"]),
   },
   admin: {
+    dashboard: {
+      stats: createQuery(adminDashboardControllerGetStats, [
+        "admin",
+        "dashboard",
+        "stats",
+      ]),
+    },
     disputes: {
       list: createQuery(adminDisputesControllerFindAll, (args) => [
         "admin",

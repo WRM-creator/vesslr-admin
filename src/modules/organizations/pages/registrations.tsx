@@ -56,13 +56,13 @@ export default function PendingApprovalsPage() {
 
   return (
     <Page>
-      <PageHeader title="Onboarding" />
+      <PageHeader title="Registrations" />
       <OrganizationsTable
         data={organizations}
         search={search || ""}
         onSearchChange={setSearch}
         isLoading={isLoading}
-        title="Onboarding"
+        title="Registrations"
         tabs={[
           { label: "All", value: "all" },
           { label: "Identity KYC", value: "identity_kyc" },

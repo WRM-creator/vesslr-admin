@@ -1,4 +1,4 @@
-import { StatsCard } from "@/modules/dashboard/components/stats-card";
+import { StatsCard } from "@/components/shared/stats-card";
 import {
   Activity,
   AlertTriangle,

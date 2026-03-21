@@ -4,7 +4,6 @@ import {
   Building2Icon,
   ClipboardCheck,
   ClipboardList,
-  Command,
   LayoutDashboard,
   Lock,
   Package,
@@ -27,7 +26,6 @@ import {
 
 import { Badge } from "@/components/ui/badge";
 import { useSidebar } from "@/components/ui/sidebar";
-
 
 const navGroups: NavGroup[] = [
   {
@@ -54,7 +52,7 @@ const navGroups: NavGroup[] = [
         icon: Building2Icon,
       },
       {
-        title: "Onboarding",
+        title: "Registrations",
         url: "/registrations",
         icon: ClipboardCheck,
       },

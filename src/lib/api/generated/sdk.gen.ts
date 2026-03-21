@@ -31,6 +31,8 @@ import type {
   AdminComplianceControllerReviewKybResponses,
   AdminComplianceControllerReviewKycData,
   AdminComplianceControllerReviewKycResponses,
+  AdminDashboardControllerGetStatsData,
+  AdminDashboardControllerGetStatsResponses,
   AdminDisputesControllerCreateInformationRequestData,
   AdminDisputesControllerCreateInformationRequestResponses,
   AdminDisputesControllerDismissInformationRequestData,
@@ -3980,6 +3982,24 @@ export const adminLedgerControllerTriggerExternalReconciliation = <
   >({
     security: [{ scheme: "bearer", type: "http" }],
     url: "/api/v1/admin/ledger/reconciliation/run-external",
+    ...options,
+  });
+
+/**
+ * Get dashboard statistics
+ */
+export const adminDashboardControllerGetStats = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<AdminDashboardControllerGetStatsData, ThrowOnError>,
+) =>
+  (options?.client ?? client).get<
+    AdminDashboardControllerGetStatsResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/dashboard/stats",
     ...options,
   });
 
