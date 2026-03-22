@@ -5,6 +5,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { useEffect } from "react";
+import { toast } from "sonner";
 import { LoginForm } from "../components/login-form";
 import { OtpForm } from "../components/otp-form";
 import { useAdminAuth } from "../hooks/use-admin-auth";
@@ -21,6 +23,14 @@ export default function Login() {
     onOtpSubmit,
     tempEmail,
   } = useAdminAuth();
+
+  useEffect(() => {
+    const expired = localStorage.getItem("admin_session_expired");
+    if (expired) {
+      localStorage.removeItem("admin_session_expired");
+      toast.info("Your session expired due to inactivity. Please log in again.");
+    }
+  }, []);
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-50 p-6">
