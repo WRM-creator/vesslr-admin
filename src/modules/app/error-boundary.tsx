@@ -1,19 +1,48 @@
 import { Button } from "@/components/ui/button";
 import { AlertCircle } from "lucide-react";
+import { useEffect } from "react";
 import {
   isRouteErrorResponse,
   useNavigate,
   useRouteError,
 } from "react-router-dom";
 
+function isChunkLoadError(error: unknown): boolean {
+  if (!(error instanceof Error)) return false;
+  const msg = error.message;
+  return (
+    msg.includes("Failed to fetch dynamically imported module") ||
+    msg.includes("Importing a module script failed") ||
+    msg.includes("error loading dynamically imported module") ||
+    (error.name === "ChunkLoadError")
+  );
+}
+
 export function AppErrorBoundary() {
   const error = useRouteError();
   const navigate = useNavigate();
 
+  useEffect(() => {
+    if (isChunkLoadError(error)) {
+      const reloadKey = "chunk_reload";
+      const lastReload = sessionStorage.getItem(reloadKey);
+      const now = Date.now();
+
+      // Only auto-reload once per 30 seconds to avoid infinite reload loops
+      if (!lastReload || now - Number(lastReload) > 30_000) {
+        sessionStorage.setItem(reloadKey, String(now));
+        window.location.reload();
+      }
+    }
+  }, [error]);
+
   let errorMessage = "An unexpected error occurred.";
   let errorDetails = "";
 
-  if (isRouteErrorResponse(error)) {
+  if (isChunkLoadError(error)) {
+    errorMessage =
+      "A new version of the app is available. Please refresh the page.";
+  } else if (isRouteErrorResponse(error)) {
     errorMessage = `${error.status} ${error.statusText}`;
     errorDetails = error.data?.message || "Something went wrong.";
   } else if (error instanceof Error) {
