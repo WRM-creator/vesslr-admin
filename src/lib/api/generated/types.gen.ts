@@ -201,6 +201,7 @@ export type OnboardingOrganizationDto = {
   memorandum?: string | FileMetadataResponseDto;
   boardResolution?: FileMetadataResponseDto;
   pscRegister?: FileMetadataResponseDto;
+  taxIdDocument?: FileMetadataResponseDto;
   additionalDocuments?: Array<FileMetadataResponseDto>;
   categories?: Array<OnboardingCategoryDto>;
 };
@@ -287,8 +288,22 @@ export type UpdateOrganizationDto = {
   categories?: Array<string>;
 };
 
-export type UpdateRoleDto = {
-  role: "admin" | "member" | "viewer";
+export type MemberResponseDto = {
+  _id: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  phone: string;
+  role: string;
+  roles: Array<string>;
+  profileImage?: string;
+  isEmailVerified: boolean;
+  onboardingCompleted: boolean;
+  createdAt: string;
+};
+
+export type UpdateRolesDto = {
+  roles: Array<"admin" | "procurement" | "sales" | "finance">;
 };
 
 export type ResolveBankAccountDto = {
@@ -2206,7 +2221,7 @@ export type UpdatePersonInfoDto = {
 
 export type InviteItemDto = {
   email: string;
-  role: "admin" | "member" | "viewer";
+  roles: Array<"admin" | "procurement" | "sales" | "finance">;
 };
 
 export type InviteTeamDto = {
@@ -2222,7 +2237,17 @@ export type AcceptInvitationDto = {
 
 export type CreateInvitationDto = {
   email: string;
-  role: "admin" | "member" | "viewer";
+  roles: Array<"admin" | "procurement" | "sales" | "finance">;
+};
+
+export type InvitationResponseDto = {
+  _id: string;
+  email: string;
+  role: string;
+  roles?: Array<string>;
+  status: "pending" | "accepted" | "expired" | "revoked";
+  expiresAt: string;
+  createdAt: string;
 };
 
 export type AdminLoginDto = {
@@ -3394,6 +3419,20 @@ export type UsersAuthControllerGetProfileResponses = {
 export type UsersAuthControllerGetProfileResponse =
   UsersAuthControllerGetProfileResponses[keyof UsersAuthControllerGetProfileResponses];
 
+export type UsersAuthControllerGetPermissionsData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: "/api/v1/auth/me/permissions";
+};
+
+export type UsersAuthControllerGetPermissionsResponses = {
+  /**
+   * Roles and resolved permissions
+   */
+  200: unknown;
+};
+
 export type UsersAuthControllerUpdateProfileData = {
   body: UpdateProfileDto;
   path?: never;
@@ -3477,32 +3516,30 @@ export type OrganizationsControllerListMembersData = {
 };
 
 export type OrganizationsControllerListMembersResponses = {
-  200: Array<{
-    [key: string]: unknown;
-  }>;
+  200: Array<MemberResponseDto>;
 };
 
 export type OrganizationsControllerListMembersResponse =
   OrganizationsControllerListMembersResponses[keyof OrganizationsControllerListMembersResponses];
 
-export type OrganizationsControllerUpdateMemberRoleData = {
-  body: UpdateRoleDto;
+export type OrganizationsControllerUpdateMemberRolesData = {
+  body: UpdateRolesDto;
   path: {
     orgId: string;
     userId: string;
   };
   query?: never;
-  url: "/api/v1/organizations/{orgId}/members/{userId}/role";
+  url: "/api/v1/organizations/{orgId}/members/{userId}/roles";
 };
 
-export type OrganizationsControllerUpdateMemberRoleResponses = {
+export type OrganizationsControllerUpdateMemberRolesResponses = {
   200: {
     [key: string]: unknown;
   };
 };
 
-export type OrganizationsControllerUpdateMemberRoleResponse =
-  OrganizationsControllerUpdateMemberRoleResponses[keyof OrganizationsControllerUpdateMemberRoleResponses];
+export type OrganizationsControllerUpdateMemberRolesResponse =
+  OrganizationsControllerUpdateMemberRolesResponses[keyof OrganizationsControllerUpdateMemberRolesResponses];
 
 export type OrganizationsControllerRemoveMemberData = {
   body?: never;
@@ -5201,9 +5238,7 @@ export type InvitationsControllerListInvitationsData = {
 };
 
 export type InvitationsControllerListInvitationsResponses = {
-  200: Array<{
-    [key: string]: unknown;
-  }>;
+  200: Array<InvitationResponseDto>;
 };
 
 export type InvitationsControllerListInvitationsResponse =
@@ -5261,7 +5296,7 @@ export type AdminProductsControllerFindAllData = {
 };
 
 export type AdminProductsControllerFindAllResponses = {
-  200: Array<ProductResponseDto>;
+  200: PaginatedProductsResponseDto;
 };
 
 export type AdminProductsControllerFindAllResponse =
@@ -5836,9 +5871,7 @@ export type AdminOrganizationsControllerListMembersData = {
 };
 
 export type AdminOrganizationsControllerListMembersResponses = {
-  200: Array<{
-    [key: string]: unknown;
-  }>;
+  200: Array<MemberResponseDto>;
 };
 
 export type AdminOrganizationsControllerListMembersResponse =

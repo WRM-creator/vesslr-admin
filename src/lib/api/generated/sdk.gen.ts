@@ -303,8 +303,8 @@ import type {
   OrganizationsControllerResolveAccountResponses,
   OrganizationsControllerUpdateBankDetailsData,
   OrganizationsControllerUpdateBankDetailsResponses,
-  OrganizationsControllerUpdateMemberRoleData,
-  OrganizationsControllerUpdateMemberRoleResponses,
+  OrganizationsControllerUpdateMemberRolesData,
+  OrganizationsControllerUpdateMemberRolesResponses,
   OrganizationsControllerUpdateOrganizationData,
   OrganizationsControllerUpdateOrganizationResponses,
   OrgProductsControllerCreateData,
@@ -399,6 +399,8 @@ import type {
   UsersAuthControllerChangePasswordResponses,
   UsersAuthControllerForgotPasswordData,
   UsersAuthControllerForgotPasswordResponses,
+  UsersAuthControllerGetPermissionsData,
+  UsersAuthControllerGetPermissionsResponses,
   UsersAuthControllerGetProfileData,
   UsersAuthControllerGetProfileResponses,
   UsersAuthControllerLoginData,
@@ -649,6 +651,24 @@ export const usersAuthControllerGetProfile = <
     ...options,
   });
 
+/**
+ * Get resolved permissions for the current user
+ */
+export const usersAuthControllerGetPermissions = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<UsersAuthControllerGetPermissionsData, ThrowOnError>,
+) =>
+  (options?.client ?? client).get<
+    UsersAuthControllerGetPermissionsResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/auth/me/permissions",
+    ...options,
+  });
+
 export const usersAuthControllerUpdateProfile = <
   ThrowOnError extends boolean = false,
 >(
@@ -760,20 +780,20 @@ export const organizationsControllerListMembers = <
   });
 
 /**
- * Update a member role
+ * Update a member's roles
  */
-export const organizationsControllerUpdateMemberRole = <
+export const organizationsControllerUpdateMemberRoles = <
   ThrowOnError extends boolean = false,
 >(
-  options: Options<OrganizationsControllerUpdateMemberRoleData, ThrowOnError>,
+  options: Options<OrganizationsControllerUpdateMemberRolesData, ThrowOnError>,
 ) =>
   (options.client ?? client).patch<
-    OrganizationsControllerUpdateMemberRoleResponses,
+    OrganizationsControllerUpdateMemberRolesResponses,
     unknown,
     ThrowOnError
   >({
     security: [{ scheme: "bearer", type: "http" }],
-    url: "/api/v1/organizations/{orgId}/members/{userId}/role",
+    url: "/api/v1/organizations/{orgId}/members/{userId}/roles",
     ...options,
     headers: {
       "Content-Type": "application/json",
