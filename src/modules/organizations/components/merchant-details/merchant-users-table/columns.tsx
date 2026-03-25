@@ -8,23 +8,12 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import type { MemberResponseDto } from "@/lib/api/generated/types.gen";
 import type { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
 import { MoreHorizontal } from "lucide-react";
 
-export interface MerchantUser {
-  _id: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  role?: string;
-  phone?: string;
-  isEmailVerified?: boolean;
-  onboardingCompleted?: boolean;
-  createdAt?: string | Date;
-}
-
-export const merchantUserColumns: ColumnDef<MerchantUser>[] = [
+export const merchantUserColumns: ColumnDef<MemberResponseDto>[] = [
   {
     accessorKey: "user",
     header: "User",

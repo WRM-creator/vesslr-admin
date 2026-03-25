@@ -1,8 +1,9 @@
 import { DataTable } from "@/components/shared/data-table";
-import { merchantUserColumns, type MerchantUser } from "./columns";
+import type { MemberResponseDto } from "@/lib/api/generated/types.gen";
+import { merchantUserColumns } from "./columns";
 
 interface MerchantUsersTableProps {
-  data: MerchantUser[];
+  data: MemberResponseDto[];
   isLoading?: boolean;
 }
 

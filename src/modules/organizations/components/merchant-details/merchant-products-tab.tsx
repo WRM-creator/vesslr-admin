@@ -1,7 +1,10 @@
 import { api } from "@/lib/api";
+import type { AdminProductsControllerFindAllData } from "@/lib/api/generated/types.gen";
 import { ProductsTable } from "@/modules/products/components/products-table";
 import type { ProductFilters } from "@/modules/products/components/products-table/filters";
+import type { Product } from "@/modules/products/lib/product-details-model";
 import { useMemo } from "react";
+import type { DateRange } from "react-day-picker";
 import { useSearchParams } from "react-router-dom";
 
 interface MerchantProductsTabProps {
@@ -34,8 +37,7 @@ export function MerchantProductsTab({ merchantId }: MerchantProductsTabProps) {
 
   // Transform UI filters to API query params
   const queryParams = useMemo(() => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const params: Record<string, any> = {};
+    const params: NonNullable<AdminProductsControllerFindAllData["query"]> = {};
 
     if (filters.search) params.search = filters.search;
     if (filters.category !== "all") params.category = filters.category;
@@ -61,23 +63,36 @@ export function MerchantProductsTab({ merchantId }: MerchantProductsTabProps) {
 
   const { data: productsData, isLoading } =
     api.admin.products.list.useQuery({ query: queryParams });
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const products = ((productsData as any)?.data?.docs as any[]) || [];
+  const rawProducts = productsData?.data?.docs || [];
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const handleFilterChange = (key: keyof ProductFilters, value: any) => {
+  const products: Product[] = rawProducts.map((p) => ({
+    id: p._id,
+    name: p.title || "Untitled",
+    category: p.category?.name || "Uncategorized",
+    merchant: p.organization?.name || "Unknown",
+    status: p.status === "pending" ? "pending_approval" : (p.status as Product["status"]) || "draft",
+    created: p.createdAt || "",
+    price: p.pricePerUnit ?? 0,
+    transactionType: (p.transactionTypes?.[0]?.toLowerCase().replace(/ /g, "_") as Product["transactionType"]) || "purchase",
+    currency: p.currency || "USD",
+    image: p.images?.[0],
+    availableQuantity: p.availableQuantity || 0,
+    unitOfMeasurement: p.unitOfMeasurement || "unit",
+  }));
+
+  const handleFilterChange = (key: keyof ProductFilters, value: ProductFilters[keyof ProductFilters]) => {
     setSearchParams((prev) => {
-      // Don't allow changing merchantId via UI just in case
       if (key === "merchantId") return prev;
 
       if (key === "dateRange") {
-        if (value?.from) {
-          prev.set("from", value.from.toISOString());
+        const range = value as DateRange | undefined;
+        if (range?.from) {
+          prev.set("from", range.from.toISOString());
         } else {
           prev.delete("from");
         }
-        if (value?.to) {
-          prev.set("to", value.to.toISOString());
+        if (range?.to) {
+          prev.set("to", range.to.toISOString());
         } else {
           prev.delete("to");
         }
