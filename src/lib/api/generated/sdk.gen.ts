@@ -67,6 +67,22 @@ import type {
   AdminLedgerControllerTriggerExternalReconciliationResponses,
   AdminLedgerControllerTriggerInternalReconciliationData,
   AdminLedgerControllerTriggerInternalReconciliationResponses,
+  AdminManagementControllerCreateData,
+  AdminManagementControllerCreateResponses,
+  AdminManagementControllerDeactivateData,
+  AdminManagementControllerDeactivateResponses,
+  AdminManagementControllerGetByIdData,
+  AdminManagementControllerGetByIdResponses,
+  AdminManagementControllerListData,
+  AdminManagementControllerListResponses,
+  AdminManagementControllerListRolesData,
+  AdminManagementControllerListRolesResponses,
+  AdminManagementControllerListSummaryData,
+  AdminManagementControllerListSummaryResponses,
+  AdminManagementControllerReactivateData,
+  AdminManagementControllerReactivateResponses,
+  AdminManagementControllerUpdateData,
+  AdminManagementControllerUpdateResponses,
   AdminNegotiationsControllerFindAllData,
   AdminNegotiationsControllerFindAllResponses,
   AdminNegotiationsControllerFindOneData,
@@ -107,6 +123,18 @@ import type {
   AdminRequestsControllerFindOneResponses,
   AdminRequestsControllerUpdateStatusData,
   AdminRequestsControllerUpdateStatusResponses,
+  AdminSupportControllerAddMessageData,
+  AdminSupportControllerAddMessageResponses,
+  AdminSupportControllerFindAllData,
+  AdminSupportControllerFindAllResponses,
+  AdminSupportControllerFindOneData,
+  AdminSupportControllerFindOneResponses,
+  AdminSupportControllerGetStatsData,
+  AdminSupportControllerGetStatsResponses,
+  AdminSupportControllerResolveData,
+  AdminSupportControllerResolveResponses,
+  AdminSupportControllerUpdateData,
+  AdminSupportControllerUpdateResponses,
   AdminTransactionsControllerAddDocumentData,
   AdminTransactionsControllerAddDocumentResponses,
   AdminTransactionsControllerAddRequirementData,
@@ -363,6 +391,18 @@ import type {
   SuppliersControllerRemoveResponses,
   SuppliersControllerUpdateData,
   SuppliersControllerUpdateResponses,
+  SupportControllerAddMessageData,
+  SupportControllerAddMessageResponses,
+  SupportControllerCloseData,
+  SupportControllerCloseResponses,
+  SupportControllerCreateData,
+  SupportControllerCreateResponses,
+  SupportControllerFindAllData,
+  SupportControllerFindAllResponses,
+  SupportControllerFindOneData,
+  SupportControllerFindOneResponses,
+  SupportControllerGetAwaitingCountData,
+  SupportControllerGetAwaitingCountResponses,
   TransactionConversationsControllerGetConversationData,
   TransactionConversationsControllerGetConversationResponses,
   TransactionConversationsControllerSendMessageData,
@@ -2821,6 +2861,9 @@ export const adminAuthControllerVerifyOtp = <
     },
   });
 
+/**
+ * Create a new admin account (requires admin:create permission)
+ */
 export const adminAuthControllerCreateAdmin = <
   ThrowOnError extends boolean = false,
 >(
@@ -2871,6 +2914,158 @@ export const adminAuthControllerGetProfile = <
   >({
     security: [{ scheme: "bearer", type: "http" }],
     url: "/api/v1/admin/auth/me",
+    ...options,
+  });
+
+/**
+ * List all admin accounts
+ */
+export const adminManagementControllerList = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<AdminManagementControllerListData, ThrowOnError>,
+) =>
+  (options?.client ?? client).get<
+    AdminManagementControllerListResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/admins",
+    ...options,
+  });
+
+/**
+ * Create a new admin account
+ */
+export const adminManagementControllerCreate = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AdminManagementControllerCreateData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    AdminManagementControllerCreateResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/admins",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * List all active admins (minimal fields, for dropdowns)
+ */
+export const adminManagementControllerListSummary = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<AdminManagementControllerListSummaryData, ThrowOnError>,
+) =>
+  (options?.client ?? client).get<
+    AdminManagementControllerListSummaryResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/admins/summary",
+    ...options,
+  });
+
+/**
+ * List all available roles and their default permissions
+ */
+export const adminManagementControllerListRoles = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<AdminManagementControllerListRolesData, ThrowOnError>,
+) =>
+  (options?.client ?? client).get<
+    AdminManagementControllerListRolesResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/admins/roles",
+    ...options,
+  });
+
+/**
+ * Get admin details by ID
+ */
+export const adminManagementControllerGetById = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AdminManagementControllerGetByIdData, ThrowOnError>,
+) =>
+  (options.client ?? client).get<
+    AdminManagementControllerGetByIdResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/admins/{id}",
+    ...options,
+  });
+
+/**
+ * Update admin profile, role, or permission overrides
+ */
+export const adminManagementControllerUpdate = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AdminManagementControllerUpdateData, ThrowOnError>,
+) =>
+  (options.client ?? client).patch<
+    AdminManagementControllerUpdateResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/admins/{id}",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Deactivate an admin account
+ */
+export const adminManagementControllerDeactivate = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AdminManagementControllerDeactivateData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    AdminManagementControllerDeactivateResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/admins/{id}/deactivate",
+    ...options,
+  });
+
+/**
+ * Reactivate an admin account
+ */
+export const adminManagementControllerReactivate = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AdminManagementControllerReactivateData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    AdminManagementControllerReactivateResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/admins/{id}/reactivate",
     ...options,
   });
 
@@ -4024,6 +4219,126 @@ export const adminDashboardControllerGetStats = <
   });
 
 /**
+ * Get support ticket statistics
+ */
+export const adminSupportControllerGetStats = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<AdminSupportControllerGetStatsData, ThrowOnError>,
+) =>
+  (options?.client ?? client).get<
+    AdminSupportControllerGetStatsResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/support/stats",
+    ...options,
+  });
+
+/**
+ * List all support tickets (admin)
+ */
+export const adminSupportControllerFindAll = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<AdminSupportControllerFindAllData, ThrowOnError>,
+) =>
+  (options?.client ?? client).get<
+    AdminSupportControllerFindAllResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/support/tickets",
+    ...options,
+  });
+
+/**
+ * Get support ticket details (admin)
+ */
+export const adminSupportControllerFindOne = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AdminSupportControllerFindOneData, ThrowOnError>,
+) =>
+  (options.client ?? client).get<
+    AdminSupportControllerFindOneResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/support/tickets/{id}",
+    ...options,
+  });
+
+/**
+ * Update ticket status, priority, assignee, or tags
+ */
+export const adminSupportControllerUpdate = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AdminSupportControllerUpdateData, ThrowOnError>,
+) =>
+  (options.client ?? client).patch<
+    AdminSupportControllerUpdateResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/support/tickets/{id}",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Add a reply or internal note to a ticket
+ */
+export const adminSupportControllerAddMessage = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AdminSupportControllerAddMessageData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    AdminSupportControllerAddMessageResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/support/tickets/{id}/messages",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Resolve a support ticket with a note
+ */
+export const adminSupportControllerResolve = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AdminSupportControllerResolveData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    AdminSupportControllerResolveResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/support/tickets/{id}/resolve",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
  * Get all category groups
  */
 export const categoryGroupsControllerFindAll = <
@@ -4452,4 +4767,112 @@ export const walletControllerFundEscrow = <
       "Content-Type": "application/json",
       ...options.headers,
     },
+  });
+
+/**
+ * List support tickets for your organization
+ */
+export const supportControllerFindAll = <ThrowOnError extends boolean = false>(
+  options?: Options<SupportControllerFindAllData, ThrowOnError>,
+) =>
+  (options?.client ?? client).get<
+    SupportControllerFindAllResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/support/tickets",
+    ...options,
+  });
+
+/**
+ * Create a support ticket
+ */
+export const supportControllerCreate = <ThrowOnError extends boolean = false>(
+  options: Options<SupportControllerCreateData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    SupportControllerCreateResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/support/tickets",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Count tickets awaiting user response (for sidebar badge)
+ */
+export const supportControllerGetAwaitingCount = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<SupportControllerGetAwaitingCountData, ThrowOnError>,
+) =>
+  (options?.client ?? client).get<
+    SupportControllerGetAwaitingCountResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/support/tickets/awaiting-count",
+    ...options,
+  });
+
+/**
+ * View a support ticket
+ */
+export const supportControllerFindOne = <ThrowOnError extends boolean = false>(
+  options: Options<SupportControllerFindOneData, ThrowOnError>,
+) =>
+  (options.client ?? client).get<
+    SupportControllerFindOneResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/support/tickets/{id}",
+    ...options,
+  });
+
+/**
+ * Add a message to a support ticket
+ */
+export const supportControllerAddMessage = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<SupportControllerAddMessageData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    SupportControllerAddMessageResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/support/tickets/{id}/messages",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Close a support ticket
+ */
+export const supportControllerClose = <ThrowOnError extends boolean = false>(
+  options: Options<SupportControllerCloseData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    SupportControllerCloseResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/support/tickets/{id}/close",
+    ...options,
   });

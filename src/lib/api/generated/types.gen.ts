@@ -246,6 +246,7 @@ export type UserProfileResponseDto = {
   reviewedAt?: string;
   approvedAt?: string;
   residentialAddress?: ResidentialAddressDto;
+  isInvitedMember?: boolean;
   organization?: OnboardingOrganizationDto;
   profileImage?: string;
 };
@@ -2039,6 +2040,7 @@ export type OnboardingStatusResponseDto = {
   reviewedAt?: string;
   approvedAt?: string;
   smileVerificationStatus?: "pending" | "passed" | "manual_review" | "failed";
+  isInvitedMember?: boolean;
   residentialAddress?: ResidentialAddressDto;
   organization?: OnboardingOrganizationDto;
 };
@@ -2266,13 +2268,102 @@ export type AdminVerifyOtpDto = {
   otp: string;
 };
 
+export type PermissionOverridesDto = {
+  /**
+   * Additional permissions granted beyond the role defaults
+   */
+  granted?: Array<
+    | "admin:view"
+    | "admin:create"
+    | "admin:update"
+    | "admin:deactivate"
+    | "dashboard:view"
+    | "organization:view"
+    | "organization:update"
+    | "organization:verify"
+    | "compliance:view"
+    | "compliance:review"
+    | "category:view"
+    | "category:create"
+    | "category:update"
+    | "category:delete"
+    | "product:view"
+    | "product:update"
+    | "product:delete"
+    | "request:view"
+    | "request:update"
+    | "request:accept"
+    | "transaction:view"
+    | "transaction:manage"
+    | "escrow:view"
+    | "escrow:manage"
+    | "dispute:view"
+    | "dispute:manage"
+    | "support:view"
+    | "support:manage"
+    | "support:assign"
+    | "notification:view"
+    | "notification:manage"
+    | "negotiation:view"
+    | "negotiation:manage"
+    | "settings:view"
+    | "settings:manage"
+    | "ledger:view"
+    | "user:view"
+    | "user:manage"
+  >;
+  /**
+   * Permissions revoked from the role defaults
+   */
+  revoked?: Array<
+    | "admin:view"
+    | "admin:create"
+    | "admin:update"
+    | "admin:deactivate"
+    | "dashboard:view"
+    | "organization:view"
+    | "organization:update"
+    | "organization:verify"
+    | "compliance:view"
+    | "compliance:review"
+    | "category:view"
+    | "category:create"
+    | "category:update"
+    | "category:delete"
+    | "product:view"
+    | "product:update"
+    | "product:delete"
+    | "request:view"
+    | "request:update"
+    | "request:accept"
+    | "transaction:view"
+    | "transaction:manage"
+    | "escrow:view"
+    | "escrow:manage"
+    | "dispute:view"
+    | "dispute:manage"
+    | "support:view"
+    | "support:manage"
+    | "support:assign"
+    | "notification:view"
+    | "notification:manage"
+    | "negotiation:view"
+    | "negotiation:manage"
+    | "settings:view"
+    | "settings:manage"
+    | "ledger:view"
+    | "user:view"
+    | "user:manage"
+  >;
+};
+
 export type CreateAdminDto = {
   /**
    * Admin's email address
    */
   email: string;
   /**
-   * Initial password (users should change this later)
+   * Initial password (admin should change this later)
    */
   password: string;
   /**
@@ -2280,17 +2371,23 @@ export type CreateAdminDto = {
    */
   name: string;
   /**
-   * Role assigned to the admin (e.g. 'super-admin', 'support')
+   * Role assigned to the admin
    */
-  role: string;
+  role:
+    | "super_admin"
+    | "operations"
+    | "compliance"
+    | "support"
+    | "catalog"
+    | "finance";
   /**
    * Department the admin belongs to
    */
   department?: string;
   /**
-   * List of permissions granted to the admin
+   * Permission overrides on top of role defaults
    */
-  permissions?: Array<string>;
+  permissionOverrides?: PermissionOverridesDto;
   /**
    * Whether the admin account is active
    */
@@ -2306,6 +2403,198 @@ export type AdminChangePasswordDto = {
    * New password (min 8 chars)
    */
   newPassword: string;
+};
+
+export type PermissionOverridesResponseDto = {
+  granted: Array<
+    | "admin:view"
+    | "admin:create"
+    | "admin:update"
+    | "admin:deactivate"
+    | "dashboard:view"
+    | "organization:view"
+    | "organization:update"
+    | "organization:verify"
+    | "compliance:view"
+    | "compliance:review"
+    | "category:view"
+    | "category:create"
+    | "category:update"
+    | "category:delete"
+    | "product:view"
+    | "product:update"
+    | "product:delete"
+    | "request:view"
+    | "request:update"
+    | "request:accept"
+    | "transaction:view"
+    | "transaction:manage"
+    | "escrow:view"
+    | "escrow:manage"
+    | "dispute:view"
+    | "dispute:manage"
+    | "support:view"
+    | "support:manage"
+    | "support:assign"
+    | "notification:view"
+    | "notification:manage"
+    | "negotiation:view"
+    | "negotiation:manage"
+    | "settings:view"
+    | "settings:manage"
+    | "ledger:view"
+    | "user:view"
+    | "user:manage"
+  >;
+  revoked: Array<
+    | "admin:view"
+    | "admin:create"
+    | "admin:update"
+    | "admin:deactivate"
+    | "dashboard:view"
+    | "organization:view"
+    | "organization:update"
+    | "organization:verify"
+    | "compliance:view"
+    | "compliance:review"
+    | "category:view"
+    | "category:create"
+    | "category:update"
+    | "category:delete"
+    | "product:view"
+    | "product:update"
+    | "product:delete"
+    | "request:view"
+    | "request:update"
+    | "request:accept"
+    | "transaction:view"
+    | "transaction:manage"
+    | "escrow:view"
+    | "escrow:manage"
+    | "dispute:view"
+    | "dispute:manage"
+    | "support:view"
+    | "support:manage"
+    | "support:assign"
+    | "notification:view"
+    | "notification:manage"
+    | "negotiation:view"
+    | "negotiation:manage"
+    | "settings:view"
+    | "settings:manage"
+    | "ledger:view"
+    | "user:view"
+    | "user:manage"
+  >;
+};
+
+export type AdminResponseDto = {
+  _id: string;
+  email: string;
+  name: string;
+  role:
+    | "super_admin"
+    | "operations"
+    | "compliance"
+    | "support"
+    | "catalog"
+    | "finance";
+  department?: string;
+  isActive: boolean;
+  permissionOverrides: PermissionOverridesResponseDto;
+  /**
+   * Effective resolved permissions
+   */
+  effectivePermissions: Array<
+    | "admin:view"
+    | "admin:create"
+    | "admin:update"
+    | "admin:deactivate"
+    | "dashboard:view"
+    | "organization:view"
+    | "organization:update"
+    | "organization:verify"
+    | "compliance:view"
+    | "compliance:review"
+    | "category:view"
+    | "category:create"
+    | "category:update"
+    | "category:delete"
+    | "product:view"
+    | "product:update"
+    | "product:delete"
+    | "request:view"
+    | "request:update"
+    | "request:accept"
+    | "transaction:view"
+    | "transaction:manage"
+    | "escrow:view"
+    | "escrow:manage"
+    | "dispute:view"
+    | "dispute:manage"
+    | "support:view"
+    | "support:manage"
+    | "support:assign"
+    | "notification:view"
+    | "notification:manage"
+    | "negotiation:view"
+    | "negotiation:manage"
+    | "settings:view"
+    | "settings:manage"
+    | "ledger:view"
+    | "user:view"
+    | "user:manage"
+  >;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type AdminListResponseDto = {
+  message: string;
+  docs: Array<AdminResponseDto>;
+  totalDocs: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+};
+
+export type AdminSummaryDto = {
+  _id: string;
+  name: string;
+  email: string;
+  role:
+    | "super_admin"
+    | "operations"
+    | "compliance"
+    | "support"
+    | "catalog"
+    | "finance";
+  department?: string;
+};
+
+export type UpdateAdminDto = {
+  /**
+   * Full name of the admin
+   */
+  name?: string;
+  /**
+   * Role assigned to the admin
+   */
+  role?:
+    | "super_admin"
+    | "operations"
+    | "compliance"
+    | "support"
+    | "catalog"
+    | "finance";
+  /**
+   * Department the admin belongs to
+   */
+  department?: string;
+  /**
+   * Permission overrides on top of role defaults
+   */
+  permissionOverrides?: PermissionOverridesDto;
 };
 
 export type CategoryDocumentTemplateInput = {
@@ -3097,6 +3386,48 @@ export type DashboardStatsResponseDto = {
   data: DashboardStatsDto;
 };
 
+export type AdminUpdateTicketDto = {
+  status?:
+    | "open"
+    | "in_progress"
+    | "awaiting_user"
+    | "awaiting_admin"
+    | "resolved"
+    | "closed";
+  priority?: "low" | "medium" | "high" | "urgent";
+  /**
+   * Admin ID to assign the ticket to
+   */
+  assignedTo?: string;
+  /**
+   * Tags for categorization
+   */
+  tags?: Array<string>;
+};
+
+export type SupportAttachmentDto = {
+  url: string;
+  name: string;
+  size?: number;
+  mimeType?: string;
+};
+
+export type AdminAddMessageDto = {
+  body: string;
+  attachments?: Array<SupportAttachmentDto>;
+  /**
+   * If true, message is only visible to admins
+   */
+  isInternal?: boolean;
+};
+
+export type AdminResolveTicketDto = {
+  /**
+   * Resolution note (visible to the user)
+   */
+  note: string;
+};
+
 export type UpdateCategoryGroupDto = {
   name?: string;
   type?: "equipment-and-products" | "services";
@@ -3216,6 +3547,106 @@ export type WalletFundEscrowDto = {
    * Transaction ID to fund escrow for
    */
   transactionId: string;
+};
+
+export type RelatedResourceDto = {
+  /**
+   * Resource type: transaction, order, request
+   */
+  type: string;
+  /**
+   * Resource ID
+   */
+  id: string;
+};
+
+export type CreateTicketDto = {
+  subject: string;
+  category:
+    | "account"
+    | "onboarding"
+    | "billing"
+    | "transactions"
+    | "products"
+    | "technical"
+    | "feature_request"
+    | "other";
+  /**
+   * Initial message body
+   */
+  body: string;
+  attachments?: Array<SupportAttachmentDto>;
+  relatedResource?: RelatedResourceDto;
+};
+
+export type SupportMessageResponseDto = {
+  _id: string;
+  sender: {
+    [key: string]: unknown;
+  };
+  senderType: string;
+  body: string;
+  attachments: Array<{
+    [key: string]: unknown;
+  }>;
+  createdAt: string;
+};
+
+export type SupportTicketResponseDto = {
+  _id: string;
+  displayId: number;
+  subject: string;
+  category:
+    | "account"
+    | "onboarding"
+    | "billing"
+    | "transactions"
+    | "products"
+    | "technical"
+    | "feature_request"
+    | "other";
+  priority: "low" | "medium" | "high" | "urgent";
+  status:
+    | "open"
+    | "in_progress"
+    | "awaiting_user"
+    | "awaiting_admin"
+    | "resolved"
+    | "closed";
+  createdBy: {
+    [key: string]: unknown;
+  };
+  organization: {
+    [key: string]: unknown;
+  };
+  assignedTo?: {
+    [key: string]: unknown;
+  };
+  messages: Array<SupportMessageResponseDto>;
+  relatedResource?: {
+    [key: string]: unknown;
+  };
+  tags: Array<string>;
+  resolvedAt?: string;
+  closedAt?: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type PaginatedSupportTicketsResponseDto = {
+  message: string;
+  data: {
+    docs: Array<SupportTicketResponseDto>;
+    totalDocs: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  };
+};
+
+export type AddMessageDto = {
+  body: string;
+  attachments?: Array<SupportAttachmentDto>;
 };
 
 export type AppControllerGetHelloData = {
@@ -5460,6 +5891,150 @@ export type AdminAuthControllerGetProfileResponses = {
 export type AdminAuthControllerGetProfileResponse =
   AdminAuthControllerGetProfileResponses[keyof AdminAuthControllerGetProfileResponses];
 
+export type AdminManagementControllerListData = {
+  body?: never;
+  path?: never;
+  query?: {
+    /**
+     * Page number
+     */
+    page?: string;
+    /**
+     * Items per page
+     */
+    limit?: string;
+    /**
+     * Filter by role
+     */
+    role?:
+      | "super_admin"
+      | "operations"
+      | "compliance"
+      | "support"
+      | "catalog"
+      | "finance";
+    /**
+     * Filter by active status
+     */
+    isActive?: string;
+    /**
+     * Search by name or email
+     */
+    search?: string;
+  };
+  url: "/api/v1/admin/admins";
+};
+
+export type AdminManagementControllerListResponses = {
+  200: AdminListResponseDto;
+};
+
+export type AdminManagementControllerListResponse =
+  AdminManagementControllerListResponses[keyof AdminManagementControllerListResponses];
+
+export type AdminManagementControllerCreateData = {
+  body: CreateAdminDto;
+  path?: never;
+  query?: never;
+  url: "/api/v1/admin/admins";
+};
+
+export type AdminManagementControllerCreateResponses = {
+  201: unknown;
+};
+
+export type AdminManagementControllerListSummaryData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: "/api/v1/admin/admins/summary";
+};
+
+export type AdminManagementControllerListSummaryResponses = {
+  200: Array<AdminSummaryDto>;
+};
+
+export type AdminManagementControllerListSummaryResponse =
+  AdminManagementControllerListSummaryResponses[keyof AdminManagementControllerListSummaryResponses];
+
+export type AdminManagementControllerListRolesData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: "/api/v1/admin/admins/roles";
+};
+
+export type AdminManagementControllerListRolesResponses = {
+  200: unknown;
+};
+
+export type AdminManagementControllerGetByIdData = {
+  body?: never;
+  path: {
+    /**
+     * Admin ID
+     */
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/admin/admins/{id}";
+};
+
+export type AdminManagementControllerGetByIdResponses = {
+  200: AdminResponseDto;
+};
+
+export type AdminManagementControllerGetByIdResponse =
+  AdminManagementControllerGetByIdResponses[keyof AdminManagementControllerGetByIdResponses];
+
+export type AdminManagementControllerUpdateData = {
+  body: UpdateAdminDto;
+  path: {
+    /**
+     * Admin ID
+     */
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/admin/admins/{id}";
+};
+
+export type AdminManagementControllerUpdateResponses = {
+  200: unknown;
+};
+
+export type AdminManagementControllerDeactivateData = {
+  body?: never;
+  path: {
+    /**
+     * Admin ID
+     */
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/admin/admins/{id}/deactivate";
+};
+
+export type AdminManagementControllerDeactivateResponses = {
+  201: unknown;
+};
+
+export type AdminManagementControllerReactivateData = {
+  body?: never;
+  path: {
+    /**
+     * Admin ID
+     */
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/admin/admins/{id}/reactivate";
+};
+
+export type AdminManagementControllerReactivateResponses = {
+  201: unknown;
+};
+
 export type AdminCategoriesControllerFindAllData = {
   body?: never;
   path?: never;
@@ -6459,6 +7034,124 @@ export type AdminDashboardControllerGetStatsResponses = {
 export type AdminDashboardControllerGetStatsResponse =
   AdminDashboardControllerGetStatsResponses[keyof AdminDashboardControllerGetStatsResponses];
 
+export type AdminSupportControllerGetStatsData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: "/api/v1/admin/support/stats";
+};
+
+export type AdminSupportControllerGetStatsResponses = {
+  200: unknown;
+};
+
+export type AdminSupportControllerFindAllData = {
+  body?: never;
+  path?: never;
+  query?: {
+    page?: string;
+    limit?: string;
+    status?:
+      | "open"
+      | "in_progress"
+      | "awaiting_user"
+      | "awaiting_admin"
+      | "resolved"
+      | "closed";
+    category?:
+      | "account"
+      | "onboarding"
+      | "billing"
+      | "transactions"
+      | "products"
+      | "technical"
+      | "feature_request"
+      | "other";
+    priority?: "low" | "medium" | "high" | "urgent";
+    /**
+     * Filter by assigned admin ID
+     */
+    assignee?: string;
+    /**
+     * Filter by organization ID
+     */
+    organizationId?: string;
+    /**
+     * Search by subject or display ID
+     */
+    search?: string;
+  };
+  url: "/api/v1/admin/support/tickets";
+};
+
+export type AdminSupportControllerFindAllResponses = {
+  200: unknown;
+};
+
+export type AdminSupportControllerFindOneData = {
+  body?: never;
+  path: {
+    /**
+     * Ticket ID
+     */
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/admin/support/tickets/{id}";
+};
+
+export type AdminSupportControllerFindOneResponses = {
+  200: unknown;
+};
+
+export type AdminSupportControllerUpdateData = {
+  body: AdminUpdateTicketDto;
+  path: {
+    /**
+     * Ticket ID
+     */
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/admin/support/tickets/{id}";
+};
+
+export type AdminSupportControllerUpdateResponses = {
+  200: unknown;
+};
+
+export type AdminSupportControllerAddMessageData = {
+  body: AdminAddMessageDto;
+  path: {
+    /**
+     * Ticket ID
+     */
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/admin/support/tickets/{id}/messages";
+};
+
+export type AdminSupportControllerAddMessageResponses = {
+  201: unknown;
+};
+
+export type AdminSupportControllerResolveData = {
+  body: AdminResolveTicketDto;
+  path: {
+    /**
+     * Ticket ID
+     */
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/admin/support/tickets/{id}/resolve";
+};
+
+export type AdminSupportControllerResolveResponses = {
+  201: unknown;
+};
+
 export type CategoryGroupsControllerFindAllData = {
   body?: never;
   path?: never;
@@ -6875,3 +7568,121 @@ export type WalletControllerFundEscrowResponses = {
    */
   200: unknown;
 };
+
+export type SupportControllerFindAllData = {
+  body?: never;
+  path?: never;
+  query?: {
+    page?: string;
+    limit?: string;
+    status?:
+      | "open"
+      | "in_progress"
+      | "awaiting_user"
+      | "awaiting_admin"
+      | "resolved"
+      | "closed";
+    category?:
+      | "account"
+      | "onboarding"
+      | "billing"
+      | "transactions"
+      | "products"
+      | "technical"
+      | "feature_request"
+      | "other";
+  };
+  url: "/api/v1/support/tickets";
+};
+
+export type SupportControllerFindAllResponses = {
+  200: PaginatedSupportTicketsResponseDto;
+};
+
+export type SupportControllerFindAllResponse =
+  SupportControllerFindAllResponses[keyof SupportControllerFindAllResponses];
+
+export type SupportControllerCreateData = {
+  body: CreateTicketDto;
+  path?: never;
+  query?: never;
+  url: "/api/v1/support/tickets";
+};
+
+export type SupportControllerCreateResponses = {
+  200: SupportTicketResponseDto;
+  201: unknown;
+};
+
+export type SupportControllerCreateResponse =
+  SupportControllerCreateResponses[keyof SupportControllerCreateResponses];
+
+export type SupportControllerGetAwaitingCountData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: "/api/v1/support/tickets/awaiting-count";
+};
+
+export type SupportControllerGetAwaitingCountResponses = {
+  200: unknown;
+};
+
+export type SupportControllerFindOneData = {
+  body?: never;
+  path: {
+    /**
+     * Ticket ID
+     */
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/support/tickets/{id}";
+};
+
+export type SupportControllerFindOneResponses = {
+  200: SupportTicketResponseDto;
+};
+
+export type SupportControllerFindOneResponse =
+  SupportControllerFindOneResponses[keyof SupportControllerFindOneResponses];
+
+export type SupportControllerAddMessageData = {
+  body: AddMessageDto;
+  path: {
+    /**
+     * Ticket ID
+     */
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/support/tickets/{id}/messages";
+};
+
+export type SupportControllerAddMessageResponses = {
+  200: SupportTicketResponseDto;
+  201: unknown;
+};
+
+export type SupportControllerAddMessageResponse =
+  SupportControllerAddMessageResponses[keyof SupportControllerAddMessageResponses];
+
+export type SupportControllerCloseData = {
+  body?: never;
+  path: {
+    /**
+     * Ticket ID
+     */
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/support/tickets/{id}/close";
+};
+
+export type SupportControllerCloseResponses = {
+  200: SupportTicketResponseDto;
+  201: unknown;
+};
+
+export type SupportControllerCloseResponse =
+  SupportControllerCloseResponses[keyof SupportControllerCloseResponses];

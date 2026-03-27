@@ -5,6 +5,7 @@ import {
   ClipboardCheck,
   ClipboardList,
   LayoutDashboard,
+  LifeBuoy,
   Lock,
   Package,
   Scale,
@@ -95,6 +96,11 @@ const navGroups: NavGroup[] = [
         title: "Disputes",
         url: "/disputes",
         icon: Scale,
+      },
+      {
+        title: "Support",
+        url: "/support",
+        icon: LifeBuoy,
       },
       // {
       //   title: "Logistics & Fulfilments",

@@ -73,6 +73,13 @@ import {
   productsControllerFindOne,
   storageControllerGeneratePresignedUrls,
   adminDashboardControllerGetStats,
+  adminSupportControllerFindAll,
+  adminSupportControllerFindOne,
+  adminSupportControllerGetStats,
+  adminSupportControllerUpdate,
+  adminSupportControllerAddMessage,
+  adminSupportControllerResolve,
+  adminManagementControllerListSummary,
 } from "./generated";
 
 export const api = {
@@ -386,6 +393,45 @@ export const api = {
   },
   storage: {
     presignedUrls: createMutation(storageControllerGeneratePresignedUrls),
+  },
+  support: {
+    list: createQuery(adminSupportControllerFindAll, (args) => [
+      "support",
+      "list",
+      args?.query,
+    ]),
+    detail: createQuery(adminSupportControllerFindOne, (args) => [
+      "support",
+      "detail",
+      args.path.id,
+    ]),
+    stats: createQuery(adminSupportControllerGetStats, [
+      "support",
+      "stats",
+    ]),
+    update: createMutation(adminSupportControllerUpdate, {
+      invalidates: (args) => [
+        ["support", "list"],
+        ["support", "detail", args.path.id],
+        ["support", "stats"],
+      ],
+    }),
+    addMessage: createMutation(adminSupportControllerAddMessage, {
+      invalidates: (args) => [
+        ["support", "detail", args.path.id],
+      ],
+    }),
+    resolve: createMutation(adminSupportControllerResolve, {
+      invalidates: (args) => [
+        ["support", "list"],
+        ["support", "detail", args.path.id],
+        ["support", "stats"],
+      ],
+    }),
+    adminSummary: createQuery(adminManagementControllerListSummary, [
+      "admins",
+      "summary",
+    ]),
   },
   // organizations: {
   //   list: createQuery(getApiV1AdminOrganizations, ["organizations", "list"]),

@@ -10,6 +10,7 @@ import { disputesRoutes } from "../disputes/routes";
 import { escrowsRoutes } from "../escrows/routes";
 import { logisticsRoutes } from "../logistics/routes";
 import { organizationsRoutes } from "../organizations/routes";
+import { supportRoutes } from "../support/routes";
 import { productsRoutes } from "../products/routes";
 import { requestsRoutes } from "../requests/routes";
 import { transactionRoutes } from "../transactions/routes";
@@ -35,6 +36,7 @@ export const appRoutes: RouteObject[] = [
           ...productsRoutes,
           ...escrowsRoutes,
           ...disputesRoutes,
+          ...supportRoutes,
           ...logisticsRoutes,
           ...analyticsRoutes,
         ],
