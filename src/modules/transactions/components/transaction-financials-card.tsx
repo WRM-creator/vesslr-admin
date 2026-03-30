@@ -45,12 +45,11 @@ export function TransactionFinancialsCard({
 
   const providerRef = isFunded ? "pi_mock_582962" : "Awaiting Initiation";
 
-  const amountConfig = {
-    currency: transaction.order.currency || "USD",
-    total: transaction.order.totalAmount || 0,
-    fees: (transaction.order.totalAmount || 0) * 0.003, // Mock 0.3% fee
-  };
-  const netEscrow = amountConfig.total - amountConfig.fees;
+  const order = transaction.order;
+  const currency = order.currency || "USD";
+  const goodsAmount = order.totalAmount || 0;
+  const serviceFeeAmount = order.serviceFeeAmount ?? 0;
+  const totalWithFee = order.totalWithFee ?? goodsAmount + serviceFeeAmount;
 
   return (
     <Card className="h-full">
@@ -121,24 +120,40 @@ export function TransactionFinancialsCard({
               </h4>
               <div className="space-y-3">
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">Total Amount</span>
+                  <span className="text-muted-foreground">Goods Amount</span>
                   <span className="font-medium">
-                    {formatCurrency(amountConfig.total, amountConfig.currency)}
+                    {formatCurrency(goodsAmount, currency)}
+                  </span>
+                </div>
+                {serviceFeeAmount > 0 && (
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">Service Fee (3%)</span>
+                    <span className="font-medium">
+                      {formatCurrency(serviceFeeAmount, currency)}
+                    </span>
+                  </div>
+                )}
+                <Separator />
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">Buyer Paid</span>
+                  <span className="font-semibold">
+                    {formatCurrency(totalWithFee, currency)}
                   </span>
                 </div>
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">Platform Fees</span>
-                  <span className="text-red-600">
-                    - {formatCurrency(amountConfig.fees, amountConfig.currency)}
+                  <span className="text-muted-foreground">Seller Payout</span>
+                  <span className="font-medium text-green-600">
+                    {formatCurrency(goodsAmount, currency)}
                   </span>
                 </div>
-                <Separator />
-                <div className="flex items-center justify-between text-base font-semibold">
-                  <span>Net Escrowed</span>
-                  <span>
-                    {formatCurrency(netEscrow, amountConfig.currency)}
-                  </span>
-                </div>
+                {serviceFeeAmount > 0 && (
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">Platform Revenue</span>
+                    <span className="font-medium text-blue-600">
+                      {formatCurrency(serviceFeeAmount, currency)}
+                    </span>
+                  </div>
+                )}
               </div>
             </div>
 
