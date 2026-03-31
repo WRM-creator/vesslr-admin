@@ -13,6 +13,8 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { AddCategoryDialog } from "./add-category-dialog";
 import { CategoriesTable } from "./categories-table";
+import type { CategoryTableItem } from "./categories-table/columns";
+import { EditCategoryDialog } from "./edit-category-dialog";
 
 interface CategoryGroupCategoriesCardProps {
   categoryGroup: CategoryGroupDto;
@@ -23,10 +25,14 @@ export function CategoryGroupCategoriesCard({
 }: CategoryGroupCategoriesCardProps) {
   const [search, setSearch] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [editCategory, setEditCategory] = useState<CategoryTableItem | null>(
+    null,
+  );
 
   const { data, isLoading } = api.categories.list.useQuery({
     query: { groupId: categoryGroup._id },
   });
+
 
   const { mutate: updateCategory, isPending: isToggling } =
     api.categories.update.useMutation();
@@ -86,6 +92,7 @@ export function CategoryGroupCategoriesCard({
             onSearchChange={setSearch}
             onToggleActive={handleToggleActive}
             isToggling={isToggling}
+            onEdit={setEditCategory}
           />
         </CardContent>
       </Card>
@@ -96,6 +103,16 @@ export function CategoryGroupCategoriesCard({
         open={dialogOpen}
         onOpenChange={setDialogOpen}
       />
+
+      {editCategory && (
+        <EditCategoryDialog
+          category={editCategory}
+          open={!!editCategory}
+          onOpenChange={(open) => {
+            if (!open) setEditCategory(null);
+          }}
+        />
+      )}
     </>
   );
 }
