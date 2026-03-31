@@ -31,6 +31,7 @@ export function AddCategoryDialog({
         body: {
           name: data.name,
           description: data.description || undefined,
+          image: data.image || undefined,
           group: groupId,
           type: groupType,
         },

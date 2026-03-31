@@ -1,3 +1,4 @@
+import { Thumbnail } from "@/components/shared/thumbnail";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -10,8 +11,11 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { useFileUpload } from "@/hooks/use-file-upload";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import {
   categoryFormSchema,
   defaultCategoryFormValues,
@@ -19,25 +23,83 @@ import {
 } from "./schema";
 
 interface CategoryFormProps {
+  initialValues?: Partial<CategoryFormSchema>;
   onSubmit?: (data: CategoryFormSchema) => void;
   onCancel?: () => void;
   isLoading?: boolean;
+  submitLabel?: string;
+  loadingLabel?: string;
 }
 
-export function CategoryForm({ onSubmit, onCancel, isLoading }: CategoryFormProps) {
+export function CategoryForm({
+  initialValues,
+  onSubmit,
+  onCancel,
+  isLoading,
+  submitLabel = "Create Category",
+  loadingLabel = "Creating...",
+}: CategoryFormProps) {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [imageUrl, setImageUrl] = useState<string | null>(
+    initialValues?.image || null,
+  );
+  const { uploadFiles, isUploading } = useFileUpload();
+
   const form = useForm<CategoryFormSchema>({
     resolver: zodResolver(categoryFormSchema),
-    defaultValues: defaultCategoryFormValues,
+    defaultValues: { ...defaultCategoryFormValues, ...initialValues },
     mode: "onChange",
   });
 
+  useEffect(() => {
+    if (initialValues) {
+      form.reset({ ...defaultCategoryFormValues, ...initialValues });
+      setImageUrl(initialValues.image || null);
+    }
+  }, [initialValues, form]);
+
+  async function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      const [uploaded] = await uploadFiles([file]);
+      setImageUrl(uploaded.url);
+    } catch {
+      toast.error("Failed to upload image");
+    }
+  }
+
   const handleSubmit = (data: CategoryFormSchema) => {
-    onSubmit?.(data);
+    onSubmit?.({ ...data, image: imageUrl || undefined });
   };
+
+  const isBusy = isLoading || isUploading;
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+        <div className="flex items-center gap-4">
+          <Thumbnail src={imageUrl} className="size-16" />
+          <div>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              disabled={isUploading}
+              onClick={() => fileInputRef.current?.click()}
+            >
+              {isUploading ? "Uploading..." : imageUrl ? "Change image" : "Add image"}
+            </Button>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              className="hidden"
+              onChange={handleImageChange}
+            />
+          </div>
+        </div>
+
         <FormField
           control={form.control}
           name="name"
@@ -76,8 +138,8 @@ export function CategoryForm({ onSubmit, onCancel, isLoading }: CategoryFormProp
           <Button type="button" variant="outline" onClick={onCancel}>
             Cancel
           </Button>
-          <Button type="submit" disabled={isLoading}>
-            {isLoading ? "Creating..." : "Create Category"}
+          <Button type="submit" disabled={isBusy}>
+            {isLoading ? loadingLabel : submitLabel}
           </Button>
         </div>
       </form>

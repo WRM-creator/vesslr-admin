@@ -12,6 +12,7 @@ interface CategoriesTableProps {
   onSearchChange: (value: string) => void;
   onToggleActive: (id: string, current: boolean) => void;
   isToggling?: boolean;
+  onEdit: (category: CategoryTableItem) => void;
 }
 
 export function CategoriesTable({
@@ -21,8 +22,9 @@ export function CategoriesTable({
   onSearchChange,
   onToggleActive,
   isToggling = false,
+  onEdit,
 }: CategoriesTableProps) {
-  const columns = getCategoriesColumns(onToggleActive, isToggling);
+  const columns = getCategoriesColumns(onToggleActive, isToggling, onEdit);
 
   return (
     <div className="space-y-4">
