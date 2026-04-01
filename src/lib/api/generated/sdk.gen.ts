@@ -151,6 +151,8 @@ import type {
   AdminTransactionsControllerGetLogsResponses,
   AdminTransactionsControllerReleaseSettlementData,
   AdminTransactionsControllerReleaseSettlementResponses,
+  AdminTransactionsControllerRetryMilestonePaymentData,
+  AdminTransactionsControllerRetryMilestonePaymentResponses,
   AdminTransactionsControllerReviewDocumentData,
   AdminTransactionsControllerReviewDocumentResponses,
   AdminTransactionsControllerReviewInspectionData,
@@ -273,8 +275,6 @@ import type {
   OnboardingControllerAdvanceDirectorsResponses,
   OnboardingControllerCompleteOnboardingData,
   OnboardingControllerCompleteOnboardingResponses,
-  OnboardingControllerGenerateBiometricKycTokenData,
-  OnboardingControllerGenerateBiometricKycTokenResponses,
   OnboardingControllerGetOnboardingStatusData,
   OnboardingControllerGetOnboardingStatusResponses,
   OnboardingControllerGetSmileLinkData,
@@ -2629,35 +2629,14 @@ export const onboardingControllerInviteTeam = <
   });
 
 /**
- * Generate a Smile ID web token for Biometric KYC
- */
-export const onboardingControllerGenerateBiometricKycToken = <
-  ThrowOnError extends boolean = false,
->(
-  options?: Options<
-    OnboardingControllerGenerateBiometricKycTokenData,
-    ThrowOnError
-  >,
-) =>
-  (options?.client ?? client).post<
-    OnboardingControllerGenerateBiometricKycTokenResponses,
-    unknown,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/api/v1/onboarding/biometric-kyc/token",
-    ...options,
-  });
-
-/**
- * Get or create a Smile ID verification link for this user
+ * Create a Smile ID verification link for this user
  */
 export const onboardingControllerGetSmileLink = <
   ThrowOnError extends boolean = false,
 >(
-  options?: Options<OnboardingControllerGetSmileLinkData, ThrowOnError>,
+  options: Options<OnboardingControllerGetSmileLinkData, ThrowOnError>,
 ) =>
-  (options?.client ?? client).post<
+  (options.client ?? client).post<
     OnboardingControllerGetSmileLinkResponses,
     unknown,
     ThrowOnError
@@ -2665,6 +2644,10 @@ export const onboardingControllerGetSmileLink = <
     security: [{ scheme: "bearer", type: "http" }],
     url: "/api/v1/onboarding/identity-kyc/smile-link",
     ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
   });
 
 /**
@@ -3464,6 +3447,27 @@ export const adminTransactionsControllerReleaseSettlement = <
   >({
     security: [{ scheme: "bearer", type: "http" }],
     url: "/api/v1/admin/transactions/{id}/release-settlement",
+    ...options,
+  });
+
+/**
+ * Retry a failed milestone payment transfer
+ */
+export const adminTransactionsControllerRetryMilestonePayment = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    AdminTransactionsControllerRetryMilestonePaymentData,
+    ThrowOnError
+  >,
+) =>
+  (options.client ?? client).post<
+    AdminTransactionsControllerRetryMilestonePaymentResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/transactions/{id}/retry-milestone-payment/{milestoneIndex}",
     ...options,
   });
 

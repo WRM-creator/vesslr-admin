@@ -229,6 +229,37 @@ export type OnboardingOrganizationDto = {
   categories?: Array<OnboardingCategoryDto>;
 };
 
+export type BusinessRepresentativeAddressDto = {
+  streetAddress: string;
+  country: string;
+  state: string;
+  city: string;
+  postalCode?: string;
+};
+
+export type PepRelationDto = {
+  name: string;
+  position: string;
+};
+
+export type BusinessRepresentativeDto = {
+  isDirector: boolean;
+  ownsMoreThanFivePercent: boolean;
+  firstName: string;
+  lastName: string;
+  email: string;
+  bvn: string;
+  phoneNumber: string;
+  nationality: string;
+  address: BusinessRepresentativeAddressDto;
+  idDocumentType: string;
+  idDocumentNumber: string;
+  idDocument?: string;
+  isPep: boolean;
+  pepRelations?: Array<PepRelationDto>;
+  attestation: boolean;
+};
+
 export type UserProfileResponseDto = {
   _id: string;
   firstName: string;
@@ -272,6 +303,7 @@ export type UserProfileResponseDto = {
   isInvitedMember?: boolean;
   organization?: OnboardingOrganizationDto;
   profileImage?: string;
+  businessRepresentative?: BusinessRepresentativeDto;
 };
 
 export type UpdateProfileDto = {
@@ -416,7 +448,18 @@ export type PopulatedProductResponseDto = {
   lowStockThreshold?: number;
   showStockToBuyers?: boolean;
   allowBackorders?: boolean;
-  unitOfMeasurement?: string;
+  unitOfMeasurement?:
+    | "bbl"
+    | "liter"
+    | "gallon"
+    | "mt"
+    | "kg"
+    | "ton"
+    | "lb"
+    | "hour"
+    | "day"
+    | "month"
+    | "unit";
   conditions?: Array<"New" | "Used - Good" | "Used - Fair" | "Refurbished">;
   organization?: ProductOrganizationDto;
   location?: PopulatedProductLocationDto;
@@ -476,7 +519,18 @@ export type ProductResponseDto = {
   lowStockThreshold?: number;
   showStockToBuyers?: boolean;
   allowBackorders?: boolean;
-  unitOfMeasurement?: string;
+  unitOfMeasurement?:
+    | "bbl"
+    | "liter"
+    | "gallon"
+    | "mt"
+    | "kg"
+    | "ton"
+    | "lb"
+    | "hour"
+    | "day"
+    | "month"
+    | "unit";
   conditions?: Array<"New" | "Used - Good" | "Used - Fair" | "Refurbished">;
   organization?: ProductOrganizationDto;
   location?: ProductLocationDto;
@@ -519,7 +573,18 @@ export type CreateProductDto = {
   lowStockThreshold?: number;
   showStockToBuyers?: boolean;
   allowBackorders?: boolean;
-  unitOfMeasurement?: string;
+  unitOfMeasurement?:
+    | "bbl"
+    | "liter"
+    | "gallon"
+    | "mt"
+    | "kg"
+    | "ton"
+    | "lb"
+    | "hour"
+    | "day"
+    | "month"
+    | "unit";
   conditions?: Array<"New" | "Used - Good" | "Used - Fair" | "Refurbished">;
   organization?: string;
   location?: LocationDto;
@@ -551,7 +616,18 @@ export type UpdateProductDto = {
   lowStockThreshold?: number;
   showStockToBuyers?: boolean;
   allowBackorders?: boolean;
-  unitOfMeasurement?: string;
+  unitOfMeasurement?:
+    | "bbl"
+    | "liter"
+    | "gallon"
+    | "mt"
+    | "kg"
+    | "ton"
+    | "lb"
+    | "hour"
+    | "day"
+    | "month"
+    | "unit";
   conditions?: Array<"New" | "Used - Good" | "Used - Fair" | "Refurbished">;
   organization?: string;
   location?: LocationDto;
@@ -648,6 +724,10 @@ export type MilestoneInputDto = {
    * Names of documents the seller must submit for this milestone
    */
   requiredDocuments?: Array<string>;
+  /**
+   * Payment percentage for this milestone (1-100). All milestone percentages must sum to 100. If omitted on all milestones, the system auto-assigns equal splits.
+   */
+  percentage?: number;
 };
 
 export type CreateTransactionDto = {
@@ -749,7 +829,18 @@ export type OrderRequestDto = {
    */
   targetPricePerUnit?: number;
   quantity?: number;
-  unitOfMeasurement?: string;
+  unitOfMeasurement?:
+    | "bbl"
+    | "liter"
+    | "gallon"
+    | "mt"
+    | "kg"
+    | "ton"
+    | "lb"
+    | "hour"
+    | "day"
+    | "month"
+    | "unit";
   requester?: OrderBuyerDto;
   qqCriteria?: Array<QqCriterionDto>;
   qqCompany?: string;
@@ -785,7 +876,18 @@ export type OrderResponseDto = {
   product?: OrderProductDto;
   transactionType: string;
   quantity: number;
-  unitOfMeasurement: string;
+  unitOfMeasurement:
+    | "bbl"
+    | "liter"
+    | "gallon"
+    | "mt"
+    | "kg"
+    | "ton"
+    | "lb"
+    | "hour"
+    | "day"
+    | "month"
+    | "unit";
   /**
    * Price per unit in minor currency units (kobo/cents)
    */
@@ -812,6 +914,12 @@ export type OrderResponseDto = {
   sellerDocuments?: Array<OrderDocumentDto>;
   notes?: string;
   location?: OrderLocationDto;
+  /**
+   * Locked milestone payment schedule (computed at escrow funding)
+   */
+  milestonePaymentSchedule?: Array<{
+    [key: string]: unknown;
+  }>;
   status: string;
   transactionStatus?: string;
   transactionId?: string;
@@ -893,6 +1001,17 @@ export type TransactionDocumentSlotDto = {
     | "DISPUTED";
 };
 
+export type MilestonePayoutResponseDto = {
+  milestoneIndex: number;
+  /**
+   * Payout amount in minor currency units
+   */
+  amount: number;
+  status: "PENDING" | "RELEASE_PENDING" | "RELEASED" | "FAILED";
+  transferId?: string | null;
+  releasedAt?: string | null;
+};
+
 export type EscrowResponseDto = {
   _id: string;
   status:
@@ -906,12 +1025,28 @@ export type EscrowResponseDto = {
    * Amount in minor currency units (kobo/cents)
    */
   amount: number;
+  /**
+   * Seller payout amount (amount minus service fee)
+   */
+  sellerAmount: number;
+  /**
+   * Platform service fee amount
+   */
+  serviceFeeAmount: number;
   currency: "NGN" | "USD" | "EUR";
   referenceId?: string | null;
   fundedAt?: string | null;
   releasedAt?: string | null;
   refundedAt?: string | null;
   refundReferenceId?: string | null;
+  /**
+   * Running total of milestone payouts already released
+   */
+  totalReleased: number;
+  /**
+   * Per-milestone payout tracking
+   */
+  milestonePayouts: Array<MilestonePayoutResponseDto>;
 };
 
 export type TransactionStageResponseDto = {
@@ -1158,12 +1293,28 @@ export type EscrowWithTransactionResponseDto = {
    * Amount in minor currency units (kobo/cents)
    */
   amount: number;
+  /**
+   * Seller payout amount (amount minus service fee)
+   */
+  sellerAmount: number;
+  /**
+   * Platform service fee amount
+   */
+  serviceFeeAmount: number;
   currency: "NGN" | "USD" | "EUR";
   referenceId?: string | null;
   fundedAt?: string | null;
   releasedAt?: string | null;
   refundedAt?: string | null;
   refundReferenceId?: string | null;
+  /**
+   * Running total of milestone payouts already released
+   */
+  totalReleased: number;
+  /**
+   * Per-milestone payout tracking
+   */
+  milestonePayouts: Array<MilestonePayoutResponseDto>;
   transactionId: string;
   transactionDisplayId: number;
   transactionStatus: string;
@@ -1229,7 +1380,18 @@ export type PurchaseProductDto = {
   /**
    * Unit of measurement
    */
-  unitOfMeasurement: string;
+  unitOfMeasurement:
+    | "bbl"
+    | "liter"
+    | "gallon"
+    | "mt"
+    | "kg"
+    | "ton"
+    | "lb"
+    | "hour"
+    | "day"
+    | "month"
+    | "unit";
   /**
    * Optional buyer notes
    */
@@ -1267,7 +1429,18 @@ export type PurchaseProductDto = {
   /**
    * Duration unit for lease/charter (hour, day, month)
    */
-  durationUnit?: string;
+  durationUnit?:
+    | "bbl"
+    | "liter"
+    | "gallon"
+    | "mt"
+    | "kg"
+    | "ton"
+    | "lb"
+    | "hour"
+    | "day"
+    | "month"
+    | "unit";
   /**
    * Buyer-defined milestones (only when category group milestoneDelivery=true)
    */
@@ -1397,7 +1570,18 @@ export type CreateRequestDto = {
   region: Array<string>;
   country: Array<string>;
   state: Array<string>;
-  unitOfMeasurement: string;
+  unitOfMeasurement:
+    | "bbl"
+    | "liter"
+    | "gallon"
+    | "mt"
+    | "kg"
+    | "ton"
+    | "lb"
+    | "hour"
+    | "day"
+    | "month"
+    | "unit";
   /**
    * Target price per unit in minor currency units (kobo/cents)
    */
@@ -1422,7 +1606,18 @@ export type CreateRequestDto = {
   /**
    * Duration unit for lease/charter (hour, day, month)
    */
-  durationUnit?: string;
+  durationUnit?:
+    | "bbl"
+    | "liter"
+    | "gallon"
+    | "mt"
+    | "kg"
+    | "ton"
+    | "lb"
+    | "hour"
+    | "day"
+    | "month"
+    | "unit";
   selectionMode?: "open" | "jira-ai" | "direct";
   milestones?: Array<RequestMilestoneDto>;
   /**
@@ -1463,13 +1658,35 @@ export type RequestResponseDto = {
   region: Array<RequestRegionDto>;
   country: Array<RequestCountryDto>;
   state: Array<RequestStateDto>;
-  unitOfMeasurement: string;
+  unitOfMeasurement:
+    | "bbl"
+    | "liter"
+    | "gallon"
+    | "mt"
+    | "kg"
+    | "ton"
+    | "lb"
+    | "hour"
+    | "day"
+    | "month"
+    | "unit";
   /**
    * Target price per unit in minor currency units (kobo/cents)
    */
   targetPricePerUnit: number;
   duration?: number;
-  durationUnit?: string;
+  durationUnit?:
+    | "bbl"
+    | "liter"
+    | "gallon"
+    | "mt"
+    | "kg"
+    | "ton"
+    | "lb"
+    | "hour"
+    | "day"
+    | "month"
+    | "unit";
   currency: "NGN" | "USD" | "EUR";
   transactionType: Array<string>;
   condition?: Array<string>;
@@ -1505,7 +1722,18 @@ export type UpdateRequestDto = {
   region?: Array<string>;
   country?: Array<string>;
   state?: Array<string>;
-  unitOfMeasurement?: string;
+  unitOfMeasurement?:
+    | "bbl"
+    | "liter"
+    | "gallon"
+    | "mt"
+    | "kg"
+    | "ton"
+    | "lb"
+    | "hour"
+    | "day"
+    | "month"
+    | "unit";
   /**
    * Target price per unit in minor currency units (kobo/cents)
    */
@@ -1530,7 +1758,18 @@ export type UpdateRequestDto = {
   /**
    * Duration unit for lease/charter (hour, day, month)
    */
-  durationUnit?: string;
+  durationUnit?:
+    | "bbl"
+    | "liter"
+    | "gallon"
+    | "mt"
+    | "kg"
+    | "ton"
+    | "lb"
+    | "hour"
+    | "day"
+    | "month"
+    | "unit";
   selectionMode?: "open" | "jira-ai" | "direct";
   milestones?: Array<RequestMilestoneDto>;
   /**
@@ -1556,7 +1795,18 @@ export type CreateNegotiationDto = {
   pricePerUnit: number;
   quantity: number;
   currency: "NGN" | "USD" | "EUR";
-  unitOfMeasurement: string;
+  unitOfMeasurement:
+    | "bbl"
+    | "liter"
+    | "gallon"
+    | "mt"
+    | "kg"
+    | "ton"
+    | "lb"
+    | "hour"
+    | "day"
+    | "month"
+    | "unit";
   transactionType?:
     | "Purchase"
     | "Lease"
@@ -1592,7 +1842,18 @@ export type NegotiationRequestDto = {
    */
   targetPricePerUnit?: number;
   currency?: "NGN" | "USD" | "EUR";
-  unitOfMeasurement?: string;
+  unitOfMeasurement?:
+    | "bbl"
+    | "liter"
+    | "gallon"
+    | "mt"
+    | "kg"
+    | "ton"
+    | "lb"
+    | "hour"
+    | "day"
+    | "month"
+    | "unit";
   transactionType?: Array<string>;
   condition?: Array<string>;
 };
@@ -1609,7 +1870,18 @@ export type NegotiationOffer = {
   pricePerUnit: number;
   quantity: number;
   currency: "NGN" | "USD" | "EUR";
-  unitOfMeasurement: string;
+  unitOfMeasurement:
+    | "bbl"
+    | "liter"
+    | "gallon"
+    | "mt"
+    | "kg"
+    | "ton"
+    | "lb"
+    | "hour"
+    | "day"
+    | "month"
+    | "unit";
   transactionType?:
     | "Purchase"
     | "Lease"
@@ -1680,7 +1952,18 @@ export type CounterOfferDto = {
   pricePerUnit: number;
   quantity: number;
   currency: "NGN" | "USD" | "EUR";
-  unitOfMeasurement: string;
+  unitOfMeasurement:
+    | "bbl"
+    | "liter"
+    | "gallon"
+    | "mt"
+    | "kg"
+    | "ton"
+    | "lb"
+    | "hour"
+    | "day"
+    | "month"
+    | "unit";
   transactionType?:
     | "Purchase"
     | "Lease"
@@ -2219,6 +2502,7 @@ export type UpdateCompanyDocumentsDto = {
   shareholderStructure?: FileMetadataDto;
   taxIdDocument?: FileMetadataDto;
   additionalDocuments?: Array<FileMetadataDto>;
+  licensesAndCertifications?: Array<FileMetadataDto>;
 };
 
 export type PatchCompanyDocumentsDto = {
@@ -2233,11 +2517,6 @@ export type RepresentativeAddressDto = {
   postalCode?: string;
 };
 
-export type PepRelationDto = {
-  name: string;
-  position: string;
-};
-
 export type UpdateBusinessRepresentativeDto = {
   isDirector: boolean;
   ownsMoreThanFivePercent: boolean;
@@ -2248,8 +2527,8 @@ export type UpdateBusinessRepresentativeDto = {
   phoneNumber: string;
   nationality: string;
   address: RepresentativeAddressDto;
-  idDocumentType: "nin" | "passport";
-  idDocumentNumber: string;
+  idDocumentType?: "nin" | "passport";
+  idDocumentNumber?: string;
   idDocument?: string | FileMetadataDto;
   isPep: boolean;
   pepRelations?: Array<PepRelationDto>;
@@ -2279,6 +2558,10 @@ export type InviteItemDto = {
 
 export type InviteTeamDto = {
   invites: Array<InviteItemDto>;
+};
+
+export type CreateSmileLinkDto = {
+  idType: "nin" | "passport";
 };
 
 export type AcceptInvitationDto = {
@@ -3067,7 +3350,18 @@ export type AcceptRequestOrderDto = {
     | "Bulk Supply"
     | "Spot Trade";
   quantity: number;
-  unitOfMeasurement: string;
+  unitOfMeasurement:
+    | "bbl"
+    | "liter"
+    | "gallon"
+    | "mt"
+    | "kg"
+    | "ton"
+    | "lb"
+    | "hour"
+    | "day"
+    | "month"
+    | "unit";
   pricePerUnit: number;
   currency: "NGN" | "USD" | "EUR";
   condition?: "New" | "Used - Good" | "Used - Fair" | "Refurbished";
@@ -3129,6 +3423,7 @@ export type KybDocumentsDto = {
   pscRegister?: ComplianceFileMetadataDto;
   taxIdEvidence?: ComplianceFileMetadataDto;
   additionalDocuments: Array<ComplianceFileMetadataDto>;
+  licensesAndCertifications: Array<ComplianceFileMetadataDto>;
 };
 
 export type ComplianceCheckDto = {
@@ -5684,29 +5979,8 @@ export type OnboardingControllerInviteTeamResponses = {
 export type OnboardingControllerInviteTeamResponse =
   OnboardingControllerInviteTeamResponses[keyof OnboardingControllerInviteTeamResponses];
 
-export type OnboardingControllerGenerateBiometricKycTokenData = {
-  body?: never;
-  path?: never;
-  query?: never;
-  url: "/api/v1/onboarding/biometric-kyc/token";
-};
-
-export type OnboardingControllerGenerateBiometricKycTokenResponses = {
-  /**
-   * Web token for Smile ID Web Integration
-   */
-  201: {
-    token?: string;
-    callbackUrl?: string;
-    partnerId?: string;
-  };
-};
-
-export type OnboardingControllerGenerateBiometricKycTokenResponse =
-  OnboardingControllerGenerateBiometricKycTokenResponses[keyof OnboardingControllerGenerateBiometricKycTokenResponses];
-
 export type OnboardingControllerGetSmileLinkData = {
-  body?: never;
+  body: CreateSmileLinkDto;
   path?: never;
   query?: never;
   url: "/api/v1/onboarding/identity-kyc/smile-link";
@@ -6456,6 +6730,29 @@ export type AdminTransactionsControllerReleaseSettlementResponses = {
 
 export type AdminTransactionsControllerReleaseSettlementResponse =
   AdminTransactionsControllerReleaseSettlementResponses[keyof AdminTransactionsControllerReleaseSettlementResponses];
+
+export type AdminTransactionsControllerRetryMilestonePaymentData = {
+  body?: never;
+  path: {
+    id: string;
+    milestoneIndex: number;
+  };
+  query?: never;
+  url: "/api/v1/admin/transactions/{id}/retry-milestone-payment/{milestoneIndex}";
+};
+
+export type AdminTransactionsControllerRetryMilestonePaymentResponses = {
+  /**
+   * The retry was initiated
+   */
+  200: unknown;
+  201: {
+    [key: string]: unknown;
+  };
+};
+
+export type AdminTransactionsControllerRetryMilestonePaymentResponse =
+  AdminTransactionsControllerRetryMilestonePaymentResponses[keyof AdminTransactionsControllerRetryMilestonePaymentResponses];
 
 export type AdminTransactionsControllerSubmitInspectionData = {
   body: SubmitInspectionDocumentsDto;
