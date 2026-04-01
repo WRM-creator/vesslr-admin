@@ -74,6 +74,15 @@ export function toComplianceCase(raw: ComplianceCaseDetailDto): ComplianceCase {
     documents.push(
       toViewableItem(docs.taxIdEvidence, "Tax ID Evidence", "uploaded"),
     );
+  for (const license of docs.licensesAndCertifications ?? []) {
+    documents.push(
+      toViewableItem(
+        license,
+        license.name ?? "License/Certificate",
+        "uploaded",
+      ),
+    );
+  }
   for (const additional of docs.additionalDocuments ?? []) {
     documents.push(
       toViewableItem(
