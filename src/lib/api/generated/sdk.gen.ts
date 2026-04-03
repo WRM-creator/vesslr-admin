@@ -443,19 +443,29 @@ import type {
   UsersAuthControllerGetPermissionsResponses,
   UsersAuthControllerGetProfileData,
   UsersAuthControllerGetProfileResponses,
+  UsersAuthControllerGetTawkHashData,
+  UsersAuthControllerGetTawkHashResponses,
   UsersAuthControllerLoginData,
   UsersAuthControllerLoginResponses,
   UsersAuthControllerRegisterData,
   UsersAuthControllerRegisterResponses,
   UsersAuthControllerResetPasswordData,
   UsersAuthControllerResetPasswordResponses,
+  UsersAuthControllerSendPhoneOtpData,
+  UsersAuthControllerSendPhoneOtpResponses,
   UsersAuthControllerUpdateProfileData,
   UsersAuthControllerUpdateProfileResponses,
+  UsersAuthControllerValidateResetTokenData,
+  UsersAuthControllerValidateResetTokenErrors,
+  UsersAuthControllerValidateResetTokenResponses,
   UsersAuthControllerVerifyEmailData,
   UsersAuthControllerVerifyEmailErrors,
   UsersAuthControllerVerifyEmailResponses,
   UsersAuthControllerVerifyOtpData,
   UsersAuthControllerVerifyOtpResponses,
+  UsersAuthControllerVerifyPhoneOtpData,
+  UsersAuthControllerVerifyPhoneOtpErrors,
+  UsersAuthControllerVerifyPhoneOtpResponses,
   UsersControllerUpdateAddressData,
   UsersControllerUpdateAddressResponses,
   WalletControllerDisburseData,
@@ -663,6 +673,69 @@ export const usersAuthControllerResetPassword = <
   });
 
 /**
+ * Send phone verification OTP via SMS
+ */
+export const usersAuthControllerSendPhoneOtp = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<UsersAuthControllerSendPhoneOtpData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    UsersAuthControllerSendPhoneOtpResponses,
+    unknown,
+    ThrowOnError
+  >({
+    url: "/api/v1/auth/send-phone-otp",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Verify phone OTP code
+ */
+export const usersAuthControllerVerifyPhoneOtp = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<UsersAuthControllerVerifyPhoneOtpData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    UsersAuthControllerVerifyPhoneOtpResponses,
+    UsersAuthControllerVerifyPhoneOtpErrors,
+    ThrowOnError
+  >({
+    url: "/api/v1/auth/verify-phone-otp",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Validate reset token and send phone OTP
+ */
+export const usersAuthControllerValidateResetToken = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<UsersAuthControllerValidateResetTokenData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    UsersAuthControllerValidateResetTokenResponses,
+    UsersAuthControllerValidateResetTokenErrors,
+    ThrowOnError
+  >({
+    url: "/api/v1/auth/validate-reset-token",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
  * Verify user email address
  */
 export const usersAuthControllerVerifyEmail = <
@@ -745,6 +818,24 @@ export const usersAuthControllerChangePassword = <
       "Content-Type": "application/json",
       ...options.headers,
     },
+  });
+
+/**
+ * Generate tawk.to secure mode HMAC hash
+ */
+export const usersAuthControllerGetTawkHash = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<UsersAuthControllerGetTawkHashData, ThrowOnError>,
+) =>
+  (options?.client ?? client).get<
+    UsersAuthControllerGetTawkHashResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/auth/tawk-hash",
+    ...options,
   });
 
 /**

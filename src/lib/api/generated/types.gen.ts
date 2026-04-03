@@ -72,7 +72,7 @@ export type RegisterDto = {
    */
   lastName: string;
   /**
-   * User's phone number
+   * User's phone number (E.164 format, e.g. +2348012345678)
    */
   phone: string;
   /**
@@ -126,6 +126,29 @@ export type ResetPasswordDto = {
    * New password
    */
   password: string;
+  /**
+   * 6-digit phone verification code
+   */
+  phoneOtp: string;
+};
+
+export type SendPhoneOtpDto = {
+  email: string;
+};
+
+export type VerifyPhoneOtpDto = {
+  email: string;
+  /**
+   * 6-digit SMS verification code
+   */
+  code: string;
+};
+
+export type ValidateResetTokenDto = {
+  /**
+   * Password reset token from the email link
+   */
+  token: string;
 };
 
 export type PopulatedLocationDto = {
@@ -292,6 +315,10 @@ export type UpdateProfileDto = {
 export type ChangePasswordDto = {
   currentPassword: string;
   newPassword: string;
+};
+
+export type TawkHashResponseDto = {
+  hash: string;
 };
 
 export type GeneratePresignedUrlDto = {
@@ -870,6 +897,18 @@ export type OrderResponseDto = {
    * Total amount in minor currency units (kobo/cents)
    */
   totalAmount: number;
+  /**
+   * Service fee rate (e.g. 0.03 for 3%)
+   */
+  serviceFeeRate: number;
+  /**
+   * Service fee amount in minor units
+   */
+  serviceFeeAmount: number;
+  /**
+   * Total including service fee (what the buyer pays)
+   */
+  totalWithFee: number;
   condition?: string;
   buyerDocuments?: Array<OrderDocumentDto>;
   sellerDocuments?: Array<OrderDocumentDto>;
@@ -1192,6 +1231,18 @@ export type VirtualAccountResponseDto = {
    * Currency (always NGN for virtual accounts)
    */
   currency: "NGN" | "USD" | "EUR";
+  /**
+   * Goods amount before service fee (minor units)
+   */
+  subtotal: number;
+  /**
+   * Platform service fee amount (minor units)
+   */
+  serviceFeeAmount: number;
+  /**
+   * Service fee rate (e.g. 0.03 for 3%)
+   */
+  serviceFeeRate: number;
 };
 
 export type SubmittedDocumentDto = {
@@ -4105,6 +4156,64 @@ export type UsersAuthControllerResetPasswordResponses = {
   201: unknown;
 };
 
+export type UsersAuthControllerSendPhoneOtpData = {
+  body: SendPhoneOtpDto;
+  path?: never;
+  query?: never;
+  url: "/api/v1/auth/send-phone-otp";
+};
+
+export type UsersAuthControllerSendPhoneOtpResponses = {
+  /**
+   * Verification code sent
+   */
+  201: unknown;
+};
+
+export type UsersAuthControllerVerifyPhoneOtpData = {
+  body: VerifyPhoneOtpDto;
+  path?: never;
+  query?: never;
+  url: "/api/v1/auth/verify-phone-otp";
+};
+
+export type UsersAuthControllerVerifyPhoneOtpErrors = {
+  /**
+   * Invalid verification code
+   */
+  400: unknown;
+};
+
+export type UsersAuthControllerVerifyPhoneOtpResponses = {
+  /**
+   * Phone number verified
+   */
+  200: unknown;
+  201: unknown;
+};
+
+export type UsersAuthControllerValidateResetTokenData = {
+  body: ValidateResetTokenDto;
+  path?: never;
+  query?: never;
+  url: "/api/v1/auth/validate-reset-token";
+};
+
+export type UsersAuthControllerValidateResetTokenErrors = {
+  /**
+   * Token is invalid or has expired
+   */
+  400: unknown;
+};
+
+export type UsersAuthControllerValidateResetTokenResponses = {
+  /**
+   * Token valid, phone OTP sent
+   */
+  200: unknown;
+  201: unknown;
+};
+
 export type UsersAuthControllerVerifyEmailData = {
   body?: never;
   path: {
@@ -4187,6 +4296,20 @@ export type UsersAuthControllerChangePasswordResponses = {
   200: unknown;
   201: unknown;
 };
+
+export type UsersAuthControllerGetTawkHashData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: "/api/v1/auth/tawk-hash";
+};
+
+export type UsersAuthControllerGetTawkHashResponses = {
+  200: TawkHashResponseDto;
+};
+
+export type UsersAuthControllerGetTawkHashResponse =
+  UsersAuthControllerGetTawkHashResponses[keyof UsersAuthControllerGetTawkHashResponses];
 
 export type ComplianceControllerSmileIdWebhookData = {
   body?: never;

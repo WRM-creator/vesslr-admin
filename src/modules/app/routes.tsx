@@ -1,3 +1,4 @@
+import { NotFoundPage } from "@/components/not-found-page";
 import { AuthGuard } from "@/guards/auth-guard";
 import { Navigate, type RouteObject } from "react-router-dom";
 import AppLayout from "./_layout";
@@ -13,6 +14,7 @@ import { organizationsRoutes } from "../organizations/routes";
 import { supportRoutes } from "../support/routes";
 import { productsRoutes } from "../products/routes";
 import { requestsRoutes } from "../requests/routes";
+import { settingsRoutes } from "../settings/routes";
 import { transactionRoutes } from "../transactions/routes";
 
 export const appRoutes: RouteObject[] = [
@@ -39,6 +41,11 @@ export const appRoutes: RouteObject[] = [
           ...supportRoutes,
           ...logisticsRoutes,
           ...analyticsRoutes,
+          ...settingsRoutes,
+          {
+            path: "*",
+            element: <NotFoundPage />,
+          },
         ],
       },
     ],
