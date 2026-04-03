@@ -86,7 +86,7 @@ export const requestColumns: ColumnDef<AdminRequest>[] = [
     cell: ({ row }) => {
       return (
         <span className="font-medium">
-          {row.original.name || row.original.category.name || "-"}
+          {row.original.name || row.original.categoryId?.name || "-"}
         </span>
       );
     },

@@ -59,7 +59,7 @@ export default function RequestsDetailsPage() {
                 <span className="text-muted-foreground text-sm font-medium">
                   Category
                 </span>
-                <p>{request.category.name}</p>
+                <p>{request.categoryId.name}</p>
               </div>
               <div>
                 <span className="text-muted-foreground text-sm font-medium">
@@ -149,7 +149,7 @@ export default function RequestsDetailsPage() {
                 <span className="text-muted-foreground text-sm font-medium">
                   Organization
                 </span>
-                <p className="mt-1">{request.organization.name || "N/A"}</p>
+                <p className="mt-1">{request.organization?.name || "N/A"}</p>
               </div>
 
               {request.matchedSeller && (
