@@ -25,8 +25,8 @@ export default function CategoriesPage() {
   const filteredGroups = allGroups.filter((item: any) => {
     const matchesType =
       type === "all" ||
-      (type === "equipment-and-products" &&
-        item.type === "equipment-and-products") ||
+      (type === "products" &&
+        item.type === "products") ||
       (type === "services" && item.type === "services");
 
     const matchesSearch =
@@ -59,7 +59,7 @@ export default function CategoriesPage() {
             _id: item._id || "",
             name: item.name || "Unknown",
             slug: item.slug || "",
-            type: item.type || "equipment-and-products",
+            type: item.type || "products",
             isActive: !!item.isActive,
             image: item.image,
           }))}

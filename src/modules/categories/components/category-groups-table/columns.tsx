@@ -38,7 +38,7 @@ export const getCategoryGroupsColumns = (
     header: "Type",
     cell: ({ row }) => (
       <span className="text-muted-foreground text-sm capitalize">
-        {(row.original.type || "equipment-and-products").replace(/-/g, " ")}
+        {(row.original.type || "products").replace(/-/g, " ")}
       </span>
     ),
   },

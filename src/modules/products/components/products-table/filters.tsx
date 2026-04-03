@@ -21,6 +21,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import { api } from "@/lib/api";
 import { FilterIcon, SearchIcon, X } from "lucide-react";
 import type { DateRange } from "react-day-picker";
 
@@ -50,6 +51,8 @@ export function Filters({
   onFilterChange,
   onReset,
 }: FiltersProps) {
+  const { data: categoryGroups = [] } = api.categoryGroups.findAll.useQuery({});
+
   const hasActiveFilters =
     (filters.category !== "all" && !hiddenFilters.includes("category")) ||
     (filters.merchantId !== "all" && !hiddenFilters.includes("merchantId")) ||
@@ -124,14 +127,11 @@ export function Filters({
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Categories</SelectItem>
-                  <SelectItem value="Commodities">Commodities</SelectItem>
-                  <SelectItem value="Equipment">Equipment</SelectItem>
-                  <SelectItem value="Logistics">Logistics</SelectItem>
-                  <SelectItem value="Safety">Safety</SelectItem>
-                  <SelectItem value="Technology">Technology</SelectItem>
-                  <SelectItem value="Data & Intelligence">
-                    Data & Intelligence
-                  </SelectItem>
+                  {categoryGroups.map((group) => (
+                    <SelectItem key={group._id} value={group.name}>
+                      {group.name}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>

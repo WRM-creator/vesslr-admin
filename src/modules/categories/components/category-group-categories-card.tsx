@@ -75,7 +75,8 @@ export function CategoryGroupCategoriesCard({
                 </div>
               </CardTitle>
               <CardDescription>
-                Individual categories that belong to this group.
+                Individual categories that belong to this group. Each category
+                can have specialties configured separately.
               </CardDescription>
             </div>
             <Button size="sm" onClick={() => setDialogOpen(true)}>
@@ -99,7 +100,7 @@ export function CategoryGroupCategoriesCard({
 
       <AddCategoryDialog
         groupId={categoryGroup._id}
-        groupType={categoryGroup.type as "equipment-and-products" | "services"}
+        groupType={categoryGroup.type as "products" | "services"}
         open={dialogOpen}
         onOpenChange={setDialogOpen}
       />

@@ -35,7 +35,7 @@ import * as z from "zod";
 
 const formSchema = z.object({
   name: z.string().min(1, "Name is required"),
-  type: z.enum(["equipment-and-products", "services"]),
+  type: z.enum(["products", "services"]),
   isActive: z.boolean(),
 });
 
@@ -62,7 +62,7 @@ export function EditCategoryGroupOverviewDialog({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
-      type: "equipment-and-products",
+      type: "products",
       isActive: true,
     },
   });
@@ -70,7 +70,7 @@ export function EditCategoryGroupOverviewDialog({
   useEffect(() => {
     form.reset({
       name: categoryGroup.name,
-      type: categoryGroup.type as "equipment-and-products" | "services",
+      type: categoryGroup.type as "products" | "services",
       isActive: categoryGroup.isActive,
     });
     setImageUrl(categoryGroup.image);
@@ -165,8 +165,8 @@ export function EditCategoryGroupOverviewDialog({
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="equipment-and-products">
-                        Equipment &amp; Products
+                      <SelectItem value="products">
+                        Products
                       </SelectItem>
                       <SelectItem value="services">Services</SelectItem>
                     </SelectContent>

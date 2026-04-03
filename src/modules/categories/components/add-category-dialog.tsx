@@ -11,14 +11,13 @@ import type { CategoryFormSchema } from "./category-form/schema";
 
 interface AddCategoryDialogProps {
   groupId: string;
-  groupType: "equipment-and-products" | "services";
+  groupType?: string;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
 export function AddCategoryDialog({
   groupId,
-  groupType,
   open,
   onOpenChange,
 }: AddCategoryDialogProps) {
@@ -32,8 +31,8 @@ export function AddCategoryDialog({
           name: data.name,
           description: data.description || undefined,
           image: data.image || undefined,
-          group: groupId,
-          type: groupType,
+          groupId: groupId,
+          isActive: true,
         },
       },
       {

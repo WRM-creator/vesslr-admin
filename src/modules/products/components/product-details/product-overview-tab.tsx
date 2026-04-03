@@ -153,25 +153,23 @@ export function ProductOverviewTab({ product }: ProductOverviewTabProps) {
           </Card>
         )}
 
-        {/* Transaction types & Conditions */}
-        {((product.transactionTypes && product.transactionTypes.length > 0) ||
+        {/* Listing Type & Conditions */}
+        {(product.listingType ||
           (product.conditions && product.conditions.length > 0)) && (
           <Card>
             <CardHeader>
-              <CardTitle>Transaction Types & Conditions</CardTitle>
+              <CardTitle>Listing Type & Conditions</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              {product.transactionTypes && product.transactionTypes.length > 0 && (
+              {product.listingType && (
                 <div className="space-y-2">
                   <p className="text-muted-foreground text-xs font-semibold uppercase">
-                    Transaction Types
+                    Listing Type
                   </p>
                   <div className="flex flex-wrap gap-2">
-                    {product.transactionTypes.map((t) => (
-                      <Badge key={t} variant="secondary">
-                        {t}
-                      </Badge>
-                    ))}
+                    <Badge variant="secondary">
+                      {product.listingType}
+                    </Badge>
                   </div>
                 </div>
               )}

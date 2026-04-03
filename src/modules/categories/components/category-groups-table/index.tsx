@@ -40,8 +40,8 @@ export function CategoryGroupsTable({
         <Tabs defaultValue="all" value={activeTab} onValueChange={onTabChange}>
           <TabsList>
             <TabsTrigger value="all">All</TabsTrigger>
-            <TabsTrigger value="equipment-and-products">
-              Products & Equipment
+            <TabsTrigger value="products">
+              Products
             </TabsTrigger>
             <TabsTrigger value="services">Services</TabsTrigger>
           </TabsList>
