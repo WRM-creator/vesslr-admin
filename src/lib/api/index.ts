@@ -33,6 +33,11 @@ import {
   adminCategoriesControllerFindOne,
   adminCategoriesControllerRemove,
   adminCategoriesControllerUpdate,
+  adminCategorySpecialtiesControllerCreate,
+  adminCategorySpecialtiesControllerFindAll,
+  adminCategorySpecialtiesControllerFindOne,
+  adminCategorySpecialtiesControllerRemove,
+  adminCategorySpecialtiesControllerUpdate,
   adminComplianceControllerGetCase,
   adminLedgerControllerGetAccount,
   adminLedgerControllerGetStatement,
@@ -372,6 +377,31 @@ export const api = {
     }),
     delete: createMutation(adminCategoriesControllerRemove, {
       invalidates: () => [["categories", "list"]],
+    }),
+  },
+  categorySpecialties: {
+    list: createQuery(adminCategorySpecialtiesControllerFindAll, (args) => [
+      "categorySpecialties",
+      "list",
+      args?.query?.categoryId,
+      args?.query?.groupId,
+    ]),
+    detail: createQuery(adminCategorySpecialtiesControllerFindOne, (args) => [
+      "categorySpecialties",
+      "detail",
+      args.path.id,
+    ]),
+    create: createMutation(adminCategorySpecialtiesControllerCreate, {
+      invalidates: () => [["categorySpecialties", "list"]],
+    }),
+    update: createMutation(adminCategorySpecialtiesControllerUpdate, {
+      invalidates: (args) => [
+        ["categorySpecialties", "list"],
+        ["categorySpecialties", "detail", args.path.id],
+      ],
+    }),
+    delete: createMutation(adminCategorySpecialtiesControllerRemove, {
+      invalidates: () => [["categorySpecialties", "list"]],
     }),
   },
   categoryGroups: {

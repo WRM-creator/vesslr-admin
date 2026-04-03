@@ -23,6 +23,16 @@ import type {
   AdminCategoriesControllerRemoveResponses,
   AdminCategoriesControllerUpdateData,
   AdminCategoriesControllerUpdateResponses,
+  AdminCategorySpecialtiesControllerCreateData,
+  AdminCategorySpecialtiesControllerCreateResponses,
+  AdminCategorySpecialtiesControllerFindAllData,
+  AdminCategorySpecialtiesControllerFindAllResponses,
+  AdminCategorySpecialtiesControllerFindOneData,
+  AdminCategorySpecialtiesControllerFindOneResponses,
+  AdminCategorySpecialtiesControllerRemoveData,
+  AdminCategorySpecialtiesControllerRemoveResponses,
+  AdminCategorySpecialtiesControllerUpdateData,
+  AdminCategorySpecialtiesControllerUpdateResponses,
   AdminComplianceControllerGetCaseData,
   AdminComplianceControllerGetCaseResponses,
   AdminComplianceControllerListCasesData,
@@ -175,6 +185,10 @@ import type {
   CategoryGroupsControllerFindOneResponses,
   CategoryGroupsControllerUpdateData,
   CategoryGroupsControllerUpdateResponses,
+  CategorySpecialtiesControllerFindAllData,
+  CategorySpecialtiesControllerFindAllResponses,
+  CategorySpecialtiesControllerFindOneData,
+  CategorySpecialtiesControllerFindOneResponses,
   ComplianceControllerSmileIdWebhookData,
   ComplianceControllerSmileIdWebhookResponses,
   DisputesControllerAddAttachmentData,
@@ -443,19 +457,29 @@ import type {
   UsersAuthControllerGetPermissionsResponses,
   UsersAuthControllerGetProfileData,
   UsersAuthControllerGetProfileResponses,
+  UsersAuthControllerGetTawkHashData,
+  UsersAuthControllerGetTawkHashResponses,
   UsersAuthControllerLoginData,
   UsersAuthControllerLoginResponses,
   UsersAuthControllerRegisterData,
   UsersAuthControllerRegisterResponses,
   UsersAuthControllerResetPasswordData,
   UsersAuthControllerResetPasswordResponses,
+  UsersAuthControllerSendPhoneOtpData,
+  UsersAuthControllerSendPhoneOtpResponses,
   UsersAuthControllerUpdateProfileData,
   UsersAuthControllerUpdateProfileResponses,
+  UsersAuthControllerValidateResetTokenData,
+  UsersAuthControllerValidateResetTokenErrors,
+  UsersAuthControllerValidateResetTokenResponses,
   UsersAuthControllerVerifyEmailData,
   UsersAuthControllerVerifyEmailErrors,
   UsersAuthControllerVerifyEmailResponses,
   UsersAuthControllerVerifyOtpData,
   UsersAuthControllerVerifyOtpResponses,
+  UsersAuthControllerVerifyPhoneOtpData,
+  UsersAuthControllerVerifyPhoneOtpErrors,
+  UsersAuthControllerVerifyPhoneOtpResponses,
   UsersControllerUpdateAddressData,
   UsersControllerUpdateAddressResponses,
   WalletControllerDisburseData,
@@ -663,6 +687,69 @@ export const usersAuthControllerResetPassword = <
   });
 
 /**
+ * Send phone verification OTP via SMS
+ */
+export const usersAuthControllerSendPhoneOtp = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<UsersAuthControllerSendPhoneOtpData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    UsersAuthControllerSendPhoneOtpResponses,
+    unknown,
+    ThrowOnError
+  >({
+    url: "/api/v1/auth/send-phone-otp",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Verify phone OTP code
+ */
+export const usersAuthControllerVerifyPhoneOtp = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<UsersAuthControllerVerifyPhoneOtpData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    UsersAuthControllerVerifyPhoneOtpResponses,
+    UsersAuthControllerVerifyPhoneOtpErrors,
+    ThrowOnError
+  >({
+    url: "/api/v1/auth/verify-phone-otp",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Validate reset token and send phone OTP
+ */
+export const usersAuthControllerValidateResetToken = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<UsersAuthControllerValidateResetTokenData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    UsersAuthControllerValidateResetTokenResponses,
+    UsersAuthControllerValidateResetTokenErrors,
+    ThrowOnError
+  >({
+    url: "/api/v1/auth/validate-reset-token",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
  * Verify user email address
  */
 export const usersAuthControllerVerifyEmail = <
@@ -745,6 +832,24 @@ export const usersAuthControllerChangePassword = <
       "Content-Type": "application/json",
       ...options.headers,
     },
+  });
+
+/**
+ * Generate tawk.to secure mode HMAC hash
+ */
+export const usersAuthControllerGetTawkHash = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<UsersAuthControllerGetTawkHashData, ThrowOnError>,
+) =>
+  (options?.client ?? client).get<
+    UsersAuthControllerGetTawkHashResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/auth/tawk-hash",
+    ...options,
   });
 
 /**
@@ -3148,6 +3253,143 @@ export const adminCategoriesControllerUpdate = <
       "Content-Type": "application/json",
       ...options.headers,
     },
+  });
+
+/**
+ * List category specialties (Admin)
+ */
+export const adminCategorySpecialtiesControllerFindAll = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<
+    AdminCategorySpecialtiesControllerFindAllData,
+    ThrowOnError
+  >,
+) =>
+  (options?.client ?? client).get<
+    AdminCategorySpecialtiesControllerFindAllResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/category-specialties",
+    ...options,
+  });
+
+/**
+ * Create a new category specialty
+ */
+export const adminCategorySpecialtiesControllerCreate = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AdminCategorySpecialtiesControllerCreateData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    AdminCategorySpecialtiesControllerCreateResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/category-specialties",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Delete a category specialty
+ */
+export const adminCategorySpecialtiesControllerRemove = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AdminCategorySpecialtiesControllerRemoveData, ThrowOnError>,
+) =>
+  (options.client ?? client).delete<
+    AdminCategorySpecialtiesControllerRemoveResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/category-specialties/{id}",
+    ...options,
+  });
+
+/**
+ * Get a category specialty by ID (Admin)
+ */
+export const adminCategorySpecialtiesControllerFindOne = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AdminCategorySpecialtiesControllerFindOneData, ThrowOnError>,
+) =>
+  (options.client ?? client).get<
+    AdminCategorySpecialtiesControllerFindOneResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/category-specialties/{id}",
+    ...options,
+  });
+
+/**
+ * Update a category specialty
+ */
+export const adminCategorySpecialtiesControllerUpdate = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AdminCategorySpecialtiesControllerUpdateData, ThrowOnError>,
+) =>
+  (options.client ?? client).patch<
+    AdminCategorySpecialtiesControllerUpdateResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/category-specialties/{id}",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Get all active category specialties
+ */
+export const categorySpecialtiesControllerFindAll = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<CategorySpecialtiesControllerFindAllData, ThrowOnError>,
+) =>
+  (options?.client ?? client).get<
+    CategorySpecialtiesControllerFindAllResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/category-specialties",
+    ...options,
+  });
+
+/**
+ * Get a category specialty by ID
+ */
+export const categorySpecialtiesControllerFindOne = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<CategorySpecialtiesControllerFindOneData, ThrowOnError>,
+) =>
+  (options.client ?? client).get<
+    CategorySpecialtiesControllerFindOneResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/category-specialties/{id}",
+    ...options,
   });
 
 /**
