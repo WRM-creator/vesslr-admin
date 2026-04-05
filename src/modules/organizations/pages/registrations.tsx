@@ -42,14 +42,9 @@ export default function PendingApprovalsPage() {
     location: [item.address?.state?.name, item.address?.country?.name]
       .filter(Boolean)
       .join(", "),
-    categories: [
-      ...new Map(
-        (item.categories ?? [])
-          .map((c: any) => c?.group)
-          .filter((g: any) => g && typeof g === "object" && g._id)
-          .map((g: any) => [String(g._id), g.name]),
-      ).values(),
-    ],
+    categories: (item.categories ?? [])
+      .filter((c: any) => c && typeof c === "object" && c.name)
+      .map((c: any) => c.name),
     verificationStatus: item.verificationStatus || "unverified",
     createdAt: item.createdAt!,
   }));

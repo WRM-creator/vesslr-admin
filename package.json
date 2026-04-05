@@ -10,7 +10,8 @@
     "preview": "vite preview",
     "update:swagger": "node scripts/update-swagger.mjs",
     "seed:admin": "cd ../api && npm run seed:admin",
-    "generate:api": "openapi-ts"
+    "generate:api": "openapi-ts",
+    "sync:api": "npm run update:swagger && npm run generate:api"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",

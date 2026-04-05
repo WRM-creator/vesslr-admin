@@ -50,7 +50,7 @@ export const columns: ColumnDef<OrganizationTableItem>[] = [
   },
   {
     accessorKey: "categories",
-    header: "Category Groups",
+    header: "Categories",
     cell: ({ row }) => (
       <TruncatedList items={row.original.categories} maxVisible={2} />
     ),

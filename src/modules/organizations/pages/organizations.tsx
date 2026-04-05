@@ -43,18 +43,10 @@ export default function OrganizationsPage() {
     location: [item.address?.state?.name, item.address?.country?.name]
       .filter(Boolean)
       .join(", "),
-    categories: [
-      ...new Map(
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (item.categories ?? [])
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          .map((c: any) => c?.group)
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          .filter((g: any) => g && typeof g === "object" && g._id)
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          .map((g: any) => [String(g._id), g.name])
-      ).values(),
-    ],
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    categories: (item.categories ?? [])
+      .filter((c: any) => c && typeof c === "object" && c.name)
+      .map((c: any) => c.name),
     verificationStatus: item.verificationStatus || "unverified",
     createdAt: item.createdAt,
   }));
