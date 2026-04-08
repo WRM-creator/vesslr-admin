@@ -245,16 +245,9 @@ export type PepRelationDto = {
 export type BusinessRepresentativeDto = {
   isDirector: boolean;
   ownsMoreThanFivePercent: boolean;
-  firstName: string;
-  lastName: string;
-  email: string;
   bvn: string;
-  phoneNumber: string;
   nationality: string;
   address: BusinessRepresentativeAddressDto;
-  idDocumentType: string;
-  idDocumentNumber: string;
-  idDocument?: string;
   isPep: boolean;
   pepRelations?: Array<PepRelationDto>;
   attestation: boolean;
@@ -302,6 +295,7 @@ export type UserProfileResponseDto = {
   residentialAddress?: ResidentialAddressDto;
   isInvitedMember?: boolean;
   organization?: OnboardingOrganizationDto;
+  isPhoneVerified?: boolean;
   profileImage?: string;
   businessRepresentative?: BusinessRepresentativeDto;
 };
@@ -382,18 +376,20 @@ export type UpdateBankDetailsDto = {
   bankCode: string;
 };
 
-export type ProductCategoryGroupDto = {
-  _id: string;
-  name: string;
-  allowsInventoryTracking?: boolean;
-};
-
 export type ProductCategoryDto = {
   _id: string;
   name: string;
   slug?: string;
-  type?: "product" | "service";
-  group?: ProductCategoryGroupDto;
+};
+
+export type ProductCategoryGroupDto = {
+  _id: string;
+  name: string;
+  allowsInventoryTracking?: boolean;
+  type?: "products" | "services";
+  allowsOrderQuantityLimits?: boolean;
+  milestoneDelivery?: boolean;
+  allowsInspection?: boolean;
 };
 
 export type ProductOrganizationDto = {
@@ -433,7 +429,11 @@ export type PopulatedProductResponseDto = {
   displayId: number;
   title: string;
   description?: string;
-  category?: ProductCategoryDto;
+  specialtyId?: string;
+  categoryId?: ProductCategoryDto;
+  groupId?: ProductCategoryGroupDto;
+  type?: "products" | "services";
+  listingType?: "product" | "service" | "rental" | "charter";
   /**
    * Price per unit in minor currency units (kobo/cents)
    */
@@ -471,9 +471,6 @@ export type PopulatedProductResponseDto = {
   createdAt?: string;
   updatedAt?: string;
   documents?: Array<string>;
-  transactionTypes?: Array<
-    "Purchase" | "Lease" | "Charter" | "Bulk Supply" | "Spot Trade"
-  >;
 };
 
 export type ProductsPaginationDataDto = {
@@ -504,7 +501,15 @@ export type ProductResponseDto = {
   displayId: number;
   title: string;
   description?: string;
-  category?: ProductCategoryDto;
+  specialtyId?: string;
+  categoryId?: {
+    [key: string]: unknown;
+  };
+  groupId?: {
+    [key: string]: unknown;
+  };
+  type?: "products" | "services";
+  listingType?: "product" | "service" | "rental" | "charter";
   /**
    * Price per unit in minor currency units (kobo/cents)
    */
@@ -542,9 +547,6 @@ export type ProductResponseDto = {
   createdAt?: string;
   updatedAt?: string;
   documents?: Array<string>;
-  transactionTypes?: Array<
-    "Purchase" | "Lease" | "Charter" | "Bulk Supply" | "Spot Trade"
-  >;
 };
 
 export type LocationDto = {
@@ -557,7 +559,11 @@ export type LocationDto = {
 export type CreateProductDto = {
   title: string;
   description: string;
-  category: string;
+  specialtyId: string;
+  categoryId: string;
+  groupId: string;
+  type: "products" | "services";
+  listingType: "product" | "service" | "rental" | "charter";
   /**
    * Price per unit in minor currency units (kobo/cents)
    */
@@ -590,9 +596,6 @@ export type CreateProductDto = {
   location?: LocationDto;
   status?: "pending" | "approved" | "rejected" | "delisted";
   delistReason?: string;
-  transactionTypes?: Array<
-    "Purchase" | "Lease" | "Charter" | "Bulk Supply" | "Spot Trade"
-  >;
   isActive?: boolean;
   rejectionReason?: string;
 };
@@ -600,7 +603,11 @@ export type CreateProductDto = {
 export type UpdateProductDto = {
   title?: string;
   description?: string;
-  category?: string;
+  specialtyId?: string;
+  categoryId?: string;
+  groupId?: string;
+  type?: "products" | "services";
+  listingType?: "product" | "service" | "rental" | "charter";
   /**
    * Price per unit in minor currency units (kobo/cents)
    */
@@ -633,11 +640,30 @@ export type UpdateProductDto = {
   location?: LocationDto;
   status?: "pending" | "approved" | "rejected" | "delisted";
   delistReason?: string;
-  transactionTypes?: Array<
-    "Purchase" | "Lease" | "Charter" | "Bulk Supply" | "Spot Trade"
-  >;
   isActive?: boolean;
   rejectionReason?: string;
+};
+
+export type CategoryGroupDto = {
+  _id: string;
+  name: string;
+  slug: string;
+  type: string;
+  isActive: boolean;
+  image?: string;
+  requiresLogistics: boolean;
+  allowsInspection: boolean;
+  milestoneDelivery: boolean;
+  requiresEscrow: boolean;
+  requiresCompliance: boolean;
+  allowsOrderQuantityLimits: boolean;
+  allowsInventoryTracking: boolean;
+  allowedCurrencies: Array<"NGN" | "USD" | "EUR">;
+  allowedListingTypes: Array<"product" | "service" | "rental" | "charter">;
+  allowedConditions: Array<
+    "New" | "Used - Good" | "Used - Fair" | "Refurbished"
+  >;
+  allowedMeasurementTypes: Array<"count" | "volume" | "mass" | "time">;
 };
 
 export type CategoryDocumentTemplateDto = {
@@ -680,38 +706,15 @@ export type CategoryComplianceDto = {
   riskLevel: "LOW" | "MEDIUM" | "HIGH";
 };
 
-export type CategoryGroupDto = {
-  _id: string;
-  name: string;
-  slug: string;
-  type: string;
-  isActive: boolean;
-  image?: string;
-  requiresLogistics: boolean;
-  allowsInspection: boolean;
-  milestoneDelivery: boolean;
-  requiresEscrow: boolean;
-  requiresCompliance: boolean;
-  allowsOrderQuantityLimits: boolean;
-  allowsInventoryTracking: boolean;
-  measurementType: Array<"count" | "volume" | "mass" | "time">;
-  transactionTypes: Array<
-    "Purchase" | "Lease" | "Charter" | "Bulk Supply" | "Spot Trade"
-  >;
-  conditions: Array<"New" | "Used - Good" | "Used - Fair" | "Refurbished">;
-  allowedCurrencies: Array<"NGN" | "USD" | "EUR">;
-};
-
 export type CategoryDto = {
   _id: string;
   name: string;
   slug: string;
-  type: "equipment-and-products" | "services";
+  groupId: CategoryGroupDto;
   description?: string;
   image?: string;
   requiredDocuments: Array<CategoryDocumentTemplateDto>;
   compliance: CategoryComplianceDto;
-  group: CategoryGroupDto;
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
@@ -1565,6 +1568,14 @@ export type CreateRequestDto = {
    * ID of the category
    */
   category: string;
+  /**
+   * ID of the specialty (new taxonomy anchor)
+   */
+  specialtyId?: string;
+  /**
+   * What kind of listing this is
+   */
+  listingType: "product" | "service" | "rental" | "charter";
   name: string;
   quantity: number;
   region: Array<string>;
@@ -1590,7 +1601,7 @@ export type CreateRequestDto = {
   /**
    * List of transaction types
    */
-  transactionType: Array<
+  transactionType?: Array<
     "Purchase" | "Lease" | "Charter" | "Bulk Supply" | "Spot Trade"
   >;
   /**
@@ -1653,7 +1664,7 @@ export type RequestResponseDto = {
   _id: string;
   name: string;
   quantity: number;
-  category: RequestCategoryDto;
+  categoryId: RequestCategoryDto;
   requester: RequesterDto;
   region: Array<RequestRegionDto>;
   country: Array<RequestCountryDto>;
@@ -1688,7 +1699,8 @@ export type RequestResponseDto = {
     | "month"
     | "unit";
   currency: "NGN" | "USD" | "EUR";
-  transactionType: Array<string>;
+  listingType: "product" | "service" | "rental" | "charter";
+  transactionType?: Array<string>;
   condition?: Array<string>;
   description?: string;
   documents: Array<string>;
@@ -1717,6 +1729,14 @@ export type UpdateRequestDto = {
    * ID of the category
    */
   category?: string;
+  /**
+   * ID of the specialty (new taxonomy anchor)
+   */
+  specialtyId?: string;
+  /**
+   * What kind of listing this is
+   */
+  listingType?: "product" | "service" | "rental" | "charter";
   name?: string;
   quantity?: number;
   region?: Array<string>;
@@ -2374,6 +2394,7 @@ export type OnboardingStatusResponseDto = {
   reviewedAt?: string;
   approvedAt?: string;
   smileVerificationStatus?: "pending" | "passed" | "manual_review" | "failed";
+  smileLinkPending?: boolean;
   isInvitedMember?: boolean;
   residentialAddress?: ResidentialAddressDto;
   organization?: OnboardingOrganizationDto;
@@ -2520,16 +2541,9 @@ export type RepresentativeAddressDto = {
 export type UpdateBusinessRepresentativeDto = {
   isDirector: boolean;
   ownsMoreThanFivePercent: boolean;
-  firstName: string;
-  lastName: string;
-  email: string;
   bvn: string;
-  phoneNumber: string;
   nationality: string;
   address: RepresentativeAddressDto;
-  idDocumentType?: "nin" | "passport";
-  idDocumentNumber?: string;
-  idDocument?: string | FileMetadataDto;
   isPep: boolean;
   pepRelations?: Array<PepRelationDto>;
   attestation: boolean;
@@ -2562,6 +2576,13 @@ export type InviteTeamDto = {
 
 export type CreateSmileLinkDto = {
   idType: "nin" | "passport";
+};
+
+export type OnboardingVerifyPhoneOtpDto = {
+  /**
+   * 6-digit verification code
+   */
+  code: string;
 };
 
 export type AcceptInvitationDto = {
@@ -2985,19 +3006,15 @@ export type CreateCategoryDto = {
    */
   description?: string;
   /**
-   * Type of the category
-   */
-  type?: "equipment-and-products" | "services";
-  /**
    * Category image URL
    */
   image?: string;
   requiredDocuments?: Array<CategoryDocumentTemplateInput>;
   compliance?: CategoryComplianceInput;
   /**
-   * ID of the category group this category belongs to
+   * Category group ID
    */
-  group?: string;
+  groupId: string;
   /**
    * Whether the category is active
    */
@@ -3018,21 +3035,83 @@ export type UpdateCategoryDto = {
    */
   description?: string;
   /**
-   * Type of the category
-   */
-  type?: "equipment-and-products" | "services";
-  /**
    * Category image URL
    */
   image?: string;
   requiredDocuments?: Array<CategoryDocumentTemplateInput>;
   compliance?: CategoryComplianceInput;
   /**
-   * ID of the category group this category belongs to
+   * Category group ID
    */
-  group?: string;
+  groupId?: string;
   /**
    * Whether the category is active
+   */
+  isActive?: boolean;
+};
+
+export type CategorySpecialtyDto = {
+  _id: string;
+  name: string;
+  slug: string;
+  categoryId: string;
+  groupId: string;
+  isActive: boolean;
+  sortOrder: number;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type CreateCategorySpecialtyDto = {
+  /**
+   * The name of the specialty
+   */
+  name: string;
+  /**
+   * URL-friendly slug
+   */
+  slug?: string;
+  /**
+   * Parent category ID
+   */
+  categoryId: string;
+  /**
+   * Category group ID (optional — derived from category if omitted)
+   */
+  groupId?: string;
+  /**
+   * Sort order within the parent category
+   */
+  sortOrder?: number;
+  /**
+   * Whether the specialty is active
+   */
+  isActive?: boolean;
+};
+
+export type UpdateCategorySpecialtyDto = {
+  /**
+   * The name of the specialty
+   */
+  name?: string;
+  /**
+   * URL-friendly slug
+   */
+  slug?: string;
+  /**
+   * Parent category ID
+   */
+  categoryId?: string;
+  /**
+   * Category group ID (optional — derived from category if omitted)
+   */
+  groupId?: string;
+  /**
+   * Sort order within the parent category
+   */
+  sortOrder?: number;
+  /**
+   * Whether the specialty is active
    */
   isActive?: boolean;
 };
@@ -3776,7 +3855,7 @@ export type AdminResolveTicketDto = {
 
 export type UpdateCategoryGroupDto = {
   name?: string;
-  type?: "equipment-and-products" | "services";
+  type?: "products" | "services";
   isActive?: boolean;
   image?: string;
   requiresLogistics?: boolean;
@@ -3784,15 +3863,10 @@ export type UpdateCategoryGroupDto = {
   milestoneDelivery?: boolean;
   allowsOrderQuantityLimits?: boolean;
   allowsInventoryTracking?: boolean;
-  measurementType?: "count" | "volume" | "mass" | "time";
-  transactionTypes?:
-    | "Purchase"
-    | "Lease"
-    | "Charter"
-    | "Bulk Supply"
-    | "Spot Trade";
-  conditions?: "New" | "Used - Good" | "Used - Fair" | "Refurbished";
   allowedCurrencies?: Array<"NGN" | "USD" | "EUR">;
+  allowedListingTypes?: Array<"product" | "service" | "rental" | "charter">;
+  allowedConditions?: "New" | "Used - Good" | "Used - Fair" | "Refurbished";
+  allowedMeasurementTypes?: "count" | "volume" | "mass" | "time";
 };
 
 export type QqFieldDef = {
@@ -6012,6 +6086,45 @@ export type OnboardingControllerReEnrollIdentityKycResponses = {
   201: unknown;
 };
 
+export type OnboardingControllerSendPhoneOtpData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: "/api/v1/onboarding/send-phone-otp";
+};
+
+export type OnboardingControllerSendPhoneOtpResponses = {
+  /**
+   * OTP sent to phone
+   */
+  201: {
+    message?: string;
+    phoneMask?: string;
+  };
+};
+
+export type OnboardingControllerSendPhoneOtpResponse =
+  OnboardingControllerSendPhoneOtpResponses[keyof OnboardingControllerSendPhoneOtpResponses];
+
+export type OnboardingControllerVerifyPhoneOtpData = {
+  body: OnboardingVerifyPhoneOtpDto;
+  path?: never;
+  query?: never;
+  url: "/api/v1/onboarding/verify-phone-otp";
+};
+
+export type OnboardingControllerVerifyPhoneOtpResponses = {
+  /**
+   * Phone verified
+   */
+  201: {
+    message?: string;
+  };
+};
+
+export type OnboardingControllerVerifyPhoneOtpResponse =
+  OnboardingControllerVerifyPhoneOtpResponses[keyof OnboardingControllerVerifyPhoneOtpResponses];
+
 export type OnboardingControllerCompleteOnboardingData = {
   body?: never;
   path?: never;
@@ -6513,6 +6626,130 @@ export type AdminCategoriesControllerUpdateResponses = {
 export type AdminCategoriesControllerUpdateResponse =
   AdminCategoriesControllerUpdateResponses[keyof AdminCategoriesControllerUpdateResponses];
 
+export type AdminCategorySpecialtiesControllerFindAllData = {
+  body?: never;
+  path?: never;
+  query?: {
+    /**
+     * Filter by parent category ID
+     */
+    categoryId?: string;
+    /**
+     * Filter by category group ID
+     */
+    groupId?: string;
+  };
+  url: "/api/v1/admin/category-specialties";
+};
+
+export type AdminCategorySpecialtiesControllerFindAllResponses = {
+  200: Array<CategorySpecialtyDto>;
+};
+
+export type AdminCategorySpecialtiesControllerFindAllResponse =
+  AdminCategorySpecialtiesControllerFindAllResponses[keyof AdminCategorySpecialtiesControllerFindAllResponses];
+
+export type AdminCategorySpecialtiesControllerCreateData = {
+  body: CreateCategorySpecialtyDto;
+  path?: never;
+  query?: never;
+  url: "/api/v1/admin/category-specialties";
+};
+
+export type AdminCategorySpecialtiesControllerCreateResponses = {
+  201: CategorySpecialtyDto;
+};
+
+export type AdminCategorySpecialtiesControllerCreateResponse =
+  AdminCategorySpecialtiesControllerCreateResponses[keyof AdminCategorySpecialtiesControllerCreateResponses];
+
+export type AdminCategorySpecialtiesControllerRemoveData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/admin/category-specialties/{id}";
+};
+
+export type AdminCategorySpecialtiesControllerRemoveResponses = {
+  /**
+   * Specialty deleted successfully
+   */
+  200: unknown;
+};
+
+export type AdminCategorySpecialtiesControllerFindOneData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/admin/category-specialties/{id}";
+};
+
+export type AdminCategorySpecialtiesControllerFindOneResponses = {
+  200: CategorySpecialtyDto;
+};
+
+export type AdminCategorySpecialtiesControllerFindOneResponse =
+  AdminCategorySpecialtiesControllerFindOneResponses[keyof AdminCategorySpecialtiesControllerFindOneResponses];
+
+export type AdminCategorySpecialtiesControllerUpdateData = {
+  body: UpdateCategorySpecialtyDto;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/admin/category-specialties/{id}";
+};
+
+export type AdminCategorySpecialtiesControllerUpdateResponses = {
+  200: CategorySpecialtyDto;
+};
+
+export type AdminCategorySpecialtiesControllerUpdateResponse =
+  AdminCategorySpecialtiesControllerUpdateResponses[keyof AdminCategorySpecialtiesControllerUpdateResponses];
+
+export type CategorySpecialtiesControllerFindAllData = {
+  body?: never;
+  path?: never;
+  query?: {
+    /**
+     * Filter by parent category ID
+     */
+    categoryId?: string;
+    /**
+     * Filter by category group ID
+     */
+    groupId?: string;
+  };
+  url: "/api/v1/category-specialties";
+};
+
+export type CategorySpecialtiesControllerFindAllResponses = {
+  200: Array<CategorySpecialtyDto>;
+};
+
+export type CategorySpecialtiesControllerFindAllResponse =
+  CategorySpecialtiesControllerFindAllResponses[keyof CategorySpecialtiesControllerFindAllResponses];
+
+export type CategorySpecialtiesControllerFindOneData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/category-specialties/{id}";
+};
+
+export type CategorySpecialtiesControllerFindOneResponses = {
+  200: CategorySpecialtyDto;
+};
+
+export type CategorySpecialtiesControllerFindOneResponse =
+  CategorySpecialtiesControllerFindOneResponses[keyof CategorySpecialtiesControllerFindOneResponses];
+
 export type AdminTransactionsControllerFindAllData = {
   body?: never;
   path?: never;
@@ -6746,13 +6983,8 @@ export type AdminTransactionsControllerRetryMilestonePaymentResponses = {
    * The retry was initiated
    */
   200: unknown;
-  201: {
-    [key: string]: unknown;
-  };
+  201: unknown;
 };
-
-export type AdminTransactionsControllerRetryMilestonePaymentResponse =
-  AdminTransactionsControllerRetryMilestonePaymentResponses[keyof AdminTransactionsControllerRetryMilestonePaymentResponses];
 
 export type AdminTransactionsControllerSubmitInspectionData = {
   body: SubmitInspectionDocumentsDto;
@@ -7790,9 +8022,7 @@ export type QqCatalogControllerFindAllCompaniesData = {
 };
 
 export type QqCatalogControllerFindAllCompaniesResponses = {
-  200: {
-    [key: string]: unknown;
-  };
+  200: Array<string>;
 };
 
 export type QqCatalogControllerFindAllCompaniesResponse =

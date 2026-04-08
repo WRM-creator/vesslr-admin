@@ -39,6 +39,7 @@ export function EditCategoryDialog({
         name: data.name,
         description: data.description || undefined,
         image: data.image || undefined,
+        allowedMeasurementTypes: data.allowedMeasurementTypes,
       },
     });
   };
@@ -54,6 +55,8 @@ export function EditCategoryDialog({
             name: category.name,
             description: category.description,
             image: category.image,
+            allowedMeasurementTypes:
+              (category as any).allowedMeasurementTypes ?? [],
           }}
           onSubmit={handleSubmit}
           onCancel={() => onOpenChange(false)}

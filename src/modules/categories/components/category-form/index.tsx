@@ -10,7 +10,9 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { cn } from "@/lib/utils";
 import { useFileUpload } from "@/hooks/use-file-upload";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useRef, useState } from "react";
@@ -132,6 +134,56 @@ export function CategoryForm({
               <FormMessage />
             </FormItem>
           )}
+        />
+
+        <FormField
+          control={form.control}
+          name="allowedMeasurementTypes"
+          render={({ field }) => {
+            const TYPES = [
+              { value: "count" as const, label: "Count" },
+              { value: "volume" as const, label: "Volume" },
+              { value: "mass" as const, label: "Mass" },
+              { value: "time" as const, label: "Time" },
+            ];
+            const current = field.value ?? [];
+            const toggle = (val: (typeof TYPES)[number]["value"]) => {
+              field.onChange(
+                current.includes(val)
+                  ? current.filter((v) => v !== val)
+                  : [...current, val],
+              );
+            };
+            return (
+              <FormItem>
+                <Label className="text-sm font-medium">
+                  Allowed Measurement Types
+                </Label>
+                <div className="flex flex-wrap gap-2">
+                  {TYPES.map(({ value, label }) => (
+                    <button
+                      key={value}
+                      type="button"
+                      onClick={() => toggle(value)}
+                      className={cn(
+                        "rounded-full border px-3 py-1 text-sm font-medium transition-colors",
+                        current.includes(value)
+                          ? "border-primary bg-primary text-primary-foreground"
+                          : "border-border bg-background text-muted-foreground hover:bg-accent hover:text-accent-foreground",
+                      )}
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
+                <FormDescription>
+                  Which unit families (volume, mass, etc.) are available for
+                  listings in this category.
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            );
+          }}
         />
 
         <div className="flex justify-end gap-2">

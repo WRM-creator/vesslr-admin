@@ -23,6 +23,16 @@ import type {
   AdminCategoriesControllerRemoveResponses,
   AdminCategoriesControllerUpdateData,
   AdminCategoriesControllerUpdateResponses,
+  AdminCategorySpecialtiesControllerCreateData,
+  AdminCategorySpecialtiesControllerCreateResponses,
+  AdminCategorySpecialtiesControllerFindAllData,
+  AdminCategorySpecialtiesControllerFindAllResponses,
+  AdminCategorySpecialtiesControllerFindOneData,
+  AdminCategorySpecialtiesControllerFindOneResponses,
+  AdminCategorySpecialtiesControllerRemoveData,
+  AdminCategorySpecialtiesControllerRemoveResponses,
+  AdminCategorySpecialtiesControllerUpdateData,
+  AdminCategorySpecialtiesControllerUpdateResponses,
   AdminComplianceControllerGetCaseData,
   AdminComplianceControllerGetCaseResponses,
   AdminComplianceControllerListCasesData,
@@ -175,6 +185,10 @@ import type {
   CategoryGroupsControllerFindOneResponses,
   CategoryGroupsControllerUpdateData,
   CategoryGroupsControllerUpdateResponses,
+  CategorySpecialtiesControllerFindAllData,
+  CategorySpecialtiesControllerFindAllResponses,
+  CategorySpecialtiesControllerFindOneData,
+  CategorySpecialtiesControllerFindOneResponses,
   ComplianceControllerSmileIdWebhookData,
   ComplianceControllerSmileIdWebhookResponses,
   DisputesControllerAddAttachmentData,
@@ -289,6 +303,8 @@ import type {
   OnboardingControllerPatchCompanyDocumentsResponses,
   OnboardingControllerReEnrollIdentityKycData,
   OnboardingControllerReEnrollIdentityKycResponses,
+  OnboardingControllerSendPhoneOtpData,
+  OnboardingControllerSendPhoneOtpResponses,
   OnboardingControllerUpdateBeneficialOwnerData,
   OnboardingControllerUpdateBeneficialOwnerResponses,
   OnboardingControllerUpdateBusinessAddressData,
@@ -307,6 +323,8 @@ import type {
   OnboardingControllerUpdateProductCategoriesResponses,
   OnboardingControllerUpdateResidentialData,
   OnboardingControllerUpdateResidentialResponses,
+  OnboardingControllerVerifyPhoneOtpData,
+  OnboardingControllerVerifyPhoneOtpResponses,
   OrdersControllerCancelData,
   OrdersControllerCancelResponses,
   OrdersControllerConfirmData,
@@ -2669,6 +2687,46 @@ export const onboardingControllerReEnrollIdentityKyc = <
   });
 
 /**
+ * Send phone verification OTP
+ */
+export const onboardingControllerSendPhoneOtp = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<OnboardingControllerSendPhoneOtpData, ThrowOnError>,
+) =>
+  (options?.client ?? client).post<
+    OnboardingControllerSendPhoneOtpResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/onboarding/send-phone-otp",
+    ...options,
+  });
+
+/**
+ * Verify phone OTP code
+ */
+export const onboardingControllerVerifyPhoneOtp = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<OnboardingControllerVerifyPhoneOtpData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    OnboardingControllerVerifyPhoneOtpResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/onboarding/verify-phone-otp",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
  * Complete onboarding
  */
 export const onboardingControllerCompleteOnboarding = <
@@ -3239,6 +3297,143 @@ export const adminCategoriesControllerUpdate = <
       "Content-Type": "application/json",
       ...options.headers,
     },
+  });
+
+/**
+ * List category specialties (Admin)
+ */
+export const adminCategorySpecialtiesControllerFindAll = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<
+    AdminCategorySpecialtiesControllerFindAllData,
+    ThrowOnError
+  >,
+) =>
+  (options?.client ?? client).get<
+    AdminCategorySpecialtiesControllerFindAllResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/category-specialties",
+    ...options,
+  });
+
+/**
+ * Create a new category specialty
+ */
+export const adminCategorySpecialtiesControllerCreate = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AdminCategorySpecialtiesControllerCreateData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    AdminCategorySpecialtiesControllerCreateResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/category-specialties",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Delete a category specialty
+ */
+export const adminCategorySpecialtiesControllerRemove = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AdminCategorySpecialtiesControllerRemoveData, ThrowOnError>,
+) =>
+  (options.client ?? client).delete<
+    AdminCategorySpecialtiesControllerRemoveResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/category-specialties/{id}",
+    ...options,
+  });
+
+/**
+ * Get a category specialty by ID (Admin)
+ */
+export const adminCategorySpecialtiesControllerFindOne = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AdminCategorySpecialtiesControllerFindOneData, ThrowOnError>,
+) =>
+  (options.client ?? client).get<
+    AdminCategorySpecialtiesControllerFindOneResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/category-specialties/{id}",
+    ...options,
+  });
+
+/**
+ * Update a category specialty
+ */
+export const adminCategorySpecialtiesControllerUpdate = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AdminCategorySpecialtiesControllerUpdateData, ThrowOnError>,
+) =>
+  (options.client ?? client).patch<
+    AdminCategorySpecialtiesControllerUpdateResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/category-specialties/{id}",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Get all active category specialties
+ */
+export const categorySpecialtiesControllerFindAll = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<CategorySpecialtiesControllerFindAllData, ThrowOnError>,
+) =>
+  (options?.client ?? client).get<
+    CategorySpecialtiesControllerFindAllResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/category-specialties",
+    ...options,
+  });
+
+/**
+ * Get a category specialty by ID
+ */
+export const categorySpecialtiesControllerFindOne = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<CategorySpecialtiesControllerFindOneData, ThrowOnError>,
+) =>
+  (options.client ?? client).get<
+    CategorySpecialtiesControllerFindOneResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/category-specialties/{id}",
+    ...options,
   });
 
 /**

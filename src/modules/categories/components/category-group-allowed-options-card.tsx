@@ -18,21 +18,13 @@ interface CategoryGroupAllowedOptionsCardProps {
   categoryGroup: CategoryGroupDto;
 }
 
-type ArrayField = "measurementType" | "transactionTypes" | "conditions";
+type ArrayField = "allowedListingTypes" | "allowedConditions";
 
-const MEASUREMENT_TYPES = [
-  { value: "count" as const, label: "Count" },
-  { value: "volume" as const, label: "Volume" },
-  { value: "mass" as const, label: "Mass" },
-  { value: "time" as const, label: "Time" },
-];
-
-const TRANSACTION_TYPES = [
-  { value: "Purchase", label: "Purchase" },
-  { value: "Lease", label: "Lease" },
-  { value: "Charter", label: "Charter" },
-  { value: "Bulk Supply", label: "Bulk Supply" },
-  { value: "Spot Trade", label: "Spot Trade" },
+const LISTING_TYPES = [
+  { value: "product", label: "Product" },
+  { value: "service", label: "Service" },
+  { value: "rental", label: "Rental" },
+  { value: "charter", label: "Charter" },
 ];
 
 const CONDITIONS = [
@@ -76,43 +68,26 @@ export function CategoryGroupAllowedOptionsCard({
       <CardHeader>
         <CardTitle>Allowed Options</CardTitle>
         <CardDescription>
-          Configure which measurement types, transaction types, and conditions
-          are permitted for products in this category group.
+          Configure which listing types and conditions are permitted for this
+          category group. Measurement types are now configured per category.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
         <OptionSection
-          label="Measurement Types"
-          isPending={isFieldPending("measurementType")}
+          label="Listing Types"
+          isPending={isFieldPending("allowedListingTypes")}
         >
-          {MEASUREMENT_TYPES.map(({ value, label }) => (
+          {LISTING_TYPES.map(({ value, label }) => (
             <OptionPill
               key={value}
               label={label}
-              selected={categoryGroup.measurementType.includes(value)}
+              selected={(
+                categoryGroup.allowedListingTypes as string[]
+              ).includes(value)}
               disabled={isPending}
               onClick={handleToggle(
-                "measurementType",
-                categoryGroup.measurementType,
-                value,
-              )}
-            />
-          ))}
-        </OptionSection>
-        <Separator />
-        <OptionSection
-          label="Transaction Types"
-          isPending={isFieldPending("transactionTypes")}
-        >
-          {TRANSACTION_TYPES.map(({ value, label }) => (
-            <OptionPill
-              key={value}
-              label={label}
-              selected={(categoryGroup.transactionTypes as string[]).includes(value)}
-              disabled={isPending}
-              onClick={handleToggle(
-                "transactionTypes",
-                categoryGroup.transactionTypes,
+                "allowedListingTypes",
+                categoryGroup.allowedListingTypes as string[],
                 value,
               )}
             />
@@ -121,17 +96,19 @@ export function CategoryGroupAllowedOptionsCard({
         <Separator />
         <OptionSection
           label="Conditions"
-          isPending={isFieldPending("conditions")}
+          isPending={isFieldPending("allowedConditions")}
         >
           {CONDITIONS.map(({ value, label }) => (
             <OptionPill
               key={value}
               label={label}
-              selected={(categoryGroup.conditions as string[]).includes(value)}
+              selected={(
+                categoryGroup.allowedConditions as string[]
+              ).includes(value)}
               disabled={isPending}
               onClick={handleToggle(
-                "conditions",
-                categoryGroup.conditions,
+                "allowedConditions",
+                categoryGroup.allowedConditions as string[],
                 value,
               )}
             />
