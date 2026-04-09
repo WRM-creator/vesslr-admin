@@ -64,6 +64,7 @@ import {
   adminTransactionsControllerGetLogs,
   adminTransactionsControllerReviewDocument,
   adminTransactionsControllerReviewInspection,
+  adminTransactionsControllerRetryMilestonePayment,
   adminTransactionsControllerSubmitInspection,
   adminTransactionsControllerUpdateRequirement,
   categoryGroupsControllerFindAll,
@@ -191,6 +192,14 @@ export const api = {
       ),
       reviewInspection: createMutation(
         adminTransactionsControllerReviewInspection,
+        {
+          invalidates: (args) => [
+            ["admin", "transactions", "detail", args.path.id],
+          ],
+        },
+      ),
+      retryMilestonePayment: createMutation(
+        adminTransactionsControllerRetryMilestonePayment,
         {
           invalidates: (args) => [
             ["admin", "transactions", "detail", args.path.id],

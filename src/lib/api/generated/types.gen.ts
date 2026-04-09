@@ -452,14 +452,35 @@ export type PopulatedProductResponseDto = {
     | "bbl"
     | "liter"
     | "gallon"
+    | "m3"
     | "mt"
     | "kg"
     | "ton"
     | "lb"
-    | "hour"
-    | "day"
-    | "month"
-    | "unit";
+    | "m"
+    | "ft"
+    | "sqm"
+    | "sqft"
+    | "scf"
+    | "sm3"
+    | "nm3"
+    | "mmbtu"
+    | "kwh"
+    | "mwh"
+    | "unit"
+    | "set"
+    | "kit"
+    | "pair"
+    | "joint"
+    | "roll"
+    | "sheet"
+    | "box"
+    | "pack"
+    | "drum"
+    | "bag"
+    | "cylinder"
+    | "ream"
+    | "license";
   conditions?: Array<"New" | "Used - Good" | "Used - Fair" | "Refurbished">;
   organization?: ProductOrganizationDto;
   location?: PopulatedProductLocationDto;
@@ -528,14 +549,35 @@ export type ProductResponseDto = {
     | "bbl"
     | "liter"
     | "gallon"
+    | "m3"
     | "mt"
     | "kg"
     | "ton"
     | "lb"
-    | "hour"
-    | "day"
-    | "month"
-    | "unit";
+    | "m"
+    | "ft"
+    | "sqm"
+    | "sqft"
+    | "scf"
+    | "sm3"
+    | "nm3"
+    | "mmbtu"
+    | "kwh"
+    | "mwh"
+    | "unit"
+    | "set"
+    | "kit"
+    | "pair"
+    | "joint"
+    | "roll"
+    | "sheet"
+    | "box"
+    | "pack"
+    | "drum"
+    | "bag"
+    | "cylinder"
+    | "ream"
+    | "license";
   conditions?: Array<"New" | "Used - Good" | "Used - Fair" | "Refurbished">;
   organization?: ProductOrganizationDto;
   location?: ProductLocationDto;
@@ -583,14 +625,35 @@ export type CreateProductDto = {
     | "bbl"
     | "liter"
     | "gallon"
+    | "m3"
     | "mt"
     | "kg"
     | "ton"
     | "lb"
-    | "hour"
-    | "day"
-    | "month"
-    | "unit";
+    | "m"
+    | "ft"
+    | "sqm"
+    | "sqft"
+    | "scf"
+    | "sm3"
+    | "nm3"
+    | "mmbtu"
+    | "kwh"
+    | "mwh"
+    | "unit"
+    | "set"
+    | "kit"
+    | "pair"
+    | "joint"
+    | "roll"
+    | "sheet"
+    | "box"
+    | "pack"
+    | "drum"
+    | "bag"
+    | "cylinder"
+    | "ream"
+    | "license";
   conditions?: Array<"New" | "Used - Good" | "Used - Fair" | "Refurbished">;
   organization?: string;
   location?: LocationDto;
@@ -627,14 +690,35 @@ export type UpdateProductDto = {
     | "bbl"
     | "liter"
     | "gallon"
+    | "m3"
     | "mt"
     | "kg"
     | "ton"
     | "lb"
-    | "hour"
-    | "day"
-    | "month"
-    | "unit";
+    | "m"
+    | "ft"
+    | "sqm"
+    | "sqft"
+    | "scf"
+    | "sm3"
+    | "nm3"
+    | "mmbtu"
+    | "kwh"
+    | "mwh"
+    | "unit"
+    | "set"
+    | "kit"
+    | "pair"
+    | "joint"
+    | "roll"
+    | "sheet"
+    | "box"
+    | "pack"
+    | "drum"
+    | "bag"
+    | "cylinder"
+    | "ream"
+    | "license";
   conditions?: Array<"New" | "Used - Good" | "Used - Fair" | "Refurbished">;
   organization?: string;
   location?: LocationDto;
@@ -663,6 +747,11 @@ export type CategoryGroupDto = {
   allowedConditions: Array<
     "New" | "Used - Good" | "Used - Fair" | "Refurbished"
   >;
+  /**
+   * Deprecated: measurement types are now configured per category.
+   *
+   * @deprecated
+   */
   allowedMeasurementTypes: Array<"count" | "volume" | "mass" | "time">;
 };
 
@@ -715,6 +804,45 @@ export type CategoryDto = {
   image?: string;
   requiredDocuments: Array<CategoryDocumentTemplateDto>;
   compliance: CategoryComplianceDto;
+  allowedUnits: Array<
+    | "bbl"
+    | "liter"
+    | "gallon"
+    | "m3"
+    | "mt"
+    | "kg"
+    | "ton"
+    | "lb"
+    | "m"
+    | "ft"
+    | "sqm"
+    | "sqft"
+    | "scf"
+    | "sm3"
+    | "nm3"
+    | "mmbtu"
+    | "kwh"
+    | "mwh"
+    | "unit"
+    | "set"
+    | "kit"
+    | "pair"
+    | "joint"
+    | "roll"
+    | "sheet"
+    | "box"
+    | "pack"
+    | "drum"
+    | "bag"
+    | "cylinder"
+    | "ream"
+    | "license"
+    | "hour"
+    | "day"
+    | "week"
+    | "month"
+    | "year"
+  >;
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
@@ -728,9 +856,9 @@ export type MilestoneInputDto = {
    */
   requiredDocuments?: Array<string>;
   /**
-   * Payment percentage for this milestone (1-100). All milestone percentages must sum to 100. If omitted on all milestones, the system auto-assigns equal splits.
+   * Payment percentage for this milestone (1-100). All milestone percentages must sum to 100.
    */
-  percentage?: number;
+  percentage: number;
 };
 
 export type CreateTransactionDto = {
@@ -819,6 +947,19 @@ export type QqCriterionDto = {
   required?: boolean;
 };
 
+export type RequestMilestoneDto = {
+  name: string;
+  description?: string;
+  /**
+   * List of document names required for this milestone
+   */
+  requiredDocuments?: Array<string>;
+  /**
+   * Payment percentage for this milestone (1-100)
+   */
+  percentage: number;
+};
+
 export type OrderRequestDto = {
   _id: string;
   name: string;
@@ -836,17 +977,39 @@ export type OrderRequestDto = {
     | "bbl"
     | "liter"
     | "gallon"
+    | "m3"
     | "mt"
     | "kg"
     | "ton"
     | "lb"
-    | "hour"
-    | "day"
-    | "month"
-    | "unit";
+    | "m"
+    | "ft"
+    | "sqm"
+    | "sqft"
+    | "scf"
+    | "sm3"
+    | "nm3"
+    | "mmbtu"
+    | "kwh"
+    | "mwh"
+    | "unit"
+    | "set"
+    | "kit"
+    | "pair"
+    | "joint"
+    | "roll"
+    | "sheet"
+    | "box"
+    | "pack"
+    | "drum"
+    | "bag"
+    | "cylinder"
+    | "ream"
+    | "license";
   requester?: OrderBuyerDto;
   qqCriteria?: Array<QqCriterionDto>;
   qqCompany?: string;
+  milestones?: Array<RequestMilestoneDto>;
 };
 
 export type OrderProductDto = {
@@ -857,6 +1020,10 @@ export type OrderProductDto = {
    */
   pricePerUnit?: number;
   images?: Array<string>;
+  /**
+   * True when this product requires milestone-based delivery (service workflow)
+   */
+  milestoneDelivery?: boolean;
 };
 
 export type OrderDocumentDto = {
@@ -883,14 +1050,35 @@ export type OrderResponseDto = {
     | "bbl"
     | "liter"
     | "gallon"
+    | "m3"
     | "mt"
     | "kg"
     | "ton"
     | "lb"
-    | "hour"
-    | "day"
-    | "month"
-    | "unit";
+    | "m"
+    | "ft"
+    | "sqm"
+    | "sqft"
+    | "scf"
+    | "sm3"
+    | "nm3"
+    | "mmbtu"
+    | "kwh"
+    | "mwh"
+    | "unit"
+    | "set"
+    | "kit"
+    | "pair"
+    | "joint"
+    | "roll"
+    | "sheet"
+    | "box"
+    | "pack"
+    | "drum"
+    | "bag"
+    | "cylinder"
+    | "ream"
+    | "license";
   /**
    * Price per unit in minor currency units (kobo/cents)
    */
@@ -1010,9 +1198,18 @@ export type MilestonePayoutResponseDto = {
    * Payout amount in minor currency units
    */
   amount: number;
-  status: "PENDING" | "RELEASE_PENDING" | "RELEASED" | "FAILED";
+  status:
+    | "PENDING"
+    | "RELEASE_PENDING"
+    | "RELEASED"
+    | "FAILED"
+    | "FAILED_PERMANENT";
   transferId?: string | null;
   releasedAt?: string | null;
+  /**
+   * Number of retry attempts after failure
+   */
+  retryCount: number;
 };
 
 export type EscrowResponseDto = {
@@ -1387,14 +1584,35 @@ export type PurchaseProductDto = {
     | "bbl"
     | "liter"
     | "gallon"
+    | "m3"
     | "mt"
     | "kg"
     | "ton"
     | "lb"
-    | "hour"
-    | "day"
-    | "month"
-    | "unit";
+    | "m"
+    | "ft"
+    | "sqm"
+    | "sqft"
+    | "scf"
+    | "sm3"
+    | "nm3"
+    | "mmbtu"
+    | "kwh"
+    | "mwh"
+    | "unit"
+    | "set"
+    | "kit"
+    | "pair"
+    | "joint"
+    | "roll"
+    | "sheet"
+    | "box"
+    | "pack"
+    | "drum"
+    | "bag"
+    | "cylinder"
+    | "ream"
+    | "license";
   /**
    * Optional buyer notes
    */
@@ -1432,18 +1650,7 @@ export type PurchaseProductDto = {
   /**
    * Duration unit for lease/charter (hour, day, month)
    */
-  durationUnit?:
-    | "bbl"
-    | "liter"
-    | "gallon"
-    | "mt"
-    | "kg"
-    | "ton"
-    | "lb"
-    | "hour"
-    | "day"
-    | "month"
-    | "unit";
+  durationUnit?: "hour" | "day" | "week" | "month" | "year";
   /**
    * Buyer-defined milestones (only when category group milestoneDelivery=true)
    */
@@ -1472,6 +1679,10 @@ export type UpdateOrderDto = {
 export type ConfirmOrderMilestoneDto = {
   name: string;
   description?: string;
+  /**
+   * Payment percentage for this milestone (1-100)
+   */
+  percentage: number;
 };
 
 export type ConfirmOrderDto = {
@@ -1554,15 +1765,6 @@ export type SingleRecommendationFeedResponseDto = {
   data: RecommendationFeedItemDto;
 };
 
-export type RequestMilestoneDto = {
-  name: string;
-  description?: string;
-  /**
-   * List of document names required for this milestone
-   */
-  requiredDocuments?: Array<string>;
-};
-
 export type CreateRequestDto = {
   /**
    * ID of the category
@@ -1585,14 +1787,35 @@ export type CreateRequestDto = {
     | "bbl"
     | "liter"
     | "gallon"
+    | "m3"
     | "mt"
     | "kg"
     | "ton"
     | "lb"
-    | "hour"
-    | "day"
-    | "month"
-    | "unit";
+    | "m"
+    | "ft"
+    | "sqm"
+    | "sqft"
+    | "scf"
+    | "sm3"
+    | "nm3"
+    | "mmbtu"
+    | "kwh"
+    | "mwh"
+    | "unit"
+    | "set"
+    | "kit"
+    | "pair"
+    | "joint"
+    | "roll"
+    | "sheet"
+    | "box"
+    | "pack"
+    | "drum"
+    | "bag"
+    | "cylinder"
+    | "ream"
+    | "license";
   /**
    * Target price per unit in minor currency units (kobo/cents)
    */
@@ -1617,18 +1840,7 @@ export type CreateRequestDto = {
   /**
    * Duration unit for lease/charter (hour, day, month)
    */
-  durationUnit?:
-    | "bbl"
-    | "liter"
-    | "gallon"
-    | "mt"
-    | "kg"
-    | "ton"
-    | "lb"
-    | "hour"
-    | "day"
-    | "month"
-    | "unit";
+  durationUnit?: "hour" | "day" | "week" | "month" | "year";
   selectionMode?: "open" | "jira-ai" | "direct";
   milestones?: Array<RequestMilestoneDto>;
   /**
@@ -1673,31 +1885,41 @@ export type RequestResponseDto = {
     | "bbl"
     | "liter"
     | "gallon"
+    | "m3"
     | "mt"
     | "kg"
     | "ton"
     | "lb"
-    | "hour"
-    | "day"
-    | "month"
-    | "unit";
+    | "m"
+    | "ft"
+    | "sqm"
+    | "sqft"
+    | "scf"
+    | "sm3"
+    | "nm3"
+    | "mmbtu"
+    | "kwh"
+    | "mwh"
+    | "unit"
+    | "set"
+    | "kit"
+    | "pair"
+    | "joint"
+    | "roll"
+    | "sheet"
+    | "box"
+    | "pack"
+    | "drum"
+    | "bag"
+    | "cylinder"
+    | "ream"
+    | "license";
   /**
    * Target price per unit in minor currency units (kobo/cents)
    */
   targetPricePerUnit: number;
   duration?: number;
-  durationUnit?:
-    | "bbl"
-    | "liter"
-    | "gallon"
-    | "mt"
-    | "kg"
-    | "ton"
-    | "lb"
-    | "hour"
-    | "day"
-    | "month"
-    | "unit";
+  durationUnit?: "hour" | "day" | "week" | "month" | "year";
   currency: "NGN" | "USD" | "EUR";
   listingType: "product" | "service" | "rental" | "charter";
   transactionType?: Array<string>;
@@ -1746,14 +1968,35 @@ export type UpdateRequestDto = {
     | "bbl"
     | "liter"
     | "gallon"
+    | "m3"
     | "mt"
     | "kg"
     | "ton"
     | "lb"
-    | "hour"
-    | "day"
-    | "month"
-    | "unit";
+    | "m"
+    | "ft"
+    | "sqm"
+    | "sqft"
+    | "scf"
+    | "sm3"
+    | "nm3"
+    | "mmbtu"
+    | "kwh"
+    | "mwh"
+    | "unit"
+    | "set"
+    | "kit"
+    | "pair"
+    | "joint"
+    | "roll"
+    | "sheet"
+    | "box"
+    | "pack"
+    | "drum"
+    | "bag"
+    | "cylinder"
+    | "ream"
+    | "license";
   /**
    * Target price per unit in minor currency units (kobo/cents)
    */
@@ -1778,18 +2021,7 @@ export type UpdateRequestDto = {
   /**
    * Duration unit for lease/charter (hour, day, month)
    */
-  durationUnit?:
-    | "bbl"
-    | "liter"
-    | "gallon"
-    | "mt"
-    | "kg"
-    | "ton"
-    | "lb"
-    | "hour"
-    | "day"
-    | "month"
-    | "unit";
+  durationUnit?: "hour" | "day" | "week" | "month" | "year";
   selectionMode?: "open" | "jira-ai" | "direct";
   milestones?: Array<RequestMilestoneDto>;
   /**
@@ -1801,6 +2033,57 @@ export type UpdateRequestDto = {
    */
   qqCompany?: string;
   status?: "pending" | "in_review" | "matched" | "fulfilled" | "cancelled";
+};
+
+export type CategorySpecialtyDto = {
+  _id: string;
+  name: string;
+  slug: string;
+  categoryId: string;
+  groupId: string;
+  allowedUnits?: Array<
+    | "bbl"
+    | "liter"
+    | "gallon"
+    | "m3"
+    | "mt"
+    | "kg"
+    | "ton"
+    | "lb"
+    | "m"
+    | "ft"
+    | "sqm"
+    | "sqft"
+    | "scf"
+    | "sm3"
+    | "nm3"
+    | "mmbtu"
+    | "kwh"
+    | "mwh"
+    | "unit"
+    | "set"
+    | "kit"
+    | "pair"
+    | "joint"
+    | "roll"
+    | "sheet"
+    | "box"
+    | "pack"
+    | "drum"
+    | "bag"
+    | "cylinder"
+    | "ream"
+    | "license"
+    | "hour"
+    | "day"
+    | "week"
+    | "month"
+    | "year"
+  >;
+  isActive: boolean;
+  sortOrder: number;
+  createdAt: string;
+  updatedAt: string;
 };
 
 export type CreateNegotiationDto = {
@@ -1819,14 +2102,35 @@ export type CreateNegotiationDto = {
     | "bbl"
     | "liter"
     | "gallon"
+    | "m3"
     | "mt"
     | "kg"
     | "ton"
     | "lb"
-    | "hour"
-    | "day"
-    | "month"
-    | "unit";
+    | "m"
+    | "ft"
+    | "sqm"
+    | "sqft"
+    | "scf"
+    | "sm3"
+    | "nm3"
+    | "mmbtu"
+    | "kwh"
+    | "mwh"
+    | "unit"
+    | "set"
+    | "kit"
+    | "pair"
+    | "joint"
+    | "roll"
+    | "sheet"
+    | "box"
+    | "pack"
+    | "drum"
+    | "bag"
+    | "cylinder"
+    | "ream"
+    | "license";
   transactionType?:
     | "Purchase"
     | "Lease"
@@ -1866,14 +2170,35 @@ export type NegotiationRequestDto = {
     | "bbl"
     | "liter"
     | "gallon"
+    | "m3"
     | "mt"
     | "kg"
     | "ton"
     | "lb"
-    | "hour"
-    | "day"
-    | "month"
-    | "unit";
+    | "m"
+    | "ft"
+    | "sqm"
+    | "sqft"
+    | "scf"
+    | "sm3"
+    | "nm3"
+    | "mmbtu"
+    | "kwh"
+    | "mwh"
+    | "unit"
+    | "set"
+    | "kit"
+    | "pair"
+    | "joint"
+    | "roll"
+    | "sheet"
+    | "box"
+    | "pack"
+    | "drum"
+    | "bag"
+    | "cylinder"
+    | "ream"
+    | "license";
   transactionType?: Array<string>;
   condition?: Array<string>;
 };
@@ -1894,14 +2219,35 @@ export type NegotiationOffer = {
     | "bbl"
     | "liter"
     | "gallon"
+    | "m3"
     | "mt"
     | "kg"
     | "ton"
     | "lb"
-    | "hour"
-    | "day"
-    | "month"
-    | "unit";
+    | "m"
+    | "ft"
+    | "sqm"
+    | "sqft"
+    | "scf"
+    | "sm3"
+    | "nm3"
+    | "mmbtu"
+    | "kwh"
+    | "mwh"
+    | "unit"
+    | "set"
+    | "kit"
+    | "pair"
+    | "joint"
+    | "roll"
+    | "sheet"
+    | "box"
+    | "pack"
+    | "drum"
+    | "bag"
+    | "cylinder"
+    | "ream"
+    | "license";
   transactionType?:
     | "Purchase"
     | "Lease"
@@ -1976,14 +2322,35 @@ export type CounterOfferDto = {
     | "bbl"
     | "liter"
     | "gallon"
+    | "m3"
     | "mt"
     | "kg"
     | "ton"
     | "lb"
-    | "hour"
-    | "day"
-    | "month"
-    | "unit";
+    | "m"
+    | "ft"
+    | "sqm"
+    | "sqft"
+    | "scf"
+    | "sm3"
+    | "nm3"
+    | "mmbtu"
+    | "kwh"
+    | "mwh"
+    | "unit"
+    | "set"
+    | "kit"
+    | "pair"
+    | "joint"
+    | "roll"
+    | "sheet"
+    | "box"
+    | "pack"
+    | "drum"
+    | "bag"
+    | "cylinder"
+    | "ream"
+    | "license";
   transactionType?:
     | "Purchase"
     | "Lease"
@@ -3016,6 +3383,47 @@ export type CreateCategoryDto = {
    */
   groupId: string;
   /**
+   * Specific units allowed for listings in this category
+   */
+  allowedUnits?:
+    | "bbl"
+    | "liter"
+    | "gallon"
+    | "m3"
+    | "mt"
+    | "kg"
+    | "ton"
+    | "lb"
+    | "m"
+    | "ft"
+    | "sqm"
+    | "sqft"
+    | "scf"
+    | "sm3"
+    | "nm3"
+    | "mmbtu"
+    | "kwh"
+    | "mwh"
+    | "unit"
+    | "set"
+    | "kit"
+    | "pair"
+    | "joint"
+    | "roll"
+    | "sheet"
+    | "box"
+    | "pack"
+    | "drum"
+    | "bag"
+    | "cylinder"
+    | "ream"
+    | "license"
+    | "hour"
+    | "day"
+    | "week"
+    | "month"
+    | "year";
+  /**
    * Whether the category is active
    */
   isActive?: boolean;
@@ -3045,21 +3453,50 @@ export type UpdateCategoryDto = {
    */
   groupId?: string;
   /**
+   * Specific units allowed for listings in this category
+   */
+  allowedUnits?:
+    | "bbl"
+    | "liter"
+    | "gallon"
+    | "m3"
+    | "mt"
+    | "kg"
+    | "ton"
+    | "lb"
+    | "m"
+    | "ft"
+    | "sqm"
+    | "sqft"
+    | "scf"
+    | "sm3"
+    | "nm3"
+    | "mmbtu"
+    | "kwh"
+    | "mwh"
+    | "unit"
+    | "set"
+    | "kit"
+    | "pair"
+    | "joint"
+    | "roll"
+    | "sheet"
+    | "box"
+    | "pack"
+    | "drum"
+    | "bag"
+    | "cylinder"
+    | "ream"
+    | "license"
+    | "hour"
+    | "day"
+    | "week"
+    | "month"
+    | "year";
+  /**
    * Whether the category is active
    */
   isActive?: boolean;
-};
-
-export type CategorySpecialtyDto = {
-  _id: string;
-  name: string;
-  slug: string;
-  categoryId: string;
-  groupId: string;
-  isActive: boolean;
-  sortOrder: number;
-  createdAt: string;
-  updatedAt: string;
 };
 
 export type CreateCategorySpecialtyDto = {
@@ -3083,6 +3520,47 @@ export type CreateCategorySpecialtyDto = {
    * Sort order within the parent category
    */
   sortOrder?: number;
+  /**
+   * Override the parent category’s allowed units. Omit to inherit from category.
+   */
+  allowedUnits?:
+    | "bbl"
+    | "liter"
+    | "gallon"
+    | "m3"
+    | "mt"
+    | "kg"
+    | "ton"
+    | "lb"
+    | "m"
+    | "ft"
+    | "sqm"
+    | "sqft"
+    | "scf"
+    | "sm3"
+    | "nm3"
+    | "mmbtu"
+    | "kwh"
+    | "mwh"
+    | "unit"
+    | "set"
+    | "kit"
+    | "pair"
+    | "joint"
+    | "roll"
+    | "sheet"
+    | "box"
+    | "pack"
+    | "drum"
+    | "bag"
+    | "cylinder"
+    | "ream"
+    | "license"
+    | "hour"
+    | "day"
+    | "week"
+    | "month"
+    | "year";
   /**
    * Whether the specialty is active
    */
@@ -3110,6 +3588,47 @@ export type UpdateCategorySpecialtyDto = {
    * Sort order within the parent category
    */
   sortOrder?: number;
+  /**
+   * Override the parent category’s allowed units. Omit to inherit from category.
+   */
+  allowedUnits?:
+    | "bbl"
+    | "liter"
+    | "gallon"
+    | "m3"
+    | "mt"
+    | "kg"
+    | "ton"
+    | "lb"
+    | "m"
+    | "ft"
+    | "sqm"
+    | "sqft"
+    | "scf"
+    | "sm3"
+    | "nm3"
+    | "mmbtu"
+    | "kwh"
+    | "mwh"
+    | "unit"
+    | "set"
+    | "kit"
+    | "pair"
+    | "joint"
+    | "roll"
+    | "sheet"
+    | "box"
+    | "pack"
+    | "drum"
+    | "bag"
+    | "cylinder"
+    | "ream"
+    | "license"
+    | "hour"
+    | "day"
+    | "week"
+    | "month"
+    | "year";
   /**
    * Whether the specialty is active
    */
@@ -3433,14 +3952,35 @@ export type AcceptRequestOrderDto = {
     | "bbl"
     | "liter"
     | "gallon"
+    | "m3"
     | "mt"
     | "kg"
     | "ton"
     | "lb"
-    | "hour"
-    | "day"
-    | "month"
-    | "unit";
+    | "m"
+    | "ft"
+    | "sqm"
+    | "sqft"
+    | "scf"
+    | "sm3"
+    | "nm3"
+    | "mmbtu"
+    | "kwh"
+    | "mwh"
+    | "unit"
+    | "set"
+    | "kit"
+    | "pair"
+    | "joint"
+    | "roll"
+    | "sheet"
+    | "box"
+    | "pack"
+    | "drum"
+    | "bag"
+    | "cylinder"
+    | "ream"
+    | "license";
   pricePerUnit: number;
   currency: "NGN" | "USD" | "EUR";
   condition?: "New" | "Used - Good" | "Used - Fair" | "Refurbished";
@@ -3866,7 +4406,6 @@ export type UpdateCategoryGroupDto = {
   allowedCurrencies?: Array<"NGN" | "USD" | "EUR">;
   allowedListingTypes?: Array<"product" | "service" | "rental" | "charter">;
   allowedConditions?: "New" | "Used - Good" | "Used - Fair" | "Refurbished";
-  allowedMeasurementTypes?: "count" | "volume" | "mass" | "time";
 };
 
 export type QqFieldDef = {
@@ -4552,6 +5091,10 @@ export type ProductsControllerFindAllData = {
      * Filter by category group ID
      */
     categoryGroup?: string;
+    /**
+     * Filter by specialty ID
+     */
+    specialtyId?: string;
   };
   url: "/api/v1/products";
 };
@@ -5340,6 +5883,45 @@ export type StaleRequestActionsControllerRespondData = {
 export type StaleRequestActionsControllerRespondResponses = {
   200: unknown;
 };
+
+export type CategorySpecialtiesControllerFindAllData = {
+  body?: never;
+  path?: never;
+  query?: {
+    /**
+     * Filter by parent category ID
+     */
+    categoryId?: string;
+    /**
+     * Filter by category group ID
+     */
+    groupId?: string;
+  };
+  url: "/api/v1/category-specialties";
+};
+
+export type CategorySpecialtiesControllerFindAllResponses = {
+  200: Array<CategorySpecialtyDto>;
+};
+
+export type CategorySpecialtiesControllerFindAllResponse =
+  CategorySpecialtiesControllerFindAllResponses[keyof CategorySpecialtiesControllerFindAllResponses];
+
+export type CategorySpecialtiesControllerFindOneData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/category-specialties/{id}";
+};
+
+export type CategorySpecialtiesControllerFindOneResponses = {
+  200: CategorySpecialtyDto;
+};
+
+export type CategorySpecialtiesControllerFindOneResponse =
+  CategorySpecialtiesControllerFindOneResponses[keyof CategorySpecialtiesControllerFindOneResponses];
 
 export type NegotiationsControllerFindAllData = {
   body?: never;
@@ -6710,45 +7292,6 @@ export type AdminCategorySpecialtiesControllerUpdateResponses = {
 
 export type AdminCategorySpecialtiesControllerUpdateResponse =
   AdminCategorySpecialtiesControllerUpdateResponses[keyof AdminCategorySpecialtiesControllerUpdateResponses];
-
-export type CategorySpecialtiesControllerFindAllData = {
-  body?: never;
-  path?: never;
-  query?: {
-    /**
-     * Filter by parent category ID
-     */
-    categoryId?: string;
-    /**
-     * Filter by category group ID
-     */
-    groupId?: string;
-  };
-  url: "/api/v1/category-specialties";
-};
-
-export type CategorySpecialtiesControllerFindAllResponses = {
-  200: Array<CategorySpecialtyDto>;
-};
-
-export type CategorySpecialtiesControllerFindAllResponse =
-  CategorySpecialtiesControllerFindAllResponses[keyof CategorySpecialtiesControllerFindAllResponses];
-
-export type CategorySpecialtiesControllerFindOneData = {
-  body?: never;
-  path: {
-    id: string;
-  };
-  query?: never;
-  url: "/api/v1/category-specialties/{id}";
-};
-
-export type CategorySpecialtiesControllerFindOneResponses = {
-  200: CategorySpecialtyDto;
-};
-
-export type CategorySpecialtiesControllerFindOneResponse =
-  CategorySpecialtiesControllerFindOneResponses[keyof CategorySpecialtiesControllerFindOneResponses];
 
 export type AdminTransactionsControllerFindAllData = {
   body?: never;
