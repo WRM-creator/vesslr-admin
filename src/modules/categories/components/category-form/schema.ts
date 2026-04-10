@@ -1,15 +1,11 @@
 import { z } from "zod";
-
-const MEASUREMENT_TYPES = ["count", "volume", "mass", "time"] as const;
+import { ALL_UNIT_VALUES } from "@/types/unit";
 
 export const categoryFormSchema = z.object({
   name: z.string().min(1, "Category name is required"),
   description: z.string().optional(),
   image: z.string().optional(),
-  allowedMeasurementTypes: z
-    .array(z.enum(MEASUREMENT_TYPES))
-    .optional()
-    .default([]),
+  allowedUnits: z.array(z.string().refine((v) => ALL_UNIT_VALUES.includes(v))),
 });
 
 export type CategoryFormSchema = z.infer<typeof categoryFormSchema>;
@@ -18,5 +14,5 @@ export const defaultCategoryFormValues: CategoryFormSchema = {
   name: "",
   description: "",
   image: "",
-  allowedMeasurementTypes: [],
+  allowedUnits: [],
 };

@@ -2082,6 +2082,7 @@ export type CategorySpecialtyDto = {
   >;
   isActive: boolean;
   sortOrder: number;
+  image?: string;
   createdAt: string;
   updatedAt: string;
 };
@@ -3565,6 +3566,10 @@ export type CreateCategorySpecialtyDto = {
    * Whether the specialty is active
    */
   isActive?: boolean;
+  /**
+   * URL of the specialty image
+   */
+  image?: string;
 };
 
 export type UpdateCategorySpecialtyDto = {
@@ -3633,6 +3638,10 @@ export type UpdateCategorySpecialtyDto = {
    * Whether the specialty is active
    */
   isActive?: boolean;
+  /**
+   * URL of the specialty image
+   */
+  image?: string;
 };
 
 export type PaginatedDataDto = {

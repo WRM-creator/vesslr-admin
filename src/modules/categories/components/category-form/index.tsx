@@ -23,6 +23,12 @@ import {
   defaultCategoryFormValues,
   type CategoryFormSchema,
 } from "./schema";
+import {
+  MEASUREMENT_TYPES,
+  MEASUREMENT_TYPE_LABELS,
+  UNITS,
+  unitsByCategory,
+} from "@/types/unit";
 
 interface CategoryFormProps {
   initialValues?: Partial<CategoryFormSchema>;
@@ -138,47 +144,87 @@ export function CategoryForm({
 
         <FormField
           control={form.control}
-          name="allowedMeasurementTypes"
+          name="allowedUnits"
           render={({ field }) => {
-            const TYPES = [
-              { value: "count" as const, label: "Count" },
-              { value: "volume" as const, label: "Volume" },
-              { value: "mass" as const, label: "Mass" },
-              { value: "time" as const, label: "Time" },
-            ];
             const current = field.value ?? [];
-            const toggle = (val: (typeof TYPES)[number]["value"]) => {
+
+            const toggleUnit = (unit: string) => {
               field.onChange(
-                current.includes(val)
-                  ? current.filter((v) => v !== val)
-                  : [...current, val],
+                current.includes(unit)
+                  ? current.filter((u) => u !== unit)
+                  : [...current, unit],
               );
             };
+
+            const toggleCategory = (category: (typeof MEASUREMENT_TYPES)[number]) => {
+              const categoryUnits = unitsByCategory(category);
+              const allSelected = categoryUnits.every((u) =>
+                current.includes(u),
+              );
+              if (allSelected) {
+                field.onChange(
+                  current.filter((u) => !categoryUnits.includes(u)),
+                );
+              } else {
+                const merged = new Set([...current, ...categoryUnits]);
+                field.onChange([...merged]);
+              }
+            };
+
             return (
               <FormItem>
-                <Label className="text-sm font-medium">
-                  Allowed Measurement Types
-                </Label>
-                <div className="flex flex-wrap gap-2">
-                  {TYPES.map(({ value, label }) => (
-                    <button
-                      key={value}
-                      type="button"
-                      onClick={() => toggle(value)}
-                      className={cn(
-                        "rounded-full border px-3 py-1 text-sm font-medium transition-colors",
-                        current.includes(value)
-                          ? "border-primary bg-primary text-primary-foreground"
-                          : "border-border bg-background text-muted-foreground hover:bg-accent hover:text-accent-foreground",
-                      )}
-                    >
-                      {label}
-                    </button>
-                  ))}
+                <Label className="text-sm font-medium">Allowed Units</Label>
+                <div className="space-y-3">
+                  {MEASUREMENT_TYPES.map((cat) => {
+                    const units = unitsByCategory(cat);
+                    const allSelected = units.every((u) =>
+                      current.includes(u),
+                    );
+                    const someSelected =
+                      !allSelected &&
+                      units.some((u) => current.includes(u));
+
+                    return (
+                      <div key={cat}>
+                        <button
+                          type="button"
+                          onClick={() => toggleCategory(cat)}
+                          className={cn(
+                            "mb-1.5 rounded-full border px-3 py-1 text-xs font-semibold transition-colors",
+                            allSelected
+                              ? "border-primary bg-primary text-primary-foreground"
+                              : someSelected
+                                ? "border-primary/50 bg-primary/10 text-primary"
+                                : "border-border bg-background text-muted-foreground hover:bg-accent hover:text-accent-foreground",
+                          )}
+                        >
+                          {MEASUREMENT_TYPE_LABELS[cat]}
+                        </button>
+                        <div className="ml-1 flex flex-wrap gap-1.5">
+                          {units.map((unit) => (
+                            <button
+                              key={unit}
+                              type="button"
+                              onClick={() => toggleUnit(unit)}
+                              className={cn(
+                                "rounded-md border px-2 py-0.5 text-xs transition-colors",
+                                current.includes(unit)
+                                  ? "border-primary bg-primary/10 text-primary"
+                                  : "border-border bg-background text-muted-foreground hover:bg-accent hover:text-accent-foreground",
+                              )}
+                            >
+                              {UNITS[unit]?.label ?? unit}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
                 <FormDescription>
-                  Which unit families (volume, mass, etc.) are available for
-                  listings in this category.
+                  Select which units are available for listings in this
+                  category. Use the category headers to toggle all units in a
+                  group.
                 </FormDescription>
                 <FormMessage />
               </FormItem>
