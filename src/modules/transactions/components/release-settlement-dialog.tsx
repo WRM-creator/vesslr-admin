@@ -62,7 +62,9 @@ export function ReleaseSettlementDialog({
 
   const currency = transaction.escrow?.currency || transaction.order.currency || "USD";
   const escrowAmount = transaction.escrow?.amount || 0;
-  const totalAmount = transaction.order.totalAmount || 0;
+  const sellerAmount =
+    transaction.escrow?.sellerAmount ?? transaction.order.totalAmount ?? 0;
+  const serviceFeeAmount = transaction.escrow?.serviceFeeAmount ?? 0;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -78,18 +80,26 @@ export function ReleaseSettlementDialog({
         <div className="bg-muted/40 rounded-md border p-4">
           <div className="space-y-3">
             <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">
-                Total Transaction Value
-              </span>
+              <span className="text-muted-foreground">Escrow Balance</span>
               <span className="font-medium">
-                {formatCurrency(totalAmount, currency)}
+                {formatCurrency(escrowAmount, currency)}
               </span>
             </div>
+            {serviceFeeAmount > 0 && (
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-muted-foreground">
+                  Platform Service Fee (3%)
+                </span>
+                <span className="font-medium">
+                  −{formatCurrency(serviceFeeAmount, currency)}
+                </span>
+              </div>
+            )}
             <Separator />
             <div className="flex items-center justify-between text-base font-semibold">
-              <span>Amount to Release</span>
+              <span>Amount to Release to Seller</span>
               <span className="text-green-600">
-                {formatCurrency(escrowAmount, currency)}
+                {formatCurrency(sellerAmount, currency)}
               </span>
             </div>
           </div>
