@@ -871,7 +871,7 @@ export type CreateTransactionDto = {
    */
   productSource: "ORDER" | "REQUEST";
   /**
-   * Ordered list of milestones. Required for SERVICE and FINANCIAL workflow types. Must have at least one milestone.
+   * Ordered list of milestones. Providing milestones selects the MILESTONE workflow (progressive settlement); omitting them selects STANDARD (single settlement).
    */
   milestones?: Array<MilestoneInputDto>;
 };
@@ -1320,7 +1320,7 @@ export type TransactionResponseDto = {
     | "REFUNDED"
     | "PARTIALLY_REFUNDED"
     | "DISPUTED";
-  workflowType: "PHYSICAL_GOODS" | "SERVICE" | "FINANCIAL";
+  workflowType: "STANDARD" | "MILESTONE";
   events: Array<TransactionEventDto>;
   requiredDocuments?: Array<TransactionDocumentSlotDto>;
   /**
@@ -1687,7 +1687,7 @@ export type ConfirmOrderMilestoneDto = {
 
 export type ConfirmOrderDto = {
   /**
-   * Ordered list of milestones. Required for SERVICE and FINANCIAL workflow types.
+   * Ordered list of milestones. Providing milestones selects the MILESTONE workflow (progressive settlement); omitting them selects STANDARD (single settlement).
    */
   milestones?: Array<ConfirmOrderMilestoneDto>;
 };
