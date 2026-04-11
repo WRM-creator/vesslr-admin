@@ -99,7 +99,6 @@ export function CategoryGroupCategoriesCard({
 
       <AddCategoryDialog
         groupId={categoryGroup._id}
-        groupType={categoryGroup.type as "equipment-and-products" | "services"}
         open={dialogOpen}
         onOpenChange={setDialogOpen}
       />
