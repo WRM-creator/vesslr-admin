@@ -4353,11 +4353,78 @@ export type DashboardStatsDto = {
    * Currency for monetary values
    */
   currency: string;
+  /**
+   * Platform operating balance from ledger (minor units)
+   */
+  platformOperatingBalance: number;
+  /**
+   * Escrow liability from ledger (minor units)
+   */
+  escrowLiability: number;
+  /**
+   * Fee revenue in last 30 days from ledger (minor units)
+   */
+  feeRevenue30d: number;
+  /**
+   * Status of last reconciliation run
+   */
+  lastReconStatus: "CLEAN" | "DISCREPANCIES_FOUND" | "DISCREPANCIES_BACKFILLED";
+  /**
+   * Scope of last reconciliation run
+   */
+  lastReconScope: "INTERNAL" | "EXTERNAL";
+  /**
+   * Timestamp of last reconciliation run
+   */
+  lastReconAt: string | null;
+  /**
+   * Number of discrepancies in last reconciliation run
+   */
+  lastReconDiscrepancies: number | null;
 };
 
 export type DashboardStatsResponseDto = {
   message: string;
   data: DashboardStatsDto;
+};
+
+export type TrendPointDto = {
+  /**
+   * Date in YYYY-MM-DD format
+   */
+  date: string;
+  /**
+   * Value for this date (minor units for currency, count otherwise)
+   */
+  value: number;
+};
+
+export type DashboardTrendsDto = {
+  /**
+   * Daily platform fee revenue (minor units)
+   */
+  feeRevenue: Array<TrendPointDto>;
+  /**
+   * Daily transaction volume (minor units)
+   */
+  transactionVolume: Array<TrendPointDto>;
+  /**
+   * Daily new organization registrations
+   */
+  newOrganizations: Array<TrendPointDto>;
+  /**
+   * Daily active (non-terminal) transactions created
+   */
+  activeTransactions: Array<TrendPointDto>;
+  /**
+   * Daily transactions that reached CLOSED status
+   */
+  completedTransactions: Array<TrendPointDto>;
+};
+
+export type DashboardTrendsResponseDto = {
+  message: string;
+  data: DashboardTrendsDto;
 };
 
 export type AdminUpdateTicketDto = {
@@ -5639,6 +5706,10 @@ export type OrdersControllerFindAllData = {
      * Filter by role (buyer or seller)
      */
     role?: "buyer" | "seller";
+    /**
+     * Filter by the originating request ID
+     */
+    requestId?: string;
   };
   url: "/api/v1/orders";
 };
@@ -7656,6 +7727,35 @@ export type AdminOrganizationsControllerListMembersResponses = {
 export type AdminOrganizationsControllerListMembersResponse =
   AdminOrganizationsControllerListMembersResponses[keyof AdminOrganizationsControllerListMembersResponses];
 
+export type AdminEscrowsControllerFindAllData = {
+  body?: never;
+  path?: never;
+  query?: {
+    page?: string;
+    limit?: string;
+    /**
+     * Filter by escrow status (FUNDED, RELEASED, REFUNDED, etc.)
+     */
+    status?: string;
+  };
+  url: "/api/v1/admin/escrows";
+};
+
+export type AdminEscrowsControllerFindAllResponses = {
+  200: unknown;
+};
+
+export type AdminEscrowsControllerGetStatsData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: "/api/v1/admin/escrows/stats";
+};
+
+export type AdminEscrowsControllerGetStatsResponses = {
+  200: unknown;
+};
+
 export type AdminDisputesControllerGetStatsData = {
   body?: never;
   path?: never;
@@ -8238,6 +8338,20 @@ export type AdminDashboardControllerGetStatsResponses = {
 export type AdminDashboardControllerGetStatsResponse =
   AdminDashboardControllerGetStatsResponses[keyof AdminDashboardControllerGetStatsResponses];
 
+export type AdminDashboardControllerGetTrendsData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: "/api/v1/admin/dashboard/trends";
+};
+
+export type AdminDashboardControllerGetTrendsResponses = {
+  200: DashboardTrendsResponseDto;
+};
+
+export type AdminDashboardControllerGetTrendsResponse =
+  AdminDashboardControllerGetTrendsResponses[keyof AdminDashboardControllerGetTrendsResponses];
+
 export type AdminSupportControllerGetStatsData = {
   body?: never;
   path?: never;
@@ -8700,6 +8814,25 @@ export type FlutterwaveWebhooksControllerHandleWebhookData = {
 export type FlutterwaveWebhooksControllerHandleWebhookResponses = {
   200: unknown;
 };
+
+export type ProvidusWebhooksControllerHandleSettlementData = {
+  body?: never;
+  headers: {
+    "x-auth-signature": string;
+  };
+  path?: never;
+  query?: never;
+  url: "/api/v1/providus/webhook";
+};
+
+export type ProvidusWebhooksControllerHandleSettlementResponses = {
+  200: {
+    [key: string]: unknown;
+  };
+};
+
+export type ProvidusWebhooksControllerHandleSettlementResponse =
+  ProvidusWebhooksControllerHandleSettlementResponses[keyof ProvidusWebhooksControllerHandleSettlementResponses];
 
 export type WalletControllerGetBalanceData = {
   body?: never;

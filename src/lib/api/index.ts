@@ -34,8 +34,18 @@ import {
   adminCategoriesControllerRemove,
   adminCategoriesControllerUpdate,
   adminComplianceControllerGetCase,
+  adminEscrowsControllerFindAll,
+  adminEscrowsControllerGetStats,
   adminLedgerControllerGetAccount,
+  adminLedgerControllerGetEntry,
   adminLedgerControllerGetStatement,
+  adminLedgerControllerListAccounts,
+  adminLedgerControllerListReconciliationRuns,
+  adminLedgerControllerPostManualAdjustment,
+  adminLedgerControllerQueryEntries,
+  adminLedgerControllerReverseEntry,
+  adminLedgerControllerTriggerExternalReconciliation,
+  adminLedgerControllerTriggerInternalReconciliation,
   adminComplianceControllerReviewKyb,
   adminComplianceControllerReviewKyc,
   adminDisputesControllerFindAll,
@@ -62,6 +72,7 @@ import {
   adminTransactionsControllerFindAll,
   adminTransactionsControllerFindById,
   adminTransactionsControllerGetLogs,
+  adminTransactionsControllerReleaseSettlement,
   adminTransactionsControllerReviewDocument,
   adminTransactionsControllerReviewInspection,
   adminTransactionsControllerRetryMilestonePayment,
@@ -74,6 +85,7 @@ import {
   productsControllerFindOne,
   storageControllerGeneratePresignedUrls,
   adminDashboardControllerGetStats,
+  adminDashboardControllerGetTrends,
   adminSupportControllerFindAll,
   adminSupportControllerFindOne,
   adminSupportControllerGetStats,
@@ -95,6 +107,11 @@ export const api = {
         "admin",
         "dashboard",
         "stats",
+      ]),
+      trends: createQuery(adminDashboardControllerGetTrends, [
+        "admin",
+        "dashboard",
+        "trends",
       ]),
     },
     disputes: {
@@ -206,6 +223,14 @@ export const api = {
           ],
         },
       ),
+      releaseSettlement: createMutation(
+        adminTransactionsControllerReleaseSettlement,
+        {
+          invalidates: (args) => [
+            ["admin", "transactions", "detail", args.path.id],
+          ],
+        },
+      ),
       conversation: createQuery(
         adminTransactionsControllerGetConversation,
         (args) => ["admin", "transactions", "conversation", args.path.id],
@@ -303,7 +328,25 @@ export const api = {
         ],
       }),
     },
+    escrows: {
+      list: createQuery(adminEscrowsControllerFindAll, (args) => [
+        "admin",
+        "escrows",
+        "list",
+        args?.query,
+      ]),
+      stats: createQuery(adminEscrowsControllerGetStats, [
+        "admin",
+        "escrows",
+        "stats",
+      ]),
+    },
     ledger: {
+      accounts: createQuery(adminLedgerControllerListAccounts, [
+        "admin",
+        "ledger",
+        "accounts",
+      ]),
       account: createQuery(adminLedgerControllerGetAccount, (args) => [
         "admin",
         "ledger",
@@ -317,6 +360,49 @@ export const api = {
         args.path.code,
         args?.query,
       ]),
+      entries: createQuery(adminLedgerControllerQueryEntries, (args) => [
+        "admin",
+        "ledger",
+        "entries",
+        args?.query,
+      ]),
+      entry: createQuery(adminLedgerControllerGetEntry, (args) => [
+        "admin",
+        "ledger",
+        "entry",
+        args.path.id,
+      ]),
+      reverseEntry: createMutation(adminLedgerControllerReverseEntry, {
+        invalidates: () => [
+          ["admin", "ledger", "accounts"],
+          ["admin", "ledger", "entries"],
+        ],
+      }),
+      postAdjustment: createMutation(
+        adminLedgerControllerPostManualAdjustment,
+        {
+          invalidates: () => [
+            ["admin", "ledger", "accounts"],
+            ["admin", "ledger", "entries"],
+          ],
+        },
+      ),
+      reconciliationRuns: createQuery(
+        adminLedgerControllerListReconciliationRuns,
+        (args) => ["admin", "ledger", "reconciliation", "runs", args?.query],
+      ),
+      triggerInternal: createMutation(
+        adminLedgerControllerTriggerInternalReconciliation,
+        {
+          invalidates: () => [["admin", "ledger", "reconciliation"]],
+        },
+      ),
+      triggerExternal: createMutation(
+        adminLedgerControllerTriggerExternalReconciliation,
+        {
+          invalidates: () => [["admin", "ledger", "reconciliation"]],
+        },
+      ),
     },
     compliance: {
       getCase: createQuery(adminComplianceControllerGetCase, (args) => [

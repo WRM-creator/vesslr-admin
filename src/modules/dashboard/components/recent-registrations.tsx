@@ -7,10 +7,10 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
+import { DataTable } from "@/components/shared/data-table/data-table";
 import { api } from "@/lib/api";
-import { format } from "date-fns";
-import { Building2 } from "lucide-react";
+import { formatDateTime } from "@/lib/utils";
+import type { ColumnDef } from "@tanstack/react-table";
 import { ArrowUpRight } from "lucide-react";
 import { useMemo } from "react";
 import { Link } from "react-router-dom";
@@ -23,52 +23,63 @@ interface RegistrationRow {
   complianceStatus: string;
 }
 
-function getComplianceBadge(status: string) {
-  switch (status) {
-    case "pending_review":
+const COMPLIANCE_STYLES: Record<string, string> = {
+  pending_review: "border-amber-200 bg-amber-50 text-amber-700",
+  action_required: "border-red-200 bg-red-50 text-red-700",
+  approved: "border-green-200 bg-green-50 text-green-700",
+  submitted: "border-blue-200 bg-blue-50 text-blue-700",
+};
+
+const COMPLIANCE_LABELS: Record<string, string> = {
+  pending_review: "Pending Review",
+  action_required: "Action Required",
+  approved: "Approved",
+  submitted: "Submitted",
+};
+
+const columns: ColumnDef<RegistrationRow>[] = [
+  {
+    accessorKey: "name",
+    header: "Organization",
+    cell: ({ row }) => (
+      <span className="text-sm font-medium">{row.original.name}</span>
+    ),
+  },
+  {
+    accessorKey: "type",
+    header: "Type",
+    cell: ({ row }) => (
+      <Badge variant="outline" className="text-xs font-medium capitalize">
+        {row.original.type}
+      </Badge>
+    ),
+  },
+  {
+    accessorKey: "createdAt",
+    header: "Date",
+    cell: ({ row }) => (
+      <span className="text-muted-foreground text-sm">
+        {formatDateTime(row.original.createdAt)}
+      </span>
+    ),
+  },
+  {
+    accessorKey: "complianceStatus",
+    header: "Status",
+    cell: ({ row }) => {
+      const status = row.original.complianceStatus;
       return (
         <Badge
           variant="outline"
-          className="border-amber-200 bg-amber-50 text-xs text-amber-700"
+          className={`text-xs ${COMPLIANCE_STYLES[status] ?? ""}`}
         >
-          Pending Review
+          {COMPLIANCE_LABELS[status] ?? (status || "Draft")}
         </Badge>
       );
-    case "action_required":
-      return (
-        <Badge
-          variant="outline"
-          className="border-red-200 bg-red-50 text-xs text-red-700"
-        >
-          Action Required
-        </Badge>
-      );
-    case "approved":
-      return (
-        <Badge
-          variant="outline"
-          className="border-green-200 bg-green-50 text-xs text-green-700"
-        >
-          Approved
-        </Badge>
-      );
-    case "submitted":
-      return (
-        <Badge
-          variant="outline"
-          className="border-blue-200 bg-blue-50 text-xs text-blue-700"
-        >
-          Submitted
-        </Badge>
-      );
-    default:
-      return (
-        <Badge variant="outline" className="text-xs">
-          {status || "Draft"}
-        </Badge>
-      );
-  }
-}
+    },
+    meta: { className: "text-right" },
+  },
+];
 
 export function RecentRegistrations() {
   const { data, isLoading } = api.admin.organizations.list.useQuery({
@@ -76,17 +87,17 @@ export function RecentRegistrations() {
   });
 
   const rows = useMemo<RegistrationRow[]>(() => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const response = data as any;
+    const response = data as unknown as
+      | { data?: { docs?: Array<Record<string, unknown>> } }
+      | undefined;
     const docs = response?.data?.docs;
     if (!Array.isArray(docs)) return [];
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return docs.map((org: any) => ({
-      _id: org._id,
-      name: org.name ?? "Unnamed",
-      type: org.type ?? "merchant",
-      createdAt: org.createdAt,
-      complianceStatus: org.complianceStatus ?? "draft",
+    return docs.map((org) => ({
+      _id: (org._id as string) ?? "",
+      name: (org.name as string) ?? "Unnamed",
+      type: (org.type as string) ?? "merchant",
+      createdAt: (org.createdAt as string) ?? "",
+      complianceStatus: (org.complianceStatus as string) ?? "draft",
     }));
   }, [data]);
 
@@ -104,53 +115,13 @@ export function RecentRegistrations() {
         </CardAction>
       </CardHeader>
       <CardContent>
-        {isLoading ? (
-          <div className="space-y-3">
-            {Array.from({ length: 5 }).map((_, i) => (
-              <div key={i} className="flex items-center gap-3 rounded-lg border p-3">
-                <Skeleton className="h-9 w-9 rounded-full" />
-                <div className="flex-1">
-                  <Skeleton className="mb-1 h-4 w-32" />
-                  <Skeleton className="h-3 w-24" />
-                </div>
-                <Skeleton className="h-5 w-20" />
-              </div>
-            ))}
-          </div>
-        ) : rows.length === 0 ? (
-          <p className="text-muted-foreground py-8 text-center text-sm">
-            No registrations yet.
-          </p>
-        ) : (
-          <div className="space-y-3">
-            {rows.map((reg) => (
-              <div
-                key={reg._id}
-                className="flex items-center justify-between rounded-lg border p-3"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-full bg-muted">
-                    <Building2 className="text-muted-foreground h-4 w-4" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium">{reg.name}</p>
-                    <div className="mt-1 flex items-center gap-2">
-                      <Badge variant="outline" className="text-xs font-medium">
-                        {reg.type}
-                      </Badge>
-                      <span className="text-muted-foreground text-xs">
-                        {reg.createdAt
-                          ? format(new Date(reg.createdAt), "MMM d, yyyy")
-                          : ""}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-                {getComplianceBadge(reg.complianceStatus)}
-              </div>
-            ))}
-          </div>
-        )}
+        <DataTable
+          columns={columns}
+          data={rows}
+          isLoading={isLoading}
+          loadingRowCount={5}
+          emptyContent="No registrations yet."
+        />
       </CardContent>
     </Card>
   );

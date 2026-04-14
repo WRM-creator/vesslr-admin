@@ -43,6 +43,8 @@ import type {
   AdminComplianceControllerReviewKycResponses,
   AdminDashboardControllerGetStatsData,
   AdminDashboardControllerGetStatsResponses,
+  AdminDashboardControllerGetTrendsData,
+  AdminDashboardControllerGetTrendsResponses,
   AdminDisputesControllerCreateInformationRequestData,
   AdminDisputesControllerCreateInformationRequestResponses,
   AdminDisputesControllerDismissInformationRequestData,
@@ -55,6 +57,10 @@ import type {
   AdminDisputesControllerGetStatsResponses,
   AdminDisputesControllerResolveData,
   AdminDisputesControllerResolveResponses,
+  AdminEscrowsControllerFindAllData,
+  AdminEscrowsControllerFindAllResponses,
+  AdminEscrowsControllerGetStatsData,
+  AdminEscrowsControllerGetStatsResponses,
   AdminLedgerControllerGetAccountData,
   AdminLedgerControllerGetAccountResponses,
   AdminLedgerControllerGetEntryData,
@@ -371,6 +377,8 @@ import type {
   ProductsControllerFindAllResponses,
   ProductsControllerFindOneData,
   ProductsControllerFindOneResponses,
+  ProvidusWebhooksControllerHandleSettlementData,
+  ProvidusWebhooksControllerHandleSettlementResponses,
   QqCatalogControllerFindAllCompaniesData,
   QqCatalogControllerFindAllCompaniesResponses,
   QqCatalogControllerFindAllFieldsData,
@@ -3794,6 +3802,42 @@ export const adminOrganizationsControllerListMembers = <
   });
 
 /**
+ * List all escrows with transaction and party details
+ */
+export const adminEscrowsControllerFindAll = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<AdminEscrowsControllerFindAllData, ThrowOnError>,
+) =>
+  (options?.client ?? client).get<
+    AdminEscrowsControllerFindAllResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/escrows",
+    ...options,
+  });
+
+/**
+ * Get escrow aggregate statistics
+ */
+export const adminEscrowsControllerGetStats = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<AdminEscrowsControllerGetStatsData, ThrowOnError>,
+) =>
+  (options?.client ?? client).get<
+    AdminEscrowsControllerGetStatsResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/escrows/stats",
+    ...options,
+  });
+
+/**
  * Get dispute statistics
  */
 export const adminDisputesControllerGetStats = <
@@ -4509,6 +4553,24 @@ export const adminDashboardControllerGetStats = <
   });
 
 /**
+ * Dashboard trend sparklines (14-day)
+ */
+export const adminDashboardControllerGetTrends = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<AdminDashboardControllerGetTrendsData, ThrowOnError>,
+) =>
+  (options?.client ?? client).get<
+    AdminDashboardControllerGetTrendsResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/dashboard/trends",
+    ...options,
+  });
+
+/**
  * Get support ticket statistics
  */
 export const adminSupportControllerGetStats = <
@@ -4962,6 +5024,23 @@ export const flutterwaveWebhooksControllerHandleWebhook = <
     unknown,
     ThrowOnError
   >({ url: "/api/v1/flutterwave/webhooks", ...options });
+
+/**
+ * Handle Providus settlement notifications (public)
+ */
+export const providusWebhooksControllerHandleSettlement = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    ProvidusWebhooksControllerHandleSettlementData,
+    ThrowOnError
+  >,
+) =>
+  (options.client ?? client).post<
+    ProvidusWebhooksControllerHandleSettlementResponses,
+    unknown,
+    ThrowOnError
+  >({ url: "/api/v1/providus/webhook", ...options });
 
 /**
  * Get NGN wallet balance (creates subaccount on first call)
