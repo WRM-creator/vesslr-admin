@@ -19,54 +19,60 @@ const statusStyles: Record<
   string,
   "default" | "secondary" | "destructive" | "outline"
 > = {
-  unfunded: "secondary",
-  partially_funded: "secondary",
-  funded: "default",
-  releasing: "default",
-  released: "default",
-  disputed: "destructive",
-  refunded: "outline",
+  FUNDED: "default",
+  RELEASE_PENDING: "secondary",
+  RELEASED: "outline",
+  REFUND_PENDING: "secondary",
+  REFUNDED: "outline",
+  PARTIALLY_REFUNDED: "destructive",
+};
+
+const statusLabels: Record<string, string> = {
+  FUNDED: "Funded",
+  RELEASE_PENDING: "Releasing",
+  RELEASED: "Released",
+  REFUND_PENDING: "Refunding",
+  REFUNDED: "Refunded",
+  PARTIALLY_REFUNDED: "Partial Refund",
 };
 
 export const escrowsColumns: ColumnDef<any>[] = [
   {
-    accessorKey: "id",
-    header: "Escrow ID",
-    cell: ({ row }) => (
-      <Link
-        to={`/escrows/${row.original.id}`}
-        className="hover:text-primary font-mono text-xs font-medium hover:underline"
-      >
-        {row.original.id?.substring(0, 8) || "N/A"}...
-      </Link>
-    ),
-  },
-  {
-    accessorKey: "transactionReference",
+    accessorKey: "transactionDisplayId",
     header: "Transaction",
-    cell: ({ row }) => (
-      <div className="font-medium">
-        {row.original.transactionReference?.substring(0, 8) || "N/A"}...
-      </div>
-    ),
+    cell: ({ row }) => {
+      const displayId = row.original.transactionDisplayId;
+      const txId = row.original.transactionId;
+      return txId ? (
+        <Link
+          to={`/transactions/${txId}`}
+          className="hover:text-primary font-mono text-xs font-medium hover:underline"
+        >
+          TXN-{String(displayId).padStart(4, "0")}
+        </Link>
+      ) : (
+        <span className="text-muted-foreground text-xs">—</span>
+      );
+    },
   },
   {
-    id: "merchantName",
-    header: "Merchant",
-    cell: ({ row }) => <div>{row.original.merchantName || "Unknown"}</div>,
+    id: "sellerName",
+    header: "Seller",
+    cell: ({ row }) => <div className="text-sm">{row.original.sellerName}</div>,
   },
   {
-    id: "customerName",
-    header: "Customer",
-    cell: ({ row }) => <div>{row.original.customerName || "Unknown"}</div>,
+    id: "buyerName",
+    header: "Buyer",
+    cell: ({ row }) => <div className="text-sm">{row.original.buyerName}</div>,
   },
   {
     accessorKey: "amount",
-    header: "Value",
-    cell: ({ row }) => {
-      const amount = row.original.amount || 0;
-      return <div className="font-mono font-medium">{formatCurrency(amount, row.original.currency || "NGN")}</div>;
-    },
+    header: "Escrow Value",
+    cell: ({ row }) => (
+      <div className="font-mono text-sm font-medium">
+        {formatCurrency(row.original.amount, row.original.currency)}
+      </div>
+    ),
   },
   {
     accessorKey: "status",
@@ -74,11 +80,8 @@ export const escrowsColumns: ColumnDef<any>[] = [
     cell: ({ row }) => {
       const status = row.original.status as string;
       return (
-        <Badge
-          variant={statusStyles[status] || "outline"}
-          className="capitalize"
-        >
-          {status.replace(/_/g, " ")}
+        <Badge variant={statusStyles[status] || "outline"}>
+          {statusLabels[status] || status.replace(/_/g, " ")}
         </Badge>
       );
     },
@@ -87,17 +90,17 @@ export const escrowsColumns: ColumnDef<any>[] = [
     accessorKey: "createdAt",
     header: "Age",
     cell: ({ row }) => (
-      <span className="text-muted-foreground">
+      <span className="text-muted-foreground text-xs">
         {formatDistanceToNow(new Date(row.original.createdAt), {
           addSuffix: true,
         })}
       </span>
     ),
   },
-
   {
     id: "actions",
     cell: ({ row }) => {
+      const txId = row.original.transactionId;
       return (
         <div className="flex justify-end">
           <DropdownMenu>
@@ -109,13 +112,11 @@ export const escrowsColumns: ColumnDef<any>[] = [
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              <DropdownMenuItem asChild>
-                <Link to={`/escrows/${row.original.id}`}>View details</Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem>Release funds</DropdownMenuItem>
-              <DropdownMenuItem className="text-destructive">
-                Open dispute
-              </DropdownMenuItem>
+              {txId && (
+                <DropdownMenuItem asChild>
+                  <Link to={`/transactions/${txId}`}>View Transaction</Link>
+                </DropdownMenuItem>
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
         </div>

@@ -1,27 +1,39 @@
 import { Page } from "@/components/shared/page";
 import { PageHeader } from "@/components/shared/page-header";
+import { api } from "@/lib/api";
 import { EscrowStats } from "../components/escrow-stats";
 import { EscrowsTable } from "../components/escrows-table";
 
 export default function EscrowsPage() {
-  // Escrow list API not yet available — display empty state
-  const isLoading = false;
-  const rawEscrows: any[] = [];
-  const escrows = rawEscrows.map((e: any) => ({
+  const { data, isLoading } = api.admin.escrows.list.useQuery({});
+
+  const paginatedData = data as unknown as {
+    data?: {
+      docs?: any[];
+      totalDocs?: number;
+      page?: number;
+      limit?: number;
+      totalPages?: number;
+    };
+  } | undefined;
+
+  const escrows = (paginatedData?.data?.docs ?? []).map((e: any) => ({
     id: e._id,
-    transactionReference:
-      typeof e.transaction === "string"
-        ? e.transaction
-        : e.transaction?._id || "N/A",
-    merchantName: e.seller?.firstName
-      ? `${e.seller.firstName} ${e.seller.lastName}`
-      : "Unknown",
-    customerName: e.buyer?.firstName
-      ? `${e.buyer.firstName} ${e.buyer.lastName}`
-      : "Unknown",
-    amount: e.totalAmountHeld || 0,
-    currency: e.currency || "USD",
-    status: e.status || "held",
+    transactionDisplayId: e.transaction?.displayId,
+    transactionId: e.transaction?._id,
+    transactionStatus: e.transaction?.status,
+    sellerName: e.sellerOrganization?.name || "Unknown",
+    buyerName: e.buyerOrganization?.name || "Unknown",
+    productTitle: e.productTitle,
+    amount: e.amount || 0,
+    sellerAmount: e.sellerAmount || 0,
+    serviceFeeAmount: e.serviceFeeAmount || 0,
+    currency: e.currency || "NGN",
+    status: e.status || "FUNDED",
+    referenceId: e.referenceId,
+    fundedAt: e.fundedAt,
+    releasedAt: e.releasedAt,
+    refundedAt: e.refundedAt,
     createdAt: e.createdAt || new Date().toISOString(),
   }));
 

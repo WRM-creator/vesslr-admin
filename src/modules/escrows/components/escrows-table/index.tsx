@@ -40,7 +40,7 @@ export function EscrowsTable({ data, isLoading }: EscrowsTableProps) {
       const matchesSearch =
         !filters.search ||
         escrow.id.toLowerCase().includes(searchLower) ||
-        escrow.transactionReference.toLowerCase().includes(searchLower);
+        (escrow.transactionDisplayId?.toString() ?? "").includes(searchLower);
 
       // Status
       const matchesStatus =
@@ -48,17 +48,17 @@ export function EscrowsTable({ data, isLoading }: EscrowsTableProps) {
         filters.status === "all" ||
         escrow.status === filters.status;
 
-      // Merchant Name
+      // Merchant Name (seller)
       const matchesMerchant =
         !filters.merchantName ||
-        escrow.merchantName
+        escrow.sellerName
           .toLowerCase()
           .includes(filters.merchantName.toLowerCase());
 
-      // Customer Name
+      // Customer Name (buyer)
       const matchesCustomer =
         !filters.customerName ||
-        escrow.customerName
+        escrow.buyerName
           .toLowerCase()
           .includes(filters.customerName.toLowerCase());
 
