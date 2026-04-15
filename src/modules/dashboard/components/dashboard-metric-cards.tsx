@@ -2,18 +2,14 @@ import { MetricCard } from "@/components/shared/metric-card";
 import { api } from "@/lib/api";
 import type { DashboardStatsDto } from "@/lib/api/generated";
 import { formatCurrency } from "@/lib/currency";
-import {
-  Activity,
-  CheckCircle2,
-  Building2,
-  TrendingUp,
-} from "lucide-react";
+import { Activity, Building2, CheckCircle2, TrendingUp } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAdminDashboardSparklines } from "../hooks/use-admin-dashboard-sparklines";
 
 export function DashboardMetricCards() {
-  const { data, isLoading: statsLoading } =
-    api.admin.dashboard.stats.useQuery({});
+  const { data, isLoading: statsLoading } = api.admin.dashboard.stats.useQuery(
+    {},
+  );
   const stats = data?.data as DashboardStatsDto | undefined;
   const sparks = useAdminDashboardSparklines();
   const navigate = useNavigate();
@@ -26,7 +22,7 @@ export function DashboardMetricCards() {
       <h3 className="text-foreground text-base font-medium">
         Platform Metrics
       </h3>
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <MetricCard
           title="Fee Revenue (30d)"
           value={

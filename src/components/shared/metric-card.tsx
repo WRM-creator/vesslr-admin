@@ -1,6 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
 import { ChartContainer, type ChartConfig } from "@/components/ui/chart";
+import { Skeleton } from "@/components/ui/skeleton";
 import type { SparkDelta, SparkPoint } from "@/lib/sparklines";
 import { cn } from "@/lib/utils";
 import { ArrowDown, ArrowUp, Minus, type LucideIcon } from "lucide-react";

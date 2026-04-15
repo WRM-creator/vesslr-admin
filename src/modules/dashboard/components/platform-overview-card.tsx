@@ -1,7 +1,7 @@
 import { Skeleton } from "@/components/ui/skeleton";
 import { api } from "@/lib/api";
-import { formatCurrency } from "@/lib/currency";
 import type { DashboardStatsDto } from "@/lib/api/generated";
+import { formatCurrency } from "@/lib/currency";
 import { LockIcon, TrendingUpIcon, WalletIcon } from "lucide-react";
 
 const RECON_DOT: Record<string, string> = {
@@ -36,25 +36,23 @@ export function PlatformOverviewCard() {
   return (
     <div className="relative overflow-hidden rounded-xl border border-white/10 bg-linear-to-br from-zinc-950 via-zinc-900 to-slate-900 px-6 py-8 shadow-lg shadow-black/20">
       {/* Decorative blobs */}
-      <div className="pointer-events-none absolute -top-20 right-10 h-60 w-60 rounded-full bg-primary/20 blur-3xl" />
+      <div className="bg-primary/20 pointer-events-none absolute -top-20 right-10 h-60 w-60 rounded-full blur-3xl" />
       <div className="pointer-events-none absolute -bottom-20 -left-10 h-48 w-48 rounded-full bg-sky-500/10 blur-3xl" />
 
       <div className="@container relative flex flex-col gap-6 @2xl:flex-row @2xl:items-end @2xl:justify-between">
         {/* Hero: Platform Operating Balance */}
         <div>
           <div className="mb-1 flex items-center gap-2 text-sm font-medium text-white/60">
-            <WalletIcon className="h-4 w-4" />
+            <WalletIcon className="min-size-4" />
             Platform Balance
           </div>
           {isLoading ? (
             <Skeleton className="h-12 w-48 bg-white/10" />
           ) : (
             <div className="text-4xl font-bold tracking-tight text-white tabular-nums">
-              {formatCurrency(
-                stats?.platformOperatingBalance ?? 0,
-                currency,
-                { compact: true },
-              )}
+              {formatCurrency(stats?.platformOperatingBalance ?? 0, currency, {
+                compact: true,
+              })}
             </div>
           )}
           <p className="mt-1 text-xs text-white/40">operating funds</p>
@@ -65,7 +63,7 @@ export function PlatformOverviewCard() {
           {/* Escrow Liability */}
           <div className="flex items-center gap-3">
             <div className="flex h-9 w-9 items-center justify-center rounded-full bg-white/10">
-              <LockIcon className="h-4 w-4 text-blue-400" />
+              <LockIcon className="min-size-4 text-blue-400" />
             </div>
             <div>
               <p className="text-xs text-white/50">Escrow Liability</p>
@@ -86,7 +84,7 @@ export function PlatformOverviewCard() {
           {/* Volume (30d) */}
           <div className="flex items-center gap-3">
             <div className="flex h-9 w-9 items-center justify-center rounded-full bg-white/10">
-              <TrendingUpIcon className="h-4 w-4 text-emerald-400" />
+              <TrendingUpIcon className="min-size-4 text-emerald-400" />
             </div>
             <div>
               <p className="text-xs text-white/50">Volume (30d)</p>
