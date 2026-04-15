@@ -63,9 +63,7 @@ export function DisputesTable({ data, isLoading }: DisputesTableProps) {
         isLoading={isLoading}
         emptyContent={<div className="py-6 text-center">No disputes found</div>}
         onRowClick={(row) =>
-          navigate(
-            `/transactions/${row.original.transaction?._id}?tab=disputes`,
-          )
+          navigate(`/disputes/${row.original._id}`)
         }
       />
     </div>

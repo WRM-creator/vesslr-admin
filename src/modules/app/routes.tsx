@@ -9,6 +9,7 @@ import { categoryRoutes } from "../categories/routes";
 import { dashboardRoutes } from "../dashboard/routes";
 import { disputesRoutes } from "../disputes/routes";
 import { escrowsRoutes } from "../escrows/routes";
+import { ledgerRoutes } from "../ledger/routes";
 import { logisticsRoutes } from "../logistics/routes";
 import { organizationsRoutes } from "../organizations/routes";
 import { supportRoutes } from "../support/routes";
@@ -37,6 +38,7 @@ export const appRoutes: RouteObject[] = [
           ...organizationsRoutes,
           ...productsRoutes,
           ...escrowsRoutes,
+          ...ledgerRoutes,
           ...disputesRoutes,
           ...supportRoutes,
           ...logisticsRoutes,

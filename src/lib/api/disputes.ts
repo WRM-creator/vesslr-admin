@@ -22,6 +22,7 @@ export interface InformationRequest {
 
 export interface Dispute {
   _id: string;
+  displayId?: number;
   transaction: {
     _id: string;
     status: string;

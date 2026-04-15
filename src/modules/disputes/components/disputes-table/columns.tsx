@@ -13,10 +13,12 @@ export const disputesColumns: ColumnDef<Dispute>[] = [
       const dispute = row.original;
       return (
         <Link
-          to={`/transactions/${dispute.transaction?._id}?tab=disputes`}
+          to={`/disputes/${dispute._id}`}
           className="font-medium hover:underline"
         >
-          {dispute._id}
+          {dispute.displayId
+            ? `DSP-${String(dispute.displayId).padStart(4, "0")}`
+            : dispute._id.substring(0, 8)}
         </Link>
       );
     },
