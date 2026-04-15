@@ -1,6 +1,7 @@
 import { Page } from "@/components/shared/page";
 import { PageHeader } from "@/components/shared/page-header";
 import { Button } from "@/components/ui/button";
+import { CALLOUT } from "@/lib/tint";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -294,11 +295,10 @@ export default function TicketDetailPage() {
                     key={message._id}
                     className={cn(
                       "rounded-lg border p-4",
-                      message.isInternal &&
-                        "border-amber-200 bg-amber-50 dark:border-amber-900 dark:bg-amber-950",
+                      message.isInternal && CALLOUT.amber,
                       message.senderType === "admin" &&
                         !message.isInternal &&
-                        "border-blue-100 bg-blue-50/50 dark:border-blue-900 dark:bg-blue-950/50",
+                        CALLOUT.blue,
                       message.senderType === "system" &&
                         "border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-900",
                     )}

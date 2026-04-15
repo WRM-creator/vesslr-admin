@@ -2,6 +2,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import type { AdminDisputeResponseDto } from "@/lib/api/generated/types.gen";
 import { formatCurrency } from "@/lib/currency";
+import { CALLOUT, TINT } from "@/lib/tint";
 import { format, formatDistanceToNow } from "date-fns";
 import { AlertCircle, CheckCircle2, Undo2 } from "lucide-react";
 
@@ -37,9 +38,9 @@ export function DisputeHeader({ dispute, amount }: DisputeHeaderProps) {
                 variant="outline"
                 className={
                   isResolved
-                    ? "border-green-500 bg-green-50 text-green-700 dark:bg-green-950 dark:text-green-400"
+                    ? TINT.green
                     : isWithdrawn
-                      ? "border-slate-400 bg-slate-50 text-slate-600 dark:bg-slate-900 dark:text-slate-400"
+                      ? TINT.gray
                       : undefined
                 }
               >
@@ -75,7 +76,7 @@ export function DisputeHeader({ dispute, amount }: DisputeHeaderProps) {
         </div>
 
         {isResolved && resolution && (
-          <div className="rounded-md border border-green-200 bg-green-50 px-3 py-2 dark:border-green-800 dark:bg-green-950">
+          <div className={`rounded-md border px-3 py-2 ${CALLOUT.green}`}>
             <p className="text-xs font-medium text-green-700 dark:text-green-400">
               Resolved{" "}
               {formatDistanceToNow(new Date(resolution.resolvedAt), {

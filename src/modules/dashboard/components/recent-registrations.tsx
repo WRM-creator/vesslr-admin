@@ -2,13 +2,13 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Card,
-  CardAction,
   CardContent,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
 import { DataTable } from "@/components/shared/data-table/data-table";
 import { api } from "@/lib/api";
+import { TINT } from "@/lib/tint";
 import { formatDateTime } from "@/lib/utils";
 import type { ColumnDef } from "@tanstack/react-table";
 import { ArrowUpRight } from "lucide-react";
@@ -24,10 +24,10 @@ interface RegistrationRow {
 }
 
 const COMPLIANCE_STYLES: Record<string, string> = {
-  pending_review: "border-amber-200 bg-amber-50 text-amber-700",
-  action_required: "border-red-200 bg-red-50 text-red-700",
-  approved: "border-green-200 bg-green-50 text-green-700",
-  submitted: "border-blue-200 bg-blue-50 text-blue-700",
+  pending_review: TINT.amber,
+  action_required: TINT.red,
+  approved: TINT.green,
+  submitted: TINT.blue,
 };
 
 const COMPLIANCE_LABELS: Record<string, string> = {
@@ -102,19 +102,17 @@ export function RecentRegistrations() {
   }, [data]);
 
   return (
-    <Card className="h-full">
-      <CardHeader>
+    <Card className="h-full py-3">
+      <CardHeader className="flex flex-row items-center justify-between px-3">
         <CardTitle>Recent Registrations</CardTitle>
-        <CardAction>
-          <Button asChild variant="ghost" size="sm" className="gap-1">
-            <Link to="/registrations">
-              View All
-              <ArrowUpRight className="h-4 w-4" />
-            </Link>
-          </Button>
-        </CardAction>
+        <Button asChild variant="ghost" size="sm" className="gap-1">
+          <Link to="/registrations">
+            View All
+            <ArrowUpRight className="h-4 w-4" />
+          </Link>
+        </Button>
       </CardHeader>
-      <CardContent>
+      <CardContent className="px-3">
         <DataTable
           columns={columns}
           data={rows}

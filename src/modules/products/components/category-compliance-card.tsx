@@ -1,4 +1,5 @@
 import { Badge } from "@/components/ui/badge";
+import { TINT } from "@/lib/tint";
 import { AlertCircle, CheckCircle2, FileText, Layers } from "lucide-react";
 import type { ProductDetails } from "../lib/product-details-model";
 
@@ -87,9 +88,7 @@ export function CategoryComplianceCard({ data }: CategoryComplianceCardProps) {
                       : "secondary"
                 }
                 className={
-                  doc.status === "approved"
-                    ? "border-green-500 bg-green-50 text-green-600 dark:bg-green-900/20"
-                    : "capitalize"
+                  doc.status === "approved" ? TINT.green : "capitalize"
                 }
               >
                 {doc.status === "approved" && (

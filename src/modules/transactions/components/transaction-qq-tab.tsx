@@ -1,246 +1,18 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Textarea } from "@/components/ui/textarea";
-import { useFileUpload } from "@/hooks/use-file-upload";
 import { api } from "@/lib/api";
+import { CALLOUT, TINT } from "@/lib/tint";
 import type { TransactionResponseDto } from "@/lib/api/generated";
+import { formatDateTime } from "@/lib/utils";
 import { AlertCircle, Building2, CheckCircle, FileCheck, Upload, XCircle } from "lucide-react";
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
+import { RejectInspectionDialog } from "./reject-inspection-dialog";
 import { TransactionQQDocuments } from "./transaction-qq-documents";
+import { UploadInspectionDialog } from "./upload-inspection-dialog";
 
 interface TransactionQQTabProps {
   transaction: TransactionResponseDto;
-}
-
-function UploadInspectionDialog({
-  open,
-  onOpenChange,
-  transactionId,
-  stageId,
-}: {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  transactionId: string;
-  stageId: string;
-}) {
-  const inputRef = useRef<HTMLInputElement>(null);
-  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
-  const { uploadFiles, isUploading } = useFileUpload();
-
-  const { mutate: submitInspection, isPending: isSubmitting } =
-    api.admin.transactions.submitInspection.useMutation();
-
-  const isBusy = isUploading || isSubmitting;
-
-  const handleClose = (isOpen: boolean) => {
-    if (!isOpen) setSelectedFiles([]);
-    onOpenChange(isOpen);
-  };
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files ?? []);
-    setSelectedFiles((prev) => [...prev, ...files]);
-    if (inputRef.current) inputRef.current.value = "";
-  };
-
-  const handleRemove = (index: number) => {
-    setSelectedFiles((prev) => prev.filter((_, i) => i !== index));
-  };
-
-  const handleSubmit = async () => {
-    if (selectedFiles.length === 0) return;
-
-    let uploaded;
-    try {
-      uploaded = await uploadFiles(selectedFiles);
-    } catch {
-      toast.error("Failed to upload files. Please try again.");
-      return;
-    }
-
-    submitInspection(
-      {
-        path: { id: transactionId, stageId },
-        body: { documents: uploaded.map((f) => ({ name: f.name, url: f.url })) },
-      },
-      {
-        onSuccess: () => {
-          toast.success("Inspection documents submitted. Awaiting admin review.");
-          setSelectedFiles([]);
-          onOpenChange(false);
-        },
-        onError: (error: any) => {
-          toast.error("Failed to submit", { description: error.message });
-        },
-      },
-    );
-  };
-
-  return (
-    <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle>Upload Inspection Documents</DialogTitle>
-          <DialogDescription>
-            Upload Q&amp;Q certification documents on behalf of the buyer.
-          </DialogDescription>
-        </DialogHeader>
-
-        <div className="space-y-3">
-          <input
-            ref={inputRef}
-            type="file"
-            multiple
-            accept=".pdf,.png,.jpg,.jpeg"
-            className="hidden"
-            onChange={handleFileChange}
-          />
-          <Button
-            variant="outline"
-            className="w-full gap-2"
-            onClick={() => inputRef.current?.click()}
-            disabled={isBusy}
-          >
-            <Upload className="size-4" />
-            Select Files
-          </Button>
-
-          {selectedFiles.length > 0 && (
-            <ul className="space-y-1 rounded-md border p-2">
-              {selectedFiles.map((file, i) => (
-                <li
-                  key={i}
-                  className="flex items-center justify-between gap-2 text-sm"
-                >
-                  <span className="truncate">{file.name}</span>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-auto px-1 py-0 text-xs"
-                    onClick={() => handleRemove(i)}
-                    disabled={isBusy}
-                  >
-                    Remove
-                  </Button>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-
-        <DialogFooter className="gap-2 sm:justify-between">
-          <Button
-            variant="ghost"
-            onClick={() => handleClose(false)}
-            disabled={isBusy}
-          >
-            Cancel
-          </Button>
-          <Button
-            onClick={handleSubmit}
-            disabled={selectedFiles.length === 0 || isBusy}
-          >
-            {isUploading
-              ? "Uploading..."
-              : isSubmitting
-                ? "Submitting..."
-                : "Submit Documents"}
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-  );
-}
-
-function RejectInspectionDialog({
-  open,
-  onOpenChange,
-  transactionId,
-  stageId,
-}: {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  transactionId: string;
-  stageId: string;
-}) {
-  const [reason, setReason] = useState("");
-
-  const { mutate: reviewInspection, isPending } =
-    api.admin.transactions.reviewInspection.useMutation();
-
-  const handleClose = (isOpen: boolean) => {
-    if (!isOpen) setReason("");
-    onOpenChange(isOpen);
-  };
-
-  const handleReject = () => {
-    if (!reason.trim()) return;
-
-    reviewInspection(
-      {
-        path: { id: transactionId, stageId },
-        body: { decision: "REJECTED", rejectionReason: reason.trim() },
-      },
-      {
-        onSuccess: () => {
-          toast.success("Inspection rejected. Buyer has been notified to re-upload.");
-          setReason("");
-          onOpenChange(false);
-        },
-        onError: (error: any) => {
-          toast.error("Failed to reject inspection", { description: error.message });
-        },
-      },
-    );
-  };
-
-  return (
-    <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle>Reject Inspection Documents</DialogTitle>
-          <DialogDescription>
-            Provide a reason for rejection. The buyer will be notified and
-            asked to re-upload corrected documents.
-          </DialogDescription>
-        </DialogHeader>
-
-        <Textarea
-          placeholder="e.g. Sulfur content certificate is missing. Please upload the ASTM D4294 report."
-          value={reason}
-          onChange={(e) => setReason(e.target.value)}
-          rows={4}
-          disabled={isPending}
-        />
-
-        <DialogFooter className="gap-2 sm:justify-between">
-          <Button
-            variant="ghost"
-            onClick={() => handleClose(false)}
-            disabled={isPending}
-          >
-            Cancel
-          </Button>
-          <Button
-            variant="destructive"
-            onClick={handleReject}
-            disabled={!reason.trim() || isPending}
-          >
-            {isPending ? "Rejecting..." : "Reject & Notify Buyer"}
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-  );
 }
 
 export function TransactionQQTab({ transaction }: TransactionQQTabProps) {
@@ -251,7 +23,7 @@ export function TransactionQQTab({ transaction }: TransactionQQTabProps) {
     api.admin.transactions.reviewInspection.useMutation();
 
   const inspectionStage = transaction.stages?.find(
-    (s: any) => s.type === "INSPECTION",
+    (s) => s.type === "INSPECTION",
   );
 
   if (!inspectionStage) {
@@ -262,9 +34,9 @@ export function TransactionQQTab({ transaction }: TransactionQQTabProps) {
     );
   }
 
-  const metadata = inspectionStage.metadata as Record<string, any> | undefined;
+  const metadata = inspectionStage.metadata as Record<string, unknown> | undefined;
   const qqCompany = metadata?.qqCompany as string | null | undefined;
-  const qqCriteria = (metadata?.qqCriteria as Record<string, any>[]) ?? [];
+  const qqCriteria = (metadata?.qqCriteria as Record<string, unknown>[]) ?? [];
   const submittedDocuments =
     (metadata?.submittedDocuments as { name: string; url: string }[]) ?? [];
   const inspectionReview = metadata?.inspectionReview as
@@ -289,39 +61,28 @@ export function TransactionQQTab({ transaction }: TransactionQQTabProps) {
         onSuccess: () => {
           toast.success("Inspection approved. Transaction is advancing to the next stage.");
         },
-        onError: (error: any) => {
-          toast.error("Failed to approve inspection", { description: error.message });
+        onError: (error: unknown) => {
+          const message = error instanceof Error ? error.message : "Unknown error";
+          toast.error("Failed to approve inspection", { description: message });
         },
       },
     );
   };
 
   const statusBadge = isCompleted ? (
-    <Badge
-      variant="outline"
-      className="border-green-500 bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-400"
-    >
+    <Badge variant="outline" className={TINT.green}>
       Completed
     </Badge>
   ) : isAwaitingReview ? (
-    <Badge
-      variant="outline"
-      className="border-blue-500 bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400"
-    >
+    <Badge variant="outline" className={TINT.blue}>
       Under Review
     </Badge>
   ) : isRejected ? (
-    <Badge
-      variant="outline"
-      className="border-red-500 bg-red-50 text-red-700 dark:bg-red-900/20 dark:text-red-400"
-    >
+    <Badge variant="outline" className={TINT.red}>
       Rejected
     </Badge>
   ) : isAwaitingDocs ? (
-    <Badge
-      variant="outline"
-      className="border-amber-500 bg-amber-50 text-amber-700 dark:bg-amber-900/20 dark:text-amber-400"
-    >
+    <Badge variant="outline" className={TINT.amber}>
       Awaiting Documents
     </Badge>
   ) : (
@@ -341,13 +102,12 @@ export function TransactionQQTab({ transaction }: TransactionQQTabProps) {
           {inspectionStage.completedAt && (
             <p className="text-muted-foreground text-sm">
               Completed{" "}
-              {new Date(inspectionStage.completedAt).toLocaleDateString()}
+              {formatDateTime(inspectionStage.completedAt)}
             </p>
           )}
         </div>
         <div className="flex items-center gap-2">
           {statusBadge}
-          {/* Upload: only when awaiting docs or rejected (not while under review) */}
           {(isAwaitingDocs || isRejected) && transaction._id && inspectionStage._id && (
             <Button
               variant="outline"
@@ -364,7 +124,7 @@ export function TransactionQQTab({ transaction }: TransactionQQTabProps) {
 
       {/* Rejection reason banner */}
       {isRejected && inspectionReview?.rejectionReason && (
-        <div className="flex items-start gap-3 rounded-md border border-red-200 bg-red-50 p-3 dark:border-red-900 dark:bg-red-900/20">
+        <div className={`flex items-start gap-3 rounded-md border p-3 ${CALLOUT.red}`}>
           <AlertCircle className="mt-0.5 size-4 shrink-0 text-red-600 dark:text-red-400" />
           <div>
             <p className="text-sm font-medium text-red-700 dark:text-red-400">
@@ -426,14 +186,14 @@ export function TransactionQQTab({ transaction }: TransactionQQTabProps) {
             Acceptance Criteria
           </p>
           <ul className="space-y-1">
-            {qqCriteria.map((criterion: Record<string, any>) => (
+            {qqCriteria.map((criterion) => (
               <li
-                key={criterion.id}
+                key={criterion.id as string}
                 className="flex items-center gap-2 text-sm"
               >
                 <FileCheck className="text-muted-foreground size-3.5 shrink-0" />
-                <span className="font-medium">{criterion.label}</span>
-                {criterion.unit && (
+                <span className="font-medium">{criterion.label as string}</span>
+                {typeof criterion.unit === "string" && (
                   <span className="text-muted-foreground text-xs">
                     ({criterion.unit})
                   </span>

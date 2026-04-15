@@ -1,5 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { TINT } from "@/lib/tint";
 import { Textarea } from "@/components/ui/textarea";
 import { Plus } from "lucide-react";
 import type { ProductDetails } from "../lib/product-details-model";
@@ -18,13 +19,13 @@ export function ProductAdminNotesCard({ data }: ProductAdminNotesCardProps) {
         </span>
         <Badge
           variant="outline"
-          className={`${
+          className={
             data.riskScore > 70
-              ? "border-red-500 bg-red-50 text-red-600"
+              ? TINT.red
               : data.riskScore > 30
-                ? "border-amber-500 bg-amber-50 text-amber-600"
-                : "border-green-500 bg-green-50 text-green-600"
-          } dark:bg-transparent`}
+                ? TINT.amber
+                : TINT.green
+          }
         >
           {data.riskScore} / 100
         </Badge>

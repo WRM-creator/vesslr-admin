@@ -1,6 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatCurrency } from "@/lib/currency";
+import { TINT } from "@/lib/tint";
 import { format } from "date-fns";
 import { AlertTriangle, Clock, ShieldCheck } from "lucide-react";
 import type { EscrowDetails } from "../lib/escrow-details-model";
@@ -14,16 +15,16 @@ export function EscrowOverviewCard({ data }: EscrowOverviewCardProps) {
     switch (status) {
       case "funded":
       case "ready_for_release":
-        return "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800";
+        return TINT.emerald;
       case "released":
-        return "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400 border-blue-200 dark:border-blue-800";
+        return TINT.blue;
       case "disputed":
       case "dispute_hold":
-        return "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400 border-red-200 dark:border-red-800";
+        return TINT.red;
       case "refunded":
-        return "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400 border-amber-200 dark:border-amber-800";
+        return TINT.amber;
       default:
-        return "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-400";
+        return TINT.gray;
     }
   };
 
@@ -66,7 +67,7 @@ export function EscrowOverviewCard({ data }: EscrowOverviewCardProps) {
                 <Badge
                   key={flag}
                   variant="outline"
-                  className="border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-900/50 dark:bg-amber-900/20 dark:text-amber-400"
+                  className={TINT.amber}
                 >
                   {flag.replace(/_/g, " ")}
                 </Badge>

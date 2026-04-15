@@ -2,6 +2,7 @@ import { api } from "@/lib/api";
 import type { AccountBalanceResponseDto } from "@/lib/api/generated";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { TINT } from "@/lib/tint";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatCurrency } from "@/lib/currency";
 import {
@@ -154,7 +155,7 @@ export function MerchantFinancialsTab({
                       {bankDetails.verifiedAt ? (
                         <Badge
                           variant="outline"
-                          className="gap-1 border-green-200 bg-green-50 text-[10px] text-green-700 dark:border-green-800 dark:bg-green-900/20 dark:text-green-400"
+                          className={`gap-1 text-[10px] ${TINT.green}`}
                         >
                           <CheckCircleIcon className="h-3 w-3" />
                           Verified
