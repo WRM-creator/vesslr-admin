@@ -7,8 +7,10 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { CheckCircle2 } from "lucide-react";
 import type {
   TransactionResponseDto,
+  TransactionTaskActionDto,
   TransactionTaskDto,
 } from "@/lib/api/generated";
 import { useState } from "react";
@@ -41,7 +43,7 @@ function AssignedToBadge({ assignedTo }: { assignedTo: AssignedTo }) {
 
 interface TransactionPendingTasksProps {
   transaction?: TransactionResponseDto;
-  onAction?: (action: any) => void;
+  onAction?: (action: TransactionTaskActionDto) => void;
 }
 
 export function TransactionPendingTasks({
@@ -55,12 +57,26 @@ export function TransactionPendingTasks({
     if (task.action?.target === "approve-settlement") {
       setIsSettlementOpen(true);
     } else {
-      onAction?.(task.action);
+      if (task.action) onAction?.(task.action);
     }
   };
 
   if (!tasks || tasks.length === 0) {
-    return null;
+    return (
+      <Card>
+        <CardContent className="flex items-center gap-3 py-6">
+          <div className="flex size-8 items-center justify-center rounded-full bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400">
+            <CheckCircle2 className="size-4" />
+          </div>
+          <div>
+            <p className="text-sm font-medium">No pending tasks</p>
+            <p className="text-muted-foreground text-xs">
+              All blockers have been resolved.
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+    );
   }
 
   return (

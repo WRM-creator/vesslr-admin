@@ -1,9 +1,8 @@
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Spinner } from "@/components/ui/spinner";
 import { api } from "@/lib/api";
-import { Download, Loader2 } from "lucide-react";
+import { formatDateTime } from "@/lib/utils";
 
-// Define locally since generated SDK only exports type, not value
 const TransactionAction = {
   CREATED: "CREATED",
   STATUS_CHANGE: "STATUS_CHANGE",
@@ -24,41 +23,22 @@ const TransactionAction = {
   ESCROW_DISCOUNT_INITIATED: "ESCROW_DISCOUNT_INITIATED",
 } as const;
 
-type TransactionActionType =
-  | "CREATED"
-  | "STATUS_CHANGE"
-  | "DOCUMENT_UPLOADED"
-  | "DOCUMENT_REVIEWED"
-  | "LOGISTICS_UPDATE"
-  | "NOTE_ADDED"
-  | "REQUIREMENT_ADDED"
-  | "REQUIREMENT_UPDATED"
-  | "REQUIREMENT_DELETED"
-  | "STAGE_COMPLETED"
-  | "MILESTONE_SUBMITTED"
-  | "MILESTONE_APPROVED"
-  | "INSPECTION_SUBMITTED"
-  | "INSPECTION_REVIEWED"
-  | "DISPUTE_RAISED"
-  | "DISPUTE_RESOLVED"
-  | "DISPUTE_WITHDRAWN"
-  | "ESCROW_REFUND_INITIATED"
-  | "ESCROW_DISCOUNT_INITIATED";
+type TransactionActionType = string;
 
-const getLogMessage = (action: TransactionActionType, metadata: any) => {
+const getLogMessage = (action: TransactionActionType, metadata: Record<string, unknown> | undefined) => {
   switch (action) {
     case TransactionAction.STATUS_CHANGE:
-      return `Status changed to ${metadata.newStatus.replace(/_/g, " ")}`;
+      return `Status changed to ${((metadata?.newStatus as string) ?? "unknown").replace(/_/g, " ")}`;
     case TransactionAction.DOCUMENT_UPLOADED:
-      return `Document uploaded: ${metadata.documentName}`;
+      return `Document uploaded: ${(metadata?.documentName as string) ?? "Unknown"}`;
     case TransactionAction.DOCUMENT_REVIEWED:
-      return `Document ${metadata.decision.toLowerCase()}: ${metadata.documentName}`;
+      return `Document ${((metadata?.decision as string) ?? "").toLowerCase()}: ${(metadata?.documentName as string) ?? "Unknown"}`;
     case TransactionAction.REQUIREMENT_ADDED:
-      return `Requirement added: ${metadata.name}`;
+      return `Requirement added: ${(metadata?.name as string) ?? "Document"}`;
     case TransactionAction.REQUIREMENT_UPDATED:
-      return `Requirement updated: ${metadata.updates?.name || "Document"}`;
+      return `Requirement updated: ${((metadata?.updates as Record<string, unknown>)?.name as string) ?? "Document"}`;
     case TransactionAction.REQUIREMENT_DELETED:
-      return `Requirement deleted: ${metadata.name}`;
+      return `Requirement deleted: ${(metadata?.name as string) ?? "Document"}`;
     case TransactionAction.LOGISTICS_UPDATE:
       return "Logistics details updated";
     case TransactionAction.NOTE_ADDED:
@@ -66,25 +46,25 @@ const getLogMessage = (action: TransactionActionType, metadata: any) => {
     case TransactionAction.CREATED:
       return "Transaction Created";
     default:
-      return (action as string).replace(/_/g, " ");
+      return action.replace(/_/g, " ");
   }
 };
 
-const getLogDetails = (action: TransactionActionType, metadata: any) => {
+const getLogDetails = (action: TransactionActionType, metadata: Record<string, unknown> | undefined) => {
   switch (action) {
     case TransactionAction.STATUS_CHANGE:
-      return metadata.reason || `Moved from ${metadata.oldStatus}`;
+      return (metadata?.reason as string) || `Moved from ${(metadata?.oldStatus as string) ?? "unknown"}`;
     case TransactionAction.DOCUMENT_UPLOADED:
-      return `Type: ${metadata.type}`;
+      return `Type: ${(metadata?.type as string) ?? "Unknown"}`;
     case TransactionAction.DOCUMENT_REVIEWED:
-      return metadata.rejectionReason
-        ? `Reason: ${metadata.rejectionReason}`
+      return (metadata?.rejectionReason as string)
+        ? `Reason: ${metadata?.rejectionReason as string}`
         : "Approved by admin";
     case TransactionAction.REQUIREMENT_ADDED:
-      return `${metadata.isMandatory ? "Mandatory" : "Optional"} from ${metadata.requiredFrom}`;
+      return `${metadata?.isMandatory ? "Mandatory" : "Optional"} from ${(metadata?.requiredFrom as string) ?? "Unknown"}`;
     case TransactionAction.LOGISTICS_UPDATE:
-      return metadata.carrier
-        ? `Carrier: ${metadata.carrier}, Tracking: ${metadata.trackingNumber}`
+      return (metadata?.carrier as string)
+        ? `Carrier: ${metadata?.carrier as string}, Tracking: ${(metadata?.trackingNumber as string) ?? "-"}`
         : "Shipping details updated";
     case TransactionAction.CREATED:
       return "Initialized by system";
@@ -105,15 +85,12 @@ export function TransactionRecentActivity({
     <Card className="h-full">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle>Recent Activity</CardTitle>
-        <Button variant="ghost" size="icon" className="size-6 px-2 text-xs">
-          <Download className="size-3.5" />
-        </Button>
       </CardHeader>
       <CardContent>
         <div className="space-y-0">
           {isLoading ? (
             <div className="flex justify-center p-4">
-              <Loader2 className="text-muted-foreground size-6 animate-spin" />
+              <Spinner className="size-6" />
             </div>
           ) : (
             logs?.map((log, index) => (
@@ -121,16 +98,7 @@ export function TransactionRecentActivity({
                 {/* Date/Time Left Sidebar */}
                 <div className="flex min-w-[40px] flex-col items-end text-right">
                   <span className="text-muted-foreground text-xs">
-                    {new Date(log.timestamp).toLocaleString(undefined, {
-                      month: "short",
-                      day: "numeric",
-                    })}
-                  </span>
-                  <span className="text-muted-foreground text-[10px]">
-                    {new Date(log.timestamp).toLocaleString(undefined, {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
+                    {formatDateTime(log.timestamp)}
                   </span>
                 </div>
 

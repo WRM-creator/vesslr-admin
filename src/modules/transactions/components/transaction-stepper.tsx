@@ -24,8 +24,10 @@ export function TransactionStepper({
   // Only show the break when there are remaining stages after the cutoff.
   const hasBreak = breakAfterIndex >= 0 && breakAfterIndex < stages.length - 1;
 
+  if (stages.length === 0) return null;
+
   return (
-    <div className="flex flex-1 items-center gap-2">
+    <div className="flex flex-1 items-center gap-2" role="list" aria-label="Transaction progress">
       {stages.flatMap((stage, index) => {
         const isLast = index === stages.length - 1;
         const isCompleted = stage.status === "COMPLETED";
@@ -36,7 +38,7 @@ export function TransactionStepper({
         const isNextStepReached = !isLast && nextStage?.status !== "PENDING";
 
         const stageEl = (
-          <div key={stage._id} className="contents pb-8">
+          <div key={stage._id} className="contents pb-8" role="listitem" aria-current={isCurrent ? "step" : undefined}>
             <div className="relative flex flex-col items-center gap-1">
               <div
                 className={cn(

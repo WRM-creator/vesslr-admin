@@ -1,23 +1,27 @@
+import { NotFoundPage } from "@/components/not-found-page";
 import { Page } from "@/components/shared/page";
+import { PageBreadcrumb } from "@/components/shared/page-breadcrumb";
 import { PageHeader } from "@/components/shared/page-header";
 import { PageLoader } from "@/components/shared/page-loader";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { api } from "@/lib/api";
-import { RefreshCw } from "lucide-react";
-import { useState } from "react";
+import { AlertCircle, ArrowUpRight, RefreshCw } from "lucide-react";
 import { useParams } from "react-router-dom";
-import { TransactionDetailsTabs } from "../components/transaction-details-tabs";
-import { TransactionOrchestrationBar } from "../components/transaction-orchestration-bar";
-import { TransactionPartyCard } from "../components/transaction-party-card";
+import { ActionZone } from "../components/v2/action-zone";
+import { ContextSidebar } from "../components/v2/context-sidebar";
+import { OverviewStatusCard } from "../components/v2/overview-status-card";
+import { StageTimeline } from "../components/v2/stage-timeline";
 import { TransactionStatusBadge } from "../components/transaction-status-badge";
 
 export default function TransactionDetailsPage() {
   const { id } = useParams();
-  const [activeTab, setActiveTab] = useState("overview");
 
   const {
     data: transaction,
     isLoading,
+    isError,
     refetch,
     isRefetching,
   } = api.admin.transactions.detail.useQuery(
@@ -33,40 +37,87 @@ export default function TransactionDetailsPage() {
     return <PageLoader />;
   }
 
+  if (isError) {
+    return (
+      <Page>
+        <Alert variant="destructive" className="mx-auto mt-12 max-w-lg">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Failed to load transaction</AlertTitle>
+          <AlertDescription>
+            Something went wrong while loading this transaction.
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => refetch()}
+              className="mt-2"
+            >
+              Retry
+            </Button>
+          </AlertDescription>
+        </Alert>
+      </Page>
+    );
+  }
+
   if (!transaction) {
-    return "No transaction found";
+    return <NotFoundPage />;
   }
 
   const order = transaction.order;
   const buyerName = order?.buyerOrganization?.name || "Unknown Buyer";
   const sellerName = order?.sellerOrganization?.name || "Unknown Seller";
-
-  const handleTaskAction = (action: any) => {
-    if (!action) return;
-
-    if (action.type === "navigate") {
-      if (action.target === "documents-tab") {
-        setActiveTab("documents");
-      } else if (action.target === "compliance-tab") {
-        setActiveTab("documents");
-      } else if (action.target === "logistics-tab") {
-        setActiveTab("logistics");
-      } else if (action.target === "financials-tab") {
-        setActiveTab("financials");
-      }
-    } else if (action.type === "modal") {
-      console.log("Open modal:", action.target);
-      // Future: Open specific modals
-    }
-  };
+  const buyerOrgId = order?.buyerOrganization?._id;
+  const sellerOrgId = order?.sellerOrganization?._id;
+  const txnLabel = `TXN-${String(transaction.displayId).padStart(4, "0")}`;
 
   return (
     <Page>
+      <PageBreadcrumb
+        items={[
+          { label: "Transactions", href: "/transactions" },
+          { label: txnLabel },
+        ]}
+      />
+
       <PageHeader
         title={
           <div className="flex items-center gap-3">
-            <span>Transaction #{transaction.displayId}</span>
+            <span>{txnLabel}</span>
             <TransactionStatusBadge status={transaction.status} />
+            {transaction.workflowType === "MILESTONE" && (
+              <Badge variant="outline" className="text-[10px]">
+                Milestone
+              </Badge>
+            )}
+          </div>
+        }
+        description={
+          <div className="text-muted-foreground flex items-center gap-1.5 text-sm">
+            <span className="font-medium">Buyer:</span>
+            {buyerOrgId ? (
+              <a
+                href={`/organizations/${buyerOrgId}`}
+                className="text-foreground hover:underline inline-flex items-center gap-0.5"
+              >
+                {buyerName}
+                <ArrowUpRight className="size-3 opacity-50" />
+              </a>
+            ) : (
+              <span>{buyerName}</span>
+            )}
+            <span className="text-muted-foreground/50 mx-1">↔</span>
+            <span className="font-medium">Seller:</span>
+            {sellerOrgId ? (
+              <a
+                href={`/organizations/${sellerOrgId}`}
+                className="text-foreground hover:underline inline-flex items-center gap-0.5"
+              >
+                {sellerName}
+                <ArrowUpRight className="size-3 opacity-50" />
+              </a>
+            ) : (
+              <span>{sellerName}</span>
+            )}
           </div>
         }
         endContent={
@@ -77,31 +128,25 @@ export default function TransactionDetailsPage() {
             disabled={isRefetching}
           >
             <RefreshCw
-              className={`h-4 w-4 ${isRefetching ? "animate-spin" : ""}`}
+              className={`h-3.5 w-3.5 ${isRefetching ? "animate-spin" : ""}`}
             />
             Refresh
           </Button>
         }
       />
 
-      <div className="space-y-6">
-        {/* 1. Identity Row (The Who) */}
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          <TransactionPartyCard role="Buyer" name={buyerName} />
-          <TransactionPartyCard role="Seller" name={sellerName} />
+      {/* ── Overview + Action Zone ────────────────────────────── */}
+      <OverviewStatusCard transaction={transaction} />
+      <ActionZone transaction={transaction} />
+
+      {/* ── Main Content: Timeline + Sidebar ────────────────────── */}
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-5">
+        <div className="space-y-4 lg:col-span-3">
+          <StageTimeline transaction={transaction} />
         </div>
-
-        {/* 2. Orchestration Bar (The Bridge) */}
-        <TransactionOrchestrationBar stages={transaction.stages} transactionStatus={transaction.status} />
-
-        {/* 3. Detailed Tabs (The What) */}
-        <TransactionDetailsTabs
-          transaction={transaction}
-          value={activeTab}
-          onValueChange={setActiveTab}
-          onAction={handleTaskAction} // Wait, TransactionDetailsTabs doesn't have onAction yet?
-          // Ah, I missed updating TransactionDetailsTabs to pass onAction down to TransactionOverviewTab
-        />
+        <div className="lg:col-span-2">
+          <ContextSidebar transaction={transaction} />
+        </div>
       </div>
     </Page>
   );

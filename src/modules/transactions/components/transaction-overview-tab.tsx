@@ -1,10 +1,10 @@
-import type { TransactionResponseDto } from "@/lib/api/generated";
+import type { TransactionResponseDto, TransactionTaskActionDto } from "@/lib/api/generated";
 import { TransactionPendingTasks } from "./transaction-pending-tasks";
 import { TransactionRecentActivity } from "./transaction-recent-activity";
 
 interface TransactionOverviewTabProps {
   transaction: TransactionResponseDto;
-  onAction?: (action: any) => void;
+  onAction?: (action: TransactionTaskActionDto) => void;
 }
 
 export function TransactionOverviewTab({

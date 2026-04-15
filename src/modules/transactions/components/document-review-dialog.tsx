@@ -10,28 +10,26 @@ import {
 import { Label } from "@/components/ui/label";
 import { Spinner } from "@/components/ui/spinner";
 import { Textarea } from "@/components/ui/textarea";
+import { api } from "@/lib/api";
 import type { TransactionDocumentSlotDto } from "@/lib/api/generated";
-import { format } from "date-fns";
+import { formatDateTime } from "@/lib/utils";
 import { AlertCircle, Check, ExternalLink, FileText, X } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { toast } from "sonner";
 import { TransactionDocumentStatusBadge } from "./transaction-document-status-badge";
 
 interface DocumentReviewDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  transactionId: string;
   document: TransactionDocumentSlotDto | null;
-  onApprove: (documentId: string) => void;
-  onReject: (documentId: string, reason: string) => void;
-  isPending?: boolean;
 }
 
 export function DocumentReviewDialog({
   open,
   onOpenChange,
+  transactionId,
   document,
-  onApprove,
-  onReject,
-  isPending = false,
 }: DocumentReviewDialogProps) {
   const [isRejecting, setIsRejecting] = useState(false);
   const [rejectionReason, setRejectionReason] = useState("");
@@ -39,15 +37,13 @@ export function DocumentReviewDialog({
     "approve" | "reject" | null
   >(null);
 
-  useEffect(() => {
-    if (!isPending) {
-      setPendingAction(null);
-    }
-  }, [isPending]);
+  const { mutate: reviewDoc, isPending } =
+    api.admin.transactions.reviewDocument.useMutation();
 
   if (!document) return null;
 
   const handleOpenChange = (newOpen: boolean) => {
+    if (isPending) return;
     if (!newOpen) {
       setIsRejecting(false);
       setRejectionReason("");
@@ -58,17 +54,47 @@ export function DocumentReviewDialog({
 
   const handleApprove = () => {
     setPendingAction("approve");
-    onApprove(document._id);
-    // Dialog closing is handled by parent on success
+    reviewDoc(
+      {
+        path: { id: transactionId, requirementId: document._id },
+        body: { decision: "APPROVED" },
+      },
+      {
+        onSuccess: () => {
+          toast.success("Document approved");
+          setPendingAction(null);
+          onOpenChange(false);
+        },
+        onError: (error: any) => {
+          toast.error(error.message || "Failed to approve document");
+          setPendingAction(null);
+        },
+      },
+    );
   };
 
   const handleReject = () => {
     if (!rejectionReason.trim()) return;
     setPendingAction("reject");
-    onReject(document._id, rejectionReason);
-    // Dialog closing is handled by parent on success
-    setIsRejecting(false);
-    setRejectionReason("");
+    reviewDoc(
+      {
+        path: { id: transactionId, requirementId: document._id },
+        body: { decision: "REJECTED", rejectionReason },
+      },
+      {
+        onSuccess: () => {
+          toast.success("Document rejected");
+          setPendingAction(null);
+          setIsRejecting(false);
+          setRejectionReason("");
+          onOpenChange(false);
+        },
+        onError: (error: any) => {
+          toast.error(error.message || "Failed to reject document");
+          setPendingAction(null);
+        },
+      },
+    );
   };
 
   return (
@@ -102,8 +128,7 @@ export function DocumentReviewDialog({
               <div className="flex flex-col">
                 <span className="text-muted-foreground text-xs">Uploaded</span>
                 <span className="font-medium">
-                  {format(new Date(), "PPP")}{" "}
-                  {/* TODO: Use actual submission date */}
+                  {formatDateTime(document.submission?.timestamp)}
                 </span>
               </div>
               {document.submission?.url && (

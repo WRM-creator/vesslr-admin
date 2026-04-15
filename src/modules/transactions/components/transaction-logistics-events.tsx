@@ -1,6 +1,8 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { TransactionResponseDto } from "@/lib/api/generated";
+import { formatDateTime } from "@/lib/utils";
 import { ExternalLink, History } from "lucide-react";
+import { formatShippingMethod } from "./logistics-utils";
 
 interface TransactionLogisticsEventsProps {
   transaction: TransactionResponseDto;
@@ -16,14 +18,6 @@ export function TransactionLogisticsEvents({
       (a, b) =>
         new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime(),
     );
-
-  const formatMethod = (method?: string) => {
-    if (!method) return "Unknown";
-    return method
-      .replace(/_/g, " ")
-      .toLowerCase()
-      .replace(/^\w/, (c) => c.toUpperCase());
-  };
 
   return (
     <Card className="h-full">
@@ -43,16 +37,7 @@ export function TransactionLogisticsEvents({
                 {/* Date/Time Left Sidebar */}
                 <div className="flex min-w-[40px] flex-col items-end text-right">
                   <span className="text-muted-foreground text-xs">
-                    {new Date(log.timestamp).toLocaleString(undefined, {
-                      month: "short",
-                      day: "numeric",
-                    })}
-                  </span>
-                  <span className="text-muted-foreground text-[10px]">
-                    {new Date(log.timestamp).toLocaleString(undefined, {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
+                    {formatDateTime(log.timestamp)}
                   </span>
                 </div>
 
@@ -66,15 +51,17 @@ export function TransactionLogisticsEvents({
                       Logistics Assigned
                     </span>
                     <span className="text-muted-foreground text-[11px] leading-snug">
-                      {log.metadata?.carrierName as string} ·{" "}
-                      {formatMethod(log.metadata?.shippingMethod as string)}
+                      {(log.metadata?.carrierName as string) ?? ""} ·{" "}
+                      {formatShippingMethod(log.metadata?.shippingMethod as string)}
                     </span>
-                    <div className="pt-1">
-                      <span className="text-primaryGreenDark/80 hover:text-primaryGreenDark bg-muted/50 inline-flex cursor-pointer items-center gap-1 rounded-[3px] px-1.5 py-0.5 text-[10px] transition-colors">
-                        {log.metadata?.trackingReference as string}
-                        <ExternalLink className="size-2.5" />
-                      </span>
-                    </div>
+                    {typeof log.metadata?.trackingReference === "string" && (
+                      <div className="pt-1">
+                        <span className="text-primaryGreenDark/80 hover:text-primaryGreenDark bg-muted/50 inline-flex items-center gap-1 rounded-[3px] px-1.5 py-0.5 text-[10px] transition-colors">
+                          {log.metadata.trackingReference as string}
+                          <ExternalLink className="size-2.5" />
+                        </span>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>

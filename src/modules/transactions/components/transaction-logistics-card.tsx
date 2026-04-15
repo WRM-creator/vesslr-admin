@@ -1,6 +1,17 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { TransactionResponseDto } from "@/lib/api/generated";
+import { formatDateTime } from "@/lib/utils";
 import { Calendar, Package, Truck } from "lucide-react";
+import { formatShippingMethod } from "./logistics-utils";
+
+interface LogisticsInfo {
+  carrierName?: string;
+  shippingMethod?: string;
+  vesselName?: string;
+  trackingReference?: string;
+  estimatedDeparture?: string;
+  estimatedArrival?: string;
+}
 
 interface TransactionLogisticsCardProps {
   transaction: TransactionResponseDto;
@@ -9,24 +20,8 @@ interface TransactionLogisticsCardProps {
 export function TransactionLogisticsCard({
   transaction,
 }: TransactionLogisticsCardProps) {
-  const logistics = transaction.assignedLogistics as any;
+  const logistics = transaction.assignedLogistics as unknown as LogisticsInfo | undefined;
   const isAssigned = !!logistics;
-
-  const formatDate = (dateString?: string) => {
-    if (!dateString) return "Not set";
-    return new Date(dateString).toLocaleString("en-US", {
-      dateStyle: "medium",
-      timeStyle: "short",
-    });
-  };
-
-  const formatMethod = (method?: string) => {
-    if (!method) return "Unknown";
-    return method
-      .replace(/_/g, " ")
-      .toLowerCase()
-      .replace(/^\w/, (c) => c.toUpperCase());
-  };
 
   return (
     <Card className="h-full">
@@ -86,13 +81,13 @@ export function TransactionLogisticsCard({
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-muted-foreground">Carrier</span>
                   <span className="text-foreground font-medium">
-                    {logistics.carrierName}
+                    {logistics.carrierName || "-"}
                   </span>
                 </div>
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-muted-foreground">Method</span>
                   <span className="text-foreground font-medium">
-                    {formatMethod(logistics.shippingMethod)}
+                    {formatShippingMethod(logistics.shippingMethod)}
                   </span>
                 </div>
                 {logistics.vesselName && (
@@ -110,7 +105,7 @@ export function TransactionLogisticsCard({
                     Tracking Reference
                   </span>
                   <code className="bg-muted text-foreground border-border rounded border px-1.5 py-0.5 font-mono text-[10px] font-medium">
-                    {logistics.trackingReference}
+                    {logistics.trackingReference || "-"}
                   </code>
                 </div>
               </div>
@@ -129,7 +124,7 @@ export function TransactionLogisticsCard({
                     Departure
                   </span>
                   <p className="text-foreground pl-3 text-sm font-medium">
-                    {formatDate(logistics.estimatedDeparture)}
+                    {formatDateTime(logistics.estimatedDeparture)}
                   </p>
                 </div>
                 <div className="space-y-1 pt-1">
@@ -138,7 +133,7 @@ export function TransactionLogisticsCard({
                     Arrival
                   </span>
                   <p className="text-foreground pl-3 text-sm font-medium">
-                    {formatDate(logistics.estimatedArrival)}
+                    {formatDateTime(logistics.estimatedArrival)}
                   </p>
                 </div>
               </div>

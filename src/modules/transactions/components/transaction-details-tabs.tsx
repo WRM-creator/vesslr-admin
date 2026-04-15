@@ -1,5 +1,5 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import type { TransactionResponseDto } from "@/lib/api/generated";
+import type { TransactionResponseDto, TransactionTaskActionDto } from "@/lib/api/generated";
 import { AlertTriangle } from "lucide-react";
 import { TransactionChatTab } from "./transaction-chat-tab";
 import { TransactionDisputeTab } from "./transaction-dispute-tab";
@@ -13,7 +13,7 @@ interface TransactionDetailsTabsProps {
   transaction: TransactionResponseDto;
   value?: string;
   onValueChange?: (value: string) => void;
-  onAction?: (action: any) => void;
+  onAction?: (action: TransactionTaskActionDto) => void;
 }
 
 export function TransactionDetailsTabs({

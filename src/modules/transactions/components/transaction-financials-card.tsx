@@ -5,7 +5,8 @@ import { Separator } from "@/components/ui/separator";
 import { api } from "@/lib/api";
 import type { TransactionResponseDto } from "@/lib/api/generated";
 import { formatCurrency } from "@/lib/currency";
-import { AlertCircle, ExternalLink, Loader2, RefreshCw, RotateCw } from "lucide-react";
+import { formatDateTime } from "@/lib/utils";
+import { AlertCircle, Loader2, RefreshCw, RotateCw } from "lucide-react";
 import { toast } from "sonner";
 import {
   TransactionPaymentStatus,
@@ -46,7 +47,7 @@ export function TransactionFinancialsCard({
     (e) => e.metadata?.newStatus === "ESCROW_FUNDED",
   );
 
-  const providerRef = isFunded ? "pi_mock_582962" : "Awaiting Initiation";
+  const escrow = transaction.escrow as Record<string, unknown> | undefined;
 
   const order = transaction.order;
   const currency = order.currency || "USD";
@@ -62,16 +63,7 @@ export function TransactionFinancialsCard({
           <CardTitle>Payment Details</CardTitle>
           <TransactionPaymentStatusBadge status={paymentStatus} />
         </div>
-        <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" className="h-8 gap-2 text-xs">
-            <RotateCw className="size-3.5" />
-            Sync Status
-          </Button>
-          <Button variant="outline" size="sm" className="h-8 gap-2 text-xs">
-            <ExternalLink className="size-3.5" />
-            View
-          </Button>
-        </div>
+        <div className="flex items-center gap-2" />
       </CardHeader>
       <CardContent>
         <div className="grid gap-6">
@@ -109,7 +101,7 @@ export function TransactionFinancialsCard({
                     : isRefunded
                       ? "Dispute resolved in buyer's favour — escrowed funds have been refunded."
                       : isFunded
-                        ? `Funds were successfully secured in escrow on ${new Date(fundingEvent?.timestamp || transaction.updatedAt).toLocaleDateString()}.`
+                        ? `Funds were successfully secured in escrow on ${formatDateTime(fundingEvent?.timestamp || transaction.updatedAt)}.`
                         : "The buyer has been notified to fund the escrow account via the platform."}
                 </p>
               </div>
@@ -169,17 +161,25 @@ export function TransactionFinancialsCard({
               <div className="space-y-3">
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-muted-foreground">Provider Ref</span>
-                  <code className="bg-muted rounded px-1.5 py-0.5 font-mono text-xs">
-                    {providerRef}
-                  </code>
+                  {escrow?.providerRef ? (
+                    <code className="bg-muted rounded px-1.5 py-0.5 font-mono text-xs">
+                      {escrow.providerRef as string}
+                    </code>
+                  ) : (
+                    <span className="text-muted-foreground">-</span>
+                  )}
                 </div>
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-muted-foreground">Payment Method</span>
-                  <span>{isFunded ? "Wire Transfer (Mock)" : "Pending"}</span>
+                  <span className={!escrow?.paymentMethod ? "text-muted-foreground" : ""}>
+                    {(escrow?.paymentMethod as string) || "-"}
+                  </span>
                 </div>
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-muted-foreground">Payer Account</span>
-                  <span>{isFunded ? "Chase Bank **** 9876" : "Pending"}</span>
+                  <span className={!escrow?.payerAccount ? "text-muted-foreground" : ""}>
+                    {(escrow?.payerAccount as string) || "-"}
+                  </span>
                 </div>
               </div>
             </div>
@@ -220,6 +220,8 @@ export function TransactionFinancialsCard({
                     variant="ghost"
                     size="sm"
                     className="h-7 text-xs text-red-600 hover:bg-red-50 hover:text-red-700"
+                    disabled
+                    title="Not yet implemented"
                   >
                     Force Mark as Funded
                   </Button>

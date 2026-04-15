@@ -9,12 +9,9 @@ import {
 } from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
 import { Spinner } from "@/components/ui/spinner";
-import {
-  type TransactionResponseDto,
-  adminTransactionsControllerReleaseSettlement,
-} from "@/lib/api/generated";
+import { api } from "@/lib/api";
+import type { TransactionResponseDto } from "@/lib/api/generated";
 import { formatCurrency } from "@/lib/currency";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { AlertCircle, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -31,31 +28,27 @@ export function ReleaseSettlementDialog({
   transaction,
   onSuccess,
 }: ReleaseSettlementDialogProps) {
-  const queryClient = useQueryClient();
-
-  const { mutate: releaseSettlement, isPending } = useMutation({
-    mutationFn: (data: { id: string }) =>
-      adminTransactionsControllerReleaseSettlement({
-        path: { id: data.id },
-      }),
-    onSuccess: () => {
-      toast.success("Settlement released successfully");
-      queryClient.invalidateQueries({
-        queryKey: ["transactions"],
-      });
-      onOpenChange(false);
-      onSuccess?.();
-    },
-    onError: (error: Error) => {
-      toast.error("Failed to release settlement", {
-        description: error.message,
-      });
-    },
-  });
+  const { mutate: releaseSettlement, isPending } =
+    api.admin.transactions.releaseSettlement.useMutation();
 
   const handleRelease = () => {
     if (!transaction?._id) return;
-    releaseSettlement({ id: transaction._id });
+    releaseSettlement(
+      { path: { id: transaction._id } },
+      {
+        onSuccess: () => {
+          toast.success("Settlement released successfully");
+          onOpenChange(false);
+          onSuccess?.();
+        },
+        onError: (error: unknown) => {
+          const message = error instanceof Error ? error.message : "Unknown error";
+          toast.error("Failed to release settlement", {
+            description: message,
+          });
+        },
+      },
+    );
   };
 
   if (!transaction) return null;

@@ -1,7 +1,7 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { api } from "@/lib/api";
 import { cn } from "@/lib/utils";
-import { Loader2 } from "lucide-react";
+import { Spinner } from "@/components/ui/spinner";
 import { useState } from "react";
 import { DisputeAuditLog } from "./disputes/dispute-audit-log";
 import { DisputeClaim } from "./disputes/dispute-claim";
@@ -54,7 +54,7 @@ export function TransactionDisputeTab({
   if (isLoading) {
     return (
       <div className="flex justify-center p-8">
-        <Loader2 className="text-muted-foreground h-6 w-6 animate-spin" />
+        <Spinner className="h-6 w-6" />
       </div>
     );
   }
