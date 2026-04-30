@@ -93,6 +93,11 @@ import {
   adminSupportControllerAddMessage,
   adminSupportControllerResolve,
   adminManagementControllerListSummary,
+  adminCmsControllerFindAll,
+  adminCmsControllerFindOne,
+  adminCmsControllerCreate,
+  adminCmsControllerUpdate,
+  adminCmsControllerRemove,
 } from "./generated";
 
 export const api = {
@@ -403,6 +408,36 @@ export const api = {
           invalidates: () => [["admin", "ledger", "reconciliation"]],
         },
       ),
+    },
+    cms: {
+      pages: {
+        list: createQuery(adminCmsControllerFindAll, (args) => [
+          "admin",
+          "cms",
+          "pages",
+          "list",
+          args?.query,
+        ]),
+        detail: createQuery(adminCmsControllerFindOne, (args) => [
+          "admin",
+          "cms",
+          "pages",
+          "detail",
+          args.path.id,
+        ]),
+        create: createMutation(adminCmsControllerCreate, {
+          invalidates: () => [["admin", "cms", "pages", "list"]],
+        }),
+        update: createMutation(adminCmsControllerUpdate, {
+          invalidates: (args) => [
+            ["admin", "cms", "pages", "list"],
+            ["admin", "cms", "pages", "detail", args.path.id],
+          ],
+        }),
+        remove: createMutation(adminCmsControllerRemove, {
+          invalidates: () => [["admin", "cms", "pages", "list"]],
+        }),
+      },
     },
     compliance: {
       getCase: createQuery(adminComplianceControllerGetCase, (args) => [

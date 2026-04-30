@@ -5,6 +5,7 @@ import {
   Building2Icon,
   ClipboardCheck,
   ClipboardList,
+  FileText,
   LayoutDashboard,
   LifeBuoy,
   Lock,
@@ -113,6 +114,16 @@ const navGroups: NavGroup[] = [
       //   url: "/logistics",
       //   icon: ContainerIcon,
       // },
+    ],
+  },
+  {
+    label: "Content",
+    items: [
+      {
+        title: "Pages",
+        url: "/cms/pages",
+        icon: FileText,
+      },
     ],
   },
   {

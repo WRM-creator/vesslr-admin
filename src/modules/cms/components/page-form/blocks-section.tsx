@@ -29,6 +29,7 @@ import { FaqBlockEditor } from "../block-editors/faq-block-editor";
 import { StepsBlockEditor } from "../block-editors/steps-block-editor";
 import { TabsBlockEditor } from "../block-editors/tabs-block-editor";
 import { TestimonialsBlockEditor } from "../block-editors/testimonials-block-editor";
+import { LegalSectionsBlockEditor } from "../block-editors/legal-sections-block-editor";
 
 interface BlocksSectionProps {
   control: Control<CmsPageFormValues>;
@@ -49,6 +50,7 @@ const blockEditors: Record<
   steps: StepsBlockEditor,
   tabs: TabsBlockEditor,
   testimonials: TestimonialsBlockEditor,
+  "legal-sections": LegalSectionsBlockEditor,
 };
 
 function getBlockLabel(type: string): string {
