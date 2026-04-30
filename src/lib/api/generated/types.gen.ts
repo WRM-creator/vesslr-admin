@@ -1225,6 +1225,13 @@ export type CategoryDocumentTemplateDto = {
     | "INSPECTION_FAILED"
     | "INSPECTION_PRICE_REVIEW"
     | "DELIVERY_CONFIRMED"
+    | "PREPARATION_IN_PROGRESS"
+    | "RENTAL_IN_PROGRESS"
+    | "OFF_HIRE_PENDING"
+    | "RETURN_INSPECTION_PENDING"
+    | "VESSEL_MOBILIZING"
+    | "CHARTER_IN_PROGRESS"
+    | "VOYAGE_COMPLETING"
     | "MILESTONES_IN_PROGRESS"
     | "SETTLEMENT_RELEASED"
     | "CLOSED"
@@ -1625,7 +1632,9 @@ export type TransactionEventDto = {
     | "DISPUTE_RESOLVED"
     | "DISPUTE_WITHDRAWN"
     | "ESCROW_REFUND_INITIATED"
-    | "ESCROW_DISCOUNT_INITIATED";
+    | "ESCROW_DISCOUNT_INITIATED"
+    | "RENTAL_ENDED"
+    | "CHARTER_ENDED";
   metadata?: {
     [key: string]: unknown;
   };
@@ -1667,6 +1676,13 @@ export type TransactionDocumentSlotDto = {
     | "INSPECTION_FAILED"
     | "INSPECTION_PRICE_REVIEW"
     | "DELIVERY_CONFIRMED"
+    | "PREPARATION_IN_PROGRESS"
+    | "RENTAL_IN_PROGRESS"
+    | "OFF_HIRE_PENDING"
+    | "RETURN_INSPECTION_PENDING"
+    | "VESSEL_MOBILIZING"
+    | "CHARTER_IN_PROGRESS"
+    | "VOYAGE_COMPLETING"
     | "MILESTONES_IN_PROGRESS"
     | "SETTLEMENT_RELEASED"
     | "CLOSED"
@@ -1769,6 +1785,13 @@ export type TransactionStageResponseDto = {
     | "IN_TRANSIT"
     | "INSPECTION"
     | "DELIVERY_CONFIRMATION"
+    | "SELLER_PREPARATION"
+    | "RENTAL_ACTIVE"
+    | "OFF_HIRE_REPORT"
+    | "RETURN_INSPECTION"
+    | "VESSEL_MOBILIZATION"
+    | "CHARTER_ACTIVE"
+    | "VOYAGE_COMPLETION"
     | "MILESTONE_SUBMIT"
     | "MILESTONE_APPROVE"
     | "SETTLEMENT";
@@ -1822,6 +1845,13 @@ export type TransactionResponseDto = {
     | "INSPECTION_FAILED"
     | "INSPECTION_PRICE_REVIEW"
     | "DELIVERY_CONFIRMED"
+    | "PREPARATION_IN_PROGRESS"
+    | "RENTAL_IN_PROGRESS"
+    | "OFF_HIRE_PENDING"
+    | "RETURN_INSPECTION_PENDING"
+    | "VESSEL_MOBILIZING"
+    | "CHARTER_IN_PROGRESS"
+    | "VOYAGE_COMPLETING"
     | "MILESTONES_IN_PROGRESS"
     | "SETTLEMENT_RELEASED"
     | "CLOSED"
@@ -1829,7 +1859,7 @@ export type TransactionResponseDto = {
     | "REFUNDED"
     | "PARTIALLY_REFUNDED"
     | "DISPUTED";
-  workflowType: "STANDARD" | "MILESTONE";
+  workflowType: "STANDARD" | "MILESTONE" | "RENTAL" | "CHARTER" | "SERVICE";
   events: Array<TransactionEventDto>;
   requiredDocuments?: Array<TransactionDocumentSlotDto>;
   /**
@@ -1864,6 +1894,13 @@ export type UpdateTransactionStatusDto = {
     | "INSPECTION_FAILED"
     | "INSPECTION_PRICE_REVIEW"
     | "DELIVERY_CONFIRMED"
+    | "PREPARATION_IN_PROGRESS"
+    | "RENTAL_IN_PROGRESS"
+    | "OFF_HIRE_PENDING"
+    | "RETURN_INSPECTION_PENDING"
+    | "VESSEL_MOBILIZING"
+    | "CHARTER_IN_PROGRESS"
+    | "VOYAGE_COMPLETING"
     | "MILESTONES_IN_PROGRESS"
     | "SETTLEMENT_RELEASED"
     | "CLOSED"
@@ -4203,6 +4240,13 @@ export type CategoryDocumentTemplateInput = {
     | "INSPECTION_FAILED"
     | "INSPECTION_PRICE_REVIEW"
     | "DELIVERY_CONFIRMED"
+    | "PREPARATION_IN_PROGRESS"
+    | "RENTAL_IN_PROGRESS"
+    | "OFF_HIRE_PENDING"
+    | "RETURN_INSPECTION_PENDING"
+    | "VESSEL_MOBILIZING"
+    | "CHARTER_IN_PROGRESS"
+    | "VOYAGE_COMPLETING"
     | "MILESTONES_IN_PROGRESS"
     | "SETTLEMENT_RELEASED"
     | "CLOSED"
@@ -4627,6 +4671,13 @@ export type AddTransactionRequirementDto = {
     | "INSPECTION_FAILED"
     | "INSPECTION_PRICE_REVIEW"
     | "DELIVERY_CONFIRMED"
+    | "PREPARATION_IN_PROGRESS"
+    | "RENTAL_IN_PROGRESS"
+    | "OFF_HIRE_PENDING"
+    | "RETURN_INSPECTION_PENDING"
+    | "VESSEL_MOBILIZING"
+    | "CHARTER_IN_PROGRESS"
+    | "VOYAGE_COMPLETING"
     | "MILESTONES_IN_PROGRESS"
     | "SETTLEMENT_RELEASED"
     | "CLOSED"
@@ -4676,6 +4727,13 @@ export type UpdateTransactionRequirementDto = {
     | "INSPECTION_FAILED"
     | "INSPECTION_PRICE_REVIEW"
     | "DELIVERY_CONFIRMED"
+    | "PREPARATION_IN_PROGRESS"
+    | "RENTAL_IN_PROGRESS"
+    | "OFF_HIRE_PENDING"
+    | "RETURN_INSPECTION_PENDING"
+    | "VESSEL_MOBILIZING"
+    | "CHARTER_IN_PROGRESS"
+    | "VOYAGE_COMPLETING"
     | "MILESTONES_IN_PROGRESS"
     | "SETTLEMENT_RELEASED"
     | "CLOSED"
@@ -8800,6 +8858,58 @@ export type AdminTransactionsControllerReviewInspectionResponses = {
 
 export type AdminTransactionsControllerReviewInspectionResponse =
   AdminTransactionsControllerReviewInspectionResponses[keyof AdminTransactionsControllerReviewInspectionResponses];
+
+export type AdminTransactionsControllerEndRentalPeriodData = {
+  body?: never;
+  path: {
+    /**
+     * Transaction ID
+     */
+    id: string;
+    /**
+     * RENTAL_ACTIVE stage ID
+     */
+    stageId: string;
+  };
+  query?: never;
+  url: "/api/v1/admin/transactions/{id}/stages/{stageId}/end-rental";
+};
+
+export type AdminTransactionsControllerEndRentalPeriodResponses = {
+  /**
+   * Updated transaction with rental period ended.
+   */
+  200: TransactionResponseDto;
+};
+
+export type AdminTransactionsControllerEndRentalPeriodResponse =
+  AdminTransactionsControllerEndRentalPeriodResponses[keyof AdminTransactionsControllerEndRentalPeriodResponses];
+
+export type AdminTransactionsControllerEndCharterPeriodData = {
+  body?: never;
+  path: {
+    /**
+     * Transaction ID
+     */
+    id: string;
+    /**
+     * CHARTER_ACTIVE stage ID
+     */
+    stageId: string;
+  };
+  query?: never;
+  url: "/api/v1/admin/transactions/{id}/stages/{stageId}/end-charter";
+};
+
+export type AdminTransactionsControllerEndCharterPeriodResponses = {
+  /**
+   * Updated transaction with charter period ended.
+   */
+  200: TransactionResponseDto;
+};
+
+export type AdminTransactionsControllerEndCharterPeriodResponse =
+  AdminTransactionsControllerEndCharterPeriodResponses[keyof AdminTransactionsControllerEndCharterPeriodResponses];
 
 export type AdminOrganizationsControllerFindAllData = {
   body?: never;

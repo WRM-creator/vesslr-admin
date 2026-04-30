@@ -11,6 +11,7 @@ import type {
 import { cn, formatDateTime } from "@/lib/utils";
 import {
   AlertTriangle,
+  Anchor,
   Banknote,
   Check,
   ChevronDown,
@@ -21,8 +22,11 @@ import {
   ListChecks,
   Lock,
   PackageCheck,
+  Search,
+  Ship,
   ShieldCheck,
   Truck,
+  Wrench,
 } from "lucide-react";
 import type { ReactNode } from "react";
 import { useState } from "react";
@@ -34,6 +38,13 @@ import { StageLogisticsContent } from "./stage-content/stage-logistics";
 import { StageMilestoneContent } from "./stage-content/stage-milestones";
 import { StageSettlementContent } from "./stage-content/stage-settlement";
 import { StageDisputeContent } from "./stage-content/stage-dispute";
+import { StagePreparationContent } from "./stage-content/stage-preparation";
+import { StageRentalActiveContent } from "./stage-content/stage-rental-active";
+import { StageOffHireContent } from "./stage-content/stage-off-hire";
+import { StageReturnInspectionContent } from "./stage-content/stage-return-inspection";
+import { StageMobilizationContent } from "./stage-content/stage-mobilization";
+import { StageCharterActiveContent } from "./stage-content/stage-charter-active";
+import { StageVoyageContent } from "./stage-content/stage-voyage";
 
 interface StageTimelineProps {
   transaction: TransactionResponseDto;
@@ -60,6 +71,19 @@ function stageIcon(type: string): ReactNode {
       return <ListChecks className="size-3.5" />;
     case "SETTLEMENT":
       return <Banknote className="size-3.5" />;
+    case "SELLER_PREPARATION":
+      return <Wrench className="size-3.5" />;
+    case "RENTAL_ACTIVE":
+    case "CHARTER_ACTIVE":
+      return <Clock className="size-3.5" />;
+    case "OFF_HIRE_REPORT":
+      return <ClipboardCheck className="size-3.5" />;
+    case "RETURN_INSPECTION":
+      return <Search className="size-3.5" />;
+    case "VESSEL_MOBILIZATION":
+      return <Ship className="size-3.5" />;
+    case "VOYAGE_COMPLETION":
+      return <Anchor className="size-3.5" />;
     default:
       return null;
   }
@@ -101,6 +125,20 @@ function getStageSummary(
       return "Milestone approved";
     case "SETTLEMENT":
       return "Settlement released";
+    case "SELLER_PREPARATION":
+      return "Asset prepared for handover";
+    case "RENTAL_ACTIVE":
+      return "Rental period completed";
+    case "OFF_HIRE_REPORT":
+      return "Off-hire report submitted";
+    case "RETURN_INSPECTION":
+      return "Return inspection completed";
+    case "VESSEL_MOBILIZATION":
+      return "Vessel mobilized";
+    case "CHARTER_ACTIVE":
+      return "Charter period completed";
+    case "VOYAGE_COMPLETION":
+      return "Voyage report submitted";
     default:
       return stage.description || "Completed";
   }
@@ -149,6 +187,37 @@ function StageContent({
     case "SETTLEMENT":
       return (
         <StageSettlementContent transaction={transaction} stage={stage} />
+      );
+    case "SELLER_PREPARATION":
+      return (
+        <StagePreparationContent transaction={transaction} stage={stage} />
+      );
+    case "RENTAL_ACTIVE":
+      return (
+        <StageRentalActiveContent transaction={transaction} stage={stage} />
+      );
+    case "OFF_HIRE_REPORT":
+      return (
+        <StageOffHireContent transaction={transaction} stage={stage} />
+      );
+    case "RETURN_INSPECTION":
+      return (
+        <StageReturnInspectionContent
+          transaction={transaction}
+          stage={stage}
+        />
+      );
+    case "VESSEL_MOBILIZATION":
+      return (
+        <StageMobilizationContent transaction={transaction} stage={stage} />
+      );
+    case "CHARTER_ACTIVE":
+      return (
+        <StageCharterActiveContent transaction={transaction} stage={stage} />
+      );
+    case "VOYAGE_COMPLETION":
+      return (
+        <StageVoyageContent transaction={transaction} stage={stage} />
       );
     default:
       return (

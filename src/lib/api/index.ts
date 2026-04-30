@@ -78,6 +78,8 @@ import {
   adminTransactionsControllerRetryMilestonePayment,
   adminTransactionsControllerSubmitInspection,
   adminTransactionsControllerUpdateRequirement,
+  adminTransactionsControllerEndRentalPeriod,
+  adminTransactionsControllerEndCharterPeriod,
   categoryGroupsControllerFindAll,
   categoryGroupsControllerFindOne,
   categoryGroupsControllerUpdate,
@@ -230,6 +232,22 @@ export const api = {
       ),
       releaseSettlement: createMutation(
         adminTransactionsControllerReleaseSettlement,
+        {
+          invalidates: (args) => [
+            ["admin", "transactions", "detail", args.path.id],
+          ],
+        },
+      ),
+      endRentalPeriod: createMutation(
+        adminTransactionsControllerEndRentalPeriod,
+        {
+          invalidates: (args) => [
+            ["admin", "transactions", "detail", args.path.id],
+          ],
+        },
+      ),
+      endCharterPeriod: createMutation(
+        adminTransactionsControllerEndCharterPeriod,
         {
           invalidates: (args) => [
             ["admin", "transactions", "detail", args.path.id],

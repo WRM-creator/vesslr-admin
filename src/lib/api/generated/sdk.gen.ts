@@ -167,6 +167,10 @@ import type {
   AdminTransactionsControllerAddRequirementResponses,
   AdminTransactionsControllerDeleteRequirementData,
   AdminTransactionsControllerDeleteRequirementResponses,
+  AdminTransactionsControllerEndCharterPeriodData,
+  AdminTransactionsControllerEndCharterPeriodResponses,
+  AdminTransactionsControllerEndRentalPeriodData,
+  AdminTransactionsControllerEndRentalPeriodResponses,
   AdminTransactionsControllerFindAllData,
   AdminTransactionsControllerFindAllResponses,
   AdminTransactionsControllerFindByIdData,
@@ -3757,6 +3761,52 @@ export const adminTransactionsControllerReviewInspection = <
       "Content-Type": "application/json",
       ...options.headers,
     },
+  });
+
+/**
+ * End the rental period (completes RENTAL_ACTIVE stage)
+ *
+ * Marks the rental period as ended and advances the workflow to OFF_HIRE_REPORT.
+ */
+export const adminTransactionsControllerEndRentalPeriod = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    AdminTransactionsControllerEndRentalPeriodData,
+    ThrowOnError
+  >,
+) =>
+  (options.client ?? client).patch<
+    AdminTransactionsControllerEndRentalPeriodResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/transactions/{id}/stages/{stageId}/end-rental",
+    ...options,
+  });
+
+/**
+ * End the charter period (completes CHARTER_ACTIVE stage)
+ *
+ * Marks the charter period as ended and advances the workflow to VOYAGE_COMPLETION.
+ */
+export const adminTransactionsControllerEndCharterPeriod = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    AdminTransactionsControllerEndCharterPeriodData,
+    ThrowOnError
+  >,
+) =>
+  (options.client ?? client).patch<
+    AdminTransactionsControllerEndCharterPeriodResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/transactions/{id}/stages/{stageId}/end-charter",
+    ...options,
   });
 
 /**

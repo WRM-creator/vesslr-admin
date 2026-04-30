@@ -148,6 +148,59 @@ function deriveActionContext(tx: TransactionResponseDto): ActionContext {
     };
   }
 
+  // Rental / Lease waiting states
+  if (status === "PREPARATION_IN_PROGRESS") {
+    return {
+      type: "waiting",
+      label: "Seller preparing asset",
+      description: "The seller is preparing the equipment for handover. No admin action required.",
+    };
+  }
+  if (status === "RENTAL_IN_PROGRESS") {
+    return {
+      type: "waiting",
+      label: "Rental period active",
+      description: "The rental period is running. End it from the stage timeline when the period expires.",
+    };
+  }
+  if (status === "OFF_HIRE_PENDING") {
+    return {
+      type: "waiting",
+      label: "Awaiting off-hire report",
+      description: "The buyer needs to submit an off-hire condition report for the returned asset.",
+    };
+  }
+  if (status === "RETURN_INSPECTION_PENDING") {
+    return {
+      type: "waiting",
+      label: "Return inspection required",
+      description: "Inspect the returned asset and complete the return inspection stage.",
+    };
+  }
+
+  // Charter waiting states
+  if (status === "VESSEL_MOBILIZING") {
+    return {
+      type: "waiting",
+      label: "Vessel mobilizing",
+      description: "The seller is mobilizing the vessel to the charter location. No admin action required.",
+    };
+  }
+  if (status === "CHARTER_IN_PROGRESS") {
+    return {
+      type: "waiting",
+      label: "Charter period active",
+      description: "The charter is in progress. End it from the stage timeline when the period expires.",
+    };
+  }
+  if (status === "VOYAGE_COMPLETING") {
+    return {
+      type: "waiting",
+      label: "Awaiting voyage report",
+      description: "The seller needs to submit the voyage completion report.",
+    };
+  }
+
   if (status === "SETTLEMENT_RELEASED") {
     return { type: "terminal", label: "Settlement Released" };
   }
