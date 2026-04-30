@@ -1,5 +1,4 @@
 import { Page } from "@/components/shared/page";
-import { PageBreadcrumb } from "@/components/shared/page-breadcrumb";
 import { PageHeader } from "@/components/shared/page-header";
 import { PageLoader } from "@/components/shared/page-loader";
 import { useAppBreadcrumbLabel } from "@/contexts/breadcrumb-context";
@@ -39,12 +38,6 @@ export default function CategoryGroupDetailsPage() {
 
   return (
     <Page>
-      <PageBreadcrumb
-        items={[
-          { label: "Categories", href: "/categories" },
-          { label: categoryGroup.name },
-        ]}
-      />
       <PageHeader title={categoryGroup.name} />
       <div className="max-w-3xl space-y-6">
         <CategoryGroupOverviewCard categoryGroup={categoryGroup} />

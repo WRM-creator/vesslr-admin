@@ -1,6 +1,19 @@
 import { Thumbnail } from "@/components/shared/thumbnail";
 import { Button } from "@/components/ui/button";
 import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
+import {
   Form,
   FormControl,
   FormDescription,
@@ -10,11 +23,18 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { cn } from "@/lib/utils";
 import { useFileUpload } from "@/hooks/use-file-upload";
+import { cn } from "@/lib/utils";
+import {
+  MEASUREMENT_TYPES,
+  MEASUREMENT_TYPE_LABELS,
+  UNITS,
+  unitsByCategory,
+  type MeasurementType,
+} from "@/types/unit";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { ChevronDown, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -23,12 +43,6 @@ import {
   defaultCategoryFormValues,
   type CategoryFormSchema,
 } from "./schema";
-import {
-  MEASUREMENT_TYPES,
-  MEASUREMENT_TYPE_LABELS,
-  UNITS,
-  unitsByCategory,
-} from "@/types/unit";
 
 interface CategoryFormProps {
   initialValues?: Partial<CategoryFormSchema>;
@@ -64,7 +78,8 @@ export function CategoryForm({
       form.reset({ ...defaultCategoryFormValues, ...initialValues });
       setImageUrl(initialValues.image || null);
     }
-  }, [initialValues, form]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialValues]);
 
   async function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -77,6 +92,13 @@ export function CategoryForm({
     }
   }
 
+  function handleRemoveImage() {
+    setImageUrl(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  }
+
   const handleSubmit = (data: CategoryFormSchema) => {
     onSubmit?.({ ...data, image: imageUrl || undefined });
   };
@@ -85,162 +107,253 @@ export function CategoryForm({
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
-        <div className="flex items-center gap-4">
-          <Thumbnail src={imageUrl} className="size-16" />
-          <div>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              disabled={isUploading}
-              onClick={() => fileInputRef.current?.click()}
-            >
-              {isUploading ? "Uploading..." : imageUrl ? "Change image" : "Add image"}
-            </Button>
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/jpeg,image/png,image/webp"
-              className="hidden"
-              onChange={handleImageChange}
+      <form
+        onSubmit={form.handleSubmit(handleSubmit)}
+        className="max-w-3xl space-y-6"
+      >
+        {/* Basic Details */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Basic Details</CardTitle>
+          </CardHeader>
+          <CardContent className="grid gap-4">
+            {/* Image */}
+            <div className="space-y-2">
+              <FormLabel>Category Image</FormLabel>
+              <div className="flex items-center gap-4">
+                <Thumbnail src={imageUrl} className="size-16" />
+                <div className="flex gap-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    disabled={isUploading}
+                    onClick={() => fileInputRef.current?.click()}
+                  >
+                    {isUploading
+                      ? "Uploading..."
+                      : imageUrl
+                        ? "Change image"
+                        : "Add image"}
+                  </Button>
+                  {imageUrl && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={handleRemoveImage}
+                    >
+                      <X className="mr-1 size-3" />
+                      Remove
+                    </Button>
+                  )}
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp"
+                    className="hidden"
+                    onChange={handleImageChange}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Name */}
+            <FormField
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Name</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Enter category name" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-          </div>
-        </div>
 
-        <FormField
-          control={form.control}
-          name="name"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Name</FormLabel>
-              <FormControl>
-                <Input placeholder="Enter category name" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+            {/* Description */}
+            <FormField
+              control={form.control}
+              name="description"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Description</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder="Enter a description for this category (optional)"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormDescription>
+                    A brief description of what this category represents.
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </CardContent>
+        </Card>
 
-        <FormField
-          control={form.control}
-          name="description"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Description</FormLabel>
-              <FormControl>
-                <Textarea
-                  placeholder="Enter a description for this category (optional)"
-                  {...field}
-                />
-              </FormControl>
-              <FormDescription>
-                A brief description of what this category represents.
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
+        {/* Allowed Units */}
         <FormField
           control={form.control}
           name="allowedUnits"
-          render={({ field }) => {
-            const current = field.value ?? [];
-
-            const toggleUnit = (unit: string) => {
-              field.onChange(
-                current.includes(unit)
-                  ? current.filter((u) => u !== unit)
-                  : [...current, unit],
-              );
-            };
-
-            const toggleCategory = (category: (typeof MEASUREMENT_TYPES)[number]) => {
-              const categoryUnits = unitsByCategory(category);
-              const allSelected = categoryUnits.every((u) =>
-                current.includes(u),
-              );
-              if (allSelected) {
-                field.onChange(
-                  current.filter((u) => !categoryUnits.includes(u)),
-                );
-              } else {
-                const merged = new Set([...current, ...categoryUnits]);
-                field.onChange([...merged]);
-              }
-            };
-
-            return (
-              <FormItem>
-                <Label className="text-sm font-medium">Allowed Units</Label>
-                <div className="space-y-3">
-                  {MEASUREMENT_TYPES.map((cat) => {
-                    const units = unitsByCategory(cat);
-                    const allSelected = units.every((u) =>
-                      current.includes(u),
-                    );
-                    const someSelected =
-                      !allSelected &&
-                      units.some((u) => current.includes(u));
-
-                    return (
-                      <div key={cat}>
-                        <button
-                          type="button"
-                          onClick={() => toggleCategory(cat)}
-                          className={cn(
-                            "mb-1.5 rounded-full border px-3 py-1 text-xs font-semibold transition-colors",
-                            allSelected
-                              ? "border-primary bg-primary text-primary-foreground"
-                              : someSelected
-                                ? "border-primary/50 bg-primary/10 text-primary"
-                                : "border-border bg-background text-muted-foreground hover:bg-accent hover:text-accent-foreground",
-                          )}
-                        >
-                          {MEASUREMENT_TYPE_LABELS[cat]}
-                        </button>
-                        <div className="ml-1 flex flex-wrap gap-1.5">
-                          {units.map((unit) => (
-                            <button
-                              key={unit}
-                              type="button"
-                              onClick={() => toggleUnit(unit)}
-                              className={cn(
-                                "rounded-md border px-2 py-0.5 text-xs transition-colors",
-                                current.includes(unit)
-                                  ? "border-primary bg-primary/10 text-primary"
-                                  : "border-border bg-background text-muted-foreground hover:bg-accent hover:text-accent-foreground",
-                              )}
-                            >
-                              {UNITS[unit]?.label ?? unit}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-                    );
-                  })}
+          render={({ field }) => (
+            <Card>
+              <CardHeader>
+                <CardTitle>Allowed Units</CardTitle>
+                <CardDescription>
+                  Select which units are available for listings in this category.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-1">
+                  {MEASUREMENT_TYPES.map((cat) => (
+                    <UnitCategoryGroup
+                      key={cat}
+                      category={cat}
+                      selectedUnits={field.value ?? []}
+                      onToggleUnit={(unit) => {
+                        const current = field.value ?? [];
+                        field.onChange(
+                          current.includes(unit)
+                            ? current.filter((u) => u !== unit)
+                            : [...current, unit],
+                        );
+                      }}
+                      onToggleCategory={(units, allSelected) => {
+                        const current = field.value ?? [];
+                        if (allSelected) {
+                          field.onChange(
+                            current.filter((u) => !units.includes(u)),
+                          );
+                        } else {
+                          const merged = new Set([...current, ...units]);
+                          field.onChange([...merged]);
+                        }
+                      }}
+                    />
+                  ))}
                 </div>
-                <FormDescription>
-                  Select which units are available for listings in this
-                  category. Use the category headers to toggle all units in a
-                  group.
-                </FormDescription>
                 <FormMessage />
-              </FormItem>
-            );
-          }}
+              </CardContent>
+            </Card>
+          )}
         />
 
+        {/* Actions */}
         <div className="flex justify-end gap-2">
           <Button type="button" variant="outline" onClick={onCancel}>
             Cancel
           </Button>
-          <Button type="submit" disabled={isBusy}>
+          <Button
+            type="submit"
+            disabled={isBusy || !form.formState.isDirty}
+          >
             {isLoading ? loadingLabel : submitLabel}
           </Button>
         </div>
       </form>
     </Form>
+  );
+}
+
+// ── Collapsible unit category group ──────────────────────────
+
+interface UnitCategoryGroupProps {
+  category: MeasurementType;
+  selectedUnits: string[];
+  onToggleUnit: (unit: string) => void;
+  onToggleCategory: (units: string[], allSelected: boolean) => void;
+}
+
+function UnitCategoryGroup({
+  category,
+  selectedUnits,
+  onToggleUnit,
+  onToggleCategory,
+}: UnitCategoryGroupProps) {
+  const units = unitsByCategory(category);
+  const selectedCount = units.filter((u) => selectedUnits.includes(u)).length;
+  const allSelected = selectedCount === units.length;
+  const someSelected = selectedCount > 0 && !allSelected;
+
+  // Auto-expand categories that have selections
+  const [open, setOpen] = useState(selectedCount > 0);
+
+  // Sync open state when initialValues load
+  useEffect(() => {
+    if (selectedCount > 0) setOpen(true);
+  }, [selectedCount]);
+
+  return (
+    <Collapsible open={open} onOpenChange={setOpen}>
+      <div
+        className={cn(
+          "rounded-lg border transition-colors",
+          selectedCount > 0
+            ? "border-primary/30 bg-primary/[0.02]"
+            : "border-border",
+        )}
+      >
+        <CollapsibleTrigger asChild>
+          <button
+            type="button"
+            className="flex w-full items-center gap-3 px-4 py-3"
+          >
+            <Checkbox
+              checked={allSelected ? true : someSelected ? "indeterminate" : false}
+              onCheckedChange={() => {
+                onToggleCategory(units, allSelected);
+              }}
+              onClick={(e) => e.stopPropagation()}
+            />
+            <span className="flex-1 text-left text-sm font-medium">
+              {MEASUREMENT_TYPE_LABELS[category]}
+            </span>
+            <span className="text-muted-foreground text-xs">
+              {selectedCount} of {units.length}
+            </span>
+            <ChevronDown
+              className={cn(
+                "text-muted-foreground size-4 transition-transform",
+                open && "rotate-180",
+              )}
+            />
+          </button>
+        </CollapsibleTrigger>
+
+        <CollapsibleContent>
+          <div className="border-t px-4 py-2">
+            <div className="space-y-1">
+              {units.map((unit) => {
+                const meta = UNITS[unit];
+                const isSelected = selectedUnits.includes(unit);
+
+                return (
+                  <label
+                    key={unit}
+                    className="flex cursor-pointer items-center gap-3 rounded-md px-2 py-1.5 hover:bg-accent"
+                  >
+                    <Checkbox
+                      checked={isSelected}
+                      onCheckedChange={() => onToggleUnit(unit)}
+                    />
+                    <span className="text-sm">
+                      {meta?.label ?? unit}
+                    </span>
+                    <span className="text-muted-foreground text-xs">
+                      ({meta?.short ?? unit})
+                    </span>
+                  </label>
+                );
+              })}
+            </div>
+          </div>
+        </CollapsibleContent>
+      </div>
+    </Collapsible>
   );
 }

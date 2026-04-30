@@ -11,4 +11,16 @@ export const categoryRoutes: RouteObject[] = [
     path: "categories/:id",
     element: <CategoryGroupDetailsPage />,
   },
+  {
+    path: "categories/:groupId/new",
+    lazy: async () => ({
+      Component: (await import("./pages/category-editor")).default,
+    }),
+  },
+  {
+    path: "categories/:groupId/:id/edit",
+    lazy: async () => ({
+      Component: (await import("./pages/category-editor")).default,
+    }),
+  },
 ];
