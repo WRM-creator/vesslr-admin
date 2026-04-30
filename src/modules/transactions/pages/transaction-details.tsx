@@ -1,8 +1,8 @@
 import { NotFoundPage } from "@/components/not-found-page";
 import { Page } from "@/components/shared/page";
-import { PageBreadcrumb } from "@/components/shared/page-breadcrumb";
 import { PageHeader } from "@/components/shared/page-header";
 import { PageLoader } from "@/components/shared/page-loader";
+import { useAppBreadcrumbLabel } from "@/contexts/breadcrumb-context";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -70,15 +70,10 @@ export default function TransactionDetailsPage() {
   const sellerOrgId = order?.sellerOrganization?._id;
   const txnLabel = `TXN-${String(transaction.displayId).padStart(4, "0")}`;
 
+  useAppBreadcrumbLabel(id!, txnLabel);
+
   return (
     <Page>
-      <PageBreadcrumb
-        items={[
-          { label: "Transactions", href: "/transactions" },
-          { label: txnLabel },
-        ]}
-      />
-
       <PageHeader
         title={
           <div className="flex items-center gap-3">

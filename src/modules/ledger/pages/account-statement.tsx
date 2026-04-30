@@ -7,9 +7,9 @@ import {
 } from "@/components/ui/card";
 import { DataTable } from "@/components/shared/data-table/data-table";
 import { Page } from "@/components/shared/page";
-import { PageBreadcrumb } from "@/components/shared/page-breadcrumb";
 import { PageHeader } from "@/components/shared/page-header";
 import { PageLoader } from "@/components/shared/page-loader";
+import { useAppBreadcrumbLabel } from "@/contexts/breadcrumb-context";
 import { api } from "@/lib/api";
 import { formatCurrency } from "@/lib/currency";
 import { formatDateTime } from "@/lib/utils";
@@ -38,6 +38,9 @@ export default function AccountStatementPage() {
     );
 
   const account = rawAccount as unknown as LedgerAccount | undefined;
+
+  useAppBreadcrumbLabel(code!, account?.description);
+
   const statementData = (rawStatement ?? []) as unknown as Array<{
     _id: string;
     entryDate: string;
@@ -70,13 +73,6 @@ export default function AccountStatementPage() {
   if (!account) {
     return (
       <Page>
-        <PageBreadcrumb
-          items={[
-            { label: "Ledger", href: "/ledger" },
-            { label: accountCode || "Unknown" },
-          ]}
-          backUrl="/ledger"
-        />
         <div className="py-12 text-center">
           <p className="text-muted-foreground">
             Account not found: {accountCode}
@@ -90,14 +86,6 @@ export default function AccountStatementPage() {
 
   return (
     <Page>
-      <PageBreadcrumb
-        items={[
-          { label: "Ledger", href: "/ledger" },
-          { label: account.description },
-        ]}
-        backUrl="/ledger"
-      />
-
       <PageHeader
         title={account.description}
         endContent={

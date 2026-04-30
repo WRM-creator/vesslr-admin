@@ -1,7 +1,7 @@
 import { Page } from "@/components/shared/page";
-import { PageBreadcrumb } from "@/components/shared/page-breadcrumb";
 import { PageHeader } from "@/components/shared/page-header";
 import { PageLoader } from "@/components/shared/page-loader";
+import { useAppBreadcrumbLabel } from "@/contexts/breadcrumb-context";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { api } from "@/lib/api";
@@ -29,18 +29,14 @@ export default function RequestsDetailsPage() {
     return <PageLoader />;
   }
 
+  useAppBreadcrumbLabel(id!, request ? `Request ${request.displayId}` : undefined);
+
   if (!request) {
     return <div>Request not found</div>;
   }
 
   return (
     <Page>
-      <PageBreadcrumb
-        items={[
-          { label: "Requests", href: "/requests" },
-          { label: `Request ${request.displayId}` },
-        ]}
-      />
       <PageHeader
         title={`Request ${request.displayId}`}
         description={request.name}
