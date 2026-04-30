@@ -10,6 +10,11 @@ import { Separator } from "@/components/ui/separator";
 import { api } from "@/lib/api";
 import type { CategoryGroupDto } from "@/lib/api/generated/types.gen";
 import { cn } from "@/lib/utils";
+import {
+  ALL_TRADE_TERM_VALUES,
+  TRADE_TERMS,
+  type TradeTermType,
+} from "@/types/trade-term";
 import { Loader2 } from "lucide-react";
 import type { ReactNode } from "react";
 import { toast } from "sonner";
@@ -18,7 +23,7 @@ interface CategoryGroupAllowedOptionsCardProps {
   categoryGroup: CategoryGroupDto;
 }
 
-type ArrayField = "allowedListingTypes" | "allowedConditions";
+type ArrayField = "allowedListingTypes" | "allowedConditions" | "allowedTradeTerms";
 
 const LISTING_TYPES = [
   { value: "product", label: "Product" },
@@ -70,8 +75,8 @@ export function CategoryGroupAllowedOptionsCard({
       <CardHeader>
         <CardTitle>Allowed Options</CardTitle>
         <CardDescription>
-          Configure which listing types and conditions are permitted for this
-          category group. Measurement types are now configured per category.
+          Configure which listing types, conditions, and trade terms are
+          permitted for this category group.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
@@ -111,6 +116,27 @@ export function CategoryGroupAllowedOptionsCard({
               onClick={handleToggle(
                 "allowedConditions",
                 categoryGroup.allowedConditions as string[],
+                value,
+              )}
+            />
+          ))}
+        </OptionSection>
+        <Separator />
+        <OptionSection
+          label="Trade Terms"
+          isPending={isFieldPending("allowedTradeTerms")}
+        >
+          {ALL_TRADE_TERM_VALUES.map((value) => (
+            <OptionPill
+              key={value}
+              label={TRADE_TERMS[value as TradeTermType]?.label ?? value}
+              selected={(
+                categoryGroup.allowedTradeTerms as string[]
+              ).includes(value)}
+              disabled={isPending}
+              onClick={handleToggle(
+                "allowedTradeTerms",
+                categoryGroup.allowedTradeTerms as string[],
                 value,
               )}
             />

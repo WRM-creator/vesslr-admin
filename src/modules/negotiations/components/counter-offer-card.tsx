@@ -111,12 +111,12 @@ export const CounterOfferCard = ({
                 <p className="font-medium">{offer.paymentTerms}</p>
               </div>
             )}
-            {offer.incoterms && (
+            {offer.tradeTerm && (
               <div>
                 <p className="text-muted-foreground text-[10px] font-medium tracking-wider uppercase">
-                  Incoterms
+                  Trade Term
                 </p>
-                <p className="font-medium">{offer.incoterms}</p>
+                <p className="font-medium">{offer.tradeTerm}</p>
               </div>
             )}
             {offer.deliveryDate && (
