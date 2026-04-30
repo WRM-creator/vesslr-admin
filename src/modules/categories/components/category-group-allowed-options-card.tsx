@@ -24,7 +24,9 @@ const LISTING_TYPES = [
   { value: "product", label: "Product" },
   { value: "service", label: "Service" },
   { value: "rental", label: "Rental" },
+  { value: "lease", label: "Lease" },
   { value: "charter", label: "Charter" },
+  { value: "rfq", label: "RFQ" },
 ];
 
 const CONDITIONS = [

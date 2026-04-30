@@ -605,7 +605,7 @@ export type CreateProductDto = {
   categoryId: string;
   groupId: string;
   type: "products" | "services";
-  listingType: "product" | "service" | "rental" | "charter";
+  listingType: "product" | "service" | "rental" | "lease" | "charter" | "rfq";
   /**
    * Price per unit in minor currency units (kobo/cents)
    */
@@ -670,7 +670,7 @@ export type UpdateProductDto = {
   categoryId?: string;
   groupId?: string;
   type?: "products" | "services";
-  listingType?: "product" | "service" | "rental" | "charter";
+  listingType?: "product" | "service" | "rental" | "lease" | "charter" | "rfq";
   /**
    * Price per unit in minor currency units (kobo/cents)
    */
@@ -743,7 +743,9 @@ export type CategoryGroupDto = {
   allowsOrderQuantityLimits: boolean;
   allowsInventoryTracking: boolean;
   allowedCurrencies: Array<"NGN" | "USD" | "EUR">;
-  allowedListingTypes: Array<"product" | "service" | "rental" | "charter">;
+  allowedListingTypes: Array<
+    "product" | "service" | "rental" | "lease" | "charter" | "rfq"
+  >;
   allowedConditions: Array<
     "New" | "Used - Good" | "Used - Fair" | "Refurbished"
   >;
@@ -1212,6 +1214,23 @@ export type MilestonePayoutResponseDto = {
   retryCount: number;
 };
 
+export type RefundHistoryEntryResponseDto = {
+  type: "FULL" | "PARTIAL_BUYER" | "PARTIAL_SELLER" | "DISCOUNT";
+  /**
+   * Refund amount in minor currency units
+   */
+  amount: number;
+  /**
+   * Payment provider transfer reference
+   */
+  reference: string;
+  initiatedAt: string;
+  /**
+   * User ID of admin who initiated
+   */
+  initiatedBy: string;
+};
+
 export type EscrowResponseDto = {
   _id: string;
   status:
@@ -1240,6 +1259,10 @@ export type EscrowResponseDto = {
   refundedAt?: string | null;
   refundReferenceId?: string | null;
   /**
+   * Original funded amount before any decrements
+   */
+  originalFundedAmount?: number | null;
+  /**
    * Running total of milestone payouts already released
    */
   totalReleased: number;
@@ -1247,6 +1270,10 @@ export type EscrowResponseDto = {
    * Per-milestone payout tracking
    */
   milestonePayouts: Array<MilestonePayoutResponseDto>;
+  /**
+   * Append-only refund/discount history
+   */
+  refundHistory: Array<RefundHistoryEntryResponseDto>;
 };
 
 export type TransactionStageResponseDto = {
@@ -1508,6 +1535,10 @@ export type EscrowWithTransactionResponseDto = {
   refundedAt?: string | null;
   refundReferenceId?: string | null;
   /**
+   * Original funded amount before any decrements
+   */
+  originalFundedAmount?: number | null;
+  /**
    * Running total of milestone payouts already released
    */
   totalReleased: number;
@@ -1515,6 +1546,10 @@ export type EscrowWithTransactionResponseDto = {
    * Per-milestone payout tracking
    */
   milestonePayouts: Array<MilestonePayoutResponseDto>;
+  /**
+   * Append-only refund/discount history
+   */
+  refundHistory: Array<RefundHistoryEntryResponseDto>;
   transactionId: string;
   transactionDisplayId: number;
   transactionStatus: string;
@@ -1620,7 +1655,16 @@ export type PurchaseProductDto = {
   /**
    * Selected transaction type
    */
-  transactionType: string;
+  transactionType:
+    | "purchase"
+    | "lease"
+    | "charter"
+    | "bulk_supply"
+    | "spot_trade"
+    | "rental"
+    | "term_contract"
+    | "service_contract"
+    | "milestone_service";
   /**
    * Selected product condition
    */
@@ -1777,7 +1821,7 @@ export type CreateRequestDto = {
   /**
    * What kind of listing this is
    */
-  listingType: "product" | "service" | "rental" | "charter";
+  listingType: "product" | "service" | "rental" | "lease" | "charter" | "rfq";
   name: string;
   quantity: number;
   region: Array<string>;
@@ -1825,7 +1869,15 @@ export type CreateRequestDto = {
    * List of transaction types
    */
   transactionType?: Array<
-    "Purchase" | "Lease" | "Charter" | "Bulk Supply" | "Spot Trade"
+    | "purchase"
+    | "lease"
+    | "charter"
+    | "bulk_supply"
+    | "spot_trade"
+    | "rental"
+    | "term_contract"
+    | "service_contract"
+    | "milestone_service"
   >;
   /**
    * List of product conditions
@@ -1921,7 +1973,7 @@ export type RequestResponseDto = {
   duration?: number;
   durationUnit?: "hour" | "day" | "week" | "month" | "year";
   currency: "NGN" | "USD" | "EUR";
-  listingType: "product" | "service" | "rental" | "charter";
+  listingType: "product" | "service" | "rental" | "lease" | "charter" | "rfq";
   transactionType?: Array<string>;
   condition?: Array<string>;
   description?: string;
@@ -1958,7 +2010,7 @@ export type UpdateRequestDto = {
   /**
    * What kind of listing this is
    */
-  listingType?: "product" | "service" | "rental" | "charter";
+  listingType?: "product" | "service" | "rental" | "lease" | "charter" | "rfq";
   name?: string;
   quantity?: number;
   region?: Array<string>;
@@ -2006,7 +2058,15 @@ export type UpdateRequestDto = {
    * List of transaction types
    */
   transactionType?: Array<
-    "Purchase" | "Lease" | "Charter" | "Bulk Supply" | "Spot Trade"
+    | "purchase"
+    | "lease"
+    | "charter"
+    | "bulk_supply"
+    | "spot_trade"
+    | "rental"
+    | "term_contract"
+    | "service_contract"
+    | "milestone_service"
   >;
   /**
    * List of product conditions
@@ -2133,11 +2193,15 @@ export type CreateNegotiationDto = {
     | "ream"
     | "license";
   transactionType?:
-    | "Purchase"
-    | "Lease"
-    | "Charter"
-    | "Bulk Supply"
-    | "Spot Trade";
+    | "purchase"
+    | "lease"
+    | "charter"
+    | "bulk_supply"
+    | "spot_trade"
+    | "rental"
+    | "term_contract"
+    | "service_contract"
+    | "milestone_service";
   condition?: "New" | "Used - Good" | "Used - Fair" | "Refurbished";
   incoterms?: string;
   paymentTerms?: string;
@@ -2250,11 +2314,15 @@ export type NegotiationOffer = {
     | "ream"
     | "license";
   transactionType?:
-    | "Purchase"
-    | "Lease"
-    | "Charter"
-    | "Bulk Supply"
-    | "Spot Trade";
+    | "purchase"
+    | "lease"
+    | "charter"
+    | "bulk_supply"
+    | "spot_trade"
+    | "rental"
+    | "term_contract"
+    | "service_contract"
+    | "milestone_service";
   condition?: "New" | "Used - Good" | "Used - Fair" | "Refurbished";
   incoterms?: string;
   paymentTerms?: string;
@@ -2353,11 +2421,15 @@ export type CounterOfferDto = {
     | "ream"
     | "license";
   transactionType?:
-    | "Purchase"
-    | "Lease"
-    | "Charter"
-    | "Bulk Supply"
-    | "Spot Trade";
+    | "purchase"
+    | "lease"
+    | "charter"
+    | "bulk_supply"
+    | "spot_trade"
+    | "rental"
+    | "term_contract"
+    | "service_contract"
+    | "milestone_service";
   condition?: "New" | "Used - Good" | "Used - Fair" | "Refurbished";
   incoterms?: string;
   paymentTerms?: string;
@@ -2401,7 +2473,16 @@ export type CreateInvoiceDto = {
    * ISO 8601 date string
    */
   dueDate: string;
-  transactionType: string;
+  transactionType:
+    | "purchase"
+    | "lease"
+    | "charter"
+    | "bulk_supply"
+    | "spot_trade"
+    | "rental"
+    | "term_contract"
+    | "service_contract"
+    | "milestone_service";
   items: Array<InvoiceItemDto>;
   taxType: "fixed" | "percentage";
   /**
@@ -2443,7 +2524,16 @@ export type InvoiceResponseDto = {
   title: string;
   currency: string;
   dueDate: string;
-  transactionType: string;
+  transactionType:
+    | "purchase"
+    | "lease"
+    | "charter"
+    | "bulk_supply"
+    | "spot_trade"
+    | "rental"
+    | "term_contract"
+    | "service_contract"
+    | "milestone_service";
   items: Array<InvoiceItemResponseDto>;
   taxType: "fixed" | "percentage";
   /**
@@ -2502,7 +2592,16 @@ export type UpdateInvoiceDto = {
    * ISO 8601 date string
    */
   dueDate?: string;
-  transactionType?: string;
+  transactionType?:
+    | "purchase"
+    | "lease"
+    | "charter"
+    | "bulk_supply"
+    | "spot_trade"
+    | "rental"
+    | "term_contract"
+    | "service_contract"
+    | "milestone_service";
   items?: Array<InvoiceItemDto>;
   taxType?: "fixed" | "percentage";
   /**
@@ -3034,6 +3133,8 @@ export type PermissionOverridesDto = {
     | "ledger:view"
     | "user:view"
     | "user:manage"
+    | "cms:view"
+    | "cms:manage"
   >;
   /**
    * Permissions revoked from the role defaults
@@ -3077,6 +3178,8 @@ export type PermissionOverridesDto = {
     | "ledger:view"
     | "user:view"
     | "user:manage"
+    | "cms:view"
+    | "cms:manage"
   >;
 };
 
@@ -3168,6 +3271,8 @@ export type PermissionOverridesResponseDto = {
     | "ledger:view"
     | "user:view"
     | "user:manage"
+    | "cms:view"
+    | "cms:manage"
   >;
   revoked: Array<
     | "admin:view"
@@ -3208,6 +3313,8 @@ export type PermissionOverridesResponseDto = {
     | "ledger:view"
     | "user:view"
     | "user:manage"
+    | "cms:view"
+    | "cms:manage"
   >;
 };
 
@@ -3267,6 +3374,8 @@ export type AdminResponseDto = {
     | "ledger:view"
     | "user:view"
     | "user:manage"
+    | "cms:view"
+    | "cms:manage"
   >;
   createdAt: string;
   updatedAt: string;
@@ -3951,11 +4060,15 @@ export type AcceptRequestOrderDto = {
    */
   product?: string;
   transactionType:
-    | "Purchase"
-    | "Lease"
-    | "Charter"
-    | "Bulk Supply"
-    | "Spot Trade";
+    | "purchase"
+    | "lease"
+    | "charter"
+    | "bulk_supply"
+    | "spot_trade"
+    | "rental"
+    | "term_contract"
+    | "service_contract"
+    | "milestone_service";
   quantity: number;
   unitOfMeasurement:
     | "bbl"
@@ -4469,6 +4582,107 @@ export type AdminResolveTicketDto = {
   note: string;
 };
 
+export type PageMetaDto = {
+  /**
+   * SEO page title
+   */
+  title?: string;
+  /**
+   * SEO meta description
+   */
+  description?: string;
+  /**
+   * SEO keywords
+   */
+  keywords?: Array<string>;
+};
+
+export type ContentBlockDto = {
+  /**
+   * Block type identifier (e.g. hero, text, features, markdown, cta, faq)
+   */
+  type: string;
+  /**
+   * Display order of this block within the page
+   */
+  order: number;
+  /**
+   * Block-specific content data (shape varies by type)
+   */
+  data: {
+    [key: string]: unknown;
+  };
+};
+
+export type CreatePageDto = {
+  /**
+   * URL-friendly page identifier (lowercase, hyphens allowed)
+   */
+  slug: string;
+  /**
+   * Page title
+   */
+  title: string;
+  /**
+   * Publication status
+   */
+  status?: "draft" | "published";
+  /**
+   * SEO metadata
+   */
+  meta?: PageMetaDto;
+  /**
+   * Ordered content blocks
+   */
+  blocks?: Array<ContentBlockDto>;
+};
+
+export type PageResponseDto = {
+  _id: string;
+  slug: string;
+  title: string;
+  status: "draft" | "published";
+  meta?: PageMetaDto;
+  blocks: Array<ContentBlockDto>;
+  publishedAt?: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type PaginatedPagesResponseDto = {
+  message: string;
+  data: {
+    docs: Array<PageResponseDto>;
+    totalDocs: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  };
+};
+
+export type UpdatePageDto = {
+  /**
+   * URL-friendly page identifier (lowercase, hyphens allowed)
+   */
+  slug?: string;
+  /**
+   * Page title
+   */
+  title?: string;
+  /**
+   * Publication status
+   */
+  status?: "draft" | "published";
+  /**
+   * SEO metadata
+   */
+  meta?: PageMetaDto;
+  /**
+   * Ordered content blocks
+   */
+  blocks?: Array<ContentBlockDto>;
+};
+
 export type UpdateCategoryGroupDto = {
   name?: string;
   type?: "products" | "services";
@@ -4480,7 +4694,9 @@ export type UpdateCategoryGroupDto = {
   allowsOrderQuantityLimits?: boolean;
   allowsInventoryTracking?: boolean;
   allowedCurrencies?: Array<"NGN" | "USD" | "EUR">;
-  allowedListingTypes?: Array<"product" | "service" | "rental" | "charter">;
+  allowedListingTypes?: Array<
+    "product" | "service" | "rental" | "lease" | "charter" | "rfq"
+  >;
   allowedConditions?: "New" | "Used - Good" | "Used - Fair" | "Refurbished";
 };
 
@@ -4544,6 +4760,18 @@ export type WalletFundDetailsResponseDto = {
   bankName: string;
 };
 
+export type WalletStatsResponseDto = {
+  /**
+   * Month-to-date inflow in minor currency units (kobo)
+   */
+  inflow: number;
+  /**
+   * Month-to-date spend in minor currency units (kobo)
+   */
+  spend: number;
+  currency: "NGN" | "USD" | "EUR";
+};
+
 export type WalletTransactionResponseDto = {
   id: string;
   currency: "NGN" | "USD" | "EUR";
@@ -4552,10 +4780,33 @@ export type WalletTransactionResponseDto = {
    */
   amount: number;
   type: "credit" | "debit";
+  /**
+   * Short human-readable label
+   */
   narration: string;
+  /**
+   * Detailed description
+   */
+  description?: string;
+  /**
+   * Ledger entry type
+   */
+  entryType: string;
   status: string;
   createdAt: string;
   reference?: string;
+  /**
+   * Linked transaction ID
+   */
+  transactionId?: string;
+  /**
+   * Linked transaction display ID
+   */
+  transactionDisplayId?: number;
+  /**
+   * Linked order ID
+   */
+  orderId?: string;
 };
 
 export type WalletDisburseDto = {
@@ -8470,6 +8721,112 @@ export type AdminSupportControllerResolveResponses = {
   201: unknown;
 };
 
+export type AdminCmsControllerFindAllData = {
+  body?: never;
+  path?: never;
+  query?: {
+    /**
+     * Page number
+     */
+    page?: string;
+    /**
+     * Items per page
+     */
+    limit?: string;
+    /**
+     * Filter by status (draft or published)
+     */
+    status?: string;
+    /**
+     * Search by title
+     */
+    search?: string;
+  };
+  url: "/api/v1/admin/cms/pages";
+};
+
+export type AdminCmsControllerFindAllResponses = {
+  200: PaginatedPagesResponseDto;
+};
+
+export type AdminCmsControllerFindAllResponse =
+  AdminCmsControllerFindAllResponses[keyof AdminCmsControllerFindAllResponses];
+
+export type AdminCmsControllerCreateData = {
+  body: CreatePageDto;
+  path?: never;
+  query?: never;
+  url: "/api/v1/admin/cms/pages";
+};
+
+export type AdminCmsControllerCreateResponses = {
+  201: PageResponseDto;
+};
+
+export type AdminCmsControllerCreateResponse =
+  AdminCmsControllerCreateResponses[keyof AdminCmsControllerCreateResponses];
+
+export type AdminCmsControllerRemoveData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/admin/cms/pages/{id}";
+};
+
+export type AdminCmsControllerRemoveResponses = {
+  200: unknown;
+};
+
+export type AdminCmsControllerFindOneData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/admin/cms/pages/{id}";
+};
+
+export type AdminCmsControllerFindOneResponses = {
+  200: PageResponseDto;
+};
+
+export type AdminCmsControllerFindOneResponse =
+  AdminCmsControllerFindOneResponses[keyof AdminCmsControllerFindOneResponses];
+
+export type AdminCmsControllerUpdateData = {
+  body: UpdatePageDto;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/admin/cms/pages/{id}";
+};
+
+export type AdminCmsControllerUpdateResponses = {
+  200: PageResponseDto;
+};
+
+export type AdminCmsControllerUpdateResponse =
+  AdminCmsControllerUpdateResponses[keyof AdminCmsControllerUpdateResponses];
+
+export type CmsControllerFindBySlugData = {
+  body?: never;
+  path: {
+    slug: string;
+  };
+  query?: never;
+  url: "/api/v1/cms/pages/{slug}";
+};
+
+export type CmsControllerFindBySlugResponses = {
+  200: PageResponseDto;
+};
+
+export type CmsControllerFindBySlugResponse =
+  CmsControllerFindBySlugResponses[keyof CmsControllerFindBySlugResponses];
+
 export type CategoryGroupsControllerFindAllData = {
   body?: never;
   path?: never;
@@ -8801,20 +9158,6 @@ export type PlacesControllerGetDetailsResponses = {
 export type PlacesControllerGetDetailsResponse =
   PlacesControllerGetDetailsResponses[keyof PlacesControllerGetDetailsResponses];
 
-export type FlutterwaveWebhooksControllerHandleWebhookData = {
-  body?: never;
-  headers: {
-    "verif-hash": string;
-  };
-  path?: never;
-  query?: never;
-  url: "/api/v1/flutterwave/webhooks";
-};
-
-export type FlutterwaveWebhooksControllerHandleWebhookResponses = {
-  200: unknown;
-};
-
 export type ProvidusWebhooksControllerHandleSettlementData = {
   body?: never;
   headers: {
@@ -8861,6 +9204,20 @@ export type WalletControllerGetFundDetailsResponses = {
 
 export type WalletControllerGetFundDetailsResponse =
   WalletControllerGetFundDetailsResponses[keyof WalletControllerGetFundDetailsResponses];
+
+export type WalletControllerGetStatsData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: "/api/v1/wallet/stats";
+};
+
+export type WalletControllerGetStatsResponses = {
+  200: WalletStatsResponseDto;
+};
+
+export type WalletControllerGetStatsResponse =
+  WalletControllerGetStatsResponses[keyof WalletControllerGetStatsResponses];
 
 export type WalletControllerGetTransactionsData = {
   body?: never;

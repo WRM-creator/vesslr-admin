@@ -33,6 +33,16 @@ import type {
   AdminCategorySpecialtiesControllerRemoveResponses,
   AdminCategorySpecialtiesControllerUpdateData,
   AdminCategorySpecialtiesControllerUpdateResponses,
+  AdminCmsControllerCreateData,
+  AdminCmsControllerCreateResponses,
+  AdminCmsControllerFindAllData,
+  AdminCmsControllerFindAllResponses,
+  AdminCmsControllerFindOneData,
+  AdminCmsControllerFindOneResponses,
+  AdminCmsControllerRemoveData,
+  AdminCmsControllerRemoveResponses,
+  AdminCmsControllerUpdateData,
+  AdminCmsControllerUpdateResponses,
   AdminComplianceControllerGetCaseData,
   AdminComplianceControllerGetCaseResponses,
   AdminComplianceControllerListCasesData,
@@ -195,6 +205,8 @@ import type {
   CategorySpecialtiesControllerFindAllResponses,
   CategorySpecialtiesControllerFindOneData,
   CategorySpecialtiesControllerFindOneResponses,
+  CmsControllerFindBySlugData,
+  CmsControllerFindBySlugResponses,
   ComplianceControllerSmileIdWebhookData,
   ComplianceControllerSmileIdWebhookResponses,
   DisputesControllerAddAttachmentData,
@@ -211,8 +223,6 @@ import type {
   EscrowsControllerGetMyEscrowsResponses,
   EscrowsControllerGetMySummaryData,
   EscrowsControllerGetMySummaryResponses,
-  FlutterwaveWebhooksControllerHandleWebhookData,
-  FlutterwaveWebhooksControllerHandleWebhookResponses,
   InspectionControllerListInspectionsData,
   InspectionControllerListInspectionsResponses,
   InspectionControllerSubmitInspectionData,
@@ -502,6 +512,8 @@ import type {
   WalletControllerGetBalanceResponses,
   WalletControllerGetFundDetailsData,
   WalletControllerGetFundDetailsResponses,
+  WalletControllerGetStatsData,
+  WalletControllerGetStatsResponses,
   WalletControllerGetTransactionsData,
   WalletControllerGetTransactionsResponses,
 } from "./types.gen";
@@ -4691,6 +4703,106 @@ export const adminSupportControllerResolve = <
   });
 
 /**
+ * List all CMS pages
+ */
+export const adminCmsControllerFindAll = <ThrowOnError extends boolean = false>(
+  options?: Options<AdminCmsControllerFindAllData, ThrowOnError>,
+) =>
+  (options?.client ?? client).get<
+    AdminCmsControllerFindAllResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/cms/pages",
+    ...options,
+  });
+
+/**
+ * Create a new CMS page
+ */
+export const adminCmsControllerCreate = <ThrowOnError extends boolean = false>(
+  options: Options<AdminCmsControllerCreateData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    AdminCmsControllerCreateResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/cms/pages",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Delete a CMS page
+ */
+export const adminCmsControllerRemove = <ThrowOnError extends boolean = false>(
+  options: Options<AdminCmsControllerRemoveData, ThrowOnError>,
+) =>
+  (options.client ?? client).delete<
+    AdminCmsControllerRemoveResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/cms/pages/{id}",
+    ...options,
+  });
+
+/**
+ * Get a CMS page by ID
+ */
+export const adminCmsControllerFindOne = <ThrowOnError extends boolean = false>(
+  options: Options<AdminCmsControllerFindOneData, ThrowOnError>,
+) =>
+  (options.client ?? client).get<
+    AdminCmsControllerFindOneResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/cms/pages/{id}",
+    ...options,
+  });
+
+/**
+ * Update a CMS page
+ */
+export const adminCmsControllerUpdate = <ThrowOnError extends boolean = false>(
+  options: Options<AdminCmsControllerUpdateData, ThrowOnError>,
+) =>
+  (options.client ?? client).patch<
+    AdminCmsControllerUpdateResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/cms/pages/{id}",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Get a published page by slug
+ */
+export const cmsControllerFindBySlug = <ThrowOnError extends boolean = false>(
+  options: Options<CmsControllerFindBySlugData, ThrowOnError>,
+) =>
+  (options.client ?? client).get<
+    CmsControllerFindBySlugResponses,
+    unknown,
+    ThrowOnError
+  >({ url: "/api/v1/cms/pages/{slug}", ...options });
+
+/**
  * Get all category groups
  */
 export const categoryGroupsControllerFindAll = <
@@ -5009,23 +5121,6 @@ export const placesControllerGetDetails = <
   });
 
 /**
- * Handle Flutterwave webhook events (public)
- */
-export const flutterwaveWebhooksControllerHandleWebhook = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<
-    FlutterwaveWebhooksControllerHandleWebhookData,
-    ThrowOnError
-  >,
-) =>
-  (options.client ?? client).post<
-    FlutterwaveWebhooksControllerHandleWebhookResponses,
-    unknown,
-    ThrowOnError
-  >({ url: "/api/v1/flutterwave/webhooks", ...options });
-
-/**
  * Handle Providus settlement notifications (public)
  */
 export const providusWebhooksControllerHandleSettlement = <
@@ -5075,6 +5170,22 @@ export const walletControllerGetFundDetails = <
   >({
     security: [{ scheme: "bearer", type: "http" }],
     url: "/api/v1/wallet/fund-details",
+    ...options,
+  });
+
+/**
+ * Get month-to-date wallet stats (inflow and spend)
+ */
+export const walletControllerGetStats = <ThrowOnError extends boolean = false>(
+  options?: Options<WalletControllerGetStatsData, ThrowOnError>,
+) =>
+  (options?.client ?? client).get<
+    WalletControllerGetStatsResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/wallet/stats",
     ...options,
   });
 
