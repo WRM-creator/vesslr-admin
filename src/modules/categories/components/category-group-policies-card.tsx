@@ -173,6 +173,119 @@ export function CategoryGroupPoliciesCard({
           </div>
         </div>
         <Separator />
+        <p className="text-muted-foreground text-xs font-semibold uppercase tracking-wider">
+          Specification Types
+        </p>
+        <div className="flex items-center justify-between space-x-2">
+          <div className="flex flex-col space-y-1">
+            <Label htmlFor="allows-commodity-specs" className="text-base">
+              Commodity Specifications
+            </Label>
+            <span className="text-muted-foreground text-sm">
+              Show commodity spec fields (grade, origin, API gravity, sulphur content, etc.)
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
+            {isFieldPending("allowsCommoditySpecs") && (
+              <Loader2 className="text-muted-foreground h-4 w-4 animate-spin" />
+            )}
+            <Switch
+              id="allows-commodity-specs"
+              checked={categoryGroup.allowsCommoditySpecs}
+              onCheckedChange={handleToggle("allowsCommoditySpecs")}
+              disabled={isPending}
+            />
+          </div>
+        </div>
+        <Separator />
+        <div className="flex items-center justify-between space-x-2">
+          <div className="flex flex-col space-y-1">
+            <Label htmlFor="allows-equipment-specs" className="text-base">
+              Equipment Specifications
+            </Label>
+            <span className="text-muted-foreground text-sm">
+              Show equipment spec fields (manufacturer, model, serial number, year, etc.)
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
+            {isFieldPending("allowsEquipmentSpecs") && (
+              <Loader2 className="text-muted-foreground h-4 w-4 animate-spin" />
+            )}
+            <Switch
+              id="allows-equipment-specs"
+              checked={categoryGroup.allowsEquipmentSpecs}
+              onCheckedChange={handleToggle("allowsEquipmentSpecs")}
+              disabled={isPending}
+            />
+          </div>
+        </div>
+        <Separator />
+        <div className="flex items-center justify-between space-x-2">
+          <div className="flex flex-col space-y-1">
+            <Label htmlFor="allows-service-specs" className="text-base">
+              Service / Project Specifications
+            </Label>
+            <span className="text-muted-foreground text-sm">
+              Show service spec fields (scope of work, manpower, mobilization timeline, etc.)
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
+            {isFieldPending("allowsServiceSpecs") && (
+              <Loader2 className="text-muted-foreground h-4 w-4 animate-spin" />
+            )}
+            <Switch
+              id="allows-service-specs"
+              checked={categoryGroup.allowsServiceSpecs}
+              onCheckedChange={handleToggle("allowsServiceSpecs")}
+              disabled={isPending}
+            />
+          </div>
+        </div>
+        <Separator />
+        <div className="flex items-center justify-between space-x-2">
+          <div className="flex flex-col space-y-1">
+            <Label htmlFor="allows-rental-specs" className="text-base">
+              Rental / Lease Specifications
+            </Label>
+            <span className="text-muted-foreground text-sm">
+              Show rental spec fields (asset type, rate, availability, operator/maintenance included, etc.)
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
+            {isFieldPending("allowsRentalSpecs") && (
+              <Loader2 className="text-muted-foreground h-4 w-4 animate-spin" />
+            )}
+            <Switch
+              id="allows-rental-specs"
+              checked={categoryGroup.allowsRentalSpecs}
+              onCheckedChange={handleToggle("allowsRentalSpecs")}
+              disabled={isPending}
+            />
+          </div>
+        </div>
+        <Separator />
+        <div className="flex items-center justify-between space-x-2">
+          <div className="flex flex-col space-y-1">
+            <Label htmlFor="allows-charter-specs" className="text-base">
+              Charter Specifications
+            </Label>
+            <span className="text-muted-foreground text-sm">
+              Show charter spec fields (vessel type, charter type, day rate, crew/fuel included, etc.)
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
+            {isFieldPending("allowsCharterSpecs") && (
+              <Loader2 className="text-muted-foreground h-4 w-4 animate-spin" />
+            )}
+            <Switch
+              id="allows-charter-specs"
+              checked={categoryGroup.allowsCharterSpecs}
+              onCheckedChange={handleToggle("allowsCharterSpecs")}
+              disabled={isPending}
+            />
+          </div>
+        </div>
+        <Separator />
         <div className="flex items-center justify-between space-x-2 opacity-60">
           <div className="flex flex-col space-y-1">
             <Label
