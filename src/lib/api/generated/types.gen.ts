@@ -654,6 +654,20 @@ export type CreateProductDto = {
     | "cylinder"
     | "ream"
     | "license";
+  tradeTerms?: Array<
+    | "FOB"
+    | "CIF"
+    | "CFR"
+    | "EX_WORKS"
+    | "DELIVERED"
+    | "TTO"
+    | "TTT"
+    | "FOT"
+    | "FCA"
+    | "DAP"
+    | "DDP"
+    | "NA"
+  >;
   conditions?: Array<"New" | "Used - Good" | "Used - Fair" | "Refurbished">;
   organization?: string;
   location?: LocationDto;
@@ -719,6 +733,20 @@ export type UpdateProductDto = {
     | "cylinder"
     | "ream"
     | "license";
+  tradeTerms?: Array<
+    | "FOB"
+    | "CIF"
+    | "CFR"
+    | "EX_WORKS"
+    | "DELIVERED"
+    | "TTO"
+    | "TTT"
+    | "FOT"
+    | "FCA"
+    | "DAP"
+    | "DDP"
+    | "NA"
+  >;
   conditions?: Array<"New" | "Used - Good" | "Used - Fair" | "Refurbished">;
   organization?: string;
   location?: LocationDto;
@@ -748,6 +776,23 @@ export type CategoryGroupDto = {
   >;
   allowedConditions: Array<
     "New" | "Used - Good" | "Used - Fair" | "Refurbished"
+  >;
+  /**
+   * Allowed trade terms for listings in this group
+   */
+  allowedTradeTerms: Array<
+    | "FOB"
+    | "CIF"
+    | "CFR"
+    | "EX_WORKS"
+    | "DELIVERED"
+    | "TTO"
+    | "TTT"
+    | "FOT"
+    | "FCA"
+    | "DAP"
+    | "DDP"
+    | "NA"
   >;
   /**
    * Deprecated: measurement types are now configured per category.
@@ -1666,6 +1711,22 @@ export type PurchaseProductDto = {
     | "service_contract"
     | "milestone_service";
   /**
+   * Selected trade term
+   */
+  tradeTerm?:
+    | "FOB"
+    | "CIF"
+    | "CFR"
+    | "EX_WORKS"
+    | "DELIVERED"
+    | "TTO"
+    | "TTT"
+    | "FOT"
+    | "FCA"
+    | "DAP"
+    | "DDP"
+    | "NA";
+  /**
    * Selected product condition
    */
   condition: string;
@@ -1880,6 +1941,23 @@ export type CreateRequestDto = {
     | "milestone_service"
   >;
   /**
+   * Trade terms the buyer is willing to accept
+   */
+  tradeTerms?: Array<
+    | "FOB"
+    | "CIF"
+    | "CFR"
+    | "EX_WORKS"
+    | "DELIVERED"
+    | "TTO"
+    | "TTT"
+    | "FOT"
+    | "FCA"
+    | "DAP"
+    | "DDP"
+    | "NA"
+  >;
+  /**
    * List of product conditions
    */
   condition?: Array<"New" | "Used - Good" | "Used - Fair" | "Refurbished">;
@@ -2069,6 +2147,23 @@ export type UpdateRequestDto = {
     | "milestone_service"
   >;
   /**
+   * Trade terms the buyer is willing to accept
+   */
+  tradeTerms?: Array<
+    | "FOB"
+    | "CIF"
+    | "CFR"
+    | "EX_WORKS"
+    | "DELIVERED"
+    | "TTO"
+    | "TTT"
+    | "FOT"
+    | "FCA"
+    | "DAP"
+    | "DDP"
+    | "NA"
+  >;
+  /**
    * List of product conditions
    */
   condition?: Array<"New" | "Used - Good" | "Used - Fair" | "Refurbished">;
@@ -2140,6 +2235,20 @@ export type CategorySpecialtyDto = {
     | "month"
     | "year"
   >;
+  allowedTradeTerms?: Array<
+    | "FOB"
+    | "CIF"
+    | "CFR"
+    | "EX_WORKS"
+    | "DELIVERED"
+    | "TTO"
+    | "TTT"
+    | "FOT"
+    | "FCA"
+    | "DAP"
+    | "DDP"
+    | "NA"
+  >;
   isActive: boolean;
   sortOrder: number;
   image?: string;
@@ -2203,7 +2312,19 @@ export type CreateNegotiationDto = {
     | "service_contract"
     | "milestone_service";
   condition?: "New" | "Used - Good" | "Used - Fair" | "Refurbished";
-  incoterms?: string;
+  tradeTerm?:
+    | "FOB"
+    | "CIF"
+    | "CFR"
+    | "EX_WORKS"
+    | "DELIVERED"
+    | "TTO"
+    | "TTT"
+    | "FOT"
+    | "FCA"
+    | "DAP"
+    | "DDP"
+    | "NA";
   paymentTerms?: string;
   deliveryDate?: string;
   /**
@@ -2324,7 +2445,19 @@ export type NegotiationOffer = {
     | "service_contract"
     | "milestone_service";
   condition?: "New" | "Used - Good" | "Used - Fair" | "Refurbished";
-  incoterms?: string;
+  tradeTerm?:
+    | "FOB"
+    | "CIF"
+    | "CFR"
+    | "EX_WORKS"
+    | "DELIVERED"
+    | "TTO"
+    | "TTT"
+    | "FOT"
+    | "FCA"
+    | "DAP"
+    | "DDP"
+    | "NA";
   paymentTerms?: string;
   deliveryDate?: string;
   notes?: string;
@@ -2431,7 +2564,19 @@ export type CounterOfferDto = {
     | "service_contract"
     | "milestone_service";
   condition?: "New" | "Used - Good" | "Used - Fair" | "Refurbished";
-  incoterms?: string;
+  tradeTerm?:
+    | "FOB"
+    | "CIF"
+    | "CFR"
+    | "EX_WORKS"
+    | "DELIVERED"
+    | "TTO"
+    | "TTT"
+    | "FOT"
+    | "FCA"
+    | "DAP"
+    | "DDP"
+    | "NA";
   paymentTerms?: string;
   deliveryDate?: string;
   /**
@@ -3672,6 +3817,22 @@ export type CreateCategorySpecialtyDto = {
     | "month"
     | "year";
   /**
+   * Override the parent group’s allowed trade terms. Omit to inherit from the group.
+   */
+  allowedTradeTerms?:
+    | "FOB"
+    | "CIF"
+    | "CFR"
+    | "EX_WORKS"
+    | "DELIVERED"
+    | "TTO"
+    | "TTT"
+    | "FOT"
+    | "FCA"
+    | "DAP"
+    | "DDP"
+    | "NA";
+  /**
    * Whether the specialty is active
    */
   isActive?: boolean;
@@ -3743,6 +3904,22 @@ export type UpdateCategorySpecialtyDto = {
     | "week"
     | "month"
     | "year";
+  /**
+   * Override the parent group’s allowed trade terms. Omit to inherit from the group.
+   */
+  allowedTradeTerms?:
+    | "FOB"
+    | "CIF"
+    | "CFR"
+    | "EX_WORKS"
+    | "DELIVERED"
+    | "TTO"
+    | "TTT"
+    | "FOT"
+    | "FCA"
+    | "DAP"
+    | "DDP"
+    | "NA";
   /**
    * Whether the specialty is active
    */
@@ -4698,6 +4875,23 @@ export type UpdateCategoryGroupDto = {
     "product" | "service" | "rental" | "lease" | "charter" | "rfq"
   >;
   allowedConditions?: "New" | "Used - Good" | "Used - Fair" | "Refurbished";
+  /**
+   * Allowed trade terms for listings in this group
+   */
+  allowedTradeTerms?: Array<
+    | "FOB"
+    | "CIF"
+    | "CFR"
+    | "EX_WORKS"
+    | "DELIVERED"
+    | "TTO"
+    | "TTT"
+    | "FOT"
+    | "FCA"
+    | "DAP"
+    | "DDP"
+    | "NA"
+  >;
 };
 
 export type QqFieldDef = {
