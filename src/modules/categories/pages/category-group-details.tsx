@@ -8,6 +8,7 @@ import { CategoryGroupAllowedOptionsCard } from "../components/category-group-al
 import { CategoryGroupCategoriesCard } from "../components/category-group-categories-card";
 import { CategoryGroupOverviewCard } from "../components/category-group-overview-card";
 import { CategoryGroupPoliciesCard } from "../components/category-group-policies-card";
+import { CategoryGroupServiceFeeCard } from "../components/category-group-service-fee-card";
 
 export default function CategoryGroupDetailsPage() {
   const { id } = useParams<{ id: string }>();
@@ -43,6 +44,7 @@ export default function CategoryGroupDetailsPage() {
         <CategoryGroupOverviewCard categoryGroup={categoryGroup} />
         <CategoryGroupAllowedOptionsCard categoryGroup={categoryGroup} />
         <CategoryGroupPoliciesCard categoryGroup={categoryGroup} />
+        <CategoryGroupServiceFeeCard categoryGroup={categoryGroup} />
         <CategoryGroupCategoriesCard categoryGroup={categoryGroup} />
       </div>
     </Page>

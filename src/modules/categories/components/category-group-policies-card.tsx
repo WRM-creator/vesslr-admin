@@ -1,3 +1,4 @@
+import { Badge } from "@/components/ui/badge";
 import {
   Card,
   CardContent,
@@ -6,6 +7,13 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import { api } from "@/lib/api";
@@ -303,6 +311,97 @@ export function CategoryGroupPoliciesCard({
             checked={categoryGroup.requiresEscrow}
             disabled={true}
           />
+        </div>
+        <Separator />
+        <p className="text-muted-foreground text-xs font-semibold uppercase tracking-wider">
+          Escrow Structure
+        </p>
+        <div className="space-y-3">
+          <div className="flex flex-col space-y-1">
+            <Label className="text-base">Allowed Structures</Label>
+            <span className="text-muted-foreground text-sm">
+              Which escrow funding structures are available for transactions in
+              this group.
+            </span>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {(["full", "deposit", "milestone", "partial"] as const).map(
+              (structure) => {
+                const allowed =
+                  ((categoryGroup as any).allowedEscrowStructures as string[]) ??
+                  ["full"];
+                const isAllowed = allowed.includes(structure);
+                return (
+                  <Badge
+                    key={structure}
+                    variant={isAllowed ? "default" : "outline"}
+                    className="cursor-pointer select-none capitalize"
+                    onClick={() => {
+                      const next = isAllowed
+                        ? allowed.filter((s) => s !== structure)
+                        : [...allowed, structure];
+                      if (next.length === 0) return; // must have at least one
+                      updateGroup(
+                        {
+                          path: { id: categoryGroup._id },
+                          body: { allowedEscrowStructures: next } as any,
+                        },
+                        {
+                          onSuccess: () =>
+                            toast.success("Allowed escrow structures updated"),
+                          onError: (err: any) =>
+                            toast.error(err.message || "Failed to update"),
+                        },
+                      );
+                    }}
+                  >
+                    {structure}
+                  </Badge>
+                );
+              },
+            )}
+            {isPending && (
+              <Loader2 className="text-muted-foreground h-4 w-4 animate-spin" />
+            )}
+          </div>
+        </div>
+        <div className="space-y-2">
+          <Label className="text-base">Default Structure</Label>
+          <Select
+            value={
+              (categoryGroup as any).defaultEscrowStructure ?? "full"
+            }
+            onValueChange={(v) => {
+              updateGroup(
+                {
+                  path: { id: categoryGroup._id },
+                  body: { defaultEscrowStructure: v } as any,
+                },
+                {
+                  onSuccess: () =>
+                    toast.success("Default escrow structure updated"),
+                  onError: (err: any) =>
+                    toast.error(err.message || "Failed to update"),
+                },
+              );
+            }}
+            disabled={isPending}
+          >
+            <SelectTrigger className="w-48">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {(
+                ((categoryGroup as any).allowedEscrowStructures as string[]) ?? [
+                  "full",
+                ]
+              ).map((s) => (
+                <SelectItem key={s} value={s} className="capitalize">
+                  {s}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
         <Separator />
         <div className="flex items-center justify-between space-x-2 opacity-60">

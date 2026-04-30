@@ -511,6 +511,23 @@ export type SpecificationsResponseDto = {
   charterSpecs?: CharterSpecsResponseDto;
 };
 
+export type DeliveryTermsResponseDto = {
+  origin?: string;
+  destination?: string;
+  loadingPort?: string;
+  dischargePort?: string;
+  terminal?: string;
+  logisticsResponsibility?: "buyer" | "seller" | "vesslr_partner";
+};
+
+export type CommercialTermsResponseDto = {
+  validityPeriod?: number;
+  validityUnit?: "days" | "weeks" | "months";
+  paymentDeadline?: number;
+  cancellationPolicy?: string;
+  refundPolicy?: string;
+};
+
 export type PopulatedProductResponseDto = {
   _id: string;
   /**
@@ -590,6 +607,8 @@ export type PopulatedProductResponseDto = {
   updatedAt?: string;
   documents?: Array<string>;
   specifications?: SpecificationsResponseDto;
+  deliveryTerms?: DeliveryTermsResponseDto;
+  commercialTerms?: CommercialTermsResponseDto;
 };
 
 export type ProductsPaginationDataDto = {
@@ -695,6 +714,8 @@ export type ProductResponseDto = {
   updatedAt?: string;
   documents?: Array<string>;
   specifications?: SpecificationsResponseDto;
+  deliveryTerms?: DeliveryTermsResponseDto;
+  commercialTerms?: CommercialTermsResponseDto;
 };
 
 export type LocationDto = {
@@ -1117,6 +1138,14 @@ export type UpdateProductDto = {
   specifications?: SpecificationsDto;
 };
 
+export type ServiceFeeConfigResponseDto = {
+  payer: "buyer" | "seller" | "split";
+  feeType: "percentage" | "fixed";
+  percentage?: number;
+  fixedAmount?: number;
+  refundable: boolean;
+};
+
 export type CategoryGroupDto = {
   _id: string;
   name: string;
@@ -1160,6 +1189,9 @@ export type CategoryGroupDto = {
   allowsServiceSpecs: boolean;
   allowsRentalSpecs: boolean;
   allowsCharterSpecs: boolean;
+  serviceFeeConfig?: ServiceFeeConfigResponseDto;
+  allowedEscrowStructures: Array<"full" | "deposit" | "milestone" | "partial">;
+  defaultEscrowStructure: "full" | "deposit" | "milestone" | "partial";
   /**
    * Deprecated: measurement types are now configured per category.
    *
@@ -1537,6 +1569,18 @@ export type OrderResponseDto = {
    * Total including service fee (what the buyer pays)
    */
   totalWithFee: number;
+  /**
+   * Fee config snapshot used for this order
+   */
+  serviceFeeConfig?: ServiceFeeConfigResponseDto;
+  /**
+   * Escrow funding structure
+   */
+  escrowStructure?: string;
+  /**
+   * Deposit percentage for deposit escrow structure
+   */
+  depositPercentage?: number;
   condition?: string;
   buyerDocuments?: Array<OrderDocumentDto>;
   sellerDocuments?: Array<OrderDocumentDto>;
@@ -1555,6 +1599,8 @@ export type OrderResponseDto = {
   createdAt: string;
   updatedAt: string;
   specifications?: SpecificationsResponseDto;
+  deliveryTerms?: DeliveryTermsResponseDto;
+  commercialTerms?: CommercialTermsResponseDto;
 };
 
 export type TransactionEventDto = {
@@ -2276,6 +2322,56 @@ export type SingleRecommendationFeedResponseDto = {
   data: RecommendationFeedItemDto;
 };
 
+export type DeliveryTermsDto = {
+  /**
+   * Origin location (city, depot, terminal)
+   */
+  origin?: string;
+  /**
+   * Destination location
+   */
+  destination?: string;
+  /**
+   * Loading port name
+   */
+  loadingPort?: string;
+  /**
+   * Discharge port name
+   */
+  dischargePort?: string;
+  /**
+   * Terminal name
+   */
+  terminal?: string;
+  /**
+   * Who is responsible for logistics
+   */
+  logisticsResponsibility?: "buyer" | "seller" | "vesslr_partner";
+};
+
+export type CommercialTermsDto = {
+  /**
+   * How long the offer/listing is valid
+   */
+  validityPeriod?: number;
+  /**
+   * Unit for validity period
+   */
+  validityUnit?: "days" | "weeks" | "months";
+  /**
+   * Payment deadline in days from order confirmation
+   */
+  paymentDeadline?: number;
+  /**
+   * Cancellation policy text
+   */
+  cancellationPolicy?: string;
+  /**
+   * Refund policy text
+   */
+  refundPolicy?: string;
+};
+
 export type CreateRequestDto = {
   /**
    * ID of the category
@@ -2403,6 +2499,8 @@ export type CreateRequestDto = {
    */
   qqCompany?: string;
   specifications?: SpecificationsDto;
+  deliveryTerms?: DeliveryTermsDto;
+  commercialTerms?: CommercialTermsDto;
 };
 
 export type RequesterDto = {
@@ -2512,6 +2610,8 @@ export type RequestResponseDto = {
    */
   qqCriteria?: Array<QqCriterionDto>;
   specifications?: SpecificationsResponseDto;
+  deliveryTerms?: DeliveryTermsResponseDto;
+  commercialTerms?: CommercialTermsResponseDto;
 };
 
 export type UpdateRequestDto = {
@@ -2641,6 +2741,8 @@ export type UpdateRequestDto = {
    */
   qqCompany?: string;
   specifications?: SpecificationsDto;
+  deliveryTerms?: DeliveryTermsDto;
+  commercialTerms?: CommercialTermsDto;
   status?: "pending" | "in_review" | "matched" | "fulfilled" | "cancelled";
 };
 
@@ -2875,6 +2977,14 @@ export type NegotiationOrganizationDto = {
   isMine: boolean;
 };
 
+export type DeliveryTerms = {
+  [key: string]: unknown;
+};
+
+export type CommercialTerms = {
+  [key: string]: unknown;
+};
+
 export type NegotiationOffer = {
   pricePerUnit: number;
   quantity: number;
@@ -2946,6 +3056,8 @@ export type NegotiationOffer = {
   paymentTerms?: string;
   deliveryDate?: string;
   notes?: string;
+  deliveryTerms?: DeliveryTerms;
+  commercialTerms?: CommercialTerms;
 };
 
 export type NegotiationEntryResponseDto = {
@@ -5399,6 +5511,29 @@ export type UpdatePageDto = {
   blocks?: Array<ContentBlockDto>;
 };
 
+export type ServiceFeeConfigDto = {
+  /**
+   * Who pays the service fee
+   */
+  payer: "buyer" | "seller" | "split";
+  /**
+   * Fee calculation type
+   */
+  feeType: "percentage" | "fixed";
+  /**
+   * Fee percentage (e.g. 0.03 for 3%)
+   */
+  percentage?: number;
+  /**
+   * Fixed fee amount in minor currency units
+   */
+  fixedAmount?: number;
+  /**
+   * Whether the fee is refundable on cancellation
+   */
+  refundable: boolean;
+};
+
 export type UpdateCategoryGroupDto = {
   name?: string;
   type?: "products" | "services";
@@ -5436,6 +5571,9 @@ export type UpdateCategoryGroupDto = {
   allowsServiceSpecs?: boolean;
   allowsRentalSpecs?: boolean;
   allowsCharterSpecs?: boolean;
+  serviceFeeConfig?: ServiceFeeConfigDto;
+  allowedEscrowStructures?: Array<"full" | "deposit" | "milestone" | "partial">;
+  defaultEscrowStructure?: "full" | "deposit" | "milestone" | "partial";
 };
 
 export type QqFieldDef = {
