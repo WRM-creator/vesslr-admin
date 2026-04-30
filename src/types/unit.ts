@@ -10,8 +10,10 @@ export type MeasurementType =
   | "area"
   | "gas_volume"
   | "energy"
+  | "power"
   | "count"
-  | "time";
+  | "time"
+  | "scope";
 
 interface UnitMeta {
   label: string;
@@ -45,6 +47,10 @@ export const UNITS: Record<string, UnitMeta> = {
   mmbtu: { label: "Million BTU", short: "MMBtu", category: "energy" },
   kwh: { label: "Kilowatt Hours", short: "kWh", category: "energy" },
   mwh: { label: "Megawatt Hours", short: "MWh", category: "energy" },
+  // Power
+  kva: { label: "Kilovolt-Amperes", short: "kVA", category: "power" },
+  kw: { label: "Kilowatts", short: "kW", category: "power" },
+  mw: { label: "Megawatts", short: "MW", category: "power" },
   // Count / packaging
   unit: { label: "Units", short: "ea", category: "count" },
   set: { label: "Sets", short: "set", category: "count" },
@@ -60,12 +66,20 @@ export const UNITS: Record<string, UnitMeta> = {
   cylinder: { label: "Gas Cylinders", short: "cyl", category: "count" },
   ream: { label: "Reams", short: "rm", category: "count" },
   license: { label: "Licenses", short: "lic", category: "count" },
+  skid: { label: "Skids", short: "skid", category: "count" },
+  package: { label: "Packages", short: "pkg", category: "count" },
+  plate: { label: "Plates", short: "plate", category: "count" },
+  bar: { label: "Bars", short: "bar", category: "count" },
   // Time / duration
   hour: { label: "Hours", short: "hr", category: "time" },
   day: { label: "Days", short: "day", category: "time" },
   week: { label: "Weeks", short: "wk", category: "time" },
   month: { label: "Months", short: "mo", category: "time" },
   year: { label: "Years", short: "yr", category: "time" },
+  // Scope (service/project durations)
+  project: { label: "Projects", short: "project", category: "scope" },
+  milestone: { label: "Milestones", short: "milestone", category: "scope" },
+  contract: { label: "Contracts", short: "contract", category: "scope" },
 };
 
 export const ALL_UNIT_VALUES = Object.keys(UNITS);
@@ -78,8 +92,10 @@ export const MEASUREMENT_TYPE_LABELS: Record<MeasurementType, string> = {
   area: "Area",
   gas_volume: "Gas Volume",
   energy: "Energy",
+  power: "Power",
   count: "Count / Packaging",
   time: "Time / Duration",
+  scope: "Scope / Project",
 };
 
 /** All measurement types in display order. */
@@ -90,8 +106,10 @@ export const MEASUREMENT_TYPES: MeasurementType[] = [
   "area",
   "gas_volume",
   "energy",
+  "power",
   "count",
   "time",
+  "scope",
 ];
 
 /** Get all units belonging to a measurement type. */

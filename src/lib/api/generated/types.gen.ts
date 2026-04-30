@@ -467,6 +467,9 @@ export type PopulatedProductResponseDto = {
     | "mmbtu"
     | "kwh"
     | "mwh"
+    | "kva"
+    | "kw"
+    | "mw"
     | "unit"
     | "set"
     | "kit"
@@ -480,7 +483,11 @@ export type PopulatedProductResponseDto = {
     | "bag"
     | "cylinder"
     | "ream"
-    | "license";
+    | "license"
+    | "skid"
+    | "package"
+    | "plate"
+    | "bar";
   conditions?: Array<"New" | "Used - Good" | "Used - Fair" | "Refurbished">;
   organization?: ProductOrganizationDto;
   location?: PopulatedProductLocationDto;
@@ -564,6 +571,9 @@ export type ProductResponseDto = {
     | "mmbtu"
     | "kwh"
     | "mwh"
+    | "kva"
+    | "kw"
+    | "mw"
     | "unit"
     | "set"
     | "kit"
@@ -577,7 +587,11 @@ export type ProductResponseDto = {
     | "bag"
     | "cylinder"
     | "ream"
-    | "license";
+    | "license"
+    | "skid"
+    | "package"
+    | "plate"
+    | "bar";
   conditions?: Array<"New" | "Used - Good" | "Used - Fair" | "Refurbished">;
   organization?: ProductOrganizationDto;
   location?: ProductLocationDto;
@@ -640,6 +654,9 @@ export type CreateProductDto = {
     | "mmbtu"
     | "kwh"
     | "mwh"
+    | "kva"
+    | "kw"
+    | "mw"
     | "unit"
     | "set"
     | "kit"
@@ -653,7 +670,11 @@ export type CreateProductDto = {
     | "bag"
     | "cylinder"
     | "ream"
-    | "license";
+    | "license"
+    | "skid"
+    | "package"
+    | "plate"
+    | "bar";
   tradeTerms?: Array<
     | "FOB"
     | "CIF"
@@ -719,6 +740,9 @@ export type UpdateProductDto = {
     | "mmbtu"
     | "kwh"
     | "mwh"
+    | "kva"
+    | "kw"
+    | "mw"
     | "unit"
     | "set"
     | "kit"
@@ -732,7 +756,11 @@ export type UpdateProductDto = {
     | "bag"
     | "cylinder"
     | "ream"
-    | "license";
+    | "license"
+    | "skid"
+    | "package"
+    | "plate"
+    | "bar";
   tradeTerms?: Array<
     | "FOB"
     | "CIF"
@@ -870,6 +898,9 @@ export type CategoryDto = {
     | "mmbtu"
     | "kwh"
     | "mwh"
+    | "kva"
+    | "kw"
+    | "mw"
     | "unit"
     | "set"
     | "kit"
@@ -884,11 +915,18 @@ export type CategoryDto = {
     | "cylinder"
     | "ream"
     | "license"
+    | "skid"
+    | "package"
+    | "plate"
+    | "bar"
     | "hour"
     | "day"
     | "week"
     | "month"
     | "year"
+    | "project"
+    | "milestone"
+    | "contract"
   >;
   isActive: boolean;
   createdAt: string;
@@ -1039,6 +1077,9 @@ export type OrderRequestDto = {
     | "mmbtu"
     | "kwh"
     | "mwh"
+    | "kva"
+    | "kw"
+    | "mw"
     | "unit"
     | "set"
     | "kit"
@@ -1052,7 +1093,11 @@ export type OrderRequestDto = {
     | "bag"
     | "cylinder"
     | "ream"
-    | "license";
+    | "license"
+    | "skid"
+    | "package"
+    | "plate"
+    | "bar";
   requester?: OrderBuyerDto;
   qqCriteria?: Array<QqCriterionDto>;
   qqCompany?: string;
@@ -1112,6 +1157,9 @@ export type OrderResponseDto = {
     | "mmbtu"
     | "kwh"
     | "mwh"
+    | "kva"
+    | "kw"
+    | "mw"
     | "unit"
     | "set"
     | "kit"
@@ -1125,7 +1173,11 @@ export type OrderResponseDto = {
     | "bag"
     | "cylinder"
     | "ream"
-    | "license";
+    | "license"
+    | "skid"
+    | "package"
+    | "plate"
+    | "bar";
   /**
    * Price per unit in minor currency units (kobo/cents)
    */
@@ -1679,6 +1731,9 @@ export type PurchaseProductDto = {
     | "mmbtu"
     | "kwh"
     | "mwh"
+    | "kva"
+    | "kw"
+    | "mw"
     | "unit"
     | "set"
     | "kit"
@@ -1692,7 +1747,11 @@ export type PurchaseProductDto = {
     | "bag"
     | "cylinder"
     | "ream"
-    | "license";
+    | "license"
+    | "skid"
+    | "package"
+    | "plate"
+    | "bar";
   /**
    * Optional buyer notes
    */
@@ -1755,7 +1814,15 @@ export type PurchaseProductDto = {
   /**
    * Duration unit for lease/charter (hour, day, month)
    */
-  durationUnit?: "hour" | "day" | "week" | "month" | "year";
+  durationUnit?:
+    | "hour"
+    | "day"
+    | "week"
+    | "month"
+    | "year"
+    | "project"
+    | "milestone"
+    | "contract";
   /**
    * Buyer-defined milestones (only when category group milestoneDelivery=true)
    */
@@ -1907,6 +1974,9 @@ export type CreateRequestDto = {
     | "mmbtu"
     | "kwh"
     | "mwh"
+    | "kva"
+    | "kw"
+    | "mw"
     | "unit"
     | "set"
     | "kit"
@@ -1920,7 +1990,11 @@ export type CreateRequestDto = {
     | "bag"
     | "cylinder"
     | "ream"
-    | "license";
+    | "license"
+    | "skid"
+    | "package"
+    | "plate"
+    | "bar";
   /**
    * Target price per unit in minor currency units (kobo/cents)
    */
@@ -1970,7 +2044,15 @@ export type CreateRequestDto = {
   /**
    * Duration unit for lease/charter (hour, day, month)
    */
-  durationUnit?: "hour" | "day" | "week" | "month" | "year";
+  durationUnit?:
+    | "hour"
+    | "day"
+    | "week"
+    | "month"
+    | "year"
+    | "project"
+    | "milestone"
+    | "contract";
   selectionMode?: "open" | "jira-ai" | "direct";
   milestones?: Array<RequestMilestoneDto>;
   /**
@@ -2030,6 +2112,9 @@ export type RequestResponseDto = {
     | "mmbtu"
     | "kwh"
     | "mwh"
+    | "kva"
+    | "kw"
+    | "mw"
     | "unit"
     | "set"
     | "kit"
@@ -2043,13 +2128,25 @@ export type RequestResponseDto = {
     | "bag"
     | "cylinder"
     | "ream"
-    | "license";
+    | "license"
+    | "skid"
+    | "package"
+    | "plate"
+    | "bar";
   /**
    * Target price per unit in minor currency units (kobo/cents)
    */
   targetPricePerUnit: number;
   duration?: number;
-  durationUnit?: "hour" | "day" | "week" | "month" | "year";
+  durationUnit?:
+    | "hour"
+    | "day"
+    | "week"
+    | "month"
+    | "year"
+    | "project"
+    | "milestone"
+    | "contract";
   currency: "NGN" | "USD" | "EUR";
   listingType: "product" | "service" | "rental" | "lease" | "charter" | "rfq";
   transactionType?: Array<string>;
@@ -2113,6 +2210,9 @@ export type UpdateRequestDto = {
     | "mmbtu"
     | "kwh"
     | "mwh"
+    | "kva"
+    | "kw"
+    | "mw"
     | "unit"
     | "set"
     | "kit"
@@ -2126,7 +2226,11 @@ export type UpdateRequestDto = {
     | "bag"
     | "cylinder"
     | "ream"
-    | "license";
+    | "license"
+    | "skid"
+    | "package"
+    | "plate"
+    | "bar";
   /**
    * Target price per unit in minor currency units (kobo/cents)
    */
@@ -2176,7 +2280,15 @@ export type UpdateRequestDto = {
   /**
    * Duration unit for lease/charter (hour, day, month)
    */
-  durationUnit?: "hour" | "day" | "week" | "month" | "year";
+  durationUnit?:
+    | "hour"
+    | "day"
+    | "week"
+    | "month"
+    | "year"
+    | "project"
+    | "milestone"
+    | "contract";
   selectionMode?: "open" | "jira-ai" | "direct";
   milestones?: Array<RequestMilestoneDto>;
   /**
@@ -2215,6 +2327,9 @@ export type CategorySpecialtyDto = {
     | "mmbtu"
     | "kwh"
     | "mwh"
+    | "kva"
+    | "kw"
+    | "mw"
     | "unit"
     | "set"
     | "kit"
@@ -2229,11 +2344,18 @@ export type CategorySpecialtyDto = {
     | "cylinder"
     | "ream"
     | "license"
+    | "skid"
+    | "package"
+    | "plate"
+    | "bar"
     | "hour"
     | "day"
     | "week"
     | "month"
     | "year"
+    | "project"
+    | "milestone"
+    | "contract"
   >;
   allowedTradeTerms?: Array<
     | "FOB"
@@ -2287,6 +2409,9 @@ export type CreateNegotiationDto = {
     | "mmbtu"
     | "kwh"
     | "mwh"
+    | "kva"
+    | "kw"
+    | "mw"
     | "unit"
     | "set"
     | "kit"
@@ -2300,7 +2425,11 @@ export type CreateNegotiationDto = {
     | "bag"
     | "cylinder"
     | "ream"
-    | "license";
+    | "license"
+    | "skid"
+    | "package"
+    | "plate"
+    | "bar";
   transactionType?:
     | "purchase"
     | "lease"
@@ -2371,6 +2500,9 @@ export type NegotiationRequestDto = {
     | "mmbtu"
     | "kwh"
     | "mwh"
+    | "kva"
+    | "kw"
+    | "mw"
     | "unit"
     | "set"
     | "kit"
@@ -2384,7 +2516,11 @@ export type NegotiationRequestDto = {
     | "bag"
     | "cylinder"
     | "ream"
-    | "license";
+    | "license"
+    | "skid"
+    | "package"
+    | "plate"
+    | "bar";
   transactionType?: Array<string>;
   condition?: Array<string>;
 };
@@ -2420,6 +2556,9 @@ export type NegotiationOffer = {
     | "mmbtu"
     | "kwh"
     | "mwh"
+    | "kva"
+    | "kw"
+    | "mw"
     | "unit"
     | "set"
     | "kit"
@@ -2433,7 +2572,11 @@ export type NegotiationOffer = {
     | "bag"
     | "cylinder"
     | "ream"
-    | "license";
+    | "license"
+    | "skid"
+    | "package"
+    | "plate"
+    | "bar";
   transactionType?:
     | "purchase"
     | "lease"
@@ -2539,6 +2682,9 @@ export type CounterOfferDto = {
     | "mmbtu"
     | "kwh"
     | "mwh"
+    | "kva"
+    | "kw"
+    | "mw"
     | "unit"
     | "set"
     | "kit"
@@ -2552,7 +2698,11 @@ export type CounterOfferDto = {
     | "bag"
     | "cylinder"
     | "ream"
-    | "license";
+    | "license"
+    | "skid"
+    | "package"
+    | "plate"
+    | "bar";
   transactionType?:
     | "purchase"
     | "lease"
@@ -3659,6 +3809,9 @@ export type CreateCategoryDto = {
     | "mmbtu"
     | "kwh"
     | "mwh"
+    | "kva"
+    | "kw"
+    | "mw"
     | "unit"
     | "set"
     | "kit"
@@ -3673,11 +3826,18 @@ export type CreateCategoryDto = {
     | "cylinder"
     | "ream"
     | "license"
+    | "skid"
+    | "package"
+    | "plate"
+    | "bar"
     | "hour"
     | "day"
     | "week"
     | "month"
-    | "year";
+    | "year"
+    | "project"
+    | "milestone"
+    | "contract";
   /**
    * Whether the category is active
    */
@@ -3729,6 +3889,9 @@ export type UpdateCategoryDto = {
     | "mmbtu"
     | "kwh"
     | "mwh"
+    | "kva"
+    | "kw"
+    | "mw"
     | "unit"
     | "set"
     | "kit"
@@ -3743,11 +3906,18 @@ export type UpdateCategoryDto = {
     | "cylinder"
     | "ream"
     | "license"
+    | "skid"
+    | "package"
+    | "plate"
+    | "bar"
     | "hour"
     | "day"
     | "week"
     | "month"
-    | "year";
+    | "year"
+    | "project"
+    | "milestone"
+    | "contract";
   /**
    * Whether the category is active
    */
@@ -3797,6 +3967,9 @@ export type CreateCategorySpecialtyDto = {
     | "mmbtu"
     | "kwh"
     | "mwh"
+    | "kva"
+    | "kw"
+    | "mw"
     | "unit"
     | "set"
     | "kit"
@@ -3811,11 +3984,18 @@ export type CreateCategorySpecialtyDto = {
     | "cylinder"
     | "ream"
     | "license"
+    | "skid"
+    | "package"
+    | "plate"
+    | "bar"
     | "hour"
     | "day"
     | "week"
     | "month"
-    | "year";
+    | "year"
+    | "project"
+    | "milestone"
+    | "contract";
   /**
    * Override the parent group’s allowed trade terms. Omit to inherit from the group.
    */
@@ -3885,6 +4065,9 @@ export type UpdateCategorySpecialtyDto = {
     | "mmbtu"
     | "kwh"
     | "mwh"
+    | "kva"
+    | "kw"
+    | "mw"
     | "unit"
     | "set"
     | "kit"
@@ -3899,11 +4082,18 @@ export type UpdateCategorySpecialtyDto = {
     | "cylinder"
     | "ream"
     | "license"
+    | "skid"
+    | "package"
+    | "plate"
+    | "bar"
     | "hour"
     | "day"
     | "week"
     | "month"
-    | "year";
+    | "year"
+    | "project"
+    | "milestone"
+    | "contract";
   /**
    * Override the parent group’s allowed trade terms. Omit to inherit from the group.
    */
@@ -4266,6 +4456,9 @@ export type AcceptRequestOrderDto = {
     | "mmbtu"
     | "kwh"
     | "mwh"
+    | "kva"
+    | "kw"
+    | "mw"
     | "unit"
     | "set"
     | "kit"
@@ -4279,7 +4472,11 @@ export type AcceptRequestOrderDto = {
     | "bag"
     | "cylinder"
     | "ream"
-    | "license";
+    | "license"
+    | "skid"
+    | "package"
+    | "plate"
+    | "bar";
   pricePerUnit: number;
   currency: "NGN" | "USD" | "EUR";
   condition?: "New" | "Used - Good" | "Used - Fair" | "Refurbished";
