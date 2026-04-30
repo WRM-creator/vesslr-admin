@@ -453,6 +453,8 @@ import type {
   TransactionsControllerApproveMilestoneResponses,
   TransactionsControllerAssignLogisticsData,
   TransactionsControllerAssignLogisticsResponses,
+  TransactionsControllerCompleteGenericStageData,
+  TransactionsControllerCompleteGenericStageResponses,
   TransactionsControllerConfirmDeliveryData,
   TransactionsControllerConfirmDeliveryResponses,
   TransactionsControllerCreateData,
@@ -1430,6 +1432,33 @@ export const transactionsControllerConfirmDelivery = <
     security: [{ scheme: "bearer", type: "http" }],
     url: "/api/v1/transactions/{id}/confirm-delivery",
     ...options,
+  });
+
+/**
+ * Complete a generic stage (e.g. SELLER_PREPARATION, OFF_HIRE_REPORT, VESSEL_MOBILIZATION, VOYAGE_COMPLETION)
+ *
+ * Completes an ACTIVE stage assigned to the calling user's party. Use this for stages that do not require dedicated logic (unlike milestones or inspections).
+ */
+export const transactionsControllerCompleteGenericStage = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    TransactionsControllerCompleteGenericStageData,
+    ThrowOnError
+  >,
+) =>
+  (options.client ?? client).patch<
+    TransactionsControllerCompleteGenericStageResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/transactions/{id}/stages/{stageId}/complete",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
   });
 
 /**

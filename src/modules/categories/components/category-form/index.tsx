@@ -23,9 +23,20 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Separator } from "@/components/ui/separator";
+import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { useFileUpload } from "@/hooks/use-file-upload";
 import { cn } from "@/lib/utils";
+import type { CategoryGroupDto } from "@/lib/api/generated/types.gen";
 import {
   MEASUREMENT_TYPES,
   MEASUREMENT_TYPE_LABELS,
@@ -34,15 +45,45 @@ import {
   type MeasurementType,
 } from "@/types/unit";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ChevronDown, X } from "lucide-react";
+import { ChevronDown, Plus, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { useForm } from "react-hook-form";
+import { useFieldArray, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import {
   categoryFormSchema,
   defaultCategoryFormValues,
+  DOCUMENT_TYPES,
+  DOCUMENT_REQUIRED_FROM,
+  RISK_LEVELS,
+  ESCROW_STRUCTURES,
   type CategoryFormSchema,
 } from "./schema";
+
+// ── Display label maps ──────────────────────────────────────
+
+const DOCUMENT_TYPE_LABELS: Record<string, string> = {
+  INVOICE: "Invoice",
+  PACKING_LIST: "Packing List",
+  CERTIFICATE_OF_ORIGIN: "Certificate of Origin",
+  SAFETY_DATA_SHEET: "Safety Data Sheet",
+  BILL_OF_LADING: "Bill of Lading",
+  CONTRACT: "Contract",
+  INSPECTION_CERTIFICATE: "Inspection Certificate",
+  OTHER: "Other",
+};
+
+const REQUIRED_FROM_LABELS: Record<string, string> = {
+  BUYER: "Buyer",
+  SELLER: "Seller",
+};
+
+const RISK_LEVEL_LABELS: Record<string, string> = {
+  LOW: "Low",
+  MEDIUM: "Medium",
+  HIGH: "High",
+};
+
+// ── Main Form ───────────────────────────────────────────────
 
 interface CategoryFormProps {
   initialValues?: Partial<CategoryFormSchema>;
@@ -51,6 +92,7 @@ interface CategoryFormProps {
   isLoading?: boolean;
   submitLabel?: string;
   loadingLabel?: string;
+  parentGroup?: CategoryGroupDto;
 }
 
 export function CategoryForm({
@@ -60,6 +102,7 @@ export function CategoryForm({
   isLoading,
   submitLabel = "Create Category",
   loadingLabel = "Creating...",
+  parentGroup,
 }: CategoryFormProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [imageUrl, setImageUrl] = useState<string | null>(
@@ -71,6 +114,11 @@ export function CategoryForm({
     resolver: zodResolver(categoryFormSchema),
     defaultValues: { ...defaultCategoryFormValues, ...initialValues },
     mode: "onChange",
+  });
+
+  const { fields, append, remove } = useFieldArray({
+    control: form.control,
+    name: "requiredDocuments",
   });
 
   useEffect(() => {
@@ -243,6 +291,368 @@ export function CategoryForm({
           )}
         />
 
+        {/* Required Documents */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Required Documents</CardTitle>
+            <CardDescription>
+              Define which documents are required for transactions in this
+              category.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {fields.length === 0 && (
+              <p className="text-muted-foreground text-sm">
+                No document requirements configured. Add one below.
+              </p>
+            )}
+            {fields.map((field, index) => (
+              <div
+                key={field.id}
+                className="rounded-lg border p-4 space-y-3"
+              >
+                <div className="flex items-start justify-between">
+                  <span className="text-sm font-medium">
+                    Document {index + 1}
+                  </span>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => remove(index)}
+                  >
+                    <X className="size-4" />
+                  </Button>
+                </div>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <FormField
+                    control={form.control}
+                    name={`requiredDocuments.${index}.type`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Type</FormLabel>
+                        <Select
+                          value={field.value}
+                          onValueChange={field.onChange}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select type" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {DOCUMENT_TYPES.map((t) => (
+                              <SelectItem key={t} value={t}>
+                                {DOCUMENT_TYPE_LABELS[t]}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name={`requiredDocuments.${index}.name`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Name</FormLabel>
+                        <FormControl>
+                          <Input placeholder="e.g. Commercial Invoice" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name={`requiredDocuments.${index}.requiredFrom`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Required From</FormLabel>
+                        <Select
+                          value={field.value}
+                          onValueChange={field.onChange}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select party" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {DOCUMENT_REQUIRED_FROM.map((v) => (
+                              <SelectItem key={v} value={v}>
+                                {REQUIRED_FROM_LABELS[v]}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name={`requiredDocuments.${index}.isMandatory`}
+                    render={({ field }) => (
+                      <FormItem className="flex items-center gap-2 pt-6">
+                        <FormControl>
+                          <Checkbox
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
+                        <FormLabel className="!mt-0">Mandatory</FormLabel>
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </div>
+            ))}
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() =>
+                append({
+                  type: "INVOICE",
+                  name: "",
+                  requiredFrom: "SELLER",
+                  isMandatory: true,
+                })
+              }
+            >
+              <Plus className="mr-1 size-4" />
+              Add Document Requirement
+            </Button>
+          </CardContent>
+        </Card>
+
+        {/* Compliance */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Compliance</CardTitle>
+            <CardDescription>
+              Set compliance flags and risk level for this category.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <FormField
+              control={form.control}
+              name="compliance.isHazardous"
+              render={({ field }) => (
+                <div className="flex items-center justify-between">
+                  <div className="flex flex-col space-y-1">
+                    <Label className="text-base">Hazardous</Label>
+                    <span className="text-muted-foreground text-sm">
+                      Products in this category are classified as hazardous
+                      materials.
+                    </span>
+                  </div>
+                  <Switch
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                </div>
+              )}
+            />
+            <Separator />
+            <FormField
+              control={form.control}
+              name="compliance.isRegulated"
+              render={({ field }) => (
+                <div className="flex items-center justify-between">
+                  <div className="flex flex-col space-y-1">
+                    <Label className="text-base">Regulated</Label>
+                    <span className="text-muted-foreground text-sm">
+                      Products in this category are subject to regulatory
+                      requirements.
+                    </span>
+                  </div>
+                  <Switch
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                </div>
+              )}
+            />
+            <Separator />
+            <FormField
+              control={form.control}
+              name="compliance.riskLevel"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Risk Level</FormLabel>
+                  <Select value={field.value} onValueChange={field.onChange}>
+                    <FormControl>
+                      <SelectTrigger className="w-48">
+                        <SelectValue />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {RISK_LEVELS.map((level) => (
+                        <SelectItem key={level} value={level}>
+                          {RISK_LEVEL_LABELS[level]}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </CardContent>
+        </Card>
+
+        {/* Policy Overrides */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Policy Overrides</CardTitle>
+            <CardDescription>
+              Optionally override group-level policies for this specific
+              category. Leave as "Inherit" to use the group default.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <PolicyOverrideField
+              form={form}
+              name="policyOverrides.requiresLogistics"
+              label="Requires Logistics"
+              description="Whether products require shipping and logistics coordination."
+              groupValue={parentGroup?.requiresLogistics}
+            />
+            <Separator />
+            <PolicyOverrideField
+              form={form}
+              name="policyOverrides.allowsInspection"
+              label="Allows Inspection"
+              description="Whether products can be inspected before delivery."
+              groupValue={parentGroup?.allowsInspection}
+            />
+            <Separator />
+            <PolicyOverrideField
+              form={form}
+              name="policyOverrides.milestoneDelivery"
+              label="Milestone-Based Delivery"
+              description="Whether services can be delivered in milestones."
+              groupValue={parentGroup?.milestoneDelivery}
+            />
+            <Separator />
+            <div className="space-y-3">
+              <div className="flex flex-col space-y-1">
+                <Label className="text-base">Escrow Structure Override</Label>
+                <span className="text-muted-foreground text-sm">
+                  Override the allowed escrow structures for this category.
+                  {parentGroup && (
+                    <> Group default: {((parentGroup as Record<string, unknown>).allowedEscrowStructures as string[])?.join(", ") || "full"}</>
+                  )}
+                </span>
+              </div>
+              <FormField
+                control={form.control}
+                name="policyOverrides.allowedEscrowStructures"
+                render={({ field }) => {
+                  const value = field.value ?? null;
+                  const isOverridden = value !== null;
+                  return (
+                    <div className="space-y-2">
+                      <Select
+                        value={isOverridden ? "override" : "inherit"}
+                        onValueChange={(v) => {
+                          if (v === "inherit") {
+                            field.onChange(null);
+                            form.setValue(
+                              "policyOverrides.defaultEscrowStructure",
+                              null,
+                            );
+                          } else {
+                            field.onChange(["full"]);
+                          }
+                        }}
+                      >
+                        <SelectTrigger className="w-48">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="inherit">
+                            Inherit from group
+                          </SelectItem>
+                          <SelectItem value="override">Override</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      {isOverridden && (
+                        <div className="space-y-2">
+                          <div className="flex flex-wrap gap-2">
+                            {ESCROW_STRUCTURES.map((structure) => {
+                              const selected = (value as string[]).includes(
+                                structure,
+                              );
+                              return (
+                                <button
+                                  key={structure}
+                                  type="button"
+                                  className={cn(
+                                    "rounded-full border px-3 py-1 text-sm font-medium capitalize transition-colors",
+                                    selected
+                                      ? "border-primary bg-primary text-primary-foreground"
+                                      : "border-border bg-background text-muted-foreground hover:bg-accent",
+                                  )}
+                                  onClick={() => {
+                                    const next = selected
+                                      ? (value as string[]).filter(
+                                          (s) => s !== structure,
+                                        )
+                                      : [...(value as string[]), structure];
+                                    if (next.length === 0) return;
+                                    field.onChange(next);
+                                  }}
+                                >
+                                  {structure}
+                                </button>
+                              );
+                            })}
+                          </div>
+                          <FormField
+                            control={form.control}
+                            name="policyOverrides.defaultEscrowStructure"
+                            render={({ field: defaultField }) => (
+                              <FormItem>
+                                <FormLabel>Default Structure</FormLabel>
+                                <Select
+                                  value={defaultField.value ?? "full"}
+                                  onValueChange={defaultField.onChange}
+                                >
+                                  <FormControl>
+                                    <SelectTrigger className="w-48">
+                                      <SelectValue />
+                                    </SelectTrigger>
+                                  </FormControl>
+                                  <SelectContent>
+                                    {(value as string[]).map((s) => (
+                                      <SelectItem
+                                        key={s}
+                                        value={s}
+                                        className="capitalize"
+                                      >
+                                        {s}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+                      )}
+                    </div>
+                  );
+                }}
+              />
+            </div>
+          </CardContent>
+        </Card>
+
         {/* Actions */}
         <div className="flex justify-end gap-2">
           <Button type="button" variant="outline" onClick={onCancel}>
@@ -257,6 +667,71 @@ export function CategoryForm({
         </div>
       </form>
     </Form>
+  );
+}
+
+// ── Policy Override Field (tri-state) ───────────────────────
+
+function PolicyOverrideField({
+  form,
+  name,
+  label,
+  description,
+  groupValue,
+}: {
+  form: ReturnType<typeof useForm<CategoryFormSchema>>;
+  name:
+    | "policyOverrides.requiresLogistics"
+    | "policyOverrides.allowsInspection"
+    | "policyOverrides.milestoneDelivery";
+  label: string;
+  description: string;
+  groupValue?: boolean;
+}) {
+  return (
+    <FormField
+      control={form.control}
+      name={name}
+      render={({ field }) => {
+        const current = field.value as boolean | null | undefined;
+        const selectValue =
+          current === null || current === undefined
+            ? "inherit"
+            : current
+              ? "yes"
+              : "no";
+        return (
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex flex-col space-y-1">
+              <Label className="text-base">{label}</Label>
+              <span className="text-muted-foreground text-sm">
+                {description}
+                {groupValue !== undefined && (
+                  <> (Group default: {groupValue ? "Yes" : "No"})</>
+                )}
+              </span>
+            </div>
+            <Select
+              value={selectValue}
+              onValueChange={(v) => {
+                if (v === "inherit") field.onChange(null);
+                else if (v === "yes") field.onChange(true);
+                else field.onChange(false);
+              }}
+            >
+              <SelectTrigger className="w-40">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="inherit">Inherit</SelectItem>
+                <SelectItem value="yes">Yes</SelectItem>
+                <SelectItem value="no">No</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        );
+      }}
+    />
   );
 }
 

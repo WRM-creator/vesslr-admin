@@ -23,7 +23,12 @@ interface CategoryGroupAllowedOptionsCardProps {
   categoryGroup: CategoryGroupDto;
 }
 
-type ArrayField = "allowedListingTypes" | "allowedConditions" | "allowedTradeTerms";
+type ArrayField =
+  | "allowedListingTypes"
+  | "allowedTransactionTypes"
+  | "allowedConditions"
+  | "allowedTradeTerms"
+  | "allowedCurrencies";
 
 const LISTING_TYPES = [
   { value: "product", label: "Product" },
@@ -34,11 +39,29 @@ const LISTING_TYPES = [
   { value: "rfq", label: "RFQ" },
 ];
 
+const TRANSACTION_TYPES = [
+  { value: "purchase", label: "Purchase" },
+  { value: "lease", label: "Lease" },
+  { value: "charter", label: "Charter" },
+  { value: "bulk_supply", label: "Bulk Supply" },
+  { value: "spot_trade", label: "Spot Trade" },
+  { value: "rental", label: "Rental" },
+  { value: "term_contract", label: "Term Contract" },
+  { value: "service_contract", label: "Service Contract" },
+  { value: "milestone_service", label: "Milestone Service" },
+];
+
 const CONDITIONS = [
   { value: "New", label: "New" },
   { value: "Used - Good", label: "Used - Good" },
   { value: "Used - Fair", label: "Used - Fair" },
   { value: "Refurbished", label: "Refurbished" },
+];
+
+const CURRENCIES = [
+  { value: "NGN", label: "NGN" },
+  { value: "USD", label: "USD" },
+  { value: "EUR", label: "EUR" },
 ];
 
 export function CategoryGroupAllowedOptionsCard({
@@ -102,6 +125,27 @@ export function CategoryGroupAllowedOptionsCard({
         </OptionSection>
         <Separator />
         <OptionSection
+          label="Transaction Types"
+          isPending={isFieldPending("allowedTransactionTypes")}
+        >
+          {TRANSACTION_TYPES.map(({ value, label }) => (
+            <OptionPill
+              key={value}
+              label={label}
+              selected={(
+                (categoryGroup.allowedTransactionTypes ?? []) as string[]
+              ).includes(value)}
+              disabled={isPending}
+              onClick={handleToggle(
+                "allowedTransactionTypes",
+                (categoryGroup.allowedTransactionTypes ?? []) as string[],
+                value,
+              )}
+            />
+          ))}
+        </OptionSection>
+        <Separator />
+        <OptionSection
           label="Conditions"
           isPending={isFieldPending("allowedConditions")}
         >
@@ -137,6 +181,27 @@ export function CategoryGroupAllowedOptionsCard({
               onClick={handleToggle(
                 "allowedTradeTerms",
                 categoryGroup.allowedTradeTerms as string[],
+                value,
+              )}
+            />
+          ))}
+        </OptionSection>
+        <Separator />
+        <OptionSection
+          label="Currencies"
+          isPending={isFieldPending("allowedCurrencies")}
+        >
+          {CURRENCIES.map(({ value, label }) => (
+            <OptionPill
+              key={value}
+              label={label}
+              selected={(
+                (categoryGroup.allowedCurrencies ?? []) as string[]
+              ).includes(value)}
+              disabled={isPending}
+              onClick={handleToggle(
+                "allowedCurrencies",
+                (categoryGroup.allowedCurrencies ?? []) as string[],
                 value,
               )}
             />

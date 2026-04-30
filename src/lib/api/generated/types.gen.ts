@@ -1184,6 +1184,17 @@ export type CategoryGroupDto = {
     | "DDP"
     | "NA"
   >;
+  allowedTransactionTypes: Array<
+    | "purchase"
+    | "lease"
+    | "charter"
+    | "bulk_supply"
+    | "spot_trade"
+    | "rental"
+    | "term_contract"
+    | "service_contract"
+    | "milestone_service"
+  >;
   allowsCommoditySpecs: boolean;
   allowsEquipmentSpecs: boolean;
   allowsServiceSpecs: boolean;
@@ -1247,6 +1258,14 @@ export type CategoryComplianceDto = {
   riskLevel: "LOW" | "MEDIUM" | "HIGH";
 };
 
+export type CategoryPolicyOverridesDto = {
+  requiresLogistics?: boolean;
+  allowsInspection?: boolean;
+  milestoneDelivery?: boolean;
+  allowedEscrowStructures?: Array<"full" | "deposit" | "milestone" | "partial">;
+  defaultEscrowStructure?: "full" | "deposit" | "milestone" | "partial";
+};
+
 export type CategoryDto = {
   _id: string;
   name: string;
@@ -1305,6 +1324,7 @@ export type CategoryDto = {
     | "milestone"
     | "contract"
   >;
+  policyOverrides?: CategoryPolicyOverridesDto;
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
@@ -1989,6 +2009,13 @@ export type VirtualAccountResponseDto = {
    * Service fee rate (e.g. 0.03 for 3%)
    */
   serviceFeeRate: number;
+};
+
+export type CompleteStageDto = {
+  /**
+   * Optional notes or comments for the stage completion
+   */
+  notes?: string;
 };
 
 export type SubmittedDocumentDto = {
@@ -4262,6 +4289,14 @@ export type CategoryComplianceInput = {
   riskLevel?: "LOW" | "MEDIUM" | "HIGH";
 };
 
+export type CategoryPolicyOverridesInput = {
+  requiresLogistics?: boolean;
+  allowsInspection?: boolean;
+  milestoneDelivery?: boolean;
+  allowedEscrowStructures?: Array<"full" | "deposit" | "milestone" | "partial">;
+  defaultEscrowStructure?: "full" | "deposit" | "milestone" | "partial";
+};
+
 export type CreateCategoryDto = {
   /**
    * The name of the category
@@ -4336,6 +4371,7 @@ export type CreateCategoryDto = {
     | "project"
     | "milestone"
     | "contract";
+  policyOverrides?: CategoryPolicyOverridesInput;
   /**
    * Whether the category is active
    */
@@ -4416,6 +4452,7 @@ export type UpdateCategoryDto = {
     | "project"
     | "milestone"
     | "contract";
+  policyOverrides?: CategoryPolicyOverridesInput;
   /**
    * Whether the category is active
    */
@@ -5624,6 +5661,20 @@ export type UpdateCategoryGroupDto = {
     | "DDP"
     | "NA"
   >;
+  /**
+   * Allowed transaction types for this group
+   */
+  allowedTransactionTypes?: Array<
+    | "purchase"
+    | "lease"
+    | "charter"
+    | "bulk_supply"
+    | "spot_trade"
+    | "rental"
+    | "term_contract"
+    | "service_contract"
+    | "milestone_service"
+  >;
   allowsCommoditySpecs?: boolean;
   allowsEquipmentSpecs?: boolean;
   allowsServiceSpecs?: boolean;
@@ -6720,6 +6771,32 @@ export type TransactionsControllerConfirmDeliveryResponses = {
 
 export type TransactionsControllerConfirmDeliveryResponse =
   TransactionsControllerConfirmDeliveryResponses[keyof TransactionsControllerConfirmDeliveryResponses];
+
+export type TransactionsControllerCompleteGenericStageData = {
+  body: CompleteStageDto;
+  path: {
+    /**
+     * Transaction ID
+     */
+    id: string;
+    /**
+     * Stage ID
+     */
+    stageId: string;
+  };
+  query?: never;
+  url: "/api/v1/transactions/{id}/stages/{stageId}/complete";
+};
+
+export type TransactionsControllerCompleteGenericStageResponses = {
+  /**
+   * The updated transaction
+   */
+  200: TransactionResponseDto;
+};
+
+export type TransactionsControllerCompleteGenericStageResponse =
+  TransactionsControllerCompleteGenericStageResponses[keyof TransactionsControllerCompleteGenericStageResponses];
 
 export type TransactionsControllerSubmitMilestoneData = {
   body: SubmitMilestoneDto;
