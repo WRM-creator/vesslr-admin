@@ -385,6 +385,7 @@ export type ProductCategoryDto = {
 export type ProductCategoryGroupDto = {
   _id: string;
   name: string;
+  slug?: string;
   allowsInventoryTracking?: boolean;
   type?: "products" | "services";
   allowsOrderQuantityLimits?: boolean;
@@ -419,6 +420,95 @@ export type PopulatedProductLocationDto = {
   region?: ProductRegionDto;
   country?: CountryDto;
   address?: string;
+};
+
+export type CommoditySpecsResponseDto = {
+  grade?: string;
+  origin?: string;
+  apiGravity?: number;
+  sulphurContent?: number;
+  density?: string;
+  loadingPort?: string;
+  dischargePort?: string;
+  terminal?: string;
+  inspectionCompany?: string;
+  pricingBasis?: string;
+};
+
+export type EquipmentSpecsResponseDto = {
+  manufacturer?: string;
+  model?: string;
+  serialNumber?: string;
+  year?: number;
+  condition?: string;
+  certifications?: Array<string>;
+  warranty?: string;
+  datasheetUrl?: string;
+};
+
+export type ServiceSpecsResponseDto = {
+  scopeOfWork?: string;
+  location?: string;
+  startDate?: string;
+  endDate?: string;
+  mobilizationTimeline?: string;
+  manpowerRequired?: number;
+  equipmentIncluded?: boolean;
+  hseRequirement?: string;
+  milestones?: Array<string>;
+};
+
+export type RentalSpecsResponseDto = {
+  assetType?: string;
+  availabilityStart?: string;
+  availabilityEnd?: string;
+  duration?: number;
+  durationUnit?:
+    | "hour"
+    | "day"
+    | "week"
+    | "month"
+    | "year"
+    | "project"
+    | "milestone"
+    | "contract";
+  rate?: number;
+  rateUnit?: string;
+  operatorIncluded?: boolean;
+  maintenanceIncluded?: boolean;
+  mobilizationIncluded?: boolean;
+  depositRequired?: boolean;
+};
+
+export type CharterSpecsResponseDto = {
+  vesselType?: string;
+  charterType?: string;
+  duration?: number;
+  durationUnit?:
+    | "hour"
+    | "day"
+    | "week"
+    | "month"
+    | "year"
+    | "project"
+    | "milestone"
+    | "contract";
+  dayRate?: number;
+  lumpSumRate?: number;
+  crewIncluded?: boolean;
+  fuelIncluded?: boolean;
+  mobilizationIncluded?: boolean;
+  demobilizationIncluded?: boolean;
+  ports?: Array<string>;
+  classCertificate?: string;
+};
+
+export type SpecificationsResponseDto = {
+  commoditySpecs?: CommoditySpecsResponseDto;
+  equipmentSpecs?: EquipmentSpecsResponseDto;
+  serviceSpecs?: ServiceSpecsResponseDto;
+  rentalSpecs?: RentalSpecsResponseDto;
+  charterSpecs?: CharterSpecsResponseDto;
 };
 
 export type PopulatedProductResponseDto = {
@@ -499,6 +589,7 @@ export type PopulatedProductResponseDto = {
   createdAt?: string;
   updatedAt?: string;
   documents?: Array<string>;
+  specifications?: SpecificationsResponseDto;
 };
 
 export type ProductsPaginationDataDto = {
@@ -603,6 +694,7 @@ export type ProductResponseDto = {
   createdAt?: string;
   updatedAt?: string;
   documents?: Array<string>;
+  specifications?: SpecificationsResponseDto;
 };
 
 export type LocationDto = {
@@ -610,6 +702,245 @@ export type LocationDto = {
   region?: string;
   country?: string;
   address?: string;
+};
+
+export type CommoditySpecsDto = {
+  /**
+   * Commodity grade (e.g. Bonny Light)
+   */
+  grade?: string;
+  /**
+   * Country/region of origin
+   */
+  origin?: string;
+  /**
+   * API gravity value
+   */
+  apiGravity?: number;
+  /**
+   * Sulphur content percentage
+   */
+  sulphurContent?: number;
+  /**
+   * Density description
+   */
+  density?: string;
+  /**
+   * Loading port name
+   */
+  loadingPort?: string;
+  /**
+   * Discharge port name
+   */
+  dischargePort?: string;
+  /**
+   * Terminal name
+   */
+  terminal?: string;
+  /**
+   * Inspection company name
+   */
+  inspectionCompany?: string;
+  /**
+   * Pricing basis (e.g. Dated Brent +$2)
+   */
+  pricingBasis?: string;
+};
+
+export type EquipmentSpecsDto = {
+  /**
+   * Equipment manufacturer
+   */
+  manufacturer?: string;
+  /**
+   * Equipment model
+   */
+  model?: string;
+  /**
+   * Serial number
+   */
+  serialNumber?: string;
+  /**
+   * Manufacturing year
+   */
+  year?: number;
+  /**
+   * Equipment condition (e.g. New, Refurbished, Used)
+   */
+  condition?: string;
+  /**
+   * List of certifications
+   */
+  certifications?: Array<string>;
+  /**
+   * Warranty description
+   */
+  warranty?: string;
+  /**
+   * URL to equipment datasheet
+   */
+  datasheetUrl?: string;
+};
+
+export type ServiceSpecsDto = {
+  /**
+   * Scope of work description
+   */
+  scopeOfWork?: string;
+  /**
+   * Service location
+   */
+  location?: string;
+  /**
+   * Projected start date
+   */
+  startDate?: string;
+  /**
+   * Projected end date
+   */
+  endDate?: string;
+  /**
+   * Mobilization timeline description
+   */
+  mobilizationTimeline?: string;
+  /**
+   * Number of personnel required
+   */
+  manpowerRequired?: number;
+  /**
+   * Whether equipment is included
+   */
+  equipmentIncluded?: boolean;
+  /**
+   * Health, Safety & Environment requirements
+   */
+  hseRequirement?: string;
+  /**
+   * List of project milestones
+   */
+  milestones?: Array<string>;
+};
+
+export type RentalSpecsDto = {
+  /**
+   * Type of asset being rented/leased
+   */
+  assetType?: string;
+  /**
+   * Availability start date
+   */
+  availabilityStart?: string;
+  /**
+   * Availability end date
+   */
+  availabilityEnd?: string;
+  /**
+   * Rental/lease duration
+   */
+  duration?: number;
+  /**
+   * Duration unit
+   */
+  durationUnit?:
+    | "hour"
+    | "day"
+    | "week"
+    | "month"
+    | "year"
+    | "project"
+    | "milestone"
+    | "contract";
+  /**
+   * Rental/lease rate amount
+   */
+  rate?: number;
+  /**
+   * Rate unit (e.g. per day, per month)
+   */
+  rateUnit?: string;
+  /**
+   * Whether an operator is included
+   */
+  operatorIncluded?: boolean;
+  /**
+   * Whether maintenance is included
+   */
+  maintenanceIncluded?: boolean;
+  /**
+   * Whether mobilization is included
+   */
+  mobilizationIncluded?: boolean;
+  /**
+   * Whether a deposit is required
+   */
+  depositRequired?: boolean;
+};
+
+export type CharterSpecsDto = {
+  /**
+   * Type of vessel
+   */
+  vesselType?: string;
+  /**
+   * Charter type (e.g. time, voyage, bareboat)
+   */
+  charterType?: string;
+  /**
+   * Charter duration
+   */
+  duration?: number;
+  /**
+   * Duration unit
+   */
+  durationUnit?:
+    | "hour"
+    | "day"
+    | "week"
+    | "month"
+    | "year"
+    | "project"
+    | "milestone"
+    | "contract";
+  /**
+   * Day rate amount
+   */
+  dayRate?: number;
+  /**
+   * Lump sum rate amount
+   */
+  lumpSumRate?: number;
+  /**
+   * Whether crew is included
+   */
+  crewIncluded?: boolean;
+  /**
+   * Whether fuel is included
+   */
+  fuelIncluded?: boolean;
+  /**
+   * Whether mobilization is included
+   */
+  mobilizationIncluded?: boolean;
+  /**
+   * Whether demobilization is included
+   */
+  demobilizationIncluded?: boolean;
+  /**
+   * List of ports
+   */
+  ports?: Array<string>;
+  /**
+   * Class certificate
+   */
+  classCertificate?: string;
+};
+
+export type SpecificationsDto = {
+  commoditySpecs?: CommoditySpecsDto;
+  equipmentSpecs?: EquipmentSpecsDto;
+  serviceSpecs?: ServiceSpecsDto;
+  rentalSpecs?: RentalSpecsDto;
+  charterSpecs?: CharterSpecsDto;
 };
 
 export type CreateProductDto = {
@@ -696,6 +1027,7 @@ export type CreateProductDto = {
   delistReason?: string;
   isActive?: boolean;
   rejectionReason?: string;
+  specifications?: SpecificationsDto;
 };
 
 export type UpdateProductDto = {
@@ -782,6 +1114,7 @@ export type UpdateProductDto = {
   delistReason?: string;
   isActive?: boolean;
   rejectionReason?: string;
+  specifications?: SpecificationsDto;
 };
 
 export type CategoryGroupDto = {
@@ -822,6 +1155,11 @@ export type CategoryGroupDto = {
     | "DDP"
     | "NA"
   >;
+  allowsCommoditySpecs: boolean;
+  allowsEquipmentSpecs: boolean;
+  allowsServiceSpecs: boolean;
+  allowsRentalSpecs: boolean;
+  allowsCharterSpecs: boolean;
   /**
    * Deprecated: measurement types are now configured per category.
    *
@@ -1216,6 +1554,7 @@ export type OrderResponseDto = {
   displayId: number;
   createdAt: string;
   updatedAt: string;
+  specifications?: SpecificationsResponseDto;
 };
 
 export type TransactionEventDto = {
@@ -2063,6 +2402,7 @@ export type CreateRequestDto = {
    * The preferred Q&Q inspection company
    */
   qqCompany?: string;
+  specifications?: SpecificationsDto;
 };
 
 export type RequesterDto = {
@@ -2171,6 +2511,7 @@ export type RequestResponseDto = {
    * Q&Q acceptance criteria attached to this request
    */
   qqCriteria?: Array<QqCriterionDto>;
+  specifications?: SpecificationsResponseDto;
 };
 
 export type UpdateRequestDto = {
@@ -2299,6 +2640,7 @@ export type UpdateRequestDto = {
    * The preferred Q&Q inspection company
    */
   qqCompany?: string;
+  specifications?: SpecificationsDto;
   status?: "pending" | "in_review" | "matched" | "fulfilled" | "cancelled";
 };
 
@@ -5089,6 +5431,11 @@ export type UpdateCategoryGroupDto = {
     | "DDP"
     | "NA"
   >;
+  allowsCommoditySpecs?: boolean;
+  allowsEquipmentSpecs?: boolean;
+  allowsServiceSpecs?: boolean;
+  allowsRentalSpecs?: boolean;
+  allowsCharterSpecs?: boolean;
 };
 
 export type QqFieldDef = {
