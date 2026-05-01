@@ -33,6 +33,13 @@ export default function TransactionDetailsPage() {
     },
   );
 
+  const order = transaction?.order;
+  const txnLabel = transaction
+    ? `TXN-${String(transaction.displayId).padStart(4, "0")}`
+    : "";
+
+  useAppBreadcrumbLabel(id!, txnLabel);
+
   if (isLoading) {
     return <PageLoader />;
   }
@@ -63,14 +70,10 @@ export default function TransactionDetailsPage() {
     return <NotFoundPage />;
   }
 
-  const order = transaction.order;
   const buyerName = order?.buyerOrganization?.name || "Unknown Buyer";
   const sellerName = order?.sellerOrganization?.name || "Unknown Seller";
   const buyerOrgId = order?.buyerOrganization?._id;
   const sellerOrgId = order?.sellerOrganization?._id;
-  const txnLabel = `TXN-${String(transaction.displayId).padStart(4, "0")}`;
-
-  useAppBreadcrumbLabel(id!, txnLabel);
 
   return (
     <Page>
