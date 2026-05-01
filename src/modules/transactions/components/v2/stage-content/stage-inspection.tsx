@@ -1,10 +1,15 @@
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { api } from "@/lib/api";
 import type {
   TransactionResponseDto,
   TransactionStageResponseDto,
 } from "@/lib/api/generated";
 import { formatDateTime } from "@/lib/utils";
-import { Building2, ExternalLink, FileCheck, FileText } from "lucide-react";
+import { Building2, CheckCircle, ExternalLink, FileCheck, FileText, Loader2, XCircle } from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
+import { RejectInspectionDialog } from "../../reject-inspection-dialog";
 
 interface StageInspectionContentProps {
   transaction: TransactionResponseDto;
@@ -15,6 +20,8 @@ export function StageInspectionContent({
   transaction,
   stage,
 }: StageInspectionContentProps) {
+  const [isRejectOpen, setIsRejectOpen] = useState(false);
+
   const metadata = stage.metadata as Record<string, unknown> | undefined;
   const qqCompany = metadata?.qqCompany as string | null | undefined;
   const qqCriteria = (metadata?.qqCriteria as Record<string, unknown>[]) ?? [];
@@ -23,6 +30,26 @@ export function StageInspectionContent({
   const inspectionReview = metadata?.inspectionReview as
     | { status: string; rejectionReason?: string | null; reviewedAt?: string }
     | undefined;
+
+  const { mutate: reviewInspection, isPending: isApproving } =
+    api.admin.transactions.reviewInspection.useMutation();
+
+  const handleApprove = () => {
+    if (!transaction._id || !stage._id) return;
+    reviewInspection(
+      {
+        path: { id: transaction._id, stageId: stage._id },
+        body: { decision: "APPROVED" },
+      },
+      {
+        onSuccess: () => toast.success("Inspection approved."),
+        onError: (error: unknown) => {
+          const message = error instanceof Error ? error.message : "Unknown error";
+          toast.error("Failed to approve inspection", { description: message });
+        },
+      },
+    );
+  };
 
   return (
     <div className="space-y-4">
@@ -84,8 +111,42 @@ export function StageInspectionContent({
         </div>
       )}
 
-      {/* Review outcome */}
-      {inspectionReview && (
+      {/* Review actions — shown when documents are submitted and awaiting admin review */}
+      {inspectionReview?.status === "AWAITING_REVIEW" && transaction._id && stage._id && (
+        <div className="flex items-center justify-end gap-2 border-t pt-3">
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-1.5 border-red-300 text-red-700 hover:bg-red-50 dark:border-red-700 dark:text-red-400"
+            onClick={() => setIsRejectOpen(true)}
+          >
+            <XCircle className="size-3.5" />
+            Reject
+          </Button>
+          <Button
+            size="sm"
+            className="gap-1.5 bg-green-600 text-white hover:bg-green-700"
+            onClick={handleApprove}
+            disabled={isApproving}
+          >
+            {isApproving ? (
+              <Loader2 className="size-3.5 animate-spin" />
+            ) : (
+              <CheckCircle className="size-3.5" />
+            )}
+            Approve
+          </Button>
+          <RejectInspectionDialog
+            open={isRejectOpen}
+            onOpenChange={setIsRejectOpen}
+            transactionId={transaction._id}
+            stageId={stage._id}
+          />
+        </div>
+      )}
+
+      {/* Review outcome — only shown after a decision is made */}
+      {inspectionReview && inspectionReview.status !== "AWAITING_REVIEW" && (
         <div className="bg-muted/40 rounded-md border p-3">
           <div className="flex items-center gap-2">
             <p className="text-xs font-medium">Review Decision:</p>
@@ -94,9 +155,7 @@ export function StageInspectionContent({
               className={
                 inspectionReview.status === "APPROVED"
                   ? "border-green-500 text-green-700"
-                  : inspectionReview.status === "REJECTED"
-                    ? "border-red-500 text-red-700"
-                    : "text-muted-foreground"
+                  : "border-red-500 text-red-700"
               }
             >
               {inspectionReview.status}
