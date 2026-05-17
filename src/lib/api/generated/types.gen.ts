@@ -34,26 +34,6 @@ export type UpdateAddressDto = {
   postalCode?: string;
 };
 
-export type AddressDto = {
-  state: string;
-  country: string;
-};
-
-export type RegisterOrganizationDto = {
-  /**
-   * The legal name of the organization
-   */
-  name: string;
-  /**
-   * Organization type (merchant or customer)
-   */
-  type?: "merchant" | "customer";
-  /**
-   * Structured address with state and country
-   */
-  address: AddressDto;
-};
-
 export type RegisterDto = {
   /**
    * User's email address (used for login)
@@ -75,10 +55,6 @@ export type RegisterDto = {
    * User's phone number (E.164 format, e.g. +2348012345678)
    */
   phone: string;
-  /**
-   * Organization details for the user
-   */
-  organization: RegisterOrganizationDto;
 };
 
 export type AuthTokenResponseDto = {
@@ -261,10 +237,12 @@ export type UserProfileResponseDto = {
   phone: string;
   country?: PopulatedLocationDto;
   onboardingStep?:
+    | "intent"
     | "identity_kyc"
     | "residential"
     | "company_info"
-    | "product_categories"
+    | "selling_interests"
+    | "buying_interests"
     | "company_documents"
     | "review"
     | "status"
@@ -339,7 +317,10 @@ export type UpdateOrganizationDto = {
   address?: {
     [key: string]: unknown;
   };
-  categories?: Array<string>;
+  sellingCategories?: Array<string>;
+  sellingSpecialties?: Array<string>;
+  buyingCategories?: Array<string>;
+  buyingSpecialties?: Array<string>;
 };
 
 export type MemberResponseDto = {
@@ -964,6 +945,56 @@ export type SpecificationsDto = {
   charterSpecs?: CharterSpecsDto;
 };
 
+export type DeliveryTermsDto = {
+  /**
+   * Origin location (city, depot, terminal)
+   */
+  origin?: string;
+  /**
+   * Destination location
+   */
+  destination?: string;
+  /**
+   * Loading port name
+   */
+  loadingPort?: string;
+  /**
+   * Discharge port name
+   */
+  dischargePort?: string;
+  /**
+   * Terminal name
+   */
+  terminal?: string;
+  /**
+   * Who is responsible for logistics
+   */
+  logisticsResponsibility?: "buyer" | "seller" | "vesslr_partner";
+};
+
+export type CommercialTermsDto = {
+  /**
+   * How long the offer/listing is valid
+   */
+  validityPeriod?: number;
+  /**
+   * Unit for validity period
+   */
+  validityUnit?: "days" | "weeks" | "months";
+  /**
+   * Payment deadline in days from order confirmation
+   */
+  paymentDeadline?: number;
+  /**
+   * Cancellation policy text
+   */
+  cancellationPolicy?: string;
+  /**
+   * Refund policy text
+   */
+  refundPolicy?: string;
+};
+
 export type CreateProductDto = {
   title: string;
   description: string;
@@ -1049,6 +1080,8 @@ export type CreateProductDto = {
   isActive?: boolean;
   rejectionReason?: string;
   specifications?: SpecificationsDto;
+  deliveryTerms?: DeliveryTermsDto;
+  commercialTerms?: CommercialTermsDto;
 };
 
 export type UpdateProductDto = {
@@ -1136,6 +1169,8 @@ export type UpdateProductDto = {
   isActive?: boolean;
   rejectionReason?: string;
   specifications?: SpecificationsDto;
+  deliveryTerms?: DeliveryTermsDto;
+  commercialTerms?: CommercialTermsDto;
 };
 
 export type ServiceFeeConfigResponseDto = {
@@ -1209,6 +1244,85 @@ export type CategoryGroupDto = {
    * @deprecated
    */
   allowedMeasurementTypes: Array<"count" | "volume" | "mass" | "time">;
+};
+
+export type ServiceFeeConfigDto = {
+  /**
+   * Who pays the service fee
+   */
+  payer: "buyer" | "seller" | "split";
+  /**
+   * Fee calculation type
+   */
+  feeType: "percentage" | "fixed";
+  /**
+   * Fee percentage (e.g. 0.03 for 3%)
+   */
+  percentage?: number;
+  /**
+   * Fixed fee amount in minor currency units
+   */
+  fixedAmount?: number;
+  /**
+   * Whether the fee is refundable on cancellation
+   */
+  refundable: boolean;
+};
+
+export type UpdateCategoryGroupDto = {
+  name?: string;
+  type?: "products" | "services";
+  isActive?: boolean;
+  image?: string;
+  requiresLogistics?: boolean;
+  allowsInspection?: boolean;
+  milestoneDelivery?: boolean;
+  allowsOrderQuantityLimits?: boolean;
+  allowsInventoryTracking?: boolean;
+  allowedCurrencies?: Array<"NGN" | "USD" | "EUR">;
+  allowedListingTypes?: Array<
+    "product" | "service" | "rental" | "lease" | "charter" | "rfq"
+  >;
+  allowedConditions?: "New" | "Used - Good" | "Used - Fair" | "Refurbished";
+  /**
+   * Allowed trade terms for listings in this group
+   */
+  allowedTradeTerms?: Array<
+    | "FOB"
+    | "CIF"
+    | "CFR"
+    | "EX_WORKS"
+    | "DELIVERED"
+    | "TTO"
+    | "TTT"
+    | "FOT"
+    | "FCA"
+    | "DAP"
+    | "DDP"
+    | "NA"
+  >;
+  /**
+   * Allowed transaction types for this group
+   */
+  allowedTransactionTypes?: Array<
+    | "purchase"
+    | "lease"
+    | "charter"
+    | "bulk_supply"
+    | "spot_trade"
+    | "rental"
+    | "term_contract"
+    | "service_contract"
+    | "milestone_service"
+  >;
+  allowsCommoditySpecs?: boolean;
+  allowsEquipmentSpecs?: boolean;
+  allowsServiceSpecs?: boolean;
+  allowsRentalSpecs?: boolean;
+  allowsCharterSpecs?: boolean;
+  serviceFeeConfig?: ServiceFeeConfigDto;
+  allowedEscrowStructures?: Array<"full" | "deposit" | "milestone" | "partial">;
+  defaultEscrowStructure?: "full" | "deposit" | "milestone" | "partial";
 };
 
 export type CategoryDocumentTemplateDto = {
@@ -1814,9 +1928,12 @@ export type TransactionStageResponseDto = {
     | "VOYAGE_COMPLETION"
     | "MILESTONE_SUBMIT"
     | "MILESTONE_APPROVE"
-    | "SETTLEMENT";
+    | "SETTLEMENT"
+    | "CLOSED";
   name: string;
   description: string;
+  buyerDescription?: string;
+  sellerDescription?: string;
   assignedTo: "BUYER" | "SELLER" | "ADMIN" | "SYSTEM";
   status: "PENDING" | "ACTIVE" | "COMPLETED" | "DISPUTED";
   visibility: "SHARED" | "PARTY_ONLY";
@@ -1879,7 +1996,14 @@ export type TransactionResponseDto = {
     | "REFUNDED"
     | "PARTIALLY_REFUNDED"
     | "DISPUTED";
-  workflowType: "STANDARD" | "MILESTONE" | "RENTAL" | "CHARTER" | "SERVICE";
+  workflowType:
+    | "COMMODITY"
+    | "EQUIPMENT"
+    | "STANDARD"
+    | "MILESTONE"
+    | "RENTAL"
+    | "CHARTER"
+    | "SERVICE";
   events: Array<TransactionEventDto>;
   requiredDocuments?: Array<TransactionDocumentSlotDto>;
   /**
@@ -2384,56 +2508,6 @@ export type RecommendationFeedResponseDto = {
 export type SingleRecommendationFeedResponseDto = {
   message: string;
   data: RecommendationFeedItemDto;
-};
-
-export type DeliveryTermsDto = {
-  /**
-   * Origin location (city, depot, terminal)
-   */
-  origin?: string;
-  /**
-   * Destination location
-   */
-  destination?: string;
-  /**
-   * Loading port name
-   */
-  loadingPort?: string;
-  /**
-   * Discharge port name
-   */
-  dischargePort?: string;
-  /**
-   * Terminal name
-   */
-  terminal?: string;
-  /**
-   * Who is responsible for logistics
-   */
-  logisticsResponsibility?: "buyer" | "seller" | "vesslr_partner";
-};
-
-export type CommercialTermsDto = {
-  /**
-   * How long the offer/listing is valid
-   */
-  validityPeriod?: number;
-  /**
-   * Unit for validity period
-   */
-  validityUnit?: "days" | "weeks" | "months";
-  /**
-   * Payment deadline in days from order confirmation
-   */
-  paymentDeadline?: number;
-  /**
-   * Cancellation policy text
-   */
-  cancellationPolicy?: string;
-  /**
-   * Refund policy text
-   */
-  refundPolicy?: string;
 };
 
 export type CreateRequestDto = {
@@ -3642,10 +3716,12 @@ export type FulfillInformationRequestDto = {
 
 export type OnboardingStatusResponseDto = {
   onboardingStep:
+    | "intent"
     | "identity_kyc"
     | "residential"
     | "company_info"
-    | "product_categories"
+    | "selling_interests"
+    | "buying_interests"
     | "company_documents"
     | "review"
     | "status"
@@ -3706,6 +3782,10 @@ export type OnboardingStatusHubResponseDto = {
   smileVerificationStatus?: string;
   nextAction: string;
   estimatedTimeline?: string;
+};
+
+export type UpdateIntentDto = {
+  type: "buyer" | "buyer_seller";
 };
 
 export type KycFileMetadataDto = {
@@ -3789,11 +3869,26 @@ export type UpdateBusinessAddressDto = {
   logo?: FileMetadataDto;
 };
 
-export type UpdateProductCategoriesDto = {
+export type UpdateSellingInterestsDto = {
   /**
    * Array of Category IDs
    */
   categories: Array<string>;
+  /**
+   * Array of Category Specialty IDs
+   */
+  specialtyIds?: Array<string>;
+};
+
+export type UpdateBuyingInterestsDto = {
+  /**
+   * Array of Category IDs
+   */
+  categories: Array<string>;
+  /**
+   * Array of Category Specialty IDs
+   */
+  specialtyIds?: Array<string>;
 };
 
 export type UpdateCompanyDocumentsDto = {
@@ -5062,7 +5157,7 @@ export type PaginatedNotificationsResponseDto = {
 
 export type CompanySnapshotDto = {
   name?: string;
-  type?: "merchant" | "customer";
+  type?: "buyer" | "buyer_seller";
   countryCode?: string;
   rcNumber?: string;
   taxId?: string;
@@ -5606,85 +5701,6 @@ export type UpdatePageDto = {
   blocks?: Array<ContentBlockDto>;
 };
 
-export type ServiceFeeConfigDto = {
-  /**
-   * Who pays the service fee
-   */
-  payer: "buyer" | "seller" | "split";
-  /**
-   * Fee calculation type
-   */
-  feeType: "percentage" | "fixed";
-  /**
-   * Fee percentage (e.g. 0.03 for 3%)
-   */
-  percentage?: number;
-  /**
-   * Fixed fee amount in minor currency units
-   */
-  fixedAmount?: number;
-  /**
-   * Whether the fee is refundable on cancellation
-   */
-  refundable: boolean;
-};
-
-export type UpdateCategoryGroupDto = {
-  name?: string;
-  type?: "products" | "services";
-  isActive?: boolean;
-  image?: string;
-  requiresLogistics?: boolean;
-  allowsInspection?: boolean;
-  milestoneDelivery?: boolean;
-  allowsOrderQuantityLimits?: boolean;
-  allowsInventoryTracking?: boolean;
-  allowedCurrencies?: Array<"NGN" | "USD" | "EUR">;
-  allowedListingTypes?: Array<
-    "product" | "service" | "rental" | "lease" | "charter" | "rfq"
-  >;
-  allowedConditions?: "New" | "Used - Good" | "Used - Fair" | "Refurbished";
-  /**
-   * Allowed trade terms for listings in this group
-   */
-  allowedTradeTerms?: Array<
-    | "FOB"
-    | "CIF"
-    | "CFR"
-    | "EX_WORKS"
-    | "DELIVERED"
-    | "TTO"
-    | "TTT"
-    | "FOT"
-    | "FCA"
-    | "DAP"
-    | "DDP"
-    | "NA"
-  >;
-  /**
-   * Allowed transaction types for this group
-   */
-  allowedTransactionTypes?: Array<
-    | "purchase"
-    | "lease"
-    | "charter"
-    | "bulk_supply"
-    | "spot_trade"
-    | "rental"
-    | "term_contract"
-    | "service_contract"
-    | "milestone_service"
-  >;
-  allowsCommoditySpecs?: boolean;
-  allowsEquipmentSpecs?: boolean;
-  allowsServiceSpecs?: boolean;
-  allowsRentalSpecs?: boolean;
-  allowsCharterSpecs?: boolean;
-  serviceFeeConfig?: ServiceFeeConfigDto;
-  allowedEscrowStructures?: Array<"full" | "deposit" | "milestone" | "partial">;
-  defaultEscrowStructure?: "full" | "deposit" | "milestone" | "partial";
-};
-
 export type QqFieldDef = {
   [key: string]: unknown;
 };
@@ -5918,6 +5934,98 @@ export type PaginatedSupportTicketsResponseDto = {
 export type AddMessageDto = {
   body: string;
   attachments?: Array<SupportAttachmentDto>;
+};
+
+export type LicenseUploadStatusDto = {
+  documentId: string;
+  status: "pending" | "approved" | "rejected";
+  fileUrl: string;
+  fileName?: string;
+  expiryDate?: string;
+  rejectionReason?: string;
+};
+
+export type LicenseRequirementItemDto = {
+  /**
+   * The _id of the CategoryLicenseRequirement
+   */
+  requirementId: string;
+  categoryId: string;
+  categoryName: string;
+  name: string;
+  description?: string;
+  isMandatory: boolean;
+  hasExpiry: boolean;
+  /**
+   * Other category names that also require this document
+   */
+  alsoRequiredBy: Array<string>;
+  upload?: LicenseUploadStatusDto;
+};
+
+export type LicenseRequirementsResponseDto = {
+  requirements: Array<LicenseRequirementItemDto>;
+};
+
+export type FileMetadataInput = {
+  url: string;
+  name?: string;
+  type?: string;
+  size?: number;
+};
+
+export type UploadLicenseDocumentDto = {
+  /**
+   * The _id of the CategoryLicenseRequirement
+   */
+  requirementId: string;
+  /**
+   * The category this requirement belongs to
+   */
+  categoryId: string;
+  file: FileMetadataInput;
+  /**
+   * Document expiry date (ISO string)
+   */
+  expiryDate?: string;
+};
+
+export type ReviewLicenseDocumentDto = {
+  status: "approved" | "rejected";
+  /**
+   * Reason for rejection
+   */
+  rejectionReason?: string;
+};
+
+export type CreateLicenseRequirementDto = {
+  name: string;
+  description?: string;
+  isMandatory?: boolean;
+  hasExpiry?: boolean;
+  /**
+   * Country codes. Empty = universal.
+   */
+  countryCodes?: Array<string>;
+  /**
+   * Category IDs this requirement applies to
+   */
+  categoryIds?: Array<string>;
+};
+
+export type UpdateLicenseRequirementDto = {
+  name?: string;
+  description?: string;
+  isMandatory?: boolean;
+  hasExpiry?: boolean;
+  /**
+   * Country codes. Empty = universal.
+   */
+  countryCodes?: Array<string>;
+  /**
+   * Category IDs this requirement applies to
+   */
+  categoryIds?: Array<string>;
 };
 
 export type AppControllerGetHelloData = {
@@ -6522,6 +6630,61 @@ export type MyProductsControllerResubmitResponses = {
 
 export type MyProductsControllerResubmitResponse =
   MyProductsControllerResubmitResponses[keyof MyProductsControllerResubmitResponses];
+
+export type CategoryGroupsControllerFindAllData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: "/api/v1/category-groups";
+};
+
+export type CategoryGroupsControllerFindAllResponses = {
+  /**
+   * List of category groups
+   */
+  200: Array<CategoryGroupDto>;
+};
+
+export type CategoryGroupsControllerFindAllResponse =
+  CategoryGroupsControllerFindAllResponses[keyof CategoryGroupsControllerFindAllResponses];
+
+export type CategoryGroupsControllerFindOneData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/category-groups/{id}";
+};
+
+export type CategoryGroupsControllerFindOneResponses = {
+  /**
+   * The category group
+   */
+  200: CategoryGroupDto;
+};
+
+export type CategoryGroupsControllerFindOneResponse =
+  CategoryGroupsControllerFindOneResponses[keyof CategoryGroupsControllerFindOneResponses];
+
+export type CategoryGroupsControllerUpdateData = {
+  body: UpdateCategoryGroupDto;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/category-groups/{id}";
+};
+
+export type CategoryGroupsControllerUpdateResponses = {
+  /**
+   * The updated category group
+   */
+  200: CategoryGroupDto;
+};
+
+export type CategoryGroupsControllerUpdateResponse =
+  CategoryGroupsControllerUpdateResponses[keyof CategoryGroupsControllerUpdateResponses];
 
 export type CategoriesControllerFindAllData = {
   body?: never;
@@ -7741,6 +7904,23 @@ export type OnboardingControllerGetStatusHubResponses = {
 export type OnboardingControllerGetStatusHubResponse =
   OnboardingControllerGetStatusHubResponses[keyof OnboardingControllerGetStatusHubResponses];
 
+export type OnboardingControllerUpdateIntentData = {
+  body: UpdateIntentDto;
+  path?: never;
+  query?: never;
+  url: "/api/v1/onboarding/intent";
+};
+
+export type OnboardingControllerUpdateIntentResponses = {
+  /**
+   * Intent updated and step advanced
+   */
+  200: OnboardingStatusResponseDto;
+};
+
+export type OnboardingControllerUpdateIntentResponse =
+  OnboardingControllerUpdateIntentResponses[keyof OnboardingControllerUpdateIntentResponses];
+
 export type OnboardingControllerUpdateIdentityKycData = {
   body: UpdateIdentityKycDto;
   path?: never;
@@ -7832,22 +8012,39 @@ export type OnboardingControllerUpdateBusinessAddressResponses = {
 export type OnboardingControllerUpdateBusinessAddressResponse =
   OnboardingControllerUpdateBusinessAddressResponses[keyof OnboardingControllerUpdateBusinessAddressResponses];
 
-export type OnboardingControllerUpdateProductCategoriesData = {
-  body: UpdateProductCategoriesDto;
+export type OnboardingControllerUpdateSellingInterestsData = {
+  body: UpdateSellingInterestsDto;
   path?: never;
   query?: never;
-  url: "/api/v1/onboarding/product-categories";
+  url: "/api/v1/onboarding/selling-interests";
 };
 
-export type OnboardingControllerUpdateProductCategoriesResponses = {
+export type OnboardingControllerUpdateSellingInterestsResponses = {
   /**
-   * Product categories updated
+   * Selling interests updated
    */
   200: OnboardingStatusResponseDto;
 };
 
-export type OnboardingControllerUpdateProductCategoriesResponse =
-  OnboardingControllerUpdateProductCategoriesResponses[keyof OnboardingControllerUpdateProductCategoriesResponses];
+export type OnboardingControllerUpdateSellingInterestsResponse =
+  OnboardingControllerUpdateSellingInterestsResponses[keyof OnboardingControllerUpdateSellingInterestsResponses];
+
+export type OnboardingControllerUpdateBuyingInterestsData = {
+  body: UpdateBuyingInterestsDto;
+  path?: never;
+  query?: never;
+  url: "/api/v1/onboarding/buying-interests";
+};
+
+export type OnboardingControllerUpdateBuyingInterestsResponses = {
+  /**
+   * Buying interests updated
+   */
+  200: OnboardingStatusResponseDto;
+};
+
+export type OnboardingControllerUpdateBuyingInterestsResponse =
+  OnboardingControllerUpdateBuyingInterestsResponses[keyof OnboardingControllerUpdateBuyingInterestsResponses];
 
 export type OnboardingControllerPatchCompanyDocumentsData = {
   body: PatchCompanyDocumentsDto;
@@ -9369,7 +9566,7 @@ export type AdminComplianceControllerListCasesData = {
       | "action_required"
       | "approved";
     country?: string;
-    type?: "merchant" | "customer";
+    type?: "buyer" | "buyer_seller";
     search?: string;
   };
   url: "/api/v1/admin/compliance/cases";
@@ -9890,61 +10087,6 @@ export type CmsControllerFindBySlugResponses = {
 export type CmsControllerFindBySlugResponse =
   CmsControllerFindBySlugResponses[keyof CmsControllerFindBySlugResponses];
 
-export type CategoryGroupsControllerFindAllData = {
-  body?: never;
-  path?: never;
-  query?: never;
-  url: "/api/v1/category-groups";
-};
-
-export type CategoryGroupsControllerFindAllResponses = {
-  /**
-   * List of category groups
-   */
-  200: Array<CategoryGroupDto>;
-};
-
-export type CategoryGroupsControllerFindAllResponse =
-  CategoryGroupsControllerFindAllResponses[keyof CategoryGroupsControllerFindAllResponses];
-
-export type CategoryGroupsControllerFindOneData = {
-  body?: never;
-  path: {
-    id: string;
-  };
-  query?: never;
-  url: "/api/v1/category-groups/{id}";
-};
-
-export type CategoryGroupsControllerFindOneResponses = {
-  /**
-   * The category group
-   */
-  200: CategoryGroupDto;
-};
-
-export type CategoryGroupsControllerFindOneResponse =
-  CategoryGroupsControllerFindOneResponses[keyof CategoryGroupsControllerFindOneResponses];
-
-export type CategoryGroupsControllerUpdateData = {
-  body: UpdateCategoryGroupDto;
-  path: {
-    id: string;
-  };
-  query?: never;
-  url: "/api/v1/category-groups/{id}";
-};
-
-export type CategoryGroupsControllerUpdateResponses = {
-  /**
-   * The updated category group
-   */
-  200: CategoryGroupDto;
-};
-
-export type CategoryGroupsControllerUpdateResponse =
-  CategoryGroupsControllerUpdateResponses[keyof CategoryGroupsControllerUpdateResponses];
-
 export type OrgProductsControllerFindAllData = {
   body?: never;
   path: {
@@ -10221,24 +10363,19 @@ export type PlacesControllerGetDetailsResponses = {
 export type PlacesControllerGetDetailsResponse =
   PlacesControllerGetDetailsResponses[keyof PlacesControllerGetDetailsResponses];
 
-export type ProvidusWebhooksControllerHandleSettlementData = {
+export type FlutterwaveWebhooksControllerHandleWebhookData = {
   body?: never;
   headers: {
-    "x-auth-signature": string;
+    "verif-hash": string;
   };
   path?: never;
   query?: never;
-  url: "/api/v1/providus/webhook";
+  url: "/api/v1/flutterwave/webhooks";
 };
 
-export type ProvidusWebhooksControllerHandleSettlementResponses = {
-  200: {
-    [key: string]: unknown;
-  };
+export type FlutterwaveWebhooksControllerHandleWebhookResponses = {
+  200: unknown;
 };
-
-export type ProvidusWebhooksControllerHandleSettlementResponse =
-  ProvidusWebhooksControllerHandleSettlementResponses[keyof ProvidusWebhooksControllerHandleSettlementResponses];
 
 export type WalletControllerGetBalanceData = {
   body?: never;
@@ -10441,3 +10578,185 @@ export type SupportControllerCloseResponses = {
 
 export type SupportControllerCloseResponse =
   SupportControllerCloseResponses[keyof SupportControllerCloseResponses];
+
+export type LicenseDocumentsControllerGetRequirementsData = {
+  body?: never;
+  path: {
+    orgId: string;
+  };
+  query?: never;
+  url: "/api/v1/organizations/{orgId}/license-documents/requirements";
+};
+
+export type LicenseDocumentsControllerGetRequirementsResponses = {
+  200: LicenseRequirementsResponseDto;
+};
+
+export type LicenseDocumentsControllerGetRequirementsResponse =
+  LicenseDocumentsControllerGetRequirementsResponses[keyof LicenseDocumentsControllerGetRequirementsResponses];
+
+export type LicenseDocumentsControllerUploadData = {
+  body: UploadLicenseDocumentDto;
+  path: {
+    orgId: string;
+  };
+  query?: never;
+  url: "/api/v1/organizations/{orgId}/license-documents";
+};
+
+export type LicenseDocumentsControllerUploadResponses = {
+  201: {
+    [key: string]: unknown;
+  };
+};
+
+export type LicenseDocumentsControllerUploadResponse =
+  LicenseDocumentsControllerUploadResponses[keyof LicenseDocumentsControllerUploadResponses];
+
+export type LicenseDocumentsControllerDeleteData = {
+  body?: never;
+  path: {
+    orgId: string;
+    documentId: string;
+  };
+  query?: never;
+  url: "/api/v1/organizations/{orgId}/license-documents/{documentId}";
+};
+
+export type LicenseDocumentsControllerDeleteResponses = {
+  200: unknown;
+};
+
+export type AdminLicenseDocumentsControllerListData = {
+  body?: never;
+  path?: never;
+  query?: {
+    status?: "pending" | "approved" | "rejected";
+    organizationId?: string;
+    page?: number;
+    limit?: number;
+  };
+  url: "/api/v1/admin/license-documents";
+};
+
+export type AdminLicenseDocumentsControllerListResponses = {
+  200: unknown;
+};
+
+export type AdminLicenseDocumentsControllerGetOrgRequirementsData = {
+  body?: never;
+  path: {
+    orgId: string;
+  };
+  query?: never;
+  url: "/api/v1/admin/license-documents/organization/{orgId}";
+};
+
+export type AdminLicenseDocumentsControllerGetOrgRequirementsResponses = {
+  200: LicenseRequirementsResponseDto;
+};
+
+export type AdminLicenseDocumentsControllerGetOrgRequirementsResponse =
+  AdminLicenseDocumentsControllerGetOrgRequirementsResponses[keyof AdminLicenseDocumentsControllerGetOrgRequirementsResponses];
+
+export type AdminLicenseDocumentsControllerReviewData = {
+  body: ReviewLicenseDocumentDto;
+  path: {
+    documentId: string;
+  };
+  query?: never;
+  url: "/api/v1/admin/license-documents/{documentId}/review";
+};
+
+export type AdminLicenseDocumentsControllerReviewResponses = {
+  200: {
+    [key: string]: unknown;
+  };
+};
+
+export type AdminLicenseDocumentsControllerReviewResponse =
+  AdminLicenseDocumentsControllerReviewResponses[keyof AdminLicenseDocumentsControllerReviewResponses];
+
+export type AdminLicenseRequirementsControllerFindAllData = {
+  body?: never;
+  path?: never;
+  query?: {
+    categoryId?: string;
+    isActive?: boolean;
+  };
+  url: "/api/v1/admin/license-requirements";
+};
+
+export type AdminLicenseRequirementsControllerFindAllResponses = {
+  200: {
+    [key: string]: unknown;
+  };
+};
+
+export type AdminLicenseRequirementsControllerFindAllResponse =
+  AdminLicenseRequirementsControllerFindAllResponses[keyof AdminLicenseRequirementsControllerFindAllResponses];
+
+export type AdminLicenseRequirementsControllerCreateData = {
+  body: CreateLicenseRequirementDto;
+  path?: never;
+  query?: never;
+  url: "/api/v1/admin/license-requirements";
+};
+
+export type AdminLicenseRequirementsControllerCreateResponses = {
+  201: {
+    [key: string]: unknown;
+  };
+};
+
+export type AdminLicenseRequirementsControllerCreateResponse =
+  AdminLicenseRequirementsControllerCreateResponses[keyof AdminLicenseRequirementsControllerCreateResponses];
+
+export type AdminLicenseRequirementsControllerRemoveData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/admin/license-requirements/{id}";
+};
+
+export type AdminLicenseRequirementsControllerRemoveResponses = {
+  200: unknown;
+};
+
+export type AdminLicenseRequirementsControllerFindOneData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/admin/license-requirements/{id}";
+};
+
+export type AdminLicenseRequirementsControllerFindOneResponses = {
+  200: {
+    [key: string]: unknown;
+  };
+};
+
+export type AdminLicenseRequirementsControllerFindOneResponse =
+  AdminLicenseRequirementsControllerFindOneResponses[keyof AdminLicenseRequirementsControllerFindOneResponses];
+
+export type AdminLicenseRequirementsControllerUpdateData = {
+  body: UpdateLicenseRequirementDto;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/admin/license-requirements/{id}";
+};
+
+export type AdminLicenseRequirementsControllerUpdateResponses = {
+  200: {
+    [key: string]: unknown;
+  };
+};
+
+export type AdminLicenseRequirementsControllerUpdateResponse =
+  AdminLicenseRequirementsControllerUpdateResponses[keyof AdminLicenseRequirementsControllerUpdateResponses];

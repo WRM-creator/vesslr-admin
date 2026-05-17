@@ -93,6 +93,22 @@ import type {
   AdminLedgerControllerTriggerExternalReconciliationResponses,
   AdminLedgerControllerTriggerInternalReconciliationData,
   AdminLedgerControllerTriggerInternalReconciliationResponses,
+  AdminLicenseDocumentsControllerGetOrgRequirementsData,
+  AdminLicenseDocumentsControllerGetOrgRequirementsResponses,
+  AdminLicenseDocumentsControllerListData,
+  AdminLicenseDocumentsControllerListResponses,
+  AdminLicenseDocumentsControllerReviewData,
+  AdminLicenseDocumentsControllerReviewResponses,
+  AdminLicenseRequirementsControllerCreateData,
+  AdminLicenseRequirementsControllerCreateResponses,
+  AdminLicenseRequirementsControllerFindAllData,
+  AdminLicenseRequirementsControllerFindAllResponses,
+  AdminLicenseRequirementsControllerFindOneData,
+  AdminLicenseRequirementsControllerFindOneResponses,
+  AdminLicenseRequirementsControllerRemoveData,
+  AdminLicenseRequirementsControllerRemoveResponses,
+  AdminLicenseRequirementsControllerUpdateData,
+  AdminLicenseRequirementsControllerUpdateResponses,
   AdminManagementControllerCreateData,
   AdminManagementControllerCreateResponses,
   AdminManagementControllerDeactivateData,
@@ -227,6 +243,8 @@ import type {
   EscrowsControllerGetMyEscrowsResponses,
   EscrowsControllerGetMySummaryData,
   EscrowsControllerGetMySummaryResponses,
+  FlutterwaveWebhooksControllerHandleWebhookData,
+  FlutterwaveWebhooksControllerHandleWebhookResponses,
   InspectionControllerListInspectionsData,
   InspectionControllerListInspectionsResponses,
   InspectionControllerSubmitInspectionData,
@@ -259,6 +277,12 @@ import type {
   InvoicesControllerUpdateResponses,
   InvoicesWebhooksControllerHandlePaymentWebhookData,
   InvoicesWebhooksControllerHandlePaymentWebhookResponses,
+  LicenseDocumentsControllerDeleteData,
+  LicenseDocumentsControllerDeleteResponses,
+  LicenseDocumentsControllerGetRequirementsData,
+  LicenseDocumentsControllerGetRequirementsResponses,
+  LicenseDocumentsControllerUploadData,
+  LicenseDocumentsControllerUploadResponses,
   LocationsControllerGetCitiesData,
   LocationsControllerGetCitiesResponses,
   LocationsControllerGetCountriesData,
@@ -331,6 +355,8 @@ import type {
   OnboardingControllerUpdateBusinessAddressResponses,
   OnboardingControllerUpdateBusinessRepresentativeData,
   OnboardingControllerUpdateBusinessRepresentativeResponses,
+  OnboardingControllerUpdateBuyingInterestsData,
+  OnboardingControllerUpdateBuyingInterestsResponses,
   OnboardingControllerUpdateCompanyDocumentsData,
   OnboardingControllerUpdateCompanyDocumentsResponses,
   OnboardingControllerUpdateCompanyInfoData,
@@ -339,10 +365,12 @@ import type {
   OnboardingControllerUpdateDirectorResponses,
   OnboardingControllerUpdateIdentityKycData,
   OnboardingControllerUpdateIdentityKycResponses,
-  OnboardingControllerUpdateProductCategoriesData,
-  OnboardingControllerUpdateProductCategoriesResponses,
+  OnboardingControllerUpdateIntentData,
+  OnboardingControllerUpdateIntentResponses,
   OnboardingControllerUpdateResidentialData,
   OnboardingControllerUpdateResidentialResponses,
+  OnboardingControllerUpdateSellingInterestsData,
+  OnboardingControllerUpdateSellingInterestsResponses,
   OnboardingControllerVerifyPhoneOtpData,
   OnboardingControllerVerifyPhoneOtpResponses,
   OrdersControllerCancelData,
@@ -391,8 +419,6 @@ import type {
   ProductsControllerFindAllResponses,
   ProductsControllerFindOneData,
   ProductsControllerFindOneResponses,
-  ProvidusWebhooksControllerHandleSettlementData,
-  ProvidusWebhooksControllerHandleSettlementResponses,
   QqCatalogControllerFindAllCompaniesData,
   QqCatalogControllerFindAllCompaniesResponses,
   QqCatalogControllerFindAllFieldsData,
@@ -1178,6 +1204,55 @@ export const myProductsControllerResubmit = <
     security: [{ scheme: "bearer", type: "http" }],
     url: "/api/v1/products/mine/{id}/resubmit",
     ...options,
+  });
+
+/**
+ * Get all category groups
+ */
+export const categoryGroupsControllerFindAll = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<CategoryGroupsControllerFindAllData, ThrowOnError>,
+) =>
+  (options?.client ?? client).get<
+    CategoryGroupsControllerFindAllResponses,
+    unknown,
+    ThrowOnError
+  >({ url: "/api/v1/category-groups", ...options });
+
+/**
+ * Get a category group by id
+ */
+export const categoryGroupsControllerFindOne = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<CategoryGroupsControllerFindOneData, ThrowOnError>,
+) =>
+  (options.client ?? client).get<
+    CategoryGroupsControllerFindOneResponses,
+    unknown,
+    ThrowOnError
+  >({ url: "/api/v1/category-groups/{id}", ...options });
+
+/**
+ * Update a category group by id
+ */
+export const categoryGroupsControllerUpdate = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<CategoryGroupsControllerUpdateData, ThrowOnError>,
+) =>
+  (options.client ?? client).patch<
+    CategoryGroupsControllerUpdateResponses,
+    unknown,
+    ThrowOnError
+  >({
+    url: "/api/v1/category-groups/{id}",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
   });
 
 /**
@@ -2424,6 +2499,28 @@ export const onboardingControllerGetStatusHub = <
   });
 
 /**
+ * Set account type (buyer or buyer & seller)
+ */
+export const onboardingControllerUpdateIntent = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<OnboardingControllerUpdateIntentData, ThrowOnError>,
+) =>
+  (options.client ?? client).put<
+    OnboardingControllerUpdateIntentResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/onboarding/intent",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
  * Update identity and KYC details
  */
 export const onboardingControllerUpdateIdentityKyc = <
@@ -2534,23 +2631,45 @@ export const onboardingControllerUpdateBusinessAddress = <
   });
 
 /**
- * Update product categories
+ * Update selling interests (categories the org sells)
  */
-export const onboardingControllerUpdateProductCategories = <
+export const onboardingControllerUpdateSellingInterests = <
   ThrowOnError extends boolean = false,
 >(
   options: Options<
-    OnboardingControllerUpdateProductCategoriesData,
+    OnboardingControllerUpdateSellingInterestsData,
     ThrowOnError
   >,
 ) =>
   (options.client ?? client).put<
-    OnboardingControllerUpdateProductCategoriesResponses,
+    OnboardingControllerUpdateSellingInterestsResponses,
     unknown,
     ThrowOnError
   >({
     security: [{ scheme: "bearer", type: "http" }],
-    url: "/api/v1/onboarding/product-categories",
+    url: "/api/v1/onboarding/selling-interests",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Update buying interests (categories the org wants to source)
+ */
+export const onboardingControllerUpdateBuyingInterests = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<OnboardingControllerUpdateBuyingInterestsData, ThrowOnError>,
+) =>
+  (options.client ?? client).put<
+    OnboardingControllerUpdateBuyingInterestsResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/onboarding/buying-interests",
     ...options,
     headers: {
       "Content-Type": "application/json",
@@ -4881,55 +5000,6 @@ export const cmsControllerFindBySlug = <ThrowOnError extends boolean = false>(
     ThrowOnError
   >({ url: "/api/v1/cms/pages/{slug}", ...options });
 
-/**
- * Get all category groups
- */
-export const categoryGroupsControllerFindAll = <
-  ThrowOnError extends boolean = false,
->(
-  options?: Options<CategoryGroupsControllerFindAllData, ThrowOnError>,
-) =>
-  (options?.client ?? client).get<
-    CategoryGroupsControllerFindAllResponses,
-    unknown,
-    ThrowOnError
-  >({ url: "/api/v1/category-groups", ...options });
-
-/**
- * Get a category group by id
- */
-export const categoryGroupsControllerFindOne = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<CategoryGroupsControllerFindOneData, ThrowOnError>,
-) =>
-  (options.client ?? client).get<
-    CategoryGroupsControllerFindOneResponses,
-    unknown,
-    ThrowOnError
-  >({ url: "/api/v1/category-groups/{id}", ...options });
-
-/**
- * Update a category group by id
- */
-export const categoryGroupsControllerUpdate = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<CategoryGroupsControllerUpdateData, ThrowOnError>,
-) =>
-  (options.client ?? client).patch<
-    CategoryGroupsControllerUpdateResponses,
-    unknown,
-    ThrowOnError
-  >({
-    url: "/api/v1/category-groups/{id}",
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options.headers,
-    },
-  });
-
 export const orgProductsControllerFindAll = <
   ThrowOnError extends boolean = false,
 >(
@@ -5200,21 +5270,21 @@ export const placesControllerGetDetails = <
   });
 
 /**
- * Handle Providus settlement notifications (public)
+ * Handle Flutterwave webhook events (public)
  */
-export const providusWebhooksControllerHandleSettlement = <
+export const flutterwaveWebhooksControllerHandleWebhook = <
   ThrowOnError extends boolean = false,
 >(
   options: Options<
-    ProvidusWebhooksControllerHandleSettlementData,
+    FlutterwaveWebhooksControllerHandleWebhookData,
     ThrowOnError
   >,
 ) =>
   (options.client ?? client).post<
-    ProvidusWebhooksControllerHandleSettlementResponses,
+    FlutterwaveWebhooksControllerHandleWebhookResponses,
     unknown,
     ThrowOnError
-  >({ url: "/api/v1/providus/webhook", ...options });
+  >({ url: "/api/v1/flutterwave/webhooks", ...options });
 
 /**
  * Get NGN wallet balance (creates subaccount on first call)
@@ -5434,4 +5504,224 @@ export const supportControllerClose = <ThrowOnError extends boolean = false>(
     security: [{ scheme: "bearer", type: "http" }],
     url: "/api/v1/support/tickets/{id}/close",
     ...options,
+  });
+
+/**
+ * Get merged license requirements for an organization
+ */
+export const licenseDocumentsControllerGetRequirements = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<LicenseDocumentsControllerGetRequirementsData, ThrowOnError>,
+) =>
+  (options.client ?? client).get<
+    LicenseDocumentsControllerGetRequirementsResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/organizations/{orgId}/license-documents/requirements",
+    ...options,
+  });
+
+/**
+ * Upload a license document
+ */
+export const licenseDocumentsControllerUpload = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<LicenseDocumentsControllerUploadData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    LicenseDocumentsControllerUploadResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/organizations/{orgId}/license-documents",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Delete a license document
+ */
+export const licenseDocumentsControllerDelete = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<LicenseDocumentsControllerDeleteData, ThrowOnError>,
+) =>
+  (options.client ?? client).delete<
+    LicenseDocumentsControllerDeleteResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/organizations/{orgId}/license-documents/{documentId}",
+    ...options,
+  });
+
+/**
+ * List license documents for review
+ */
+export const adminLicenseDocumentsControllerList = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<AdminLicenseDocumentsControllerListData, ThrowOnError>,
+) =>
+  (options?.client ?? client).get<
+    AdminLicenseDocumentsControllerListResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/license-documents",
+    ...options,
+  });
+
+/**
+ * Get license requirements and uploads for an organization
+ */
+export const adminLicenseDocumentsControllerGetOrgRequirements = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    AdminLicenseDocumentsControllerGetOrgRequirementsData,
+    ThrowOnError
+  >,
+) =>
+  (options.client ?? client).get<
+    AdminLicenseDocumentsControllerGetOrgRequirementsResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/license-documents/organization/{orgId}",
+    ...options,
+  });
+
+/**
+ * Approve or reject a license document
+ */
+export const adminLicenseDocumentsControllerReview = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AdminLicenseDocumentsControllerReviewData, ThrowOnError>,
+) =>
+  (options.client ?? client).patch<
+    AdminLicenseDocumentsControllerReviewResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/license-documents/{documentId}/review",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * List all license requirements
+ */
+export const adminLicenseRequirementsControllerFindAll = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<
+    AdminLicenseRequirementsControllerFindAllData,
+    ThrowOnError
+  >,
+) =>
+  (options?.client ?? client).get<
+    AdminLicenseRequirementsControllerFindAllResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/license-requirements",
+    ...options,
+  });
+
+/**
+ * Create a license requirement
+ */
+export const adminLicenseRequirementsControllerCreate = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AdminLicenseRequirementsControllerCreateData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    AdminLicenseRequirementsControllerCreateResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/license-requirements",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Soft-delete a license requirement
+ */
+export const adminLicenseRequirementsControllerRemove = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AdminLicenseRequirementsControllerRemoveData, ThrowOnError>,
+) =>
+  (options.client ?? client).delete<
+    AdminLicenseRequirementsControllerRemoveResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/license-requirements/{id}",
+    ...options,
+  });
+
+/**
+ * Get a license requirement by ID
+ */
+export const adminLicenseRequirementsControllerFindOne = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AdminLicenseRequirementsControllerFindOneData, ThrowOnError>,
+) =>
+  (options.client ?? client).get<
+    AdminLicenseRequirementsControllerFindOneResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/license-requirements/{id}",
+    ...options,
+  });
+
+/**
+ * Update a license requirement
+ */
+export const adminLicenseRequirementsControllerUpdate = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AdminLicenseRequirementsControllerUpdateData, ThrowOnError>,
+) =>
+  (options.client ?? client).patch<
+    AdminLicenseRequirementsControllerUpdateResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/license-requirements/{id}",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
   });

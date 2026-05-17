@@ -100,6 +100,14 @@ import {
   adminCmsControllerCreate,
   adminCmsControllerUpdate,
   adminCmsControllerRemove,
+  adminLicenseDocumentsControllerList,
+  adminLicenseDocumentsControllerGetOrgRequirements,
+  adminLicenseDocumentsControllerReview,
+  adminLicenseRequirementsControllerFindAll,
+  adminLicenseRequirementsControllerFindOne,
+  adminLicenseRequirementsControllerCreate,
+  adminLicenseRequirementsControllerUpdate,
+  adminLicenseRequirementsControllerRemove,
 } from "./generated";
 
 export const api = {
@@ -471,6 +479,52 @@ export const api = {
       }),
       reviewKyc: createMutation(adminComplianceControllerReviewKyc, {
         invalidates: (args) => [["admin", "compliance", "case"]],
+      }),
+    },
+    licenseRequirements: {
+      list: createQuery(adminLicenseRequirementsControllerFindAll, (args) => [
+        "admin",
+        "licenseRequirements",
+        "list",
+        args?.query,
+      ]),
+      detail: createQuery(adminLicenseRequirementsControllerFindOne, (args) => [
+        "admin",
+        "licenseRequirements",
+        "detail",
+        args.path.id,
+      ]),
+      create: createMutation(adminLicenseRequirementsControllerCreate, {
+        invalidates: () => [["admin", "licenseRequirements", "list"]],
+      }),
+      update: createMutation(adminLicenseRequirementsControllerUpdate, {
+        invalidates: (args) => [
+          ["admin", "licenseRequirements", "list"],
+          ["admin", "licenseRequirements", "detail", args.path.id],
+        ],
+      }),
+      remove: createMutation(adminLicenseRequirementsControllerRemove, {
+        invalidates: () => [["admin", "licenseRequirements", "list"]],
+      }),
+    },
+    licenseDocuments: {
+      list: createQuery(adminLicenseDocumentsControllerList, (args) => [
+        "admin",
+        "licenseDocuments",
+        "list",
+        args?.query,
+      ]),
+      orgRequirements: createQuery(
+        adminLicenseDocumentsControllerGetOrgRequirements,
+        (args) => [
+          "admin",
+          "licenseDocuments",
+          "orgRequirements",
+          args.path.orgId,
+        ],
+      ),
+      review: createMutation(adminLicenseDocumentsControllerReview, {
+        invalidates: () => [["admin", "licenseDocuments"]],
       }),
     },
   },
