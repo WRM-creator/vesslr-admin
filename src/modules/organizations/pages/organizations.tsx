@@ -9,8 +9,8 @@ import { OrganizationsTable } from "../components/organizations-table";
 
 const TABS = [
   { label: "All", value: "all" },
-  { label: "Merchants", value: "merchant" },
-  { label: "Customers", value: "customer" },
+  { label: "Sellers", value: "buyer_seller" },
+  { label: "Buyers", value: "buyer" },
 ];
 
 export default function OrganizationsPage() {
@@ -27,7 +27,7 @@ export default function OrganizationsPage() {
     query: {
       page: String(page),
       limit: "10",
-      type: type === "all" ? undefined : (type as "merchant" | "customer"),
+      type: type === "all" ? undefined : (type as "buyer" | "buyer_seller"),
       search: search || undefined,
       approved: "true",
     },

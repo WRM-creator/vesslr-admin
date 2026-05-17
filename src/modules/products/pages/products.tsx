@@ -94,7 +94,7 @@ export default function ProductsPage() {
   }));
 
   const { data: merchantsData } = api.organizations.list.useQuery({
-    query: { type: "merchant", limit: "100" },
+    query: { type: "buyer_seller", limit: "100" },
   });
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const merchantOptions = (

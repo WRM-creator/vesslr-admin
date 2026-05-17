@@ -95,7 +95,7 @@ export function RecentRegistrations() {
     return docs.map((org) => ({
       _id: (org._id as string) ?? "",
       name: (org.name as string) ?? "Unnamed",
-      type: (org.type as string) ?? "merchant",
+      type: (org.type as string) ?? "buyer_seller",
       createdAt: (org.createdAt as string) ?? "",
       complianceStatus: (org.complianceStatus as string) ?? "draft",
     }));
