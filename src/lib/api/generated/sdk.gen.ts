@@ -363,6 +363,8 @@ import type {
   OnboardingControllerUpdateCompanyInfoResponses,
   OnboardingControllerUpdateDirectorData,
   OnboardingControllerUpdateDirectorResponses,
+  OnboardingControllerUpdateFinancialSetupData,
+  OnboardingControllerUpdateFinancialSetupResponses,
   OnboardingControllerUpdateIdentityKycData,
   OnboardingControllerUpdateIdentityKycResponses,
   OnboardingControllerUpdateIntentData,
@@ -419,6 +421,8 @@ import type {
   ProductsControllerFindAllResponses,
   ProductsControllerFindOneData,
   ProductsControllerFindOneResponses,
+  ProductsControllerFindRecommendedData,
+  ProductsControllerFindRecommendedResponses,
   QqCatalogControllerFindAllCompaniesData,
   QqCatalogControllerFindAllCompaniesResponses,
   QqCatalogControllerFindAllFieldsData,
@@ -1092,6 +1096,24 @@ export const productsControllerFindAll = <ThrowOnError extends boolean = false>(
   >({
     security: [{ scheme: "bearer", type: "http" }],
     url: "/api/v1/products",
+    ...options,
+  });
+
+/**
+ * Get recommended products based on buying categories
+ */
+export const productsControllerFindRecommended = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<ProductsControllerFindRecommendedData, ThrowOnError>,
+) =>
+  (options?.client ?? client).get<
+    ProductsControllerFindRecommendedResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/products/recommended",
     ...options,
   });
 
@@ -2725,6 +2747,28 @@ export const onboardingControllerUpdateCompanyDocuments = <
   });
 
 /**
+ * Save settlement bank account details
+ */
+export const onboardingControllerUpdateFinancialSetup = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<OnboardingControllerUpdateFinancialSetupData, ThrowOnError>,
+) =>
+  (options.client ?? client).put<
+    OnboardingControllerUpdateFinancialSetupResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/onboarding/financial-setup",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
  * Update business representative details
  */
 export const onboardingControllerUpdateBusinessRepresentative = <
@@ -3043,6 +3087,226 @@ export const invitationsControllerRevokeInvitation = <
     security: [{ scheme: "bearer", type: "http" }],
     url: "/api/v1/invitations/organizations/{orgId}/{inviteId}",
     ...options,
+  });
+
+/**
+ * Get merged license requirements for an organization
+ */
+export const licenseDocumentsControllerGetRequirements = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<LicenseDocumentsControllerGetRequirementsData, ThrowOnError>,
+) =>
+  (options.client ?? client).get<
+    LicenseDocumentsControllerGetRequirementsResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/organizations/{orgId}/license-documents/requirements",
+    ...options,
+  });
+
+/**
+ * Upload a license document
+ */
+export const licenseDocumentsControllerUpload = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<LicenseDocumentsControllerUploadData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    LicenseDocumentsControllerUploadResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/organizations/{orgId}/license-documents",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Delete a license document
+ */
+export const licenseDocumentsControllerDelete = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<LicenseDocumentsControllerDeleteData, ThrowOnError>,
+) =>
+  (options.client ?? client).delete<
+    LicenseDocumentsControllerDeleteResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/organizations/{orgId}/license-documents/{documentId}",
+    ...options,
+  });
+
+/**
+ * List license documents for review
+ */
+export const adminLicenseDocumentsControllerList = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<AdminLicenseDocumentsControllerListData, ThrowOnError>,
+) =>
+  (options?.client ?? client).get<
+    AdminLicenseDocumentsControllerListResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/license-documents",
+    ...options,
+  });
+
+/**
+ * Get license requirements and uploads for an organization
+ */
+export const adminLicenseDocumentsControllerGetOrgRequirements = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    AdminLicenseDocumentsControllerGetOrgRequirementsData,
+    ThrowOnError
+  >,
+) =>
+  (options.client ?? client).get<
+    AdminLicenseDocumentsControllerGetOrgRequirementsResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/license-documents/organization/{orgId}",
+    ...options,
+  });
+
+/**
+ * Approve or reject a license document
+ */
+export const adminLicenseDocumentsControllerReview = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AdminLicenseDocumentsControllerReviewData, ThrowOnError>,
+) =>
+  (options.client ?? client).patch<
+    AdminLicenseDocumentsControllerReviewResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/license-documents/{documentId}/review",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * List all license requirements
+ */
+export const adminLicenseRequirementsControllerFindAll = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<
+    AdminLicenseRequirementsControllerFindAllData,
+    ThrowOnError
+  >,
+) =>
+  (options?.client ?? client).get<
+    AdminLicenseRequirementsControllerFindAllResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/license-requirements",
+    ...options,
+  });
+
+/**
+ * Create a license requirement
+ */
+export const adminLicenseRequirementsControllerCreate = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AdminLicenseRequirementsControllerCreateData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    AdminLicenseRequirementsControllerCreateResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/license-requirements",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Soft-delete a license requirement
+ */
+export const adminLicenseRequirementsControllerRemove = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AdminLicenseRequirementsControllerRemoveData, ThrowOnError>,
+) =>
+  (options.client ?? client).delete<
+    AdminLicenseRequirementsControllerRemoveResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/license-requirements/{id}",
+    ...options,
+  });
+
+/**
+ * Get a license requirement by ID
+ */
+export const adminLicenseRequirementsControllerFindOne = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AdminLicenseRequirementsControllerFindOneData, ThrowOnError>,
+) =>
+  (options.client ?? client).get<
+    AdminLicenseRequirementsControllerFindOneResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/license-requirements/{id}",
+    ...options,
+  });
+
+/**
+ * Update a license requirement
+ */
+export const adminLicenseRequirementsControllerUpdate = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AdminLicenseRequirementsControllerUpdateData, ThrowOnError>,
+) =>
+  (options.client ?? client).patch<
+    AdminLicenseRequirementsControllerUpdateResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/license-requirements/{id}",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
   });
 
 /**
@@ -5504,224 +5768,4 @@ export const supportControllerClose = <ThrowOnError extends boolean = false>(
     security: [{ scheme: "bearer", type: "http" }],
     url: "/api/v1/support/tickets/{id}/close",
     ...options,
-  });
-
-/**
- * Get merged license requirements for an organization
- */
-export const licenseDocumentsControllerGetRequirements = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<LicenseDocumentsControllerGetRequirementsData, ThrowOnError>,
-) =>
-  (options.client ?? client).get<
-    LicenseDocumentsControllerGetRequirementsResponses,
-    unknown,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/api/v1/organizations/{orgId}/license-documents/requirements",
-    ...options,
-  });
-
-/**
- * Upload a license document
- */
-export const licenseDocumentsControllerUpload = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<LicenseDocumentsControllerUploadData, ThrowOnError>,
-) =>
-  (options.client ?? client).post<
-    LicenseDocumentsControllerUploadResponses,
-    unknown,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/api/v1/organizations/{orgId}/license-documents",
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options.headers,
-    },
-  });
-
-/**
- * Delete a license document
- */
-export const licenseDocumentsControllerDelete = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<LicenseDocumentsControllerDeleteData, ThrowOnError>,
-) =>
-  (options.client ?? client).delete<
-    LicenseDocumentsControllerDeleteResponses,
-    unknown,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/api/v1/organizations/{orgId}/license-documents/{documentId}",
-    ...options,
-  });
-
-/**
- * List license documents for review
- */
-export const adminLicenseDocumentsControllerList = <
-  ThrowOnError extends boolean = false,
->(
-  options?: Options<AdminLicenseDocumentsControllerListData, ThrowOnError>,
-) =>
-  (options?.client ?? client).get<
-    AdminLicenseDocumentsControllerListResponses,
-    unknown,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/api/v1/admin/license-documents",
-    ...options,
-  });
-
-/**
- * Get license requirements and uploads for an organization
- */
-export const adminLicenseDocumentsControllerGetOrgRequirements = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<
-    AdminLicenseDocumentsControllerGetOrgRequirementsData,
-    ThrowOnError
-  >,
-) =>
-  (options.client ?? client).get<
-    AdminLicenseDocumentsControllerGetOrgRequirementsResponses,
-    unknown,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/api/v1/admin/license-documents/organization/{orgId}",
-    ...options,
-  });
-
-/**
- * Approve or reject a license document
- */
-export const adminLicenseDocumentsControllerReview = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<AdminLicenseDocumentsControllerReviewData, ThrowOnError>,
-) =>
-  (options.client ?? client).patch<
-    AdminLicenseDocumentsControllerReviewResponses,
-    unknown,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/api/v1/admin/license-documents/{documentId}/review",
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options.headers,
-    },
-  });
-
-/**
- * List all license requirements
- */
-export const adminLicenseRequirementsControllerFindAll = <
-  ThrowOnError extends boolean = false,
->(
-  options?: Options<
-    AdminLicenseRequirementsControllerFindAllData,
-    ThrowOnError
-  >,
-) =>
-  (options?.client ?? client).get<
-    AdminLicenseRequirementsControllerFindAllResponses,
-    unknown,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/api/v1/admin/license-requirements",
-    ...options,
-  });
-
-/**
- * Create a license requirement
- */
-export const adminLicenseRequirementsControllerCreate = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<AdminLicenseRequirementsControllerCreateData, ThrowOnError>,
-) =>
-  (options.client ?? client).post<
-    AdminLicenseRequirementsControllerCreateResponses,
-    unknown,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/api/v1/admin/license-requirements",
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options.headers,
-    },
-  });
-
-/**
- * Soft-delete a license requirement
- */
-export const adminLicenseRequirementsControllerRemove = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<AdminLicenseRequirementsControllerRemoveData, ThrowOnError>,
-) =>
-  (options.client ?? client).delete<
-    AdminLicenseRequirementsControllerRemoveResponses,
-    unknown,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/api/v1/admin/license-requirements/{id}",
-    ...options,
-  });
-
-/**
- * Get a license requirement by ID
- */
-export const adminLicenseRequirementsControllerFindOne = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<AdminLicenseRequirementsControllerFindOneData, ThrowOnError>,
-) =>
-  (options.client ?? client).get<
-    AdminLicenseRequirementsControllerFindOneResponses,
-    unknown,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/api/v1/admin/license-requirements/{id}",
-    ...options,
-  });
-
-/**
- * Update a license requirement
- */
-export const adminLicenseRequirementsControllerUpdate = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<AdminLicenseRequirementsControllerUpdateData, ThrowOnError>,
-) =>
-  (options.client ?? client).patch<
-    AdminLicenseRequirementsControllerUpdateResponses,
-    unknown,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/api/v1/admin/license-requirements/{id}",
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options.headers,
-    },
   });

@@ -46,6 +46,51 @@ export const KYB_REASON_GROUPS: ReasonGroup[] = [
     ],
   },
   {
+    heading: "Past Performance",
+    options: [
+      {
+        target: "proof_of_past_performance",
+        issue: "unreadable",
+        label: "Proof of past performance — unreadable or poor quality",
+      },
+      {
+        target: "proof_of_past_performance",
+        issue: "insufficient",
+        label: "Proof of past performance — does not demonstrate relevant experience",
+      },
+      {
+        target: "proof_of_past_performance",
+        issue: "missing",
+        label: "Proof of past performance — not uploaded",
+      },
+    ],
+  },
+  {
+    heading: "Financial Verification",
+    options: [
+      {
+        target: "statement_of_account",
+        issue: "unreadable",
+        label: "Statement of account — unreadable or poor quality",
+      },
+      {
+        target: "statement_of_account",
+        issue: "outdated",
+        label: "Statement of account — older than 6 months",
+      },
+      {
+        target: "statement_of_account",
+        issue: "mismatch",
+        label: "Statement of account — account name does not match organization",
+      },
+      {
+        target: "statement_of_account",
+        issue: "missing",
+        label: "Statement of account — not uploaded",
+      },
+    ],
+  },
+  {
     heading: "Address Verification",
     options: [
       {

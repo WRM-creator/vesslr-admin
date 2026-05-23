@@ -142,7 +142,9 @@ export type StructuredReasonDto = {
     | "director_id"
     | "director_info"
     | "id_document"
-    | "selfie_liveness";
+    | "selfie_liveness"
+    | "proof_of_past_performance"
+    | "statement_of_account";
   issue:
     | "unreadable"
     | "expired"
@@ -150,7 +152,9 @@ export type StructuredReasonDto = {
     | "mismatch"
     | "invalid"
     | "incomplete"
-    | "failed";
+    | "failed"
+    | "insufficient"
+    | "outdated";
   note?: string;
 };
 
@@ -3878,6 +3882,10 @@ export type UpdateSellingInterestsDto = {
    * Array of Category Specialty IDs
    */
   specialtyIds?: Array<string>;
+  /**
+   * Proof of past performance document (e.g. past SPAs, BLs, completion certificates)
+   */
+  proofOfPastPerformance: FileMetadataDto;
 };
 
 export type UpdateBuyingInterestsDto = {
@@ -3903,6 +3911,25 @@ export type UpdateCompanyDocumentsDto = {
 
 export type PatchCompanyDocumentsDto = {
   certificateOfIncorporation?: string | FileMetadataDto;
+};
+
+export type UpdateFinancialSetupDto = {
+  /**
+   * Nigerian bank code
+   */
+  bankCode: string;
+  /**
+   * 10-digit NUBAN account number
+   */
+  accountNumber: string;
+  /**
+   * Name on the bank account
+   */
+  accountName: string;
+  /**
+   * Statement of account (3-6 months). Required for buyers, optional for sellers.
+   */
+  statementOfAccount?: FileMetadataDto;
 };
 
 export type RepresentativeAddressDto = {
@@ -3980,6 +4007,98 @@ export type InvitationResponseDto = {
   status: "pending" | "accepted" | "expired" | "revoked";
   expiresAt: string;
   createdAt: string;
+};
+
+export type LicenseUploadStatusDto = {
+  documentId: string;
+  status: "pending" | "approved" | "rejected";
+  fileUrl: string;
+  fileName?: string;
+  expiryDate?: string;
+  rejectionReason?: string;
+};
+
+export type LicenseRequirementItemDto = {
+  /**
+   * The _id of the CategoryLicenseRequirement
+   */
+  requirementId: string;
+  categoryId: string;
+  categoryName: string;
+  name: string;
+  description?: string;
+  isMandatory: boolean;
+  hasExpiry: boolean;
+  /**
+   * Other category names that also require this document
+   */
+  alsoRequiredBy: Array<string>;
+  upload?: LicenseUploadStatusDto;
+};
+
+export type LicenseRequirementsResponseDto = {
+  requirements: Array<LicenseRequirementItemDto>;
+};
+
+export type FileMetadataInput = {
+  url: string;
+  name?: string;
+  type?: string;
+  size?: number;
+};
+
+export type UploadLicenseDocumentDto = {
+  /**
+   * The _id of the CategoryLicenseRequirement
+   */
+  requirementId: string;
+  /**
+   * The category this requirement belongs to
+   */
+  categoryId: string;
+  file: FileMetadataInput;
+  /**
+   * Document expiry date (ISO string)
+   */
+  expiryDate?: string;
+};
+
+export type ReviewLicenseDocumentDto = {
+  status: "approved" | "rejected";
+  /**
+   * Reason for rejection
+   */
+  rejectionReason?: string;
+};
+
+export type CreateLicenseRequirementDto = {
+  name: string;
+  description?: string;
+  isMandatory?: boolean;
+  hasExpiry?: boolean;
+  /**
+   * Country codes. Empty = universal.
+   */
+  countryCodes?: Array<string>;
+  /**
+   * Category IDs this requirement applies to
+   */
+  categoryIds?: Array<string>;
+};
+
+export type UpdateLicenseRequirementDto = {
+  name?: string;
+  description?: string;
+  isMandatory?: boolean;
+  hasExpiry?: boolean;
+  /**
+   * Country codes. Empty = universal.
+   */
+  countryCodes?: Array<string>;
+  /**
+   * Category IDs this requirement applies to
+   */
+  categoryIds?: Array<string>;
 };
 
 export type AdminLoginDto = {
@@ -5183,6 +5302,8 @@ export type KybDocumentsDto = {
   taxIdEvidence?: ComplianceFileMetadataDto;
   additionalDocuments: Array<ComplianceFileMetadataDto>;
   licensesAndCertifications: Array<ComplianceFileMetadataDto>;
+  proofOfPastPerformance?: ComplianceFileMetadataDto;
+  statementOfAccount?: ComplianceFileMetadataDto;
 };
 
 export type ComplianceCheckDto = {
@@ -5936,98 +6057,6 @@ export type AddMessageDto = {
   attachments?: Array<SupportAttachmentDto>;
 };
 
-export type LicenseUploadStatusDto = {
-  documentId: string;
-  status: "pending" | "approved" | "rejected";
-  fileUrl: string;
-  fileName?: string;
-  expiryDate?: string;
-  rejectionReason?: string;
-};
-
-export type LicenseRequirementItemDto = {
-  /**
-   * The _id of the CategoryLicenseRequirement
-   */
-  requirementId: string;
-  categoryId: string;
-  categoryName: string;
-  name: string;
-  description?: string;
-  isMandatory: boolean;
-  hasExpiry: boolean;
-  /**
-   * Other category names that also require this document
-   */
-  alsoRequiredBy: Array<string>;
-  upload?: LicenseUploadStatusDto;
-};
-
-export type LicenseRequirementsResponseDto = {
-  requirements: Array<LicenseRequirementItemDto>;
-};
-
-export type FileMetadataInput = {
-  url: string;
-  name?: string;
-  type?: string;
-  size?: number;
-};
-
-export type UploadLicenseDocumentDto = {
-  /**
-   * The _id of the CategoryLicenseRequirement
-   */
-  requirementId: string;
-  /**
-   * The category this requirement belongs to
-   */
-  categoryId: string;
-  file: FileMetadataInput;
-  /**
-   * Document expiry date (ISO string)
-   */
-  expiryDate?: string;
-};
-
-export type ReviewLicenseDocumentDto = {
-  status: "approved" | "rejected";
-  /**
-   * Reason for rejection
-   */
-  rejectionReason?: string;
-};
-
-export type CreateLicenseRequirementDto = {
-  name: string;
-  description?: string;
-  isMandatory?: boolean;
-  hasExpiry?: boolean;
-  /**
-   * Country codes. Empty = universal.
-   */
-  countryCodes?: Array<string>;
-  /**
-   * Category IDs this requirement applies to
-   */
-  categoryIds?: Array<string>;
-};
-
-export type UpdateLicenseRequirementDto = {
-  name?: string;
-  description?: string;
-  isMandatory?: boolean;
-  hasExpiry?: boolean;
-  /**
-   * Country codes. Empty = universal.
-   */
-  countryCodes?: Array<string>;
-  /**
-   * Category IDs this requirement applies to
-   */
-  categoryIds?: Array<string>;
-};
-
 export type AppControllerGetHelloData = {
   body?: never;
   path?: never;
@@ -6525,6 +6554,41 @@ export type ProductsControllerFindAllResponses = {
 
 export type ProductsControllerFindAllResponse =
   ProductsControllerFindAllResponses[keyof ProductsControllerFindAllResponses];
+
+export type ProductsControllerFindRecommendedData = {
+  body?: never;
+  path?: never;
+  query?: {
+    /**
+     * Page number
+     */
+    page?: string;
+    /**
+     * Items per page
+     */
+    limit?: string;
+    /**
+     * Filter by category ID
+     */
+    category?: string;
+    /**
+     * Filter by category group ID
+     */
+    categoryGroup?: string;
+    /**
+     * Filter by specialty ID
+     */
+    specialtyId?: string;
+  };
+  url: "/api/v1/products/recommended";
+};
+
+export type ProductsControllerFindRecommendedResponses = {
+  200: PaginatedProductsResponseDto;
+};
+
+export type ProductsControllerFindRecommendedResponse =
+  ProductsControllerFindRecommendedResponses[keyof ProductsControllerFindRecommendedResponses];
 
 export type ProductsControllerFindOneData = {
   body?: never;
@@ -8080,6 +8144,23 @@ export type OnboardingControllerUpdateCompanyDocumentsResponses = {
 export type OnboardingControllerUpdateCompanyDocumentsResponse =
   OnboardingControllerUpdateCompanyDocumentsResponses[keyof OnboardingControllerUpdateCompanyDocumentsResponses];
 
+export type OnboardingControllerUpdateFinancialSetupData = {
+  body: UpdateFinancialSetupDto;
+  path?: never;
+  query?: never;
+  url: "/api/v1/onboarding/financial-setup";
+};
+
+export type OnboardingControllerUpdateFinancialSetupResponses = {
+  /**
+   * Financial setup saved
+   */
+  200: OnboardingStatusResponseDto;
+};
+
+export type OnboardingControllerUpdateFinancialSetupResponse =
+  OnboardingControllerUpdateFinancialSetupResponses[keyof OnboardingControllerUpdateFinancialSetupResponses];
+
 export type OnboardingControllerUpdateBusinessRepresentativeData = {
   body: UpdateBusinessRepresentativeDto;
   path?: never;
@@ -8337,6 +8418,188 @@ export type InvitationsControllerRevokeInvitationData = {
 export type InvitationsControllerRevokeInvitationResponses = {
   200: unknown;
 };
+
+export type LicenseDocumentsControllerGetRequirementsData = {
+  body?: never;
+  path: {
+    orgId: string;
+  };
+  query?: never;
+  url: "/api/v1/organizations/{orgId}/license-documents/requirements";
+};
+
+export type LicenseDocumentsControllerGetRequirementsResponses = {
+  200: LicenseRequirementsResponseDto;
+};
+
+export type LicenseDocumentsControllerGetRequirementsResponse =
+  LicenseDocumentsControllerGetRequirementsResponses[keyof LicenseDocumentsControllerGetRequirementsResponses];
+
+export type LicenseDocumentsControllerUploadData = {
+  body: UploadLicenseDocumentDto;
+  path: {
+    orgId: string;
+  };
+  query?: never;
+  url: "/api/v1/organizations/{orgId}/license-documents";
+};
+
+export type LicenseDocumentsControllerUploadResponses = {
+  201: {
+    [key: string]: unknown;
+  };
+};
+
+export type LicenseDocumentsControllerUploadResponse =
+  LicenseDocumentsControllerUploadResponses[keyof LicenseDocumentsControllerUploadResponses];
+
+export type LicenseDocumentsControllerDeleteData = {
+  body?: never;
+  path: {
+    orgId: string;
+    documentId: string;
+  };
+  query?: never;
+  url: "/api/v1/organizations/{orgId}/license-documents/{documentId}";
+};
+
+export type LicenseDocumentsControllerDeleteResponses = {
+  200: unknown;
+};
+
+export type AdminLicenseDocumentsControllerListData = {
+  body?: never;
+  path?: never;
+  query?: {
+    status?: "pending" | "approved" | "rejected";
+    organizationId?: string;
+    page?: number;
+    limit?: number;
+  };
+  url: "/api/v1/admin/license-documents";
+};
+
+export type AdminLicenseDocumentsControllerListResponses = {
+  200: unknown;
+};
+
+export type AdminLicenseDocumentsControllerGetOrgRequirementsData = {
+  body?: never;
+  path: {
+    orgId: string;
+  };
+  query?: never;
+  url: "/api/v1/admin/license-documents/organization/{orgId}";
+};
+
+export type AdminLicenseDocumentsControllerGetOrgRequirementsResponses = {
+  200: LicenseRequirementsResponseDto;
+};
+
+export type AdminLicenseDocumentsControllerGetOrgRequirementsResponse =
+  AdminLicenseDocumentsControllerGetOrgRequirementsResponses[keyof AdminLicenseDocumentsControllerGetOrgRequirementsResponses];
+
+export type AdminLicenseDocumentsControllerReviewData = {
+  body: ReviewLicenseDocumentDto;
+  path: {
+    documentId: string;
+  };
+  query?: never;
+  url: "/api/v1/admin/license-documents/{documentId}/review";
+};
+
+export type AdminLicenseDocumentsControllerReviewResponses = {
+  200: {
+    [key: string]: unknown;
+  };
+};
+
+export type AdminLicenseDocumentsControllerReviewResponse =
+  AdminLicenseDocumentsControllerReviewResponses[keyof AdminLicenseDocumentsControllerReviewResponses];
+
+export type AdminLicenseRequirementsControllerFindAllData = {
+  body?: never;
+  path?: never;
+  query?: {
+    categoryId?: string;
+    isActive?: boolean;
+  };
+  url: "/api/v1/admin/license-requirements";
+};
+
+export type AdminLicenseRequirementsControllerFindAllResponses = {
+  200: Array<{
+    [key: string]: unknown;
+  }>;
+};
+
+export type AdminLicenseRequirementsControllerFindAllResponse =
+  AdminLicenseRequirementsControllerFindAllResponses[keyof AdminLicenseRequirementsControllerFindAllResponses];
+
+export type AdminLicenseRequirementsControllerCreateData = {
+  body: CreateLicenseRequirementDto;
+  path?: never;
+  query?: never;
+  url: "/api/v1/admin/license-requirements";
+};
+
+export type AdminLicenseRequirementsControllerCreateResponses = {
+  201: {
+    [key: string]: unknown;
+  };
+};
+
+export type AdminLicenseRequirementsControllerCreateResponse =
+  AdminLicenseRequirementsControllerCreateResponses[keyof AdminLicenseRequirementsControllerCreateResponses];
+
+export type AdminLicenseRequirementsControllerRemoveData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/admin/license-requirements/{id}";
+};
+
+export type AdminLicenseRequirementsControllerRemoveResponses = {
+  200: unknown;
+};
+
+export type AdminLicenseRequirementsControllerFindOneData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/admin/license-requirements/{id}";
+};
+
+export type AdminLicenseRequirementsControllerFindOneResponses = {
+  200: {
+    [key: string]: unknown;
+  };
+};
+
+export type AdminLicenseRequirementsControllerFindOneResponse =
+  AdminLicenseRequirementsControllerFindOneResponses[keyof AdminLicenseRequirementsControllerFindOneResponses];
+
+export type AdminLicenseRequirementsControllerUpdateData = {
+  body: UpdateLicenseRequirementDto;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/admin/license-requirements/{id}";
+};
+
+export type AdminLicenseRequirementsControllerUpdateResponses = {
+  200: {
+    [key: string]: unknown;
+  };
+};
+
+export type AdminLicenseRequirementsControllerUpdateResponse =
+  AdminLicenseRequirementsControllerUpdateResponses[keyof AdminLicenseRequirementsControllerUpdateResponses];
 
 export type AdminProductsControllerFindAllData = {
   body?: never;
@@ -10578,185 +10841,3 @@ export type SupportControllerCloseResponses = {
 
 export type SupportControllerCloseResponse =
   SupportControllerCloseResponses[keyof SupportControllerCloseResponses];
-
-export type LicenseDocumentsControllerGetRequirementsData = {
-  body?: never;
-  path: {
-    orgId: string;
-  };
-  query?: never;
-  url: "/api/v1/organizations/{orgId}/license-documents/requirements";
-};
-
-export type LicenseDocumentsControllerGetRequirementsResponses = {
-  200: LicenseRequirementsResponseDto;
-};
-
-export type LicenseDocumentsControllerGetRequirementsResponse =
-  LicenseDocumentsControllerGetRequirementsResponses[keyof LicenseDocumentsControllerGetRequirementsResponses];
-
-export type LicenseDocumentsControllerUploadData = {
-  body: UploadLicenseDocumentDto;
-  path: {
-    orgId: string;
-  };
-  query?: never;
-  url: "/api/v1/organizations/{orgId}/license-documents";
-};
-
-export type LicenseDocumentsControllerUploadResponses = {
-  201: {
-    [key: string]: unknown;
-  };
-};
-
-export type LicenseDocumentsControllerUploadResponse =
-  LicenseDocumentsControllerUploadResponses[keyof LicenseDocumentsControllerUploadResponses];
-
-export type LicenseDocumentsControllerDeleteData = {
-  body?: never;
-  path: {
-    orgId: string;
-    documentId: string;
-  };
-  query?: never;
-  url: "/api/v1/organizations/{orgId}/license-documents/{documentId}";
-};
-
-export type LicenseDocumentsControllerDeleteResponses = {
-  200: unknown;
-};
-
-export type AdminLicenseDocumentsControllerListData = {
-  body?: never;
-  path?: never;
-  query?: {
-    status?: "pending" | "approved" | "rejected";
-    organizationId?: string;
-    page?: number;
-    limit?: number;
-  };
-  url: "/api/v1/admin/license-documents";
-};
-
-export type AdminLicenseDocumentsControllerListResponses = {
-  200: unknown;
-};
-
-export type AdminLicenseDocumentsControllerGetOrgRequirementsData = {
-  body?: never;
-  path: {
-    orgId: string;
-  };
-  query?: never;
-  url: "/api/v1/admin/license-documents/organization/{orgId}";
-};
-
-export type AdminLicenseDocumentsControllerGetOrgRequirementsResponses = {
-  200: LicenseRequirementsResponseDto;
-};
-
-export type AdminLicenseDocumentsControllerGetOrgRequirementsResponse =
-  AdminLicenseDocumentsControllerGetOrgRequirementsResponses[keyof AdminLicenseDocumentsControllerGetOrgRequirementsResponses];
-
-export type AdminLicenseDocumentsControllerReviewData = {
-  body: ReviewLicenseDocumentDto;
-  path: {
-    documentId: string;
-  };
-  query?: never;
-  url: "/api/v1/admin/license-documents/{documentId}/review";
-};
-
-export type AdminLicenseDocumentsControllerReviewResponses = {
-  200: {
-    [key: string]: unknown;
-  };
-};
-
-export type AdminLicenseDocumentsControllerReviewResponse =
-  AdminLicenseDocumentsControllerReviewResponses[keyof AdminLicenseDocumentsControllerReviewResponses];
-
-export type AdminLicenseRequirementsControllerFindAllData = {
-  body?: never;
-  path?: never;
-  query?: {
-    categoryId?: string;
-    isActive?: boolean;
-  };
-  url: "/api/v1/admin/license-requirements";
-};
-
-export type AdminLicenseRequirementsControllerFindAllResponses = {
-  200: {
-    [key: string]: unknown;
-  };
-};
-
-export type AdminLicenseRequirementsControllerFindAllResponse =
-  AdminLicenseRequirementsControllerFindAllResponses[keyof AdminLicenseRequirementsControllerFindAllResponses];
-
-export type AdminLicenseRequirementsControllerCreateData = {
-  body: CreateLicenseRequirementDto;
-  path?: never;
-  query?: never;
-  url: "/api/v1/admin/license-requirements";
-};
-
-export type AdminLicenseRequirementsControllerCreateResponses = {
-  201: {
-    [key: string]: unknown;
-  };
-};
-
-export type AdminLicenseRequirementsControllerCreateResponse =
-  AdminLicenseRequirementsControllerCreateResponses[keyof AdminLicenseRequirementsControllerCreateResponses];
-
-export type AdminLicenseRequirementsControllerRemoveData = {
-  body?: never;
-  path: {
-    id: string;
-  };
-  query?: never;
-  url: "/api/v1/admin/license-requirements/{id}";
-};
-
-export type AdminLicenseRequirementsControllerRemoveResponses = {
-  200: unknown;
-};
-
-export type AdminLicenseRequirementsControllerFindOneData = {
-  body?: never;
-  path: {
-    id: string;
-  };
-  query?: never;
-  url: "/api/v1/admin/license-requirements/{id}";
-};
-
-export type AdminLicenseRequirementsControllerFindOneResponses = {
-  200: {
-    [key: string]: unknown;
-  };
-};
-
-export type AdminLicenseRequirementsControllerFindOneResponse =
-  AdminLicenseRequirementsControllerFindOneResponses[keyof AdminLicenseRequirementsControllerFindOneResponses];
-
-export type AdminLicenseRequirementsControllerUpdateData = {
-  body: UpdateLicenseRequirementDto;
-  path: {
-    id: string;
-  };
-  query?: never;
-  url: "/api/v1/admin/license-requirements/{id}";
-};
-
-export type AdminLicenseRequirementsControllerUpdateResponses = {
-  200: {
-    [key: string]: unknown;
-  };
-};
-
-export type AdminLicenseRequirementsControllerUpdateResponse =
-  AdminLicenseRequirementsControllerUpdateResponses[keyof AdminLicenseRequirementsControllerUpdateResponses];

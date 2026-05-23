@@ -92,6 +92,22 @@ export function toComplianceCase(raw: ComplianceCaseDetailDto): ComplianceCase {
       ),
     );
   }
+  if (docs.proofOfPastPerformance)
+    documents.push(
+      toViewableItem(
+        docs.proofOfPastPerformance,
+        "Proof of Past Performance",
+        "uploaded",
+      ),
+    );
+  if (docs.statementOfAccount)
+    documents.push(
+      toViewableItem(
+        docs.statementOfAccount,
+        "Statement of Account",
+        "uploaded",
+      ),
+    );
 
   const identityImages: ViewableItem[] = [];
   if (kyc?.identity?.selfie)
