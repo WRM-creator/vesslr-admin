@@ -178,6 +178,29 @@ export type OnboardingCategoryDto = {
   name: string;
 };
 
+export type OnboardingBankDetailsDto = {
+  accountNumber: string;
+  bankCode: string;
+  bankName: string;
+  accountName: string;
+  currency: string;
+};
+
+export type OnboardingTransactionProfileDto = {
+  purpose: string;
+  monthlyValueBand:
+    | "100_usd_or_less"
+    | "100_usd_to_500_usd"
+    | "500_usd_to_1m_usd"
+    | "above_1m_usd";
+  monthlyCountBand:
+    | "10_or_less"
+    | "10_to_50"
+    | "50_to_100"
+    | "100_to_200"
+    | "above_200";
+};
+
 export type OnboardingOrganizationDto = {
   _id: string;
   name: string;
@@ -207,6 +230,8 @@ export type OnboardingOrganizationDto = {
   taxIdDocument?: FileMetadataResponseDto;
   additionalDocuments?: Array<FileMetadataResponseDto>;
   categories?: Array<OnboardingCategoryDto>;
+  bankDetails?: OnboardingBankDetailsDto;
+  transactionProfile?: OnboardingTransactionProfileDto;
 };
 
 export type BusinessRepresentativeAddressDto = {
@@ -530,7 +555,7 @@ export type PopulatedProductResponseDto = {
    * Price per unit in minor currency units (kobo/cents)
    */
   pricePerUnit: number;
-  currency?: "NGN" | "USD" | "EUR";
+  currency?: "NGN" | "USD" | "EUR" | "USDT";
   images?: Array<string>;
   features?: Array<string>;
   availableQuantity?: number;
@@ -637,7 +662,7 @@ export type ProductResponseDto = {
    * Price per unit in minor currency units (kobo/cents)
    */
   pricePerUnit: number;
-  currency?: "NGN" | "USD" | "EUR";
+  currency?: "NGN" | "USD" | "EUR" | "USDT";
   images?: Array<string>;
   features?: Array<string>;
   availableQuantity?: number;
@@ -1011,7 +1036,7 @@ export type CreateProductDto = {
    * Price per unit in minor currency units (kobo/cents)
    */
   pricePerUnit: number;
-  currency?: "NGN" | "USD" | "EUR";
+  currency?: "NGN" | "USD" | "EUR" | "USDT";
   images?: Array<string>;
   documents?: Array<string>;
   features?: Array<string>;
@@ -1100,7 +1125,7 @@ export type UpdateProductDto = {
    * Price per unit in minor currency units (kobo/cents)
    */
   pricePerUnit?: number;
-  currency?: "NGN" | "USD" | "EUR";
+  currency?: "NGN" | "USD" | "EUR" | "USDT";
   images?: Array<string>;
   documents?: Array<string>;
   features?: Array<string>;
@@ -1199,7 +1224,7 @@ export type CategoryGroupDto = {
   requiresCompliance: boolean;
   allowsOrderQuantityLimits: boolean;
   allowsInventoryTracking: boolean;
-  allowedCurrencies: Array<"NGN" | "USD" | "EUR">;
+  allowedCurrencies: Array<"NGN" | "USD" | "EUR" | "USDT">;
   allowedListingTypes: Array<
     "product" | "service" | "rental" | "lease" | "charter" | "rfq"
   >;
@@ -1283,7 +1308,7 @@ export type UpdateCategoryGroupDto = {
   milestoneDelivery?: boolean;
   allowsOrderQuantityLimits?: boolean;
   allowsInventoryTracking?: boolean;
-  allowedCurrencies?: Array<"NGN" | "USD" | "EUR">;
+  allowedCurrencies?: Array<"NGN" | "USD" | "EUR" | "USDT">;
   allowedListingTypes?: Array<
     "product" | "service" | "rental" | "lease" | "charter" | "rfq"
   >;
@@ -1697,7 +1722,7 @@ export type OrderResponseDto = {
    * Price per unit in minor currency units (kobo/cents)
    */
   pricePerUnit: number;
-  currency: "NGN" | "USD" | "EUR";
+  currency: "NGN" | "USD" | "EUR" | "USDT";
   /**
    * Total amount in minor currency units (kobo/cents)
    */
@@ -1888,7 +1913,7 @@ export type EscrowResponseDto = {
    * Platform service fee amount
    */
   serviceFeeAmount: number;
-  currency: "NGN" | "USD" | "EUR";
+  currency: "NGN" | "USD" | "EUR" | "USDT";
   referenceId?: string | null;
   fundedAt?: string | null;
   releasedAt?: string | null;
@@ -2106,25 +2131,45 @@ export type AssignLogisticsDto = {
 
 export type VirtualAccountResponseDto = {
   /**
-   * NGN bank account number to transfer funds to
+   * Funding method/rail to render
    */
-  accountNumber: string;
+  method: "bank_account" | "deposit_address";
   /**
-   * Name of the bank holding the virtual account
+   * Bank account number to transfer funds to (bank_account)
    */
-  bankName: string;
+  accountNumber?: string;
+  /**
+   * Name of the bank holding the virtual account (bank_account)
+   */
+  bankName?: string;
+  /**
+   * On-chain deposit address (deposit_address)
+   */
+  address?: string;
+  /**
+   * Network for the deposit address, e.g. TRX (deposit_address)
+   */
+  network?: string;
+  /**
+   * Destination tag/memo for networks that require it (deposit_address)
+   */
+  memo?: string;
+  /**
+   * When the funding destination expires (ISO 8601), if applicable
+   */
+  expiresAt?: string;
   /**
    * Transfer narration to use
    */
   narration: string;
   /**
-   * Exact amount to transfer in minor currency units (kobo)
+   * Exact amount to transfer in minor currency units
    */
   amount: number;
   /**
-   * Currency (always NGN for virtual accounts)
+   * Funding currency
    */
-  currency: "NGN" | "USD" | "EUR";
+  currency: "NGN" | "USD" | "EUR" | "USDT";
   /**
    * Goods amount before service fee (minor units)
    */
@@ -2202,7 +2247,7 @@ export type EscrowWithTransactionResponseDto = {
    * Platform service fee amount
    */
   serviceFeeAmount: number;
-  currency: "NGN" | "USD" | "EUR";
+  currency: "NGN" | "USD" | "EUR" | "USDT";
   referenceId?: string | null;
   fundedAt?: string | null;
   releasedAt?: string | null;
@@ -2245,7 +2290,7 @@ export type EscrowSummaryResponseDto = {
    * Total refunded in minor currency units (kobo/cents)
    */
   refunded: number;
-  currency: "NGN" | "USD" | "EUR";
+  currency: "NGN" | "USD" | "EUR" | "USDT";
 };
 
 export type ConversationMessageResponseDto = {
@@ -2484,7 +2529,7 @@ export type RecommendationFeedItemDto = {
   targetPricePerUnit: number;
   duration?: number;
   durationUnit?: string;
-  currency: "NGN" | "USD" | "EUR";
+  currency: "NGN" | "USD" | "EUR" | "USDT";
   transactionType: Array<string>;
   condition?: Array<string>;
   description?: string;
@@ -2576,7 +2621,7 @@ export type CreateRequestDto = {
    * Target price per unit in minor currency units (kobo/cents)
    */
   targetPricePerUnit: number;
-  currency: "NGN" | "USD" | "EUR";
+  currency: "NGN" | "USD" | "EUR" | "USDT";
   /**
    * List of transaction types
    */
@@ -2727,7 +2772,7 @@ export type RequestResponseDto = {
     | "project"
     | "milestone"
     | "contract";
-  currency: "NGN" | "USD" | "EUR";
+  currency: "NGN" | "USD" | "EUR" | "USDT";
   listingType: "product" | "service" | "rental" | "lease" | "charter" | "rfq";
   transactionType?: Array<string>;
   condition?: Array<string>;
@@ -2818,7 +2863,7 @@ export type UpdateRequestDto = {
    * Target price per unit in minor currency units (kobo/cents)
    */
   targetPricePerUnit?: number;
-  currency?: "NGN" | "USD" | "EUR";
+  currency?: "NGN" | "USD" | "EUR" | "USDT";
   /**
    * List of transaction types
    */
@@ -2957,9 +3002,88 @@ export type CategorySpecialtyDto = {
     | "DDP"
     | "NA"
   >;
+  /**
+   * Listing types allowed for this specialty (from parent group)
+   */
+  listingTypes: Array<
+    "product" | "service" | "rental" | "lease" | "charter" | "rfq"
+  >;
+  /**
+   * Resolved units: specialty override or inherited from parent category
+   */
+  resolvedUnits: Array<
+    | "bbl"
+    | "liter"
+    | "gallon"
+    | "m3"
+    | "mt"
+    | "kg"
+    | "ton"
+    | "lb"
+    | "m"
+    | "ft"
+    | "sqm"
+    | "sqft"
+    | "scf"
+    | "sm3"
+    | "nm3"
+    | "mmbtu"
+    | "kwh"
+    | "mwh"
+    | "kva"
+    | "kw"
+    | "mw"
+    | "unit"
+    | "set"
+    | "kit"
+    | "pair"
+    | "joint"
+    | "roll"
+    | "sheet"
+    | "box"
+    | "pack"
+    | "drum"
+    | "bag"
+    | "cylinder"
+    | "ream"
+    | "license"
+    | "skid"
+    | "package"
+    | "plate"
+    | "bar"
+    | "hour"
+    | "day"
+    | "week"
+    | "month"
+    | "year"
+    | "project"
+    | "milestone"
+    | "contract"
+  >;
+  /**
+   * Resolved trade terms: specialty override or inherited from parent group
+   */
+  resolvedTradeTerms: Array<
+    | "FOB"
+    | "CIF"
+    | "CFR"
+    | "EX_WORKS"
+    | "DELIVERED"
+    | "TTO"
+    | "TTT"
+    | "FOT"
+    | "FCA"
+    | "DAP"
+    | "DDP"
+    | "NA"
+  >;
   isActive: boolean;
   sortOrder: number;
   image?: string;
+  /**
+   * Number of products listed under this specialty
+   */
+  productCount: number;
   createdAt: string;
   updatedAt: string;
 };
@@ -2975,7 +3099,7 @@ export type CreateNegotiationDto = {
   product?: string;
   pricePerUnit: number;
   quantity: number;
-  currency: "NGN" | "USD" | "EUR";
+  currency: "NGN" | "USD" | "EUR" | "USDT";
   unitOfMeasurement:
     | "bbl"
     | "liter"
@@ -3066,7 +3190,7 @@ export type NegotiationRequestDto = {
    * Target price per unit in minor currency units (kobo/cents)
    */
   targetPricePerUnit?: number;
-  currency?: "NGN" | "USD" | "EUR";
+  currency?: "NGN" | "USD" | "EUR" | "USDT";
   unitOfMeasurement?:
     | "bbl"
     | "liter"
@@ -3130,7 +3254,7 @@ export type CommercialTerms = {
 export type NegotiationOffer = {
   pricePerUnit: number;
   quantity: number;
-  currency: "NGN" | "USD" | "EUR";
+  currency: "NGN" | "USD" | "EUR" | "USDT";
   unitOfMeasurement:
     | "bbl"
     | "liter"
@@ -3258,7 +3382,7 @@ export type CounterOfferDto = {
    */
   pricePerUnit: number;
   quantity: number;
-  currency: "NGN" | "USD" | "EUR";
+  currency: "NGN" | "USD" | "EUR" | "USDT";
   unitOfMeasurement:
     | "bbl"
     | "liter"
@@ -3359,7 +3483,7 @@ export type CreateInvoiceDto = {
   customerName: string;
   customerEmail?: string;
   title: string;
-  currency: "NGN" | "USD" | "EUR";
+  currency: "NGN" | "USD" | "EUR" | "USDT";
   /**
    * ISO 8601 date string
    */
@@ -3478,7 +3602,7 @@ export type UpdateInvoiceDto = {
   customerName?: string;
   customerEmail?: string;
   title?: string;
-  currency?: "NGN" | "USD" | "EUR";
+  currency?: "NGN" | "USD" | "EUR" | "USDT";
   /**
    * ISO 8601 date string
    */
@@ -3521,7 +3645,7 @@ export type CreateSupplierDto = {
   bankName: string;
   accountNumber: string;
   accountName: string;
-  currency: "NGN" | "USD" | "EUR";
+  currency: "NGN" | "USD" | "EUR" | "USDT";
 };
 
 export type SupplierContactDto = {
@@ -3558,7 +3682,7 @@ export type SupplierBankDetailsDto = {
   bankName: string;
   accountNumber: string;
   accountName: string;
-  currency: "NGN" | "USD" | "EUR";
+  currency: "NGN" | "USD" | "EUR" | "USDT";
 };
 
 export type SupplierResponseDto = {
@@ -3589,7 +3713,7 @@ export type UpdateSupplierDto = {
   bankName?: string;
   accountNumber?: string;
   accountName?: string;
-  currency?: "NGN" | "USD" | "EUR";
+  currency?: "NGN" | "USD" | "EUR" | "USDT";
 };
 
 export type DisputeAttachmentInputDto = {
@@ -3930,6 +4054,27 @@ export type UpdateFinancialSetupDto = {
    * Statement of account (3-6 months). Required for buyers, optional for sellers.
    */
   statementOfAccount?: FileMetadataDto;
+  /**
+   * Expected primary purpose of transactions (Busha KYB).
+   */
+  transactionPurpose: string;
+  /**
+   * Expected monthly transaction value band (Busha KYB).
+   */
+  monthlyTransactionValue:
+    | "100_usd_or_less"
+    | "100_usd_to_500_usd"
+    | "500_usd_to_1m_usd"
+    | "above_1m_usd";
+  /**
+   * Expected monthly transaction count band (Busha KYB).
+   */
+  monthlyTransactionCount:
+    | "10_or_less"
+    | "10_to_50"
+    | "50_to_100"
+    | "100_to_200"
+    | "above_200";
 };
 
 export type RepresentativeAddressDto = {
@@ -3953,11 +4098,20 @@ export type UpdateBusinessRepresentativeDto = {
 
 export type UpdatePersonInfoDto = {
   ownsMoreThanFivePercent: boolean;
+  /**
+   * Numeric ownership stake (0–100).
+   */
+  percentageOwnership: number;
+  /**
+   * Whether this director/owner is a politically exposed person (PEP).
+   */
+  isPep: boolean;
   email: string;
   phoneNumber: string;
   bvn: string;
   nationality: string;
   streetAddress: string;
+  country: string;
   state: string;
   city: string;
   postalCode?: string;
@@ -5241,7 +5395,7 @@ export type AcceptRequestOrderDto = {
     | "plate"
     | "bar";
   pricePerUnit: number;
-  currency: "NGN" | "USD" | "EUR";
+  currency: "NGN" | "USD" | "EUR" | "USDT";
   condition?: "New" | "Used - Good" | "Used - Fair" | "Refurbished";
   notes?: string;
 };
@@ -5458,6 +5612,22 @@ export type KycProfileDto = {
   user?: KycUserDto;
 };
 
+export type BusinessRegistrationPrefillDto = {
+  businessStructure:
+    | "limited_liability_company"
+    | "public_limited_company"
+    | "limited_liability_partnership"
+    | "registered_business_name"
+    | "other";
+  regulationStatus: "regulated" | "unregulated";
+  licenseNumber?: string;
+  corporateGroupStatus: "standalone_company" | "subsidiary" | "holding_company";
+  exchangeListingStatus:
+    | "listed_on_exchange"
+    | "not_listed_on_exchange"
+    | "owned_by_listed_company";
+};
+
 export type ComplianceEventDto = {
   _id: string;
   eventType: string;
@@ -5481,12 +5651,39 @@ export type ComplianceCaseDetailDto = {
     | "pending_review"
     | "action_required"
     | "approved";
+  /**
+   * Heuristic + saved KYB registration classification to prefill the approval modal.
+   */
+  businessRegistrationPrefill: BusinessRegistrationPrefillDto;
   events: Array<ComplianceEventDto>;
+};
+
+export type BusinessRegistrationReviewDto = {
+  businessStructure:
+    | "limited_liability_company"
+    | "public_limited_company"
+    | "limited_liability_partnership"
+    | "registered_business_name"
+    | "other";
+  regulationStatus: "regulated" | "unregulated";
+  /**
+   * Required when regulated.
+   */
+  licenseNumber?: string;
+  corporateGroupStatus: "standalone_company" | "subsidiary" | "holding_company";
+  exchangeListingStatus:
+    | "listed_on_exchange"
+    | "not_listed_on_exchange"
+    | "owned_by_listed_company";
 };
 
 export type ReviewComplianceDto = {
   decision: "approved" | "action_required";
   reasons?: Array<StructuredReasonDto>;
+  /**
+   * Approver-confirmed KYB registration classification. Applied on approval.
+   */
+  businessRegistration?: BusinessRegistrationReviewDto;
 };
 
 export type AccountBalanceResponseDto = {
@@ -5870,7 +6067,7 @@ export type InspectionReport = {
 };
 
 export type WalletBalanceResponseDto = {
-  currency: "NGN" | "USD" | "EUR";
+  currency: "NGN" | "USD" | "EUR" | "USDT";
   /**
    * Balance in minor currency units (kobo)
    */
@@ -5891,12 +6088,12 @@ export type WalletStatsResponseDto = {
    * Month-to-date spend in minor currency units (kobo)
    */
   spend: number;
-  currency: "NGN" | "USD" | "EUR";
+  currency: "NGN" | "USD" | "EUR" | "USDT";
 };
 
 export type WalletTransactionResponseDto = {
   id: string;
-  currency: "NGN" | "USD" | "EUR";
+  currency: "NGN" | "USD" | "EUR" | "USDT";
   /**
    * Amount in minor currency units (kobo)
    */
@@ -6947,7 +7144,7 @@ export type TransactionsControllerGetVirtualAccountData = {
 
 export type TransactionsControllerGetVirtualAccountResponses = {
   /**
-   * Virtual account details for the NGN bank transfer
+   * Escrow funding instructions (bank_account or deposit_address)
    */
   200: VirtualAccountResponseDto;
 };
@@ -9890,6 +10087,23 @@ export type AdminComplianceControllerReviewKybResponses = {
   200: unknown;
 };
 
+export type AdminComplianceControllerOnboardData = {
+  body?: never;
+  path: {
+    organizationId: string;
+  };
+  query?: never;
+  url: "/api/v1/admin/compliance/kyb/{organizationId}/onboard";
+};
+
+export type AdminComplianceControllerOnboardResponses = {
+  /**
+   * Onboarding attempted
+   */
+  200: unknown;
+  201: unknown;
+};
+
 export type AdminLedgerControllerListAccountsData = {
   body?: never;
   path?: never;
@@ -10637,6 +10851,20 @@ export type FlutterwaveWebhooksControllerHandleWebhookData = {
 };
 
 export type FlutterwaveWebhooksControllerHandleWebhookResponses = {
+  200: unknown;
+};
+
+export type BushaWebhooksControllerHandleWebhookData = {
+  body?: never;
+  headers: {
+    "x-bu-signature": string;
+  };
+  path?: never;
+  query?: never;
+  url: "/api/v1/busha/webhooks";
+};
+
+export type BushaWebhooksControllerHandleWebhookResponses = {
   200: unknown;
 };
 

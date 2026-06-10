@@ -47,6 +47,8 @@ import type {
   AdminComplianceControllerGetCaseResponses,
   AdminComplianceControllerListCasesData,
   AdminComplianceControllerListCasesResponses,
+  AdminComplianceControllerOnboardData,
+  AdminComplianceControllerOnboardResponses,
   AdminComplianceControllerReviewKybData,
   AdminComplianceControllerReviewKybResponses,
   AdminComplianceControllerReviewKycData,
@@ -211,6 +213,8 @@ import type {
   AdminTransactionsControllerUpdateStatusResponses,
   AppControllerGetHelloData,
   AppControllerGetHelloResponses,
+  BushaWebhooksControllerHandleWebhookData,
+  BushaWebhooksControllerHandleWebhookResponses,
   CategoriesControllerFindAllData,
   CategoriesControllerFindAllResponses,
   CategoriesControllerFindOneData,
@@ -1474,7 +1478,7 @@ export const transactionsControllerAssignLogistics = <
   });
 
 /**
- * Get the NGN virtual account for funding the escrow (buyer only)
+ * Get escrow funding instructions (buyer only). Returns a bank account (NGN) or a crypto deposit address (USDT) per the `method` field.
  */
 export const transactionsControllerGetVirtualAccount = <
   ThrowOnError extends boolean = false,
@@ -4794,6 +4798,24 @@ export const adminComplianceControllerReviewKyb = <
   });
 
 /**
+ * Re-run provider onboarding for an approved organization
+ */
+export const adminComplianceControllerOnboard = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AdminComplianceControllerOnboardData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    AdminComplianceControllerOnboardResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/compliance/kyb/{organizationId}/onboard",
+    ...options,
+  });
+
+/**
  * List all ledger accounts with balances
  */
 export const adminLedgerControllerListAccounts = <
@@ -5549,6 +5571,20 @@ export const flutterwaveWebhooksControllerHandleWebhook = <
     unknown,
     ThrowOnError
   >({ url: "/api/v1/flutterwave/webhooks", ...options });
+
+/**
+ * Handle Busha webhook events (public)
+ */
+export const bushaWebhooksControllerHandleWebhook = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<BushaWebhooksControllerHandleWebhookData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    BushaWebhooksControllerHandleWebhookResponses,
+    unknown,
+    ThrowOnError
+  >({ url: "/api/v1/busha/webhooks", ...options });
 
 /**
  * Get NGN wallet balance (creates subaccount on first call)
