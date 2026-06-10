@@ -1,6 +1,10 @@
 import { Spinner } from "@/components/ui/spinner";
 import { api } from "@/lib/api";
-import type { ComplianceCaseDetailDto, StructuredReasonDto } from "@/lib/api/generated";
+import type {
+  BusinessRegistrationReviewDto,
+  ComplianceCaseDetailDto,
+  StructuredReasonDto,
+} from "@/lib/api/generated";
 import { useState } from "react";
 import { ApproveDialog } from "./approve-dialog";
 import { AutomatedChecks } from "./automated-checks";
@@ -56,9 +60,14 @@ export function ComplianceCaseReview({
     setViewerOpen(true);
   };
 
-  const handleApproveKyb = () => {
+  const handleApproveKyb = (
+    businessRegistration?: BusinessRegistrationReviewDto,
+  ) => {
     reviewKyb(
-      { path: { organizationId }, body: { decision: "approved" } },
+      {
+        path: { organizationId },
+        body: { decision: "approved", businessRegistration },
+      },
       { onSuccess: () => setActiveReview(null) },
     );
   };
@@ -148,8 +157,11 @@ export function ComplianceCaseReview({
         open={activeReview?.action === "approve"}
         onOpenChange={(open) => !open && setActiveReview(null)}
         reviewType={activeReview?.type ?? "KYB"}
+        businessRegistrationPrefill={apiData?.businessRegistrationPrefill}
         onConfirm={
-          activeReview?.type === "KYC" ? handleApproveKyc : handleApproveKyb
+          activeReview?.type === "KYC"
+            ? () => handleApproveKyc()
+            : handleApproveKyb
         }
         isSubmitting={
           activeReview?.type === "KYC" ? isKycPending : isKybPending
