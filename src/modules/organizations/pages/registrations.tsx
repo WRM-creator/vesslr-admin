@@ -22,13 +22,19 @@ export default function PendingApprovalsPage() {
 
   const [page, setPage] = useQueryState("page", parseAsInteger.withDefault(1));
 
+  // Provider-review cases are already approved, so they live outside the normal
+  // "not yet approved" queue — fetch them by the flag instead.
+  const isProviderReview = step === "provider_review";
+
   const { data, isLoading } = api.organizations.list.useQuery({
     query: {
       page: String(page),
       limit: "10",
       search: search || undefined,
-      onboardingStep: step === "all" ? undefined : step,
-      approved: "false",
+      onboardingStep:
+        isProviderReview || step === "all" ? undefined : step,
+      approved: isProviderReview ? undefined : "false",
+      providerReviewPending: isProviderReview ? "true" : undefined,
     },
   });
 
@@ -46,6 +52,7 @@ export default function PendingApprovalsPage() {
       .filter((c: any) => c && typeof c === "object" && c.name)
       .map((c: any) => c.name),
     verificationStatus: item.verificationStatus || "unverified",
+    providerReviewPending: item.providerReviewPending ?? false,
     createdAt: item.createdAt!,
   }));
 
@@ -68,6 +75,7 @@ export default function PendingApprovalsPage() {
           { label: "Company Documents", value: "company_documents" },
           { label: "Review", value: "review" },
           { label: "Pending Review", value: "status" },
+          { label: "Provider Review", value: "provider_review" },
           { label: "Complete", value: "complete" },
         ]}
         activeTab={step}

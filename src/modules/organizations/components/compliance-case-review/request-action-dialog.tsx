@@ -13,7 +13,7 @@ import { Label } from "@/components/ui/label";
 import { Spinner } from "@/components/ui/spinner";
 import { Textarea } from "@/components/ui/textarea";
 import type { StructuredReasonDto } from "@/lib/api/generated";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { REASON_GROUPS, reasonKey, type ReasonOption } from "./reason-options";
 
 const REQUEST_ACTION_COPY = {
@@ -24,9 +24,15 @@ const REQUEST_ACTION_COPY = {
 interface RequestActionDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onConfirm: (reasons: StructuredReasonDto[]) => void;
+  onConfirm: (reasons: StructuredReasonDto[], message?: string) => void;
   isSubmitting: boolean;
   reviewType: "KYB" | "KYC";
+  /**
+   * Optional editable draft to seed the customer message — e.g. derived from a
+   * provider's decline reason. The admin must edit it into white-labeled copy
+   * before sending; provider names must not reach the customer.
+   */
+  defaultMessage?: string;
 }
 
 export function RequestActionDialog({
@@ -35,9 +41,18 @@ export function RequestActionDialog({
   onConfirm,
   isSubmitting,
   reviewType,
+  defaultMessage,
 }: RequestActionDialogProps) {
   const [selected, setSelected] = useState<ReasonOption[]>([]);
   const [note, setNote] = useState("");
+  const [message, setMessage] = useState("");
+
+  // Seed the message draft when the dialog opens. Only prefill an untouched field
+  // so we never clobber what the admin has already typed.
+  useEffect(() => {
+    if (open) setMessage(defaultMessage ?? "");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
 
   const groups = REASON_GROUPS[reviewType];
 
@@ -56,6 +71,7 @@ export function RequestActionDialog({
   const reset = () => {
     setSelected([]);
     setNote("");
+    setMessage("");
   };
 
   const handleConfirm = () => {
@@ -66,7 +82,7 @@ export function RequestActionDialog({
         ? { note: note.trim() }
         : {}),
     }));
-    onConfirm(reasons);
+    onConfirm(reasons, message.trim() || undefined);
     reset();
   };
 
@@ -119,6 +135,23 @@ export function RequestActionDialog({
               </div>
             </div>
           ))}
+
+          <div>
+            <Label htmlFor="action-message" className="mb-1.5 block text-sm">
+              Message to customer (optional)
+            </Label>
+            <Textarea
+              id="action-message"
+              placeholder="Explain what the customer needs to add or update..."
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              rows={4}
+            />
+            <p className="text-muted-foreground mt-1 text-xs">
+              Shown to the customer. White-labeled — do not name any payment
+              provider.
+            </p>
+          </div>
 
           <div>
             <Label htmlFor="action-note" className="mb-1.5 block text-sm">

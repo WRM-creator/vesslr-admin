@@ -14,9 +14,26 @@ import { DecisionHistory } from "./decision-history";
 import { DocumentViewerSheet } from "./document-viewer-sheet";
 import { DocumentsGrid } from "./documents-grid";
 import { IdentityImages } from "./identity-images";
+import { ProviderResponsePanel } from "./provider-response-panel";
 import { RegistryPeople } from "./registry-people";
 import { RequestActionDialog } from "./request-action-dialog";
 import type { ViewableItem } from "./types";
+
+/**
+ * Build an editable message draft from a provider's decline response. The admin
+ * rewrites this into white-labeled copy before sending — it is only a starting
+ * point, never sent as-is.
+ */
+function buildProviderMessageDraft(
+  kyb?: ComplianceCaseDetailDto["kybProfile"],
+): string | undefined {
+  const pv = kyb?.providerVerification;
+  if (!pv) return undefined;
+  const lines: string[] = [];
+  if (pv.summary) lines.push(pv.summary);
+  for (const item of pv.items ?? []) lines.push(`- ${item.label}: ${item.reason}`);
+  return lines.length > 0 ? lines.join("\n") : undefined;
+}
 
 type ActiveReview = {
   type: "KYB" | "KYC";
@@ -80,19 +97,28 @@ export function ComplianceCaseReview({
     );
   };
 
-  const handleRequestActionKyb = (reasons: StructuredReasonDto[]) => {
+  const handleRequestActionKyb = (
+    reasons: StructuredReasonDto[],
+    message?: string,
+  ) => {
     reviewKyb(
-      { path: { organizationId }, body: { decision: "action_required", reasons } },
+      {
+        path: { organizationId },
+        body: { decision: "action_required", reasons, message },
+      },
       { onSuccess: () => setActiveReview(null) },
     );
   };
 
-  const handleRequestActionKyc = (reasons: StructuredReasonDto[]) => {
+  const handleRequestActionKyc = (
+    reasons: StructuredReasonDto[],
+    message?: string,
+  ) => {
     if (!primaryUserId) return;
     reviewKyc(
       {
         path: { userId: primaryUserId },
-        body: { decision: "action_required", reasons },
+        body: { decision: "action_required", reasons, message },
       },
       { onSuccess: () => setActiveReview(null) },
     );
@@ -116,6 +142,9 @@ export function ComplianceCaseReview({
 
   return (
     <div className="space-y-6">
+      {apiData?.kybProfile && (
+        <ProviderResponsePanel kyb={apiData.kybProfile} />
+      )}
       <AutomatedChecks
         kyc={data.checks.kyc}
         kyb={data.checks.kyb}
@@ -176,6 +205,11 @@ export function ComplianceCaseReview({
           activeReview?.type === "KYC"
             ? handleRequestActionKyc
             : handleRequestActionKyb
+        }
+        defaultMessage={
+          activeReview?.type === "KYB"
+            ? buildProviderMessageDraft(apiData?.kybProfile)
+            : undefined
         }
         isSubmitting={
           activeReview?.type === "KYC" ? isKycPending : isKybPending

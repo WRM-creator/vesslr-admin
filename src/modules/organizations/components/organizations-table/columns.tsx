@@ -12,6 +12,7 @@ export interface OrganizationTableItem {
   location: string;
   categories: string[];
   verificationStatus: "unverified" | "pending" | "verified" | "rejected";
+  providerReviewPending: boolean;
   createdAt: string;
 }
 
@@ -61,12 +62,19 @@ export const columns: ColumnDef<OrganizationTableItem>[] = [
     cell: ({ row }) => {
       const status = row.original.verificationStatus;
       return (
-        <Badge
-          variant={statusStyles[status] || "outline"}
-          className="capitalize"
-        >
-          {status}
-        </Badge>
+        <div className="flex flex-wrap items-center gap-1.5">
+          <Badge
+            variant={statusStyles[status] || "outline"}
+            className="capitalize"
+          >
+            {status}
+          </Badge>
+          {row.original.providerReviewPending && (
+            <Badge className="border-transparent bg-amber-500 text-white">
+              Needs review
+            </Badge>
+          )}
+        </div>
       );
     },
   },
