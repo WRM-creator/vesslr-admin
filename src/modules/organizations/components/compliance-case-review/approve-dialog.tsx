@@ -77,6 +77,10 @@ const LISTING_OPTIONS = [
 
 type Options = { value: string; label: string }[];
 
+/** Coerce a registry date (often an ISO timestamp) to a date-input value. */
+const toDateInputValue = (s?: string) =>
+  s && /^\d{4}-\d{2}-\d{2}/.test(s) ? s.slice(0, 10) : "";
+
 function Field({
   label,
   value,
@@ -120,12 +124,27 @@ export function ApproveDialog({
     businessRegistrationPrefill,
   );
 
-  // Reset the form to the prefilled values whenever the dialog (re)opens.
+  // Reset the form to the prefilled values whenever the dialog (re)opens. The
+  // registry incorporation date is often an ISO timestamp — coerce to YYYY-MM-DD.
   useEffect(() => {
-    if (open) setForm(businessRegistrationPrefill);
+    if (open) {
+      setForm(
+        businessRegistrationPrefill
+          ? {
+              ...businessRegistrationPrefill,
+              incorporationDate: toDateInputValue(
+                businessRegistrationPrefill.incorporationDate,
+              ),
+            }
+          : undefined,
+      );
+    }
   }, [open, businessRegistrationPrefill]);
 
   const isKyb = reviewType === "KYB";
+  // Incorporation date is required by the payment provider; block KYB approval
+  // until it's set (it has no other capture point if the registry lookup missed it).
+  const canApprove = !isKyb || !!form?.incorporationDate;
   // The Select emits a plain string; options are constrained to valid enum values,
   // so narrow to the generated DTO field types at this boundary.
   const set = (patch: Partial<Record<keyof BusinessRegistrationReviewDto, string>>) =>
@@ -144,6 +163,21 @@ export function ApproveDialog({
 
         {isKyb && form && (
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <div className="flex flex-col gap-1.5 sm:col-span-2">
+              <Label className="text-xs text-muted-foreground">
+                Incorporation date <span className="text-destructive">*</span>
+              </Label>
+              <Input
+                type="date"
+                value={form.incorporationDate ?? ""}
+                onChange={(e) => set({ incorporationDate: e.target.value })}
+              />
+              {!form.incorporationDate && (
+                <span className="text-xs text-destructive">
+                  Required for payment onboarding (not found in the registry).
+                </span>
+              )}
+            </div>
             <Field
               label="Business structure"
               value={form.businessStructure}
@@ -192,7 +226,7 @@ export function ApproveDialog({
           <AlertDialogCancel disabled={isSubmitting}>Cancel</AlertDialogCancel>
           <AlertDialogAction
             onClick={() => onConfirm(isKyb ? form : undefined)}
-            disabled={isSubmitting}
+            disabled={isSubmitting || !canApprove}
           >
             {isSubmitting ? <Spinner className="size-4" /> : "Approve"}
           </AlertDialogAction>
