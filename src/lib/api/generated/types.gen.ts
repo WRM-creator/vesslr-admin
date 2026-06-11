@@ -3884,6 +3884,11 @@ export type OnboardingStatusResponseDto = {
   organization?: OnboardingOrganizationDto;
 };
 
+export type CurrencyCapabilityDto = {
+  currency: string;
+  status: "active" | "setting_up" | "unavailable";
+};
+
 export type OnboardingStatusHubResponseDto = {
   complianceStatus:
     | "draft"
@@ -3904,10 +3909,18 @@ export type OnboardingStatusHubResponseDto = {
     | "action_required"
     | "approved";
   actionRequiredItems?: Array<StructuredReasonDto>;
+  /**
+   * Free-text message from our review team asking the customer to update documents.
+   */
+  actionRequiredMessage?: string;
   submittedAt?: string;
   reviewedAt?: string;
   approvedAt?: string;
   smileVerificationStatus?: string;
+  /**
+   * Per-currency capability (white-labeled). What the user can transact in; provider identity is never exposed.
+   */
+  currencies: Array<CurrencyCapabilityDto>;
   nextAction: string;
   estimatedTimeline?: string;
 };
@@ -4086,6 +4099,8 @@ export type RepresentativeAddressDto = {
 };
 
 export type UpdateBusinessRepresentativeDto = {
+  firstName?: string;
+  lastName?: string;
   isDirector: boolean;
   ownsMoreThanFivePercent: boolean;
   bvn: string;
@@ -5473,6 +5488,26 @@ export type KybChecksDto = {
   smileJobId?: string;
 };
 
+export type ProviderVerificationItemDto = {
+  label: string;
+  reason: string;
+};
+
+export type ProviderVerificationDto = {
+  provider: string;
+  status: string;
+  summary?: string;
+  items?: Array<ProviderVerificationItemDto>;
+  /**
+   * Raw provider payload (ops/admin only).
+   */
+  raw?: {
+    [key: string]: unknown;
+  };
+  currencies?: Array<string>;
+  receivedAt?: string;
+};
+
 export type SubmittedByUserDto = {
   _id: string;
   firstName?: string;
@@ -5562,6 +5597,15 @@ export type KybProfileDto = {
   documents: KybDocumentsDto;
   checks: KybChecksDto;
   actionRequiredReasons: Array<StructuredReasonDto>;
+  /**
+   * Free-text message last sent to the customer requesting updates.
+   */
+  actionRequiredMessage?: string;
+  /**
+   * True when a payment provider declined after our approval and an admin must review the provider response (below) before requesting customer updates.
+   */
+  providerReviewPending?: boolean;
+  providerVerification?: ProviderVerificationDto;
   submittedByUser?: SubmittedByUserDto;
   registryData?: RegistryDataDto;
 };
@@ -5626,6 +5670,10 @@ export type BusinessRegistrationPrefillDto = {
     | "listed_on_exchange"
     | "not_listed_on_exchange"
     | "owned_by_listed_company";
+  /**
+   * Incorporation date from the registry lookup, if available.
+   */
+  incorporationDate?: string;
 };
 
 export type ComplianceEventDto = {
@@ -5675,6 +5723,10 @@ export type BusinessRegistrationReviewDto = {
     | "listed_on_exchange"
     | "not_listed_on_exchange"
     | "owned_by_listed_company";
+  /**
+   * Incorporation date (YYYY-MM-DD). Prefilled from the registry; required for provider onboarding. Persisted to organization.incorporationDate.
+   */
+  incorporationDate?: string;
 };
 
 export type ReviewComplianceDto = {
@@ -5684,6 +5736,10 @@ export type ReviewComplianceDto = {
    * Approver-confirmed KYB registration classification. Applied on approval.
    */
   businessRegistration?: BusinessRegistrationReviewDto;
+  /**
+   * Free-text message shown to the customer when requesting document updates (action_required). White-labeled — must not name any payment provider.
+   */
+  message?: string;
 };
 
 export type AccountBalanceResponseDto = {
@@ -9655,6 +9711,10 @@ export type AdminOrganizationsControllerFindAllData = {
     search?: string;
     onboardingStep?: string;
     approved?: string;
+    /**
+     * Pass 'true' to list only organizations a payment provider declined after approval and that await admin review. Ignores the approved filter.
+     */
+    providerReviewPending?: string;
   };
   url: "/api/v1/admin/organizations";
 };
