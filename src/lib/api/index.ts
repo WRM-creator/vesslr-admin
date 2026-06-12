@@ -34,6 +34,7 @@ import {
   adminCategoriesControllerRemove,
   adminCategoriesControllerUpdate,
   adminComplianceControllerGetCase,
+  adminComplianceControllerOnboard,
   adminEscrowsControllerFindAll,
   adminEscrowsControllerGetStats,
   adminLedgerControllerGetAccount,
@@ -479,6 +480,11 @@ export const api = {
       }),
       reviewKyc: createMutation(adminComplianceControllerReviewKyc, {
         invalidates: (args) => [["admin", "compliance", "case"]],
+      }),
+      onboard: createMutation(adminComplianceControllerOnboard, {
+        invalidates: (args) => [
+          ["admin", "compliance", "case", args.path.organizationId],
+        ],
       }),
     },
     licenseRequirements: {

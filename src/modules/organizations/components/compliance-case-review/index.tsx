@@ -14,6 +14,7 @@ import { DecisionHistory } from "./decision-history";
 import { DocumentViewerSheet } from "./document-viewer-sheet";
 import { DocumentsGrid } from "./documents-grid";
 import { IdentityImages } from "./identity-images";
+import { ProviderOnboardingPanel } from "./provider-onboarding-panel";
 import { ProviderResponsePanel } from "./provider-response-panel";
 import { RegistryPeople } from "./registry-people";
 import { RequestActionDialog } from "./request-action-dialog";
@@ -65,6 +66,8 @@ export function ComplianceCaseReview({
     api.admin.compliance.reviewKyb.useMutation();
   const { mutate: reviewKyc, isPending: isKycPending } =
     api.admin.compliance.reviewKyc.useMutation();
+  const { mutate: onboard, isPending: isOnboarding } =
+    api.admin.compliance.onboard.useMutation();
 
   const [viewerOpen, setViewerOpen] = useState(false);
   const [viewerItems, setViewerItems] = useState<ViewableItem[]>([]);
@@ -145,6 +148,12 @@ export function ComplianceCaseReview({
       {apiData?.kybProfile && (
         <ProviderResponsePanel kyb={apiData.kybProfile} />
       )}
+      <ProviderOnboardingPanel
+        items={apiData?.providerOnboarding ?? []}
+        canRetry={data.kybStatus === "approved"}
+        isRetrying={isOnboarding}
+        onRetry={() => onboard({ path: { organizationId } })}
+      />
       <AutomatedChecks
         kyc={data.checks.kyc}
         kyb={data.checks.kyb}
