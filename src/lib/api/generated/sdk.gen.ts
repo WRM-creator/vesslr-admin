@@ -499,6 +499,8 @@ import type {
   TransactionsControllerFindByIdResponses,
   TransactionsControllerFindByOrderIdData,
   TransactionsControllerFindByOrderIdResponses,
+  TransactionsControllerFindInFlightData,
+  TransactionsControllerFindInFlightResponses,
   TransactionsControllerFundEscrowData,
   TransactionsControllerFundEscrowResponses,
   TransactionsControllerGetLogsData,
@@ -548,14 +550,16 @@ import type {
   WalletControllerDisburseResponses,
   WalletControllerFundEscrowData,
   WalletControllerFundEscrowResponses,
-  WalletControllerGetBalanceData,
-  WalletControllerGetBalanceResponses,
   WalletControllerGetFundDetailsData,
   WalletControllerGetFundDetailsResponses,
   WalletControllerGetStatsData,
   WalletControllerGetStatsResponses,
   WalletControllerGetTransactionsData,
   WalletControllerGetTransactionsResponses,
+  WalletControllerGetValuationData,
+  WalletControllerGetValuationResponses,
+  WalletControllerListWalletsData,
+  WalletControllerListWalletsResponses,
 } from "./types.gen";
 
 export type Options<
@@ -1314,6 +1318,24 @@ export const categoriesControllerFindOne = <
   >({
     security: [{ scheme: "bearer", type: "http" }],
     url: "/api/v1/categories/{id}",
+    ...options,
+  });
+
+/**
+ * List my in-flight transactions
+ */
+export const transactionsControllerFindInFlight = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<TransactionsControllerFindInFlightData, ThrowOnError>,
+) =>
+  (options?.client ?? client).get<
+    TransactionsControllerFindInFlightResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/transactions",
     ...options,
   });
 
@@ -5587,32 +5609,50 @@ export const bushaWebhooksControllerHandleWebhook = <
   >({ url: "/api/v1/busha/webhooks", ...options });
 
 /**
- * Get NGN wallet balance (creates subaccount on first call)
+ * List the org's wallets — one per currency, each with balance and status
  */
-export const walletControllerGetBalance = <
+export const walletControllerListWallets = <
   ThrowOnError extends boolean = false,
 >(
-  options?: Options<WalletControllerGetBalanceData, ThrowOnError>,
+  options?: Options<WalletControllerListWalletsData, ThrowOnError>,
 ) =>
   (options?.client ?? client).get<
-    WalletControllerGetBalanceResponses,
+    WalletControllerListWalletsResponses,
     unknown,
     ThrowOnError
   >({
     security: [{ scheme: "bearer", type: "http" }],
-    url: "/api/v1/wallet/balance",
+    url: "/api/v1/wallet/balances",
     ...options,
   });
 
 /**
- * Get NGN virtual account details for funding the wallet
+ * The org's whole position valued in one reference currency at indicative rates
+ */
+export const walletControllerGetValuation = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<WalletControllerGetValuationData, ThrowOnError>,
+) =>
+  (options?.client ?? client).get<
+    WalletControllerGetValuationResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/wallet/valuation",
+    ...options,
+  });
+
+/**
+ * Get funding instructions for a wallet
  */
 export const walletControllerGetFundDetails = <
   ThrowOnError extends boolean = false,
 >(
-  options?: Options<WalletControllerGetFundDetailsData, ThrowOnError>,
+  options: Options<WalletControllerGetFundDetailsData, ThrowOnError>,
 ) =>
-  (options?.client ?? client).get<
+  (options.client ?? client).get<
     WalletControllerGetFundDetailsResponses,
     unknown,
     ThrowOnError
@@ -5623,7 +5663,7 @@ export const walletControllerGetFundDetails = <
   });
 
 /**
- * Get month-to-date wallet stats (inflow and spend)
+ * Get month-to-date stats (inflow and spend) per wallet
  */
 export const walletControllerGetStats = <ThrowOnError extends boolean = false>(
   options?: Options<WalletControllerGetStatsData, ThrowOnError>,
@@ -5639,7 +5679,7 @@ export const walletControllerGetStats = <ThrowOnError extends boolean = false>(
   });
 
 /**
- * Get wallet transaction history
+ * Get wallet transaction history (all wallets, or one currency)
  */
 export const walletControllerGetTransactions = <
   ThrowOnError extends boolean = false,
@@ -5657,7 +5697,7 @@ export const walletControllerGetTransactions = <
   });
 
 /**
- * Initiate an NGN bank transfer from the wallet
+ * Initiate a bank transfer from a wallet
  */
 export const walletControllerDisburse = <ThrowOnError extends boolean = false>(
   options: Options<WalletControllerDisburseData, ThrowOnError>,
