@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useIdleTimer } from "react-idle-timer";
 
-const IDLE_TIMEOUT = 10 * 60 * 1000; // 10 minutes
+// 1 hour in dev for easier local testing, 10 minutes in production
+const IDLE_TIMEOUT = import.meta.env.DEV ? 60 * 60 * 1000 : 10 * 60 * 1000;
 const PROMPT_BEFORE_IDLE = 2 * 60 * 1000; // 2 minutes before timeout
 
 interface UseIdleTimeoutOptions {
