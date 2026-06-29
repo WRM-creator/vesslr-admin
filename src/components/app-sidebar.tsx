@@ -6,6 +6,7 @@ import {
   ClipboardCheck,
   ClipboardList,
   FileText,
+  Globe,
   LayoutDashboard,
   LifeBuoy,
   Lock,
@@ -134,6 +135,11 @@ const navGroups: NavGroup[] = [
       //   url: "/notifications",
       //   icon: Bell,
       // },
+      {
+        title: "Countries",
+        url: "/countries",
+        icon: Globe,
+      },
       {
         title: "System Settings",
         url: "/settings",

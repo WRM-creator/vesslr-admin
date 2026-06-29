@@ -6,6 +6,7 @@ import { AppErrorBoundary } from "./error-boundary";
 
 import { analyticsRoutes } from "../analytics/routes";
 import { categoryRoutes } from "../categories/routes";
+import { countriesRoutes } from "../countries/routes";
 import { dashboardRoutes } from "../dashboard/routes";
 import { disputesRoutes } from "../disputes/routes";
 import { escrowsRoutes } from "../escrows/routes";
@@ -45,6 +46,7 @@ export const appRoutes: RouteObject[] = [
           ...logisticsRoutes,
           ...analyticsRoutes,
           ...cmsRoutes,
+          ...countriesRoutes,
           ...settingsRoutes,
           {
             path: "*",

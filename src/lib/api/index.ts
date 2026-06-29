@@ -47,6 +47,8 @@ import {
   adminLedgerControllerReverseEntry,
   adminLedgerControllerTriggerExternalReconciliation,
   adminLedgerControllerTriggerInternalReconciliation,
+  adminLocationsControllerListCountries,
+  adminLocationsControllerSetSanctioned,
   adminComplianceControllerReviewKyb,
   adminComplianceControllerReviewKyc,
   adminDisputesControllerFindAll,
@@ -465,6 +467,16 @@ export const api = {
           invalidates: () => [["admin", "cms", "pages", "list"]],
         }),
       },
+    },
+    locations: {
+      countries: createQuery(adminLocationsControllerListCountries, [
+        "admin",
+        "locations",
+        "countries",
+      ]),
+      setSanctioned: createMutation(adminLocationsControllerSetSanctioned, {
+        invalidates: () => [["admin", "locations", "countries"]],
+      }),
     },
     compliance: {
       getCase: createQuery(adminComplianceControllerGetCase, (args) => [
