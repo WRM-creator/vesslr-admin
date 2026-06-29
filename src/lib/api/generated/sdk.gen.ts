@@ -49,6 +49,8 @@ import type {
   AdminComplianceControllerListCasesResponses,
   AdminComplianceControllerOnboardData,
   AdminComplianceControllerOnboardResponses,
+  AdminComplianceControllerRequestDocumentsData,
+  AdminComplianceControllerRequestDocumentsResponses,
   AdminComplianceControllerReviewKybData,
   AdminComplianceControllerReviewKybResponses,
   AdminComplianceControllerReviewKycData,
@@ -111,6 +113,10 @@ import type {
   AdminLicenseRequirementsControllerRemoveResponses,
   AdminLicenseRequirementsControllerUpdateData,
   AdminLicenseRequirementsControllerUpdateResponses,
+  AdminLocationsControllerListCountriesData,
+  AdminLocationsControllerListCountriesResponses,
+  AdminLocationsControllerSetSanctionedData,
+  AdminLocationsControllerSetSanctionedResponses,
   AdminManagementControllerCreateData,
   AdminManagementControllerCreateResponses,
   AdminManagementControllerDeactivateData,
@@ -231,6 +237,8 @@ import type {
   CategorySpecialtiesControllerFindOneResponses,
   CmsControllerFindBySlugData,
   CmsControllerFindBySlugResponses,
+  ComplianceControllerGetRequirementsData,
+  ComplianceControllerGetRequirementsResponses,
   ComplianceControllerSmileIdWebhookData,
   ComplianceControllerSmileIdWebhookResponses,
   DisputesControllerAddAttachmentData,
@@ -331,6 +339,10 @@ import type {
   NotificationsControllerMarkAllAsReadResponses,
   NotificationsControllerMarkAsReadData,
   NotificationsControllerMarkAsReadResponses,
+  OnboardingControllerAddBeneficialOwnerData,
+  OnboardingControllerAddBeneficialOwnerResponses,
+  OnboardingControllerAddDirectorData,
+  OnboardingControllerAddDirectorResponses,
   OnboardingControllerAdvanceBeneficialOwnersData,
   OnboardingControllerAdvanceBeneficialOwnersResponses,
   OnboardingControllerAdvanceDirectorsData,
@@ -349,10 +361,18 @@ import type {
   OnboardingControllerLookupBusinessResponses,
   OnboardingControllerPatchCompanyDocumentsData,
   OnboardingControllerPatchCompanyDocumentsResponses,
+  OnboardingControllerProvideRequestedDocumentData,
+  OnboardingControllerProvideRequestedDocumentResponses,
   OnboardingControllerReEnrollIdentityKycData,
   OnboardingControllerReEnrollIdentityKycResponses,
+  OnboardingControllerRemoveBeneficialOwnerData,
+  OnboardingControllerRemoveBeneficialOwnerResponses,
+  OnboardingControllerRemoveDirectorData,
+  OnboardingControllerRemoveDirectorResponses,
   OnboardingControllerSendPhoneOtpData,
   OnboardingControllerSendPhoneOtpResponses,
+  OnboardingControllerSubmitManualIdentityData,
+  OnboardingControllerSubmitManualIdentityResponses,
   OnboardingControllerUpdateBeneficialOwnerData,
   OnboardingControllerUpdateBeneficialOwnerResponses,
   OnboardingControllerUpdateBusinessAddressData,
@@ -373,6 +393,8 @@ import type {
   OnboardingControllerUpdateIdentityKycResponses,
   OnboardingControllerUpdateIntentData,
   OnboardingControllerUpdateIntentResponses,
+  OnboardingControllerUpdateOperatingCountryData,
+  OnboardingControllerUpdateOperatingCountryResponses,
   OnboardingControllerUpdateResidentialData,
   OnboardingControllerUpdateResidentialResponses,
   OnboardingControllerUpdateSellingInterestsData,
@@ -501,8 +523,6 @@ import type {
   TransactionsControllerFindByOrderIdResponses,
   TransactionsControllerFindInFlightData,
   TransactionsControllerFindInFlightResponses,
-  TransactionsControllerFundEscrowData,
-  TransactionsControllerFundEscrowResponses,
   TransactionsControllerGetLogsData,
   TransactionsControllerGetLogsResponses,
   TransactionsControllerGetVirtualAccountData,
@@ -546,20 +566,40 @@ import type {
   UsersAuthControllerVerifyPhoneOtpResponses,
   UsersControllerUpdateAddressData,
   UsersControllerUpdateAddressResponses,
+  WalletControllerCreateBeneficiaryData,
+  WalletControllerCreateBeneficiaryResponses,
+  WalletControllerDeleteBeneficiaryData,
+  WalletControllerDeleteBeneficiaryResponses,
   WalletControllerDisburseData,
   WalletControllerDisburseResponses,
+  WalletControllerExecuteConversionData,
+  WalletControllerExecuteConversionResponses,
   WalletControllerFundEscrowData,
   WalletControllerFundEscrowResponses,
+  WalletControllerGetConvertOptionsData,
+  WalletControllerGetConvertOptionsResponses,
+  WalletControllerGetFlowSummaryData,
+  WalletControllerGetFlowSummaryResponses,
   WalletControllerGetFundDetailsData,
   WalletControllerGetFundDetailsResponses,
+  WalletControllerGetFundOptionsData,
+  WalletControllerGetFundOptionsResponses,
   WalletControllerGetStatsData,
   WalletControllerGetStatsResponses,
   WalletControllerGetTransactionsData,
   WalletControllerGetTransactionsResponses,
   WalletControllerGetValuationData,
   WalletControllerGetValuationResponses,
+  WalletControllerListBeneficiariesData,
+  WalletControllerListBeneficiariesResponses,
   WalletControllerListWalletsData,
   WalletControllerListWalletsResponses,
+  WalletControllerProvisionFundingData,
+  WalletControllerProvisionFundingResponses,
+  WalletControllerQuoteConversionData,
+  WalletControllerQuoteConversionResponses,
+  WalletControllerQuoteDisbursementData,
+  WalletControllerQuoteDisbursementResponses,
 } from "./types.gen";
 
 export type Options<
@@ -921,6 +961,20 @@ export const usersAuthControllerGetTawkHash = <
   });
 
 /**
+ * Per-country compliance/onboarding requirements for every selectable country (live corridors keep their curated profile; all others resolve to a manual corridor; sanctioned jurisdictions are excluded). Public: the country picker is shown before authentication.
+ */
+export const complianceControllerGetRequirements = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<ComplianceControllerGetRequirementsData, ThrowOnError>,
+) =>
+  (options?.client ?? client).get<
+    ComplianceControllerGetRequirementsResponses,
+    unknown,
+    ThrowOnError
+  >({ url: "/api/v1/compliance/requirements", ...options });
+
+/**
  * Handle Smile ID webhook events
  */
 export const complianceControllerSmileIdWebhook = <
@@ -1033,7 +1087,7 @@ export const organizationsControllerRemoveMember = <
   });
 
 /**
- * Get saved NGN bank details (account number masked)
+ * Get saved bank account details (account number masked)
  */
 export const organizationsControllerGetBankDetails = <
   ThrowOnError extends boolean = false,
@@ -1051,7 +1105,7 @@ export const organizationsControllerGetBankDetails = <
   });
 
 /**
- * Save verified NGN bank account details for the organization
+ * Save verified bank account details for the organization
  */
 export const organizationsControllerUpdateBankDetails = <
   ThrowOnError extends boolean = false,
@@ -1514,26 +1568,6 @@ export const transactionsControllerGetVirtualAccount = <
   >({
     security: [{ scheme: "bearer", type: "http" }],
     url: "/api/v1/transactions/{id}/virtual-account",
-    ...options,
-  });
-
-/**
- * MOCK: Fund the escrow account (completes FUND_ESCROW stage)
- *
- * WARNING: This is a mock endpoint for testing purposes only. Do not use in production.
- */
-export const transactionsControllerFundEscrow = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<TransactionsControllerFundEscrowData, ThrowOnError>,
-) =>
-  (options.client ?? client).post<
-    TransactionsControllerFundEscrowResponses,
-    unknown,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/api/v1/transactions/{id}/fund-escrow",
     ...options,
   });
 
@@ -2569,6 +2603,31 @@ export const onboardingControllerUpdateIntent = <
   });
 
 /**
+ * Set the operating country (editable until compliance is submitted)
+ */
+export const onboardingControllerUpdateOperatingCountry = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    OnboardingControllerUpdateOperatingCountryData,
+    ThrowOnError
+  >,
+) =>
+  (options.client ?? client).patch<
+    OnboardingControllerUpdateOperatingCountryResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/onboarding/operating-country",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
  * Update identity and KYC details
  */
 export const onboardingControllerUpdateIdentityKyc = <
@@ -2583,6 +2642,28 @@ export const onboardingControllerUpdateIdentityKyc = <
   >({
     security: [{ scheme: "bearer", type: "http" }],
     url: "/api/v1/onboarding/identity-kyc",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Submit a manually-uploaded identity document (corridors with no automated identity provider); advances to review
+ */
+export const onboardingControllerSubmitManualIdentity = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<OnboardingControllerSubmitManualIdentityData, ThrowOnError>,
+) =>
+  (options.client ?? client).put<
+    OnboardingControllerSubmitManualIdentityResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/onboarding/identity-kyc/manual",
     ...options,
     headers: {
       "Content-Type": "application/json",
@@ -2613,7 +2694,7 @@ export const onboardingControllerUpdateResidential = <
   });
 
 /**
- * Lookup company by CAC registration number
+ * Lookup company by registration number
  */
 export const onboardingControllerLookupBusiness = <
   ThrowOnError extends boolean = false,
@@ -2773,6 +2854,31 @@ export const onboardingControllerUpdateCompanyDocuments = <
   });
 
 /**
+ * Fulfill an admin-requested document by its type (generic upload)
+ */
+export const onboardingControllerProvideRequestedDocument = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    OnboardingControllerProvideRequestedDocumentData,
+    ThrowOnError
+  >,
+) =>
+  (options.client ?? client).patch<
+    OnboardingControllerProvideRequestedDocumentResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/onboarding/requested-documents/{type}",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
  * Save settlement bank account details
  */
 export const onboardingControllerUpdateFinancialSetup = <
@@ -2820,6 +2926,24 @@ export const onboardingControllerUpdateBusinessRepresentative = <
   });
 
 /**
+ * Remove a manually added director
+ */
+export const onboardingControllerRemoveDirector = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<OnboardingControllerRemoveDirectorData, ThrowOnError>,
+) =>
+  (options.client ?? client).delete<
+    OnboardingControllerRemoveDirectorResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/onboarding/directors/{personId}",
+    ...options,
+  });
+
+/**
  * Update a single director's information
  */
 export const onboardingControllerUpdateDirector = <
@@ -2834,6 +2958,28 @@ export const onboardingControllerUpdateDirector = <
   >({
     security: [{ scheme: "bearer", type: "http" }],
     url: "/api/v1/onboarding/directors/{personId}",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Manually add a director (manual / non-CAC corridors)
+ */
+export const onboardingControllerAddDirector = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<OnboardingControllerAddDirectorData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    OnboardingControllerAddDirectorResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/onboarding/directors",
     ...options,
     headers: {
       "Content-Type": "application/json",
@@ -2860,6 +3006,24 @@ export const onboardingControllerAdvanceDirectors = <
   });
 
 /**
+ * Remove a manually added beneficial owner
+ */
+export const onboardingControllerRemoveBeneficialOwner = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<OnboardingControllerRemoveBeneficialOwnerData, ThrowOnError>,
+) =>
+  (options.client ?? client).delete<
+    OnboardingControllerRemoveBeneficialOwnerResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/onboarding/beneficial-owners/{personId}",
+    ...options,
+  });
+
+/**
  * Update a single beneficial owner's information
  */
 export const onboardingControllerUpdateBeneficialOwner = <
@@ -2874,6 +3038,28 @@ export const onboardingControllerUpdateBeneficialOwner = <
   >({
     security: [{ scheme: "bearer", type: "http" }],
     url: "/api/v1/onboarding/beneficial-owners/{personId}",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Manually add a beneficial owner (manual / non-CAC corridors)
+ */
+export const onboardingControllerAddBeneficialOwner = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<OnboardingControllerAddBeneficialOwnerData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    OnboardingControllerAddBeneficialOwnerResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/onboarding/beneficial-owners",
     ...options,
     headers: {
       "Content-Type": "application/json",
@@ -4820,6 +5006,28 @@ export const adminComplianceControllerReviewKyb = <
   });
 
 /**
+ * Request additional documents from a submitted organization
+ */
+export const adminComplianceControllerRequestDocuments = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AdminComplianceControllerRequestDocumentsData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    AdminComplianceControllerRequestDocumentsResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/compliance/kyb/{organizationId}/request-documents",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
  * Re-run provider onboarding for an approved organization
  */
 export const adminComplianceControllerOnboard = <
@@ -5308,6 +5516,46 @@ export const cmsControllerFindBySlug = <ThrowOnError extends boolean = false>(
     ThrowOnError
   >({ url: "/api/v1/cms/pages/{slug}", ...options });
 
+/**
+ * List all countries with their sanctioned (onboarding-blocked) flag
+ */
+export const adminLocationsControllerListCountries = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<AdminLocationsControllerListCountriesData, ThrowOnError>,
+) =>
+  (options?.client ?? client).get<
+    AdminLocationsControllerListCountriesResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/locations/countries",
+    ...options,
+  });
+
+/**
+ * Block or unblock a country from onboarding (set the sanctioned flag)
+ */
+export const adminLocationsControllerSetSanctioned = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AdminLocationsControllerSetSanctionedData, ThrowOnError>,
+) =>
+  (options.client ?? client).patch<
+    AdminLocationsControllerSetSanctionedResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/locations/countries/{iso2}/sanctioned",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
 export const orgProductsControllerFindAll = <
   ThrowOnError extends boolean = false,
 >(
@@ -5645,6 +5893,24 @@ export const walletControllerGetValuation = <
   });
 
 /**
+ * List the funding methods a wallet supports (no provisioning)
+ */
+export const walletControllerGetFundOptions = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<WalletControllerGetFundOptionsData, ThrowOnError>,
+) =>
+  (options.client ?? client).get<
+    WalletControllerGetFundOptionsResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/wallet/fund-options",
+    ...options,
+  });
+
+/**
  * Get funding instructions for a wallet
  */
 export const walletControllerGetFundDetails = <
@@ -5660,6 +5926,90 @@ export const walletControllerGetFundDetails = <
     security: [{ scheme: "bearer", type: "http" }],
     url: "/api/v1/wallet/fund-details",
     ...options,
+  });
+
+/**
+ * Provision an amount-bound funding destination (a single-use account)
+ */
+export const walletControllerProvisionFunding = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<WalletControllerProvisionFundingData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    WalletControllerProvisionFundingResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/wallet/fund-instructions",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * List the currencies a wallet can be converted into
+ */
+export const walletControllerGetConvertOptions = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<WalletControllerGetConvertOptionsData, ThrowOnError>,
+) =>
+  (options.client ?? client).get<
+    WalletControllerGetConvertOptionsResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/wallet/convert/options",
+    ...options,
+  });
+
+/**
+ * Get a rate-locked conversion quote (moves no money)
+ */
+export const walletControllerQuoteConversion = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<WalletControllerQuoteConversionData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    WalletControllerQuoteConversionResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/wallet/convert/quote",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Execute a held conversion quote (moves money)
+ */
+export const walletControllerExecuteConversion = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<WalletControllerExecuteConversionData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    WalletControllerExecuteConversionResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/wallet/convert",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
   });
 
 /**
@@ -5679,7 +6029,25 @@ export const walletControllerGetStats = <ThrowOnError extends boolean = false>(
   });
 
 /**
- * Get wallet transaction history (all wallets, or one currency)
+ * Net business flow (in/out/net) for a period — excludes own-money movements; NGN-pinned
+ */
+export const walletControllerGetFlowSummary = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<WalletControllerGetFlowSummaryData, ThrowOnError>,
+) =>
+  (options?.client ?? client).get<
+    WalletControllerGetFlowSummaryResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/wallet/flow-summary",
+    ...options,
+  });
+
+/**
+ * Get a filtered, paginated page of wallet transaction history (all wallets, or one currency)
  */
 export const walletControllerGetTransactions = <
   ThrowOnError extends boolean = false,
@@ -5697,7 +6065,29 @@ export const walletControllerGetTransactions = <
   });
 
 /**
- * Initiate a bank transfer from a wallet
+ * Estimate the fee/total for a withdrawal before initiating it
+ */
+export const walletControllerQuoteDisbursement = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<WalletControllerQuoteDisbursementData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    WalletControllerQuoteDisbursementResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/wallet/disburse/quote",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Initiate a bank or crypto transfer from a wallet
  */
 export const walletControllerDisburse = <ThrowOnError extends boolean = false>(
   options: Options<WalletControllerDisburseData, ThrowOnError>,
@@ -5714,6 +6104,64 @@ export const walletControllerDisburse = <ThrowOnError extends boolean = false>(
       "Content-Type": "application/json",
       ...options.headers,
     },
+  });
+
+/**
+ * List the org's saved withdrawal destinations
+ */
+export const walletControllerListBeneficiaries = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<WalletControllerListBeneficiariesData, ThrowOnError>,
+) =>
+  (options?.client ?? client).get<
+    WalletControllerListBeneficiariesResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/wallet/beneficiaries",
+    ...options,
+  });
+
+/**
+ * Save a reusable withdrawal destination
+ */
+export const walletControllerCreateBeneficiary = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<WalletControllerCreateBeneficiaryData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    WalletControllerCreateBeneficiaryResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/wallet/beneficiaries",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Delete a saved withdrawal destination
+ */
+export const walletControllerDeleteBeneficiary = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<WalletControllerDeleteBeneficiaryData, ThrowOnError>,
+) =>
+  (options.client ?? client).delete<
+    WalletControllerDeleteBeneficiaryResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/wallet/beneficiaries/{id}",
+    ...options,
   });
 
 /**

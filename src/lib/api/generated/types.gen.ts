@@ -15,6 +15,10 @@ export type Country = {
   iso2: string;
   currency: string;
   phoneCode: string;
+  /**
+   * Whether this country is blocked from onboarding (sanctioned).
+   */
+  sanctioned: boolean;
   _id: string;
 };
 
@@ -52,9 +56,13 @@ export type RegisterDto = {
    */
   lastName: string;
   /**
-   * User's phone number (E.164 format, e.g. +2348012345678)
+   * User's phone number in E.164 international format (e.g. +1234567890)
    */
   phone: string;
+  /**
+   * ISO-3166-1 alpha-2 operating country
+   */
+  country: string;
 };
 
 export type AuthTokenResponseDto = {
@@ -178,29 +186,6 @@ export type OnboardingCategoryDto = {
   name: string;
 };
 
-export type OnboardingBankDetailsDto = {
-  accountNumber: string;
-  bankCode: string;
-  bankName: string;
-  accountName: string;
-  currency: string;
-};
-
-export type OnboardingTransactionProfileDto = {
-  purpose: string;
-  monthlyValueBand:
-    | "100_usd_or_less"
-    | "100_usd_to_500_usd"
-    | "500_usd_to_1m_usd"
-    | "above_1m_usd";
-  monthlyCountBand:
-    | "10_or_less"
-    | "10_to_50"
-    | "50_to_100"
-    | "100_to_200"
-    | "above_200";
-};
-
 export type OnboardingOrganizationDto = {
   _id: string;
   name: string;
@@ -211,27 +196,15 @@ export type OnboardingOrganizationDto = {
   phoneNumber?: string;
   rcNumber?: string;
   taxId?: string;
-  businessType?: "bn" | "co" | "it";
-  companyType?: string;
   website?: string;
   socialLinks?: Array<string>;
-  directors?: Array<{
-    [key: string]: unknown;
-  }>;
-  beneficialOwners?: Array<{
-    [key: string]: unknown;
-  }>;
   logo?: FileMetadataResponseDto;
-  proofOfResidenceFile?: string | FileMetadataResponseDto;
-  certificateOfIncorporation?: string | FileMetadataResponseDto;
-  memorandum?: string | FileMetadataResponseDto;
-  boardResolution?: FileMetadataResponseDto;
-  pscRegister?: FileMetadataResponseDto;
-  taxIdDocument?: FileMetadataResponseDto;
-  additionalDocuments?: Array<FileMetadataResponseDto>;
-  categories?: Array<OnboardingCategoryDto>;
-  bankDetails?: OnboardingBankDetailsDto;
-  transactionProfile?: OnboardingTransactionProfileDto;
+  sellingCategories?: Array<OnboardingCategoryDto>;
+  sellingSpecialties?: Array<OnboardingCategoryDto>;
+  buyingCategories?: Array<OnboardingCategoryDto>;
+  buyingSpecialties?: Array<OnboardingCategoryDto>;
+  proofOfPastPerformance?: FileMetadataResponseDto;
+  statementOfAccount?: FileMetadataResponseDto;
 };
 
 export type BusinessRepresentativeAddressDto = {
@@ -325,6 +298,70 @@ export type TawkHashResponseDto = {
   hash: string;
 };
 
+export type FieldValidationDto = {
+  /**
+   * Serializable regex source string.
+   */
+  pattern?: string;
+  minLength?: number;
+  maxLength?: number;
+  enum?: Array<string>;
+};
+
+export type IdentifierRequirementDto = {
+  code: string;
+  label: string;
+  required: boolean;
+  scope: "business" | "person";
+  validation?: FieldValidationDto;
+  placeholder?: string;
+  helpText?: string;
+};
+
+export type DocumentRequirementDto = {
+  code: string;
+  label: string;
+  description?: string;
+  required: boolean;
+};
+
+export type VerificationDto = {
+  mode: "manual" | "automated";
+  /**
+   * Verification provider when mode is automated.
+   */
+  provider?: string;
+};
+
+export type ComplianceRequirementsDto = {
+  countryCode: string;
+  countryName: string;
+  /**
+   * Whether onboarding is live for this corridor.
+   */
+  supported: boolean;
+  settlementCurrency: string;
+  settlementMethod: "bank" | "mobile_money";
+  /**
+   * How settlement details are captured: integrated (curated bank directory) or manual (free-text bank details for corridors we are not integrated with).
+   */
+  settlementMode: "integrated" | "manual";
+  companyLookup: "cac" | "manual";
+  uboThreshold: number;
+  uboThresholdType: "gt" | "gte";
+  uboThresholdLabel: string;
+  identifiers: Array<IdentifierRequirementDto>;
+  documents: Array<DocumentRequirementDto>;
+  /**
+   * Business-KYB verification capability.
+   */
+  verification: VerificationDto;
+  /**
+   * Per-person identity-KYC verification: automated (Smile ID) where covered, else manual ID-document upload reviewed by an admin.
+   */
+  identityVerification: VerificationDto;
+};
+
 export type GeneratePresignedUrlDto = {
   filename: string;
   contentType: string;
@@ -384,7 +421,7 @@ export type UpdateBankDetailsDto = {
    */
   accountNumber: string;
   /**
-   * Flutterwave bank code (from GET /banks/NG)
+   * Bank code from the settlement provider's bank directory
    */
   bankCode: string;
 };
@@ -558,7 +595,7 @@ export type PopulatedProductResponseDto = {
    * Price per unit in minor currency units (kobo/cents)
    */
   pricePerUnit: number;
-  currency?: "NGN" | "USD" | "EUR" | "USDT";
+  currency?: "NGN" | "KES" | "USD" | "EUR" | "USDT";
   images?: Array<string>;
   features?: Array<string>;
   availableQuantity?: number;
@@ -665,7 +702,7 @@ export type ProductResponseDto = {
    * Price per unit in minor currency units (kobo/cents)
    */
   pricePerUnit: number;
-  currency?: "NGN" | "USD" | "EUR" | "USDT";
+  currency?: "NGN" | "KES" | "USD" | "EUR" | "USDT";
   images?: Array<string>;
   features?: Array<string>;
   availableQuantity?: number;
@@ -1039,7 +1076,7 @@ export type CreateProductDto = {
    * Price per unit in minor currency units (kobo/cents)
    */
   pricePerUnit: number;
-  currency?: "NGN" | "USD" | "EUR" | "USDT";
+  currency?: "NGN" | "KES" | "USD" | "EUR" | "USDT";
   images?: Array<string>;
   documents?: Array<string>;
   features?: Array<string>;
@@ -1128,7 +1165,7 @@ export type UpdateProductDto = {
    * Price per unit in minor currency units (kobo/cents)
    */
   pricePerUnit?: number;
-  currency?: "NGN" | "USD" | "EUR" | "USDT";
+  currency?: "NGN" | "KES" | "USD" | "EUR" | "USDT";
   images?: Array<string>;
   documents?: Array<string>;
   features?: Array<string>;
@@ -1227,7 +1264,7 @@ export type CategoryGroupDto = {
   requiresCompliance: boolean;
   allowsOrderQuantityLimits: boolean;
   allowsInventoryTracking: boolean;
-  allowedCurrencies: Array<"NGN" | "USD" | "EUR" | "USDT">;
+  allowedCurrencies: Array<"NGN" | "KES" | "USD" | "EUR" | "USDT">;
   allowedListingTypes: Array<
     "product" | "service" | "rental" | "lease" | "charter" | "rfq"
   >;
@@ -1311,7 +1348,7 @@ export type UpdateCategoryGroupDto = {
   milestoneDelivery?: boolean;
   allowsOrderQuantityLimits?: boolean;
   allowsInventoryTracking?: boolean;
-  allowedCurrencies?: Array<"NGN" | "USD" | "EUR" | "USDT">;
+  allowedCurrencies?: Array<"NGN" | "KES" | "USD" | "EUR" | "USDT">;
   allowedListingTypes?: Array<
     "product" | "service" | "rental" | "lease" | "charter" | "rfq"
   >;
@@ -1808,7 +1845,7 @@ export type OrderResponseDto = {
    * Price per unit in minor currency units (kobo/cents)
    */
   pricePerUnit: number;
-  currency: "NGN" | "USD" | "EUR" | "USDT";
+  currency: "NGN" | "KES" | "USD" | "EUR" | "USDT";
   /**
    * Total amount in minor currency units (kobo/cents)
    */
@@ -1999,7 +2036,7 @@ export type EscrowResponseDto = {
    * Platform service fee amount
    */
   serviceFeeAmount: number;
-  currency: "NGN" | "USD" | "EUR" | "USDT";
+  currency: "NGN" | "KES" | "USD" | "EUR" | "USDT";
   referenceId?: string | null;
   fundedAt?: string | null;
   releasedAt?: string | null;
@@ -2255,7 +2292,7 @@ export type VirtualAccountResponseDto = {
   /**
    * Funding currency
    */
-  currency: "NGN" | "USD" | "EUR" | "USDT";
+  currency: "NGN" | "KES" | "USD" | "EUR" | "USDT";
   /**
    * Goods amount before service fee (minor units)
    */
@@ -2333,7 +2370,7 @@ export type EscrowWithTransactionResponseDto = {
    * Platform service fee amount
    */
   serviceFeeAmount: number;
-  currency: "NGN" | "USD" | "EUR" | "USDT";
+  currency: "NGN" | "KES" | "USD" | "EUR" | "USDT";
   referenceId?: string | null;
   fundedAt?: string | null;
   releasedAt?: string | null;
@@ -2380,7 +2417,7 @@ export type EscrowSummaryResponseDto = {
    * Total refunded in minor currency units (kobo/cents)
    */
   refunded: number;
-  currency: "NGN" | "USD" | "EUR" | "USDT";
+  currency: "NGN" | "KES" | "USD" | "EUR" | "USDT";
 };
 
 export type ConversationMessageResponseDto = {
@@ -2619,7 +2656,7 @@ export type RecommendationFeedItemDto = {
   targetPricePerUnit: number;
   duration?: number;
   durationUnit?: string;
-  currency: "NGN" | "USD" | "EUR" | "USDT";
+  currency: "NGN" | "KES" | "USD" | "EUR" | "USDT";
   transactionType: Array<string>;
   condition?: Array<string>;
   description?: string;
@@ -2711,7 +2748,7 @@ export type CreateRequestDto = {
    * Target price per unit in minor currency units (kobo/cents)
    */
   targetPricePerUnit: number;
-  currency: "NGN" | "USD" | "EUR" | "USDT";
+  currency: "NGN" | "KES" | "USD" | "EUR" | "USDT";
   /**
    * List of transaction types
    */
@@ -2862,9 +2899,13 @@ export type RequestResponseDto = {
     | "project"
     | "milestone"
     | "contract";
-  currency: "NGN" | "USD" | "EUR" | "USDT";
+  currency: "NGN" | "KES" | "USD" | "EUR" | "USDT";
   listingType: "product" | "service" | "rental" | "lease" | "charter" | "rfq";
   transactionType?: Array<string>;
+  /**
+   * Trade terms the buyer is willing to accept
+   */
+  tradeTerms?: Array<string>;
   condition?: Array<string>;
   description?: string;
   documents: Array<string>;
@@ -2956,7 +2997,7 @@ export type UpdateRequestDto = {
    * Target price per unit in minor currency units (kobo/cents)
    */
   targetPricePerUnit?: number;
-  currency?: "NGN" | "USD" | "EUR" | "USDT";
+  currency?: "NGN" | "KES" | "USD" | "EUR" | "USDT";
   /**
    * List of transaction types
    */
@@ -3192,7 +3233,7 @@ export type CreateNegotiationDto = {
   product?: string;
   pricePerUnit: number;
   quantity: number;
-  currency: "NGN" | "USD" | "EUR" | "USDT";
+  currency: "NGN" | "KES" | "USD" | "EUR" | "USDT";
   unitOfMeasurement:
     | "bbl"
     | "liter"
@@ -3283,7 +3324,7 @@ export type NegotiationRequestDto = {
    * Target price per unit in minor currency units (kobo/cents)
    */
   targetPricePerUnit?: number;
-  currency?: "NGN" | "USD" | "EUR" | "USDT";
+  currency?: "NGN" | "KES" | "USD" | "EUR" | "USDT";
   unitOfMeasurement?:
     | "bbl"
     | "liter"
@@ -3347,7 +3388,7 @@ export type CommercialTerms = {
 export type NegotiationOffer = {
   pricePerUnit: number;
   quantity: number;
-  currency: "NGN" | "USD" | "EUR" | "USDT";
+  currency: "NGN" | "KES" | "USD" | "EUR" | "USDT";
   unitOfMeasurement:
     | "bbl"
     | "liter"
@@ -3475,7 +3516,7 @@ export type CounterOfferDto = {
    */
   pricePerUnit: number;
   quantity: number;
-  currency: "NGN" | "USD" | "EUR" | "USDT";
+  currency: "NGN" | "KES" | "USD" | "EUR" | "USDT";
   unitOfMeasurement:
     | "bbl"
     | "liter"
@@ -3576,7 +3617,7 @@ export type CreateInvoiceDto = {
   customerName: string;
   customerEmail?: string;
   title: string;
-  currency: "NGN" | "USD" | "EUR" | "USDT";
+  currency: "NGN" | "KES" | "USD" | "EUR" | "USDT";
   /**
    * ISO 8601 date string
    */
@@ -3695,7 +3736,7 @@ export type UpdateInvoiceDto = {
   customerName?: string;
   customerEmail?: string;
   title?: string;
-  currency?: "NGN" | "USD" | "EUR" | "USDT";
+  currency?: "NGN" | "KES" | "USD" | "EUR" | "USDT";
   /**
    * ISO 8601 date string
    */
@@ -3738,7 +3779,7 @@ export type CreateSupplierDto = {
   bankName: string;
   accountNumber: string;
   accountName: string;
-  currency: "NGN" | "USD" | "EUR" | "USDT";
+  currency: "NGN" | "KES" | "USD" | "EUR" | "USDT";
 };
 
 export type SupplierContactDto = {
@@ -3775,7 +3816,7 @@ export type SupplierBankDetailsDto = {
   bankName: string;
   accountNumber: string;
   accountName: string;
-  currency: "NGN" | "USD" | "EUR" | "USDT";
+  currency: "NGN" | "KES" | "USD" | "EUR" | "USDT";
 };
 
 export type SupplierResponseDto = {
@@ -3806,7 +3847,7 @@ export type UpdateSupplierDto = {
   bankName?: string;
   accountNumber?: string;
   accountName?: string;
-  currency?: "NGN" | "USD" | "EUR" | "USDT";
+  currency?: "NGN" | "KES" | "USD" | "EUR" | "USDT";
 };
 
 export type DisputeAttachmentInputDto = {
@@ -3935,6 +3976,67 @@ export type FulfillInformationRequestDto = {
   attachments?: Array<AttachmentDto>;
 };
 
+export type OnboardingTransactionProfileDto = {
+  purpose: string;
+  monthlyValueBand:
+    | "100_usd_or_less"
+    | "100_usd_to_500_usd"
+    | "500_usd_to_1m_usd"
+    | "above_1m_usd";
+  monthlyCountBand:
+    | "10_or_less"
+    | "10_to_50"
+    | "50_to_100"
+    | "100_to_200"
+    | "above_200";
+};
+
+export type OnboardingKybDocumentsDto = {
+  certificateOfIncorporation?: string | FileMetadataResponseDto;
+  memorandum?: string | FileMetadataResponseDto;
+  proofOfResidenceFile?: string | FileMetadataResponseDto;
+  boardResolution?: FileMetadataResponseDto;
+  pscRegister?: FileMetadataResponseDto;
+  taxIdDocument?: FileMetadataResponseDto;
+  additionalDocuments?: Array<FileMetadataResponseDto>;
+};
+
+export type OnboardingKybDto = {
+  businessType?: "bn" | "co" | "it";
+  companyType?: string;
+  incorporationDate?: string;
+  directors?: Array<{
+    [key: string]: unknown;
+  }>;
+  beneficialOwners?: Array<{
+    [key: string]: unknown;
+  }>;
+  transactionProfile?: OnboardingTransactionProfileDto;
+  kybRegistration?: {
+    [key: string]: unknown;
+  };
+  documents: OnboardingKybDocumentsDto;
+};
+
+export type OnboardingBankDetailsDto = {
+  accountNumber: string;
+  bankCode: string;
+  bankName: string;
+  accountName: string;
+  currency: string;
+  swiftBic?: string;
+};
+
+export type OnboardingPaymentDto = {
+  bankDetails?: OnboardingBankDetailsDto;
+};
+
+export type OnboardingRequestedDocumentDto = {
+  type: string;
+  label: string;
+  note?: string;
+};
+
 export type OnboardingStatusResponseDto = {
   onboardingStep:
     | "intent"
@@ -3972,9 +4074,16 @@ export type OnboardingStatusResponseDto = {
   approvedAt?: string;
   smileVerificationStatus?: "pending" | "passed" | "manual_review" | "failed";
   smileLinkPending?: boolean;
+  /**
+   * Whether the identity step is complete, across both automated (Smile ID) and manual (uploaded ID) corridors.
+   */
+  identityCompleted?: boolean;
   isInvitedMember?: boolean;
   residentialAddress?: ResidentialAddressDto;
   organization?: OnboardingOrganizationDto;
+  kyb?: OnboardingKybDto;
+  payment?: OnboardingPaymentDto;
+  requestedDocuments?: Array<OnboardingRequestedDocumentDto>;
 };
 
 export type CurrencyCapabilityDto = {
@@ -4022,6 +4131,13 @@ export type UpdateIntentDto = {
   type: "buyer" | "buyer_seller";
 };
 
+export type UpdateOperatingCountryDto = {
+  /**
+   * ISO-3166-1 alpha-2 operating country
+   */
+  country: string;
+};
+
 export type KycFileMetadataDto = {
   url: string;
   name?: string;
@@ -4043,6 +4159,12 @@ export type UpdateIdentityKycDto = {
   livenessSessionId?: string;
 };
 
+export type SubmitManualIdentityDto = {
+  governmentIdDocument: KycFileMetadataDto;
+  governmentIdBackDocument?: KycFileMetadataDto;
+  selfieDocument: KycFileMetadataDto;
+};
+
 export type UpdateResidentialAddressDto = {
   streetAddress?: string;
   city?: string;
@@ -4053,7 +4175,7 @@ export type UpdateResidentialAddressDto = {
 
 export type LookupBusinessDto = {
   /**
-   * CAC registration number (digits only)
+   * Business registration number (digits only)
    */
   rcNumber: string;
   /**
@@ -4065,18 +4187,18 @@ export type LookupBusinessDto = {
 export type UpdateCompanyInfoDto = {
   name: string;
   /**
-   * CAC registration number
+   * Business registration number
    */
   rcNumber: string;
-  businessType: "bn" | "co" | "it";
+  businessType?: "bn" | "co" | "it";
   /**
-   * Company type from CAC registry
+   * Company type from the business registry
    */
   companyType?: string;
   /**
    * Tax identification number
    */
-  taxId: string;
+  taxId?: string;
 };
 
 export type FileMetadataDto = {
@@ -4090,7 +4212,6 @@ export type UpdateBusinessAddressDto = {
   streetAddress?: string;
   state: string;
   city?: string;
-  country: string;
   postalCode?: string;
   businessType?: "bn" | "co" | "it";
   postalAddress?: string;
@@ -4141,15 +4262,30 @@ export type UpdateCompanyDocumentsDto = {
 
 export type PatchCompanyDocumentsDto = {
   certificateOfIncorporation?: FileMetadataDto;
+  memorandum?: FileMetadataDto;
+  shareholderStructure?: FileMetadataDto;
+  taxIdDocument?: FileMetadataDto;
+};
+
+export type ProvideRequestedDocumentDto = {
+  file: FileMetadataDto;
 };
 
 export type UpdateFinancialSetupDto = {
   /**
-   * Nigerian bank code
+   * Bank code from the corridor directory (integrated corridors). Omitted for manual corridors, which identify the bank by free-text name instead.
    */
-  bankCode: string;
+  bankCode?: string;
   /**
-   * 10-digit NUBAN account number
+   * Bank display name. Required (free-text) for manual corridors; for integrated corridors the client sends the directory name and the server falls back to the NG bank list / raw code when omitted.
+   */
+  bankName?: string;
+  /**
+   * SWIFT / BIC code, collected for manual (non-integrated) corridors to make an international wire actionable.
+   */
+  swiftBic?: string;
+  /**
+   * Account number or IBAN. NG uses a 10-digit NUBAN; other corridors vary (IBANs are alphanumeric), so the exact format is validated per-country on the client. The server only enforces a broad alphanumeric shape.
    */
   accountNumber: string;
   /**
@@ -4196,7 +4332,7 @@ export type UpdateBusinessRepresentativeDto = {
   lastName?: string;
   isDirector: boolean;
   ownsMoreThanFivePercent: boolean;
-  bvn: string;
+  bvn?: string;
   /**
    * Nationality as an ISO-3166-1 alpha-2 country code (e.g. "NG").
    */
@@ -4208,6 +4344,8 @@ export type UpdateBusinessRepresentativeDto = {
 };
 
 export type UpdatePersonInfoDto = {
+  firstName?: string;
+  lastName?: string;
   ownsMoreThanFivePercent: boolean;
   /**
    * Numeric ownership stake (0–100).
@@ -4219,7 +4357,7 @@ export type UpdatePersonInfoDto = {
   isPep: boolean;
   email: string;
   phoneNumber: string;
-  bvn: string;
+  bvn?: string;
   /**
    * Nationality as an ISO-3166-1 alpha-2 country code (e.g. "NG").
    */
@@ -4233,6 +4371,36 @@ export type UpdatePersonInfoDto = {
   idDocumentNumber: string;
   idExpiryDate?: string;
   idDocument?: FileMetadataDto;
+};
+
+export type CreatePersonDto = {
+  ownsMoreThanFivePercent: boolean;
+  /**
+   * Numeric ownership stake (0–100).
+   */
+  percentageOwnership: number;
+  /**
+   * Whether this director/owner is a politically exposed person (PEP).
+   */
+  isPep: boolean;
+  email: string;
+  phoneNumber: string;
+  bvn?: string;
+  /**
+   * Nationality as an ISO-3166-1 alpha-2 country code (e.g. "NG").
+   */
+  nationalityCode: string;
+  streetAddress: string;
+  country: string;
+  state: string;
+  city: string;
+  postalCode?: string;
+  idDocumentType: "nin" | "passport";
+  idDocumentNumber: string;
+  idExpiryDate?: string;
+  idDocument?: FileMetadataDto;
+  firstName: string;
+  lastName: string;
 };
 
 export type InviteItemDto = {
@@ -5509,7 +5677,7 @@ export type AcceptRequestOrderDto = {
     | "plate"
     | "bar";
   pricePerUnit: number;
-  currency: "NGN" | "USD" | "EUR" | "USDT";
+  currency: "NGN" | "KES" | "USD" | "EUR" | "USDT";
   condition?: "New" | "Used - Good" | "Used - Fair" | "Refurbished";
   notes?: string;
 };
@@ -5717,6 +5885,7 @@ export type IdentitySnapshotDto = {
   selfie?: ComplianceFileMetadataDto;
   addressProof?: ComplianceFileMetadataDto;
   smileVerificationStatus?: "pending" | "passed" | "manual_review" | "failed";
+  verificationMethod?: "smile_id" | "manual";
 };
 
 export type DeclarationsSnapshotDto = {
@@ -5860,6 +6029,29 @@ export type ReviewComplianceDto = {
   businessRegistration?: BusinessRegistrationReviewDto;
   /**
    * Free-text message shown to the customer when requesting document updates (action_required). White-labeled — must not name any payment provider.
+   */
+  message?: string;
+};
+
+export type RequestedDocumentDto = {
+  /**
+   * Document-type code. A registry/curated code (see examples) or a free-form code — free-form codes require a `label`.
+   */
+  type: string;
+  /**
+   * Human label for the request. Required for free-form (non-registry, non-curated) codes so the customer knows what to provide.
+   */
+  label?: string;
+  /**
+   * Admin instruction shown with the request.
+   */
+  note?: string;
+};
+
+export type RequestDocumentsDto = {
+  documents: Array<RequestedDocumentDto>;
+  /**
+   * Free-text message shown to the customer (white-labeled — must not name any payment provider).
    */
   message?: string;
 };
@@ -6222,6 +6414,13 @@ export type UpdatePageDto = {
   blocks?: Array<ContentBlockDto>;
 };
 
+export type UpdateCountrySanctionedDto = {
+  /**
+   * Whether to block this country from onboarding (sanctioned). When true the country is hidden from the onboarding picker and signup/operating-country changes for it are rejected.
+   */
+  sanctioned: boolean;
+};
+
 export type QqFieldDef = {
   [key: string]: unknown;
 };
@@ -6272,7 +6471,7 @@ export type InspectionReport = {
 export type WalletStatus = "active" | "pending_activation" | "disabled";
 
 export type WalletDto = {
-  currency: "NGN" | "USD" | "EUR" | "USDT";
+  currency: "NGN" | "KES" | "USD" | "EUR" | "USDT";
   /**
    * Balance in minor currency units
    */
@@ -6297,7 +6496,7 @@ export type WalletDto = {
 };
 
 export type WalletValuationComponentDto = {
-  currency: "NGN" | "USD" | "EUR" | "USDT";
+  currency: "NGN" | "KES" | "USD" | "EUR" | "USDT";
   /**
    * Wallet balance in its own minor units
    */
@@ -6312,7 +6511,7 @@ export type WalletValuationResponseDto = {
   /**
    * Reference currency everything is valued in
    */
-  reference: "NGN" | "USD" | "EUR" | "USDT";
+  reference: "NGN" | "KES" | "USD" | "EUR" | "USDT";
   /**
    * Indicative total position in reference minor units
    */
@@ -6335,12 +6534,41 @@ export type WalletValuationResponseDto = {
   excluded: Array<string>;
 };
 
+export type WalletFundOptionDto = {
+  method: "bank_account" | "deposit_address" | "mobile_money" | "checkout_url";
+  /**
+   * User-facing, provider-neutral label
+   */
+  label: string;
+  currency: "NGN" | "KES" | "USD" | "EUR" | "USDT";
+  /**
+   * True when the method must be provisioned against a specific amount up front
+   */
+  requiresAmount: boolean;
+  /**
+   * True for a permanent/dedicated destination reusable across deposits
+   */
+  reusable: boolean;
+  /**
+   * Minimum amount, minor currency units
+   */
+  minAmount?: number;
+  /**
+   * Maximum amount, minor currency units
+   */
+  maxAmount?: number;
+  /**
+   * deposit_address only — the on-chain network this option provisions. A crypto wallet lists one option per supported network; echo it back when provisioning.
+   */
+  network?: string;
+};
+
 export type WalletFundDetailsResponseDto = {
   /**
    * How this wallet is funded — a bank transfer or an on-chain deposit
    */
   method: "bank_account" | "deposit_address";
-  currency: "NGN" | "USD" | "EUR" | "USDT";
+  currency: "NGN" | "KES" | "USD" | "EUR" | "USDT";
   /**
    * bank_account only
    */
@@ -6349,6 +6577,26 @@ export type WalletFundDetailsResponseDto = {
    * bank_account only
    */
   bankName?: string;
+  /**
+   * bank_account only — bank/sort code
+   */
+  bankCode?: string;
+  /**
+   * True for a permanent dedicated account: the same number can be reused for every top-up (no amount/expiry).
+   */
+  reusable?: boolean;
+  /**
+   * Exact amount to send, minor units — single-use amount-bound accounts only
+   */
+  amount?: number;
+  /**
+   * Transfer narration/reference, when the rail requires one
+   */
+  reference?: string;
+  /**
+   * When a single-use account lapses (ISO 8601)
+   */
+  expiresAt?: string;
   /**
    * deposit_address only
    */
@@ -6363,6 +6611,110 @@ export type WalletFundDetailsResponseDto = {
   memo?: string;
 };
 
+export type WalletProvisionFundingDto = {
+  /**
+   * Wallet to fund
+   */
+  currency: "NGN" | "KES" | "USD" | "EUR" | "USDT";
+  /**
+   * Amount to fund, minor currency units
+   */
+  amount: number;
+  /**
+   * For a crypto deposit, the chosen on-chain network (from fund-options). Ignored for fiat; defaults to the provider network when omitted.
+   */
+  network?: string;
+};
+
+export type WalletConvertOptionsResponseDto = {
+  /**
+   * Target currencies this wallet can convert into
+   */
+  targets: Array<"NGN" | "KES" | "USD" | "EUR" | "USDT">;
+};
+
+export type WalletConvertQuoteDto = {
+  /**
+   * Wallet to convert from
+   */
+  source: "NGN" | "KES" | "USD" | "EUR" | "USDT";
+  /**
+   * Wallet to convert into
+   */
+  target: "NGN" | "KES" | "USD" | "EUR" | "USDT";
+  /**
+   * Spend exactly this much of the source, minor units (omit if targetAmount is set)
+   */
+  sourceAmount?: number;
+  /**
+   * Receive exactly this much of the target, minor units (omit if sourceAmount is set)
+   */
+  targetAmount?: number;
+};
+
+export type WalletConvertQuoteResponseDto = {
+  /**
+   * Quote id, to execute within the window
+   */
+  quoteId: string;
+  sourceCurrency: "NGN" | "KES" | "USD" | "EUR" | "USDT";
+  targetCurrency: "NGN" | "KES" | "USD" | "EUR" | "USDT";
+  /**
+   * Debited from the source wallet, minor units
+   */
+  sourceAmount: number;
+  /**
+   * Credited to the target wallet, minor units
+   */
+  targetAmount: number;
+  /**
+   * Target units per 1 source unit (display only)
+   */
+  rate: number;
+  /**
+   * Human-readable rate string
+   */
+  rateExplained?: string;
+  /**
+   * Spread/fee kept, minor units of source (0 when baked into the rate)
+   */
+  feeMinor?: number;
+  /**
+   * When the locked rate lapses (ISO 8601)
+   */
+  expiresAt: string;
+};
+
+export type WalletConvertExecuteDto = {
+  /**
+   * Source wallet of the quote
+   */
+  source: "NGN" | "KES" | "USD" | "EUR" | "USDT";
+  /**
+   * The quote to execute
+   */
+  quoteId: string;
+};
+
+export type WalletConvertReceiptResponseDto = {
+  /**
+   * Provider transfer id
+   */
+  transferId: string;
+  /**
+   * Whether the funds have converted yet
+   */
+  status: "settled" | "pending";
+  /**
+   * Debited from the source wallet, minor units
+   */
+  sourceAmount: number;
+  /**
+   * Credited to the target wallet, minor units
+   */
+  targetAmount: number;
+};
+
 export type WalletStatsResponseDto = {
   /**
    * Month-to-date inflow in minor currency units (kobo)
@@ -6372,12 +6724,42 @@ export type WalletStatsResponseDto = {
    * Month-to-date spend in minor currency units (kobo)
    */
   spend: number;
-  currency: "NGN" | "USD" | "EUR" | "USDT";
+  currency: "NGN" | "KES" | "USD" | "EUR" | "USDT";
 };
+
+export type WalletFlowSummaryResponseDto = {
+  /**
+   * Reporting currency the summary is pinned to
+   */
+  reference: "NGN" | "KES" | "USD" | "EUR" | "USDT";
+  /**
+   * Net business flow (in − out) for the period, in minor units; can be negative
+   */
+  net: number;
+  /**
+   * Business money in (seller settlements, refunds) in minor units
+   */
+  in: number;
+  /**
+   * Business money out (escrow funding / purchases) in minor units
+   */
+  out: number;
+};
+
+/**
+ * UI activity category, derived from the entry type
+ */
+export type WalletActivityCategory =
+  | "deposit"
+  | "withdrawal"
+  | "convert"
+  | "fund_escrow"
+  | "refund"
+  | "payout";
 
 export type WalletTransactionResponseDto = {
   id: string;
-  currency: "NGN" | "USD" | "EUR" | "USDT";
+  currency: "NGN" | "KES" | "USD" | "EUR" | "USDT";
   /**
    * Amount in minor currency units (kobo)
    */
@@ -6395,6 +6777,10 @@ export type WalletTransactionResponseDto = {
    * Ledger entry type
    */
   entryType: string;
+  /**
+   * UI activity category, derived from the entry type
+   */
+  category: WalletActivityCategory;
   status: string;
   createdAt: string;
   reference?: string;
@@ -6412,27 +6798,172 @@ export type WalletTransactionResponseDto = {
   orderId?: string;
 };
 
+export type WalletActivityTabCountsDto = {
+  /**
+   * All activity
+   */
+  all: number;
+  /**
+   * Business flows (escrow/settlement/refund)
+   */
+  business: number;
+  /**
+   * Own-money movements (deposit/withdrawal/convert)
+   */
+  transfers: number;
+};
+
+export type WalletTransactionPageResponseDto = {
+  items: Array<WalletTransactionResponseDto>;
+  /**
+   * Total rows matching the filters, ignoring paging
+   */
+  total: number;
+  /**
+   * Page size used
+   */
+  limit: number;
+  /**
+   * Offset used
+   */
+  offset: number;
+  tabCounts: WalletActivityTabCountsDto;
+};
+
 export type WalletDisburseDto = {
   /**
    * Wallet to disburse from
    */
-  currency: "NGN" | "USD" | "EUR" | "USDT";
+  currency: "NGN" | "KES" | "USD" | "EUR" | "USDT";
   /**
    * Amount in minor currency units
    */
   amount: number;
-  accountNumber: string;
   /**
-   * Bank code
+   * Destination type; defaults to bank_account when omitted
    */
-  bankCode: string;
-  accountName: string;
-  narration: string;
+  method?: "bank_account" | "crypto_address";
+  /**
+   * Required for bank_account
+   */
+  accountNumber?: string;
+  /**
+   * Bank code; required for bank_account
+   */
+  bankCode?: string;
+  /**
+   * Required for bank_account
+   */
+  accountName?: string;
+  /**
+   * On-chain destination address; required for crypto_address
+   */
+  address?: string;
+  /**
+   * On-chain network (e.g. TRX/ETH/BSC); required for crypto_address
+   */
+  network?: string;
+  /**
+   * Destination tag/memo for networks that require it (crypto_address)
+   */
+  memo?: string;
+  /**
+   * Required for bank_account; ignored for crypto_address
+   */
+  narration?: string;
+};
+
+export type WalletDisburseQuoteResponseDto = {
+  currency: "NGN" | "KES" | "USD" | "EUR" | "USDT";
+  /**
+   * Withdrawal fee in minor units; null when the provider can’t quote ahead of execution
+   */
+  feeMinor: number | null;
+  /**
+   * Total debited from the wallet (amount + fee) in minor units; null when unknown
+   */
+  totalDebitMinor: number | null;
 };
 
 export type WalletDisburseResponseDto = {
   transferId: string;
   status: string;
+};
+
+export type WalletBeneficiaryResponseDto = {
+  id: string;
+  label: string;
+  currency: "NGN" | "KES" | "USD" | "EUR" | "USDT";
+  method: "bank_account" | "crypto_address";
+  /**
+   * bank_account only
+   */
+  accountNumber?: string;
+  /**
+   * bank_account only
+   */
+  bankCode?: string;
+  /**
+   * bank_account only
+   */
+  bankName?: string;
+  /**
+   * bank_account only
+   */
+  accountName?: string;
+  /**
+   * crypto_address only
+   */
+  address?: string;
+  /**
+   * crypto_address only
+   */
+  network?: string;
+  /**
+   * crypto_address only
+   */
+  memo?: string;
+  createdAt: string;
+};
+
+export type CreateWalletBeneficiaryDto = {
+  /**
+   * User-friendly label
+   */
+  label: string;
+  currency: "NGN" | "KES" | "USD" | "EUR" | "USDT";
+  /**
+   * Destination type
+   */
+  method: "bank_account" | "crypto_address";
+  /**
+   * Required for bank_account
+   */
+  accountNumber?: string;
+  /**
+   * Bank code; required for bank_account
+   */
+  bankCode?: string;
+  /**
+   * Bank name for display
+   */
+  bankName?: string;
+  /**
+   * Required for bank_account
+   */
+  accountName?: string;
+  /**
+   * Required for crypto_address
+   */
+  address?: string;
+  /**
+   * On-chain network; required for crypto_address
+   */
+  network?: string;
+  /**
+   * Destination tag/memo (crypto_address)
+   */
+  memo?: string;
 };
 
 export type WalletFundEscrowDto = {
@@ -6526,15 +7057,17 @@ export type SupportTicketResponseDto = {
   updatedAt: string;
 };
 
+export type PaginatedSupportTicketsDataDto = {
+  docs: Array<SupportTicketResponseDto>;
+  totalDocs: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+};
+
 export type PaginatedSupportTicketsResponseDto = {
   message: string;
-  data: {
-    docs: Array<SupportTicketResponseDto>;
-    totalDocs: number;
-    page: number;
-    limit: number;
-    totalPages: number;
-  };
+  data: PaginatedSupportTicketsDataDto;
 };
 
 export type AddMessageDto = {
@@ -6857,6 +7390,20 @@ export type UsersAuthControllerGetTawkHashResponses = {
 
 export type UsersAuthControllerGetTawkHashResponse =
   UsersAuthControllerGetTawkHashResponses[keyof UsersAuthControllerGetTawkHashResponses];
+
+export type ComplianceControllerGetRequirementsData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: "/api/v1/compliance/requirements";
+};
+
+export type ComplianceControllerGetRequirementsResponses = {
+  200: Array<ComplianceRequirementsDto>;
+};
+
+export type ComplianceControllerGetRequirementsResponse =
+  ComplianceControllerGetRequirementsResponses[keyof ComplianceControllerGetRequirementsResponses];
 
 export type ComplianceControllerSmileIdWebhookData = {
   body?: never;
@@ -7465,28 +8012,6 @@ export type TransactionsControllerGetVirtualAccountResponses = {
 
 export type TransactionsControllerGetVirtualAccountResponse =
   TransactionsControllerGetVirtualAccountResponses[keyof TransactionsControllerGetVirtualAccountResponses];
-
-export type TransactionsControllerFundEscrowData = {
-  body?: never;
-  path: {
-    id: string;
-  };
-  query?: never;
-  url: "/api/v1/transactions/{id}/fund-escrow";
-};
-
-export type TransactionsControllerFundEscrowResponses = {
-  /**
-   * The updated transaction
-   */
-  200: TransactionResponseDto;
-  201: {
-    [key: string]: unknown;
-  };
-};
-
-export type TransactionsControllerFundEscrowResponse =
-  TransactionsControllerFundEscrowResponses[keyof TransactionsControllerFundEscrowResponses];
 
 export type TransactionsControllerConfirmDeliveryData = {
   body?: never;
@@ -8496,6 +9021,23 @@ export type OnboardingControllerUpdateIntentResponses = {
 export type OnboardingControllerUpdateIntentResponse =
   OnboardingControllerUpdateIntentResponses[keyof OnboardingControllerUpdateIntentResponses];
 
+export type OnboardingControllerUpdateOperatingCountryData = {
+  body: UpdateOperatingCountryDto;
+  path?: never;
+  query?: never;
+  url: "/api/v1/onboarding/operating-country";
+};
+
+export type OnboardingControllerUpdateOperatingCountryResponses = {
+  /**
+   * Operating country updated
+   */
+  200: OnboardingStatusResponseDto;
+};
+
+export type OnboardingControllerUpdateOperatingCountryResponse =
+  OnboardingControllerUpdateOperatingCountryResponses[keyof OnboardingControllerUpdateOperatingCountryResponses];
+
 export type OnboardingControllerUpdateIdentityKycData = {
   body: UpdateIdentityKycDto;
   path?: never;
@@ -8512,6 +9054,23 @@ export type OnboardingControllerUpdateIdentityKycResponses = {
 
 export type OnboardingControllerUpdateIdentityKycResponse =
   OnboardingControllerUpdateIdentityKycResponses[keyof OnboardingControllerUpdateIdentityKycResponses];
+
+export type OnboardingControllerSubmitManualIdentityData = {
+  body: SubmitManualIdentityDto;
+  path?: never;
+  query?: never;
+  url: "/api/v1/onboarding/identity-kyc/manual";
+};
+
+export type OnboardingControllerSubmitManualIdentityResponses = {
+  /**
+   * Identity document submitted
+   */
+  200: OnboardingStatusResponseDto;
+};
+
+export type OnboardingControllerSubmitManualIdentityResponse =
+  OnboardingControllerSubmitManualIdentityResponses[keyof OnboardingControllerSubmitManualIdentityResponses];
 
 export type OnboardingControllerUpdateResidentialData = {
   body: UpdateResidentialAddressDto;
@@ -8655,6 +9214,25 @@ export type OnboardingControllerUpdateCompanyDocumentsResponses = {
 export type OnboardingControllerUpdateCompanyDocumentsResponse =
   OnboardingControllerUpdateCompanyDocumentsResponses[keyof OnboardingControllerUpdateCompanyDocumentsResponses];
 
+export type OnboardingControllerProvideRequestedDocumentData = {
+  body: ProvideRequestedDocumentDto;
+  path: {
+    type: string;
+  };
+  query?: never;
+  url: "/api/v1/onboarding/requested-documents/{type}";
+};
+
+export type OnboardingControllerProvideRequestedDocumentResponses = {
+  /**
+   * Requested document provided
+   */
+  200: OnboardingStatusResponseDto;
+};
+
+export type OnboardingControllerProvideRequestedDocumentResponse =
+  OnboardingControllerProvideRequestedDocumentResponses[keyof OnboardingControllerProvideRequestedDocumentResponses];
+
 export type OnboardingControllerUpdateFinancialSetupData = {
   body: UpdateFinancialSetupDto;
   path?: never;
@@ -8689,6 +9267,22 @@ export type OnboardingControllerUpdateBusinessRepresentativeResponses = {
 export type OnboardingControllerUpdateBusinessRepresentativeResponse =
   OnboardingControllerUpdateBusinessRepresentativeResponses[keyof OnboardingControllerUpdateBusinessRepresentativeResponses];
 
+export type OnboardingControllerRemoveDirectorData = {
+  body?: never;
+  path: {
+    personId: string;
+  };
+  query?: never;
+  url: "/api/v1/onboarding/directors/{personId}";
+};
+
+export type OnboardingControllerRemoveDirectorResponses = {
+  200: OnboardingStatusResponseDto;
+};
+
+export type OnboardingControllerRemoveDirectorResponse =
+  OnboardingControllerRemoveDirectorResponses[keyof OnboardingControllerRemoveDirectorResponses];
+
 export type OnboardingControllerUpdateDirectorData = {
   body: UpdatePersonInfoDto;
   path: {
@@ -8705,6 +9299,20 @@ export type OnboardingControllerUpdateDirectorResponses = {
 export type OnboardingControllerUpdateDirectorResponse =
   OnboardingControllerUpdateDirectorResponses[keyof OnboardingControllerUpdateDirectorResponses];
 
+export type OnboardingControllerAddDirectorData = {
+  body: CreatePersonDto;
+  path?: never;
+  query?: never;
+  url: "/api/v1/onboarding/directors";
+};
+
+export type OnboardingControllerAddDirectorResponses = {
+  201: OnboardingStatusResponseDto;
+};
+
+export type OnboardingControllerAddDirectorResponse =
+  OnboardingControllerAddDirectorResponses[keyof OnboardingControllerAddDirectorResponses];
+
 export type OnboardingControllerAdvanceDirectorsData = {
   body?: never;
   path?: never;
@@ -8718,6 +9326,22 @@ export type OnboardingControllerAdvanceDirectorsResponses = {
 
 export type OnboardingControllerAdvanceDirectorsResponse =
   OnboardingControllerAdvanceDirectorsResponses[keyof OnboardingControllerAdvanceDirectorsResponses];
+
+export type OnboardingControllerRemoveBeneficialOwnerData = {
+  body?: never;
+  path: {
+    personId: string;
+  };
+  query?: never;
+  url: "/api/v1/onboarding/beneficial-owners/{personId}";
+};
+
+export type OnboardingControllerRemoveBeneficialOwnerResponses = {
+  200: OnboardingStatusResponseDto;
+};
+
+export type OnboardingControllerRemoveBeneficialOwnerResponse =
+  OnboardingControllerRemoveBeneficialOwnerResponses[keyof OnboardingControllerRemoveBeneficialOwnerResponses];
 
 export type OnboardingControllerUpdateBeneficialOwnerData = {
   body: UpdatePersonInfoDto;
@@ -8734,6 +9358,20 @@ export type OnboardingControllerUpdateBeneficialOwnerResponses = {
 
 export type OnboardingControllerUpdateBeneficialOwnerResponse =
   OnboardingControllerUpdateBeneficialOwnerResponses[keyof OnboardingControllerUpdateBeneficialOwnerResponses];
+
+export type OnboardingControllerAddBeneficialOwnerData = {
+  body: CreatePersonDto;
+  path?: never;
+  query?: never;
+  url: "/api/v1/onboarding/beneficial-owners";
+};
+
+export type OnboardingControllerAddBeneficialOwnerResponses = {
+  201: OnboardingStatusResponseDto;
+};
+
+export type OnboardingControllerAddBeneficialOwnerResponse =
+  OnboardingControllerAddBeneficialOwnerResponses[keyof OnboardingControllerAddBeneficialOwnerResponses];
 
 export type OnboardingControllerAdvanceBeneficialOwnersData = {
   body?: never;
@@ -10405,6 +11043,23 @@ export type AdminComplianceControllerReviewKybResponses = {
   200: unknown;
 };
 
+export type AdminComplianceControllerRequestDocumentsData = {
+  body: RequestDocumentsDto;
+  path: {
+    organizationId: string;
+  };
+  query?: never;
+  url: "/api/v1/admin/compliance/kyb/{organizationId}/request-documents";
+};
+
+export type AdminComplianceControllerRequestDocumentsResponses = {
+  200: ComplianceCaseDetailDto;
+  201: unknown;
+};
+
+export type AdminComplianceControllerRequestDocumentsResponse =
+  AdminComplianceControllerRequestDocumentsResponses[keyof AdminComplianceControllerRequestDocumentsResponses];
+
 export type AdminComplianceControllerOnboardData = {
   body?: never;
   path: {
@@ -10882,6 +11537,39 @@ export type CmsControllerFindBySlugResponses = {
 export type CmsControllerFindBySlugResponse =
   CmsControllerFindBySlugResponses[keyof CmsControllerFindBySlugResponses];
 
+export type AdminLocationsControllerListCountriesData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: "/api/v1/admin/locations/countries";
+};
+
+export type AdminLocationsControllerListCountriesResponses = {
+  200: Array<Country>;
+};
+
+export type AdminLocationsControllerListCountriesResponse =
+  AdminLocationsControllerListCountriesResponses[keyof AdminLocationsControllerListCountriesResponses];
+
+export type AdminLocationsControllerSetSanctionedData = {
+  body: UpdateCountrySanctionedDto;
+  path: {
+    /**
+     * ISO-3166-1 alpha-2 code
+     */
+    iso2: string;
+  };
+  query?: never;
+  url: "/api/v1/admin/locations/countries/{iso2}/sanctioned";
+};
+
+export type AdminLocationsControllerSetSanctionedResponses = {
+  200: Country;
+};
+
+export type AdminLocationsControllerSetSanctionedResponse =
+  AdminLocationsControllerSetSanctionedResponses[keyof AdminLocationsControllerSetSanctionedResponses];
+
 export type OrgProductsControllerFindAllData = {
   body?: never;
   path: {
@@ -11207,7 +11895,7 @@ export type WalletControllerGetValuationData = {
     /**
      * Reference currency; defaults to the primary wallet currency
      */
-    currency?: "NGN" | "USD" | "EUR" | "USDT";
+    currency?: "NGN" | "KES" | "USD" | "EUR" | "USDT";
   };
   url: "/api/v1/wallet/valuation";
 };
@@ -11219,6 +11907,25 @@ export type WalletControllerGetValuationResponses = {
 export type WalletControllerGetValuationResponse =
   WalletControllerGetValuationResponses[keyof WalletControllerGetValuationResponses];
 
+export type WalletControllerGetFundOptionsData = {
+  body?: never;
+  path?: never;
+  query: {
+    /**
+     * Which wallet
+     */
+    currency: "NGN" | "KES" | "USD" | "EUR" | "USDT";
+  };
+  url: "/api/v1/wallet/fund-options";
+};
+
+export type WalletControllerGetFundOptionsResponses = {
+  200: Array<WalletFundOptionDto>;
+};
+
+export type WalletControllerGetFundOptionsResponse =
+  WalletControllerGetFundOptionsResponses[keyof WalletControllerGetFundOptionsResponses];
+
 export type WalletControllerGetFundDetailsData = {
   body?: never;
   path?: never;
@@ -11226,7 +11933,7 @@ export type WalletControllerGetFundDetailsData = {
     /**
      * Which wallet
      */
-    currency: "NGN" | "USD" | "EUR" | "USDT";
+    currency: "NGN" | "KES" | "USD" | "EUR" | "USDT";
   };
   url: "/api/v1/wallet/fund-details";
 };
@@ -11237,6 +11944,67 @@ export type WalletControllerGetFundDetailsResponses = {
 
 export type WalletControllerGetFundDetailsResponse =
   WalletControllerGetFundDetailsResponses[keyof WalletControllerGetFundDetailsResponses];
+
+export type WalletControllerProvisionFundingData = {
+  body: WalletProvisionFundingDto;
+  path?: never;
+  query?: never;
+  url: "/api/v1/wallet/fund-instructions";
+};
+
+export type WalletControllerProvisionFundingResponses = {
+  200: WalletFundDetailsResponseDto;
+};
+
+export type WalletControllerProvisionFundingResponse =
+  WalletControllerProvisionFundingResponses[keyof WalletControllerProvisionFundingResponses];
+
+export type WalletControllerGetConvertOptionsData = {
+  body?: never;
+  path?: never;
+  query: {
+    /**
+     * Which wallet
+     */
+    currency: "NGN" | "KES" | "USD" | "EUR" | "USDT";
+  };
+  url: "/api/v1/wallet/convert/options";
+};
+
+export type WalletControllerGetConvertOptionsResponses = {
+  200: WalletConvertOptionsResponseDto;
+};
+
+export type WalletControllerGetConvertOptionsResponse =
+  WalletControllerGetConvertOptionsResponses[keyof WalletControllerGetConvertOptionsResponses];
+
+export type WalletControllerQuoteConversionData = {
+  body: WalletConvertQuoteDto;
+  path?: never;
+  query?: never;
+  url: "/api/v1/wallet/convert/quote";
+};
+
+export type WalletControllerQuoteConversionResponses = {
+  200: WalletConvertQuoteResponseDto;
+};
+
+export type WalletControllerQuoteConversionResponse =
+  WalletControllerQuoteConversionResponses[keyof WalletControllerQuoteConversionResponses];
+
+export type WalletControllerExecuteConversionData = {
+  body: WalletConvertExecuteDto;
+  path?: never;
+  query?: never;
+  url: "/api/v1/wallet/convert";
+};
+
+export type WalletControllerExecuteConversionResponses = {
+  200: WalletConvertReceiptResponseDto;
+};
+
+export type WalletControllerExecuteConversionResponse =
+  WalletControllerExecuteConversionResponses[keyof WalletControllerExecuteConversionResponses];
 
 export type WalletControllerGetStatsData = {
   body?: never;
@@ -11252,6 +12020,29 @@ export type WalletControllerGetStatsResponses = {
 export type WalletControllerGetStatsResponse =
   WalletControllerGetStatsResponses[keyof WalletControllerGetStatsResponses];
 
+export type WalletControllerGetFlowSummaryData = {
+  body?: never;
+  path?: never;
+  query?: {
+    /**
+     * Start of the reporting window (inclusive); omit for all-time
+     */
+    from?: string;
+    /**
+     * End of the reporting window (inclusive); omit for open-ended
+     */
+    to?: string;
+  };
+  url: "/api/v1/wallet/flow-summary";
+};
+
+export type WalletControllerGetFlowSummaryResponses = {
+  200: WalletFlowSummaryResponseDto;
+};
+
+export type WalletControllerGetFlowSummaryResponse =
+  WalletControllerGetFlowSummaryResponses[keyof WalletControllerGetFlowSummaryResponses];
+
 export type WalletControllerGetTransactionsData = {
   body?: never;
   path?: never;
@@ -11259,17 +12050,61 @@ export type WalletControllerGetTransactionsData = {
     /**
      * Limit history to one wallet; omit for all wallets merged
      */
-    currency?: "NGN" | "USD" | "EUR" | "USDT";
+    currency?: "NGN" | "KES" | "USD" | "EUR" | "USDT";
+    /**
+     * Coarse type partition; ignored when `categories` is given
+     */
+    tab?: "all" | "business" | "transfers";
+    /**
+     * Refine to these categories (overrides `tab` when present)
+     */
+    categories?: Array<
+      "deposit" | "withdrawal" | "convert" | "fund_escrow" | "refund" | "payout"
+    >;
+    /**
+     * Filter by status; defaults to completed (posted) only
+     */
+    statuses?: Array<"completed" | "reversed">;
+    /**
+     * Only entries on/after this instant (inclusive)
+     */
+    from?: string;
+    /**
+     * Only entries on/before this instant (inclusive)
+     */
+    to?: string;
+    /**
+     * Page size (1–200)
+     */
+    limit?: number;
+    /**
+     * Rows to skip from the newest (page offset)
+     */
+    offset?: number;
   };
   url: "/api/v1/wallet/transactions";
 };
 
 export type WalletControllerGetTransactionsResponses = {
-  200: Array<WalletTransactionResponseDto>;
+  200: WalletTransactionPageResponseDto;
 };
 
 export type WalletControllerGetTransactionsResponse =
   WalletControllerGetTransactionsResponses[keyof WalletControllerGetTransactionsResponses];
+
+export type WalletControllerQuoteDisbursementData = {
+  body: WalletDisburseDto;
+  path?: never;
+  query?: never;
+  url: "/api/v1/wallet/disburse/quote";
+};
+
+export type WalletControllerQuoteDisbursementResponses = {
+  200: WalletDisburseQuoteResponseDto;
+};
+
+export type WalletControllerQuoteDisbursementResponse =
+  WalletControllerQuoteDisbursementResponses[keyof WalletControllerQuoteDisbursementResponses];
 
 export type WalletControllerDisburseData = {
   body: WalletDisburseDto;
@@ -11284,6 +12119,54 @@ export type WalletControllerDisburseResponses = {
 
 export type WalletControllerDisburseResponse =
   WalletControllerDisburseResponses[keyof WalletControllerDisburseResponses];
+
+export type WalletControllerListBeneficiariesData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: "/api/v1/wallet/beneficiaries";
+};
+
+export type WalletControllerListBeneficiariesResponses = {
+  200: Array<WalletBeneficiaryResponseDto>;
+};
+
+export type WalletControllerListBeneficiariesResponse =
+  WalletControllerListBeneficiariesResponses[keyof WalletControllerListBeneficiariesResponses];
+
+export type WalletControllerCreateBeneficiaryData = {
+  body: CreateWalletBeneficiaryDto;
+  path?: never;
+  query?: never;
+  url: "/api/v1/wallet/beneficiaries";
+};
+
+export type WalletControllerCreateBeneficiaryResponses = {
+  200: WalletBeneficiaryResponseDto;
+  201: WalletBeneficiaryResponseDto;
+};
+
+export type WalletControllerCreateBeneficiaryResponse =
+  WalletControllerCreateBeneficiaryResponses[keyof WalletControllerCreateBeneficiaryResponses];
+
+export type WalletControllerDeleteBeneficiaryData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/wallet/beneficiaries/{id}";
+};
+
+export type WalletControllerDeleteBeneficiaryResponses = {
+  /**
+   * Beneficiary deleted
+   */
+  204: void;
+};
+
+export type WalletControllerDeleteBeneficiaryResponse =
+  WalletControllerDeleteBeneficiaryResponses[keyof WalletControllerDeleteBeneficiaryResponses];
 
 export type WalletControllerFundEscrowData = {
   body: WalletFundEscrowDto;
