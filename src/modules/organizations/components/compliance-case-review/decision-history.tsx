@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
+import { CheckIcon, XIcon } from "lucide-react";
 import type { ComplianceCase } from "./types";
 
 interface DecisionHistoryProps {
@@ -69,6 +70,24 @@ export function DecisionHistory({ events }: DecisionHistoryProps) {
                         <li key={i}>
                           {r.target} — {r.issue}
                           {r.note ? `: ${r.note}` : ""}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                {event.metadata?.checklist &&
+                  event.metadata.checklist.length > 0 && (
+                    <ul className="mt-1 space-y-0.5 text-xs">
+                      {event.metadata.checklist.map((c, i) => (
+                        <li
+                          key={i}
+                          className="text-muted-foreground flex items-center gap-1.5"
+                        >
+                          {c.passed ? (
+                            <CheckIcon className="size-3 text-green-600" />
+                          ) : (
+                            <XIcon className="size-3 text-red-500" />
+                          )}
+                          {c.label}
                         </li>
                       ))}
                     </ul>

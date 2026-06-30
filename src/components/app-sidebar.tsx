@@ -56,7 +56,7 @@ const navGroups: NavGroup[] = [
         icon: Building2Icon,
       },
       {
-        title: "Registrations",
+        title: "Compliance Review",
         url: "/registrations",
         icon: ClipboardCheck,
       },

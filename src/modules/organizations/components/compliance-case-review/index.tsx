@@ -3,6 +3,7 @@ import { api } from "@/lib/api";
 import type {
   BusinessRegistrationReviewDto,
   ComplianceCaseDetailDto,
+  ReviewChecklistItemDto,
   StructuredReasonDto,
 } from "@/lib/api/generated";
 import { useState } from "react";
@@ -13,11 +14,15 @@ import { REGISTRY_SOURCE, toComplianceCase } from "./compliance-utils";
 import { DecisionHistory } from "./decision-history";
 import { DocumentViewerSheet } from "./document-viewer-sheet";
 import { DocumentsGrid } from "./documents-grid";
-import { IdentityImages } from "./identity-images";
+import { IdentityComparison } from "./identity-comparison";
 import { ProviderOnboardingPanel } from "./provider-onboarding-panel";
 import { ProviderResponsePanel } from "./provider-response-panel";
 import { RegistryPeople } from "./registry-people";
 import { RequestActionDialog } from "./request-action-dialog";
+import {
+  KYB_REVIEW_CHECKLIST,
+  KYC_REVIEW_CHECKLIST,
+} from "./review-checklist";
 import type { ViewableItem } from "./types";
 
 /**
@@ -54,8 +59,10 @@ export function ComplianceCaseReview({
     path: { organizationId },
   });
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const apiData = ((rawData as any)?.data ?? rawData) as
+  // The endpoint wraps its payload in `{ message, data }`; unwrap to the typed
+  // detail (tolerating an already-unwrapped body) without resorting to `any`.
+  const raw = rawData as unknown;
+  const apiData = ((raw as { data?: ComplianceCaseDetailDto })?.data ?? raw) as
     | ComplianceCaseDetailDto
     | undefined;
   const data = apiData ? toComplianceCase(apiData) : null;
@@ -80,22 +87,28 @@ export function ComplianceCaseReview({
     setViewerOpen(true);
   };
 
-  const handleApproveKyb = (
-    businessRegistration?: BusinessRegistrationReviewDto,
-  ) => {
-    reviewKyb(
+  const isManual = data?.verificationMode === "manual";
+
+  const handleApproveKyc = (checklist?: ReviewChecklistItemDto[]) => {
+    if (!primaryUserId) return;
+    reviewKyc(
       {
-        path: { organizationId },
-        body: { decision: "approved", businessRegistration },
+        path: { userId: primaryUserId },
+        body: { decision: "approved", checklist },
       },
       { onSuccess: () => setActiveReview(null) },
     );
   };
 
-  const handleApproveKyc = () => {
-    if (!primaryUserId) return;
-    reviewKyc(
-      { path: { userId: primaryUserId }, body: { decision: "approved" } },
+  const handleApproveKyb = (
+    businessRegistration?: BusinessRegistrationReviewDto,
+    checklist?: ReviewChecklistItemDto[],
+  ) => {
+    reviewKyb(
+      {
+        path: { organizationId },
+        body: { decision: "approved", businessRegistration, checklist },
+      },
       { onSuccess: () => setActiveReview(null) },
     );
   };
@@ -179,7 +192,11 @@ export function ComplianceCaseReview({
         />
       )}
       {data.registryData && <RegistryPeople registryData={data.registryData} />}
-      <IdentityImages items={data.identityImages} onSelect={openViewer} />
+      <IdentityComparison
+        items={data.identityImages}
+        summary={data.identitySummary}
+        onOpenSingle={openViewer}
+      />
       <DocumentsGrid items={data.documents} onSelect={openViewer} />
       <DecisionHistory events={data.events} />
 
@@ -196,14 +213,20 @@ export function ComplianceCaseReview({
         onOpenChange={(open) => !open && setActiveReview(null)}
         reviewType={activeReview?.type ?? "KYB"}
         businessRegistrationPrefill={apiData?.businessRegistrationPrefill}
+        checklistItems={
+          isManual
+            ? activeReview?.type === "KYC"
+              ? KYC_REVIEW_CHECKLIST
+              : KYB_REVIEW_CHECKLIST
+            : undefined
+        }
         onConfirm={
           activeReview?.type === "KYC"
-            ? () => handleApproveKyc()
+            ? (_businessRegistration, checklist) =>
+                handleApproveKyc(checklist)
             : handleApproveKyb
         }
-        isSubmitting={
-          activeReview?.type === "KYC" ? isKycPending : isKybPending
-        }
+        isSubmitting={activeReview?.type === "KYC" ? isKycPending : isKybPending}
       />
 
       <RequestActionDialog
@@ -220,9 +243,7 @@ export function ComplianceCaseReview({
             ? buildProviderMessageDraft(apiData?.kybProfile)
             : undefined
         }
-        isSubmitting={
-          activeReview?.type === "KYC" ? isKycPending : isKybPending
-        }
+        isSubmitting={activeReview?.type === "KYC" ? isKycPending : isKybPending}
       />
     </div>
   );

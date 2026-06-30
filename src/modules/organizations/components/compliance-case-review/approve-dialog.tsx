@@ -18,17 +18,30 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Spinner } from "@/components/ui/spinner";
-import type { BusinessRegistrationReviewDto } from "@/lib/api/generated";
+import type {
+  BusinessRegistrationReviewDto,
+  ReviewChecklistItemDto,
+} from "@/lib/api/generated";
 import { useEffect, useState } from "react";
+import { ReviewerChecklist } from "./reviewer-checklist";
+import type { ChecklistItemDefinition } from "./review-checklist";
 
 interface ApproveDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onConfirm: (businessRegistration?: BusinessRegistrationReviewDto) => void;
+  onConfirm: (
+    businessRegistration?: BusinessRegistrationReviewDto,
+    checklist?: ReviewChecklistItemDto[],
+  ) => void;
   isSubmitting: boolean;
   reviewType: "KYB" | "KYC";
   /** Heuristic + saved KYB registration classification to prefill (KYB only). */
   businessRegistrationPrefill?: BusinessRegistrationReviewDto;
+  /**
+   * Manual-corridor reviewer checklist to confirm before approval. When present,
+   * every item must be ticked; the result is persisted to the audit trail.
+   */
+  checklistItems?: ChecklistItemDefinition[];
 }
 
 const APPROVE_COPY = {
@@ -118,11 +131,13 @@ export function ApproveDialog({
   isSubmitting,
   reviewType,
   businessRegistrationPrefill,
+  checklistItems,
 }: ApproveDialogProps) {
   const copy = APPROVE_COPY[reviewType];
   const [form, setForm] = useState<BusinessRegistrationReviewDto | undefined>(
     businessRegistrationPrefill,
   );
+  const [checked, setChecked] = useState<Record<string, boolean>>({});
 
   // Reset the form to the prefilled values whenever the dialog (re)opens. The
   // registry incorporation date is often an ISO timestamp — coerce to YYYY-MM-DD.
@@ -138,13 +153,27 @@ export function ApproveDialog({
             }
           : undefined,
       );
+      setChecked({});
     }
   }, [open, businessRegistrationPrefill]);
 
   const isKyb = reviewType === "KYB";
+  const hasChecklist = !!checklistItems?.length;
+  const allChecked =
+    !hasChecklist || checklistItems!.every((i) => checked[i.key]);
   // Incorporation date is required by the payment provider; block KYB approval
   // until it's set (it has no other capture point if the registry lookup missed it).
-  const canApprove = !isKyb || !!form?.incorporationDate;
+  // Manual corridors also require the reviewer checklist to be complete.
+  const canApprove = (!isKyb || !!form?.incorporationDate) && allChecked;
+
+  const handleConfirm = () => {
+    const checklist = checklistItems?.map((i) => ({
+      key: i.key,
+      label: i.label,
+      passed: !!checked[i.key],
+    }));
+    onConfirm(isKyb ? form : undefined, checklist);
+  };
   // The Select emits a plain string; options are constrained to valid enum values,
   // so narrow to the generated DTO field types at this boundary.
   const set = (patch: Partial<Record<keyof BusinessRegistrationReviewDto, string>>) =>
@@ -222,10 +251,23 @@ export function ApproveDialog({
           </div>
         )}
 
+        {hasChecklist && (
+          <div className="rounded-lg border p-3">
+            <ReviewerChecklist
+              items={checklistItems!}
+              checked={checked}
+              onChange={(key, value) =>
+                setChecked((prev) => ({ ...prev, [key]: value }))
+              }
+              disabled={isSubmitting}
+            />
+          </div>
+        )}
+
         <AlertDialogFooter>
           <AlertDialogCancel disabled={isSubmitting}>Cancel</AlertDialogCancel>
           <AlertDialogAction
-            onClick={() => onConfirm(isKyb ? form : undefined)}
+            onClick={handleConfirm}
             disabled={isSubmitting || !canApprove}
           >
             {isSubmitting ? <Spinner className="size-4" /> : "Approve"}

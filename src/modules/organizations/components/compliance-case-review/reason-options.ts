@@ -21,17 +21,17 @@ export const KYB_REASON_GROUPS: ReasonGroup[] = [
       {
         target: "cac_certificate",
         issue: "unreadable",
-        label: "CAC Certificate — unreadable or poor quality",
+        label: "Registration certificate — unreadable or poor quality",
       },
       {
         target: "cac_certificate",
         issue: "expired",
-        label: "CAC Certificate — expired",
+        label: "Registration certificate — expired",
       },
       {
         target: "cac_certificate",
         issue: "missing",
-        label: "CAC Certificate — not uploaded",
+        label: "Registration certificate — not uploaded",
       },
       {
         target: "company_name",
@@ -41,7 +41,7 @@ export const KYB_REASON_GROUPS: ReasonGroup[] = [
       {
         target: "rc_number",
         issue: "invalid",
-        label: "RC Number — does not match registry",
+        label: "Registration number — does not match registry",
       },
     ],
   },

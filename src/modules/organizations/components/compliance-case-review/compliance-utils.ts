@@ -32,6 +32,11 @@ export function toComplianceCase(raw: ComplianceCaseDetailDto): ComplianceCase {
   const smileStatus = kyc?.identity?.smileVerificationStatus;
   const isPassed = smileStatus === "passed";
 
+  // Manual corridors (no automated identity provider) upload the ID/selfie for
+  // admin review; badge those as "Uploaded" rather than "Smile ID".
+  const identitySource: "smile_id" | "uploaded" =
+    kyc?.identity?.verificationMethod === "manual" ? "uploaded" : "smile_id";
+
   const documents: ViewableItem[] = [];
   const docs = kyb.documents;
   if (docs.searchCertificate)
@@ -112,14 +117,14 @@ export function toComplianceCase(raw: ComplianceCaseDetailDto): ComplianceCase {
   const identityImages: ViewableItem[] = [];
   if (kyc?.identity?.selfie)
     identityImages.push(
-      toViewableItem(kyc.identity.selfie, "Selfie", "smile_id"),
+      toViewableItem(kyc.identity.selfie, "Selfie", identitySource),
     );
   if (kyc?.identity?.governmentId)
     identityImages.push(
       toViewableItem(
         kyc.identity.governmentId,
         "Government ID (Front)",
-        "smile_id",
+        identitySource,
       ),
     );
   if (kyc?.identity?.governmentIdBack)
@@ -127,7 +132,7 @@ export function toComplianceCase(raw: ComplianceCaseDetailDto): ComplianceCase {
       toViewableItem(
         kyc.identity.governmentIdBack,
         "Government ID (Back)",
-        "smile_id",
+        identitySource,
       ),
     );
   if (kyc?.identity?.addressProof)
@@ -135,12 +140,31 @@ export function toComplianceCase(raw: ComplianceCaseDetailDto): ComplianceCase {
       toViewableItem(kyc.identity.addressProof, "Address Proof", "uploaded"),
     );
 
+  const fullName = [kyc?.user?.firstName, kyc?.user?.lastName]
+    .filter(Boolean)
+    .join(" ");
+
   return {
     organization: {
       name: snap.name ?? "",
       countryCode: snap.countryCode ?? "",
       rcNumber: snap.rcNumber ?? "",
       taxId: snap.taxId ?? "",
+      businessType: snap.businessType,
+      postalAddress: snap.postalAddress,
+    },
+    // Manual corridors set verificationMethod 'manual' on identity; the KYB profile
+    // also carries the corridor mode. Treat either manual signal as a manual case.
+    verificationMode:
+      kyb.verificationMode === "manual" ||
+      kyc?.identity?.verificationMethod === "manual"
+        ? "manual"
+        : "automated",
+    identitySummary: {
+      name: fullName || undefined,
+      idType: kyc?.identity?.idType,
+      idNumber: kyc?.identity?.idNumber,
+      verificationMethod: kyc?.identity?.verificationMethod,
     },
     kybStatus: kyb.status as ComplianceCase["kybStatus"],
     kycStatus: (kyc?.status ?? "draft") as ComplianceCase["kycStatus"],
@@ -168,7 +192,7 @@ export function toComplianceCase(raw: ComplianceCaseDetailDto): ComplianceCase {
       eventType: e.eventType,
       actorType: e.actorType,
       createdAt: e.createdAt,
-      metadata: e.metadata as { reasons?: Array<{ target: string; issue: string; note?: string }> } | undefined,
+      metadata: e.metadata as ComplianceCase["events"][number]["metadata"],
     })),
   };
 }

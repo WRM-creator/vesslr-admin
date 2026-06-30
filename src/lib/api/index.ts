@@ -34,6 +34,7 @@ import {
   adminCategoriesControllerRemove,
   adminCategoriesControllerUpdate,
   adminComplianceControllerGetCase,
+  adminComplianceControllerListCases,
   adminComplianceControllerOnboard,
   adminEscrowsControllerFindAll,
   adminEscrowsControllerGetStats,
@@ -479,6 +480,12 @@ export const api = {
       }),
     },
     compliance: {
+      cases: createQuery(adminComplianceControllerListCases, (args) => [
+        "admin",
+        "compliance",
+        "cases",
+        args?.query,
+      ]),
       getCase: createQuery(adminComplianceControllerGetCase, (args) => [
         "admin",
         "compliance",
@@ -488,10 +495,14 @@ export const api = {
       reviewKyb: createMutation(adminComplianceControllerReviewKyb, {
         invalidates: (args) => [
           ["admin", "compliance", "case", args.path.organizationId],
+          ["admin", "compliance", "cases"],
         ],
       }),
       reviewKyc: createMutation(adminComplianceControllerReviewKyc, {
-        invalidates: (args) => [["admin", "compliance", "case"]],
+        invalidates: () => [
+          ["admin", "compliance", "case"],
+          ["admin", "compliance", "cases"],
+        ],
       }),
       onboard: createMutation(adminComplianceControllerOnboard, {
         invalidates: (args) => [
