@@ -5710,6 +5710,55 @@ export type PaginatedNotificationsResponseDto = {
   data: NotificationsPaginationDataDto;
 };
 
+export type SubmittedByUserDto = {
+  _id: string;
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+};
+
+export type ComplianceCaseListItemDto = {
+  organizationId: string;
+  organizationName: string;
+  submittedByUser?: SubmittedByUserDto;
+  countryCode?: string;
+  organizationType?: "buyer" | "buyer_seller";
+  verificationMode?: "manual" | "automated";
+  kybStatus:
+    | "draft"
+    | "submitted"
+    | "pending_review"
+    | "action_required"
+    | "approved";
+  kycStatus:
+    | "draft"
+    | "submitted"
+    | "pending_review"
+    | "action_required"
+    | "approved";
+  complianceStatus:
+    | "draft"
+    | "submitted"
+    | "pending_review"
+    | "action_required"
+    | "approved";
+  actionRequiredItems: Array<StructuredReasonDto>;
+  providerReviewPending: boolean;
+  submittedAt?: string;
+  reviewedAt?: string;
+  approvedAt?: string;
+  updatedAt?: string;
+  createdAt?: string;
+};
+
+export type ComplianceCaseListResponseDto = {
+  docs: Array<ComplianceCaseListItemDto>;
+  totalDocs: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+};
+
 export type CompanySnapshotDto = {
   name?: string;
   type?: "buyer" | "buyer_seller";
@@ -5773,13 +5822,6 @@ export type ProviderVerificationDto = {
   };
   currencies?: Array<string>;
   receivedAt?: string;
-};
-
-export type SubmittedByUserDto = {
-  _id: string;
-  firstName?: string;
-  lastName?: string;
-  email?: string;
 };
 
 export type RegistryCompanyInfoDto = {
@@ -5875,6 +5917,14 @@ export type KybProfileDto = {
   providerVerification?: ProviderVerificationDto;
   submittedByUser?: SubmittedByUserDto;
   registryData?: RegistryDataDto;
+  /**
+   * Corridor verification mode. `manual` (no automated KYB/KYC provider) drives the admin reviewer checklist and document-led case layout; `automated` keeps the provider/registry-led layout.
+   */
+  verificationMode?: "manual" | "automated";
+  /**
+   * Verification provider used when verificationMode is automated.
+   */
+  verificationProvider?: string;
 };
 
 export type IdentitySnapshotDto = {
@@ -5997,6 +6047,25 @@ export type ComplianceCaseDetailDto = {
   events: Array<ComplianceEventDto>;
 };
 
+export type ReviewChecklistItemDto = {
+  key:
+    | "selfie_matches_id"
+    | "id_legible"
+    | "id_unexpired"
+    | "name_matches"
+    | "cert_legible"
+    | "company_name_matches"
+    | "address_matches";
+  /**
+   * Human-readable prompt the reviewer confirmed.
+   */
+  label: string;
+  /**
+   * Whether the reviewer ticked this item.
+   */
+  passed: boolean;
+};
+
 export type BusinessRegistrationReviewDto = {
   businessStructure:
     | "limited_liability_company"
@@ -6022,6 +6091,10 @@ export type BusinessRegistrationReviewDto = {
 
 export type ReviewComplianceDto = {
   decision: "approved" | "action_required";
+  /**
+   * Reviewer-checklist attestations for a manual-corridor review. Persisted to the audit event; the UI gates Approve until every item is ticked.
+   */
+  checklist?: Array<ReviewChecklistItemDto>;
   reasons?: Array<StructuredReasonDto>;
   /**
    * Approver-confirmed KYB registration classification. Applied on approval.
@@ -10989,11 +11062,11 @@ export type AdminComplianceControllerListCasesData = {
 };
 
 export type AdminComplianceControllerListCasesResponses = {
-  /**
-   * Compliance cases list
-   */
-  200: unknown;
+  200: ComplianceCaseListResponseDto;
 };
+
+export type AdminComplianceControllerListCasesResponse =
+  AdminComplianceControllerListCasesResponses[keyof AdminComplianceControllerListCasesResponses];
 
 export type AdminComplianceControllerGetCaseData = {
   body?: never;

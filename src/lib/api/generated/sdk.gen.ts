@@ -643,7 +643,7 @@ export const locationsControllerGetRegions = <
   >({ url: "/api/v1/locations/regions", ...options });
 
 /**
- * Get all countries
+ * Get selectable countries (excludes sanctioned / onboarding-blocked jurisdictions)
  */
 export const locationsControllerGetCountries = <
   ThrowOnError extends boolean = false,
