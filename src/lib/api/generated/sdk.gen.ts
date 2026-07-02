@@ -257,8 +257,6 @@ import type {
   EscrowsControllerGetMyEscrowsResponses,
   EscrowsControllerGetMySummaryData,
   EscrowsControllerGetMySummaryResponses,
-  FlutterwaveWebhooksControllerHandleWebhookData,
-  FlutterwaveWebhooksControllerHandleWebhookResponses,
   InspectionControllerListInspectionsData,
   InspectionControllerListInspectionsResponses,
   InspectionControllerSubmitInspectionData,
@@ -509,6 +507,8 @@ import type {
   TransactionConversationsControllerSendMessageResponses,
   TransactionsControllerAddDocumentData,
   TransactionsControllerAddDocumentResponses,
+  TransactionsControllerAddFundingReceiptData,
+  TransactionsControllerAddFundingReceiptResponses,
   TransactionsControllerApproveMilestoneData,
   TransactionsControllerApproveMilestoneResponses,
   TransactionsControllerAssignLogisticsData,
@@ -1492,6 +1492,28 @@ export const transactionsControllerAddDocument = <
   >({
     security: [{ scheme: "bearer", type: "http" }],
     url: "/api/v1/transactions/{id}/documents",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Buyer attaches proof of payment for an external escrow funding (bank transfer / crypto deposit)
+ */
+export const transactionsControllerAddFundingReceipt = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<TransactionsControllerAddFundingReceiptData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    TransactionsControllerAddFundingReceiptResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/transactions/{id}/funding-receipts",
     ...options,
     headers: {
       "Content-Type": "application/json",
@@ -5860,23 +5882,6 @@ export const placesControllerGetDetails = <
     url: "/api/v1/places/details",
     ...options,
   });
-
-/**
- * Handle Flutterwave webhook events (public)
- */
-export const flutterwaveWebhooksControllerHandleWebhook = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<
-    FlutterwaveWebhooksControllerHandleWebhookData,
-    ThrowOnError
-  >,
-) =>
-  (options.client ?? client).post<
-    FlutterwaveWebhooksControllerHandleWebhookResponses,
-    unknown,
-    ThrowOnError
-  >({ url: "/api/v1/flutterwave/webhooks", ...options });
 
 /**
  * Handle Busha webhook events (public)

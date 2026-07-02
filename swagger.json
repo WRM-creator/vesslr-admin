@@ -1671,6 +1671,52 @@
         ]
       }
     },
+    "/api/v1/transactions/{id}/funding-receipts": {
+      "post": {
+        "operationId": "TransactionsController_addFundingReceipt",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddFundingReceiptDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The updated transaction",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TransactionResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Buyer attaches proof of payment for an external escrow funding (bank transfer / crypto deposit)",
+        "tags": [
+          "Transactions"
+        ]
+      }
+    },
     "/api/v1/transactions/{id}/contract": {
       "get": {
         "operationId": "TransactionsController_downloadContract",
@@ -10323,30 +10369,6 @@
         ]
       }
     },
-    "/api/v1/flutterwave/webhooks": {
-      "post": {
-        "operationId": "FlutterwaveWebhooksController_handleWebhook",
-        "parameters": [
-          {
-            "name": "verif-hash",
-            "required": true,
-            "in": "header",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "summary": "Handle Flutterwave webhook events (public)",
-        "tags": [
-          "Flutterwave Webhooks"
-        ]
-      }
-    },
     "/api/v1/busha/webhooks": {
       "post": {
         "operationId": "BushaWebhooksController_handleWebhook",
@@ -16190,6 +16212,13 @@
             "type": "object",
             "description": "Documents grouped by stage"
           },
+          "fundingReceipts": {
+            "description": "Buyer-uploaded proof of payment for external escrow funding. Only serialized to the buyer (and admins), never to the seller.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TransactionDocumentFileDto"
+            }
+          },
           "escrow": {
             "nullable": true,
             "allOf": [
@@ -16328,6 +16357,25 @@
         },
         "required": [
           "type",
+          "name",
+          "url"
+        ]
+      },
+      "AddFundingReceiptDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Display name of the receipt file",
+            "example": "Bank transfer receipt.pdf"
+          },
+          "url": {
+            "type": "string",
+            "description": "URL of the uploaded receipt",
+            "example": "https://s3.aws.com/bucket/receipt.pdf"
+          }
+        },
+        "required": [
           "name",
           "url"
         ]

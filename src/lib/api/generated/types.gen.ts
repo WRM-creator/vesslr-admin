@@ -2166,6 +2166,10 @@ export type TransactionResponseDto = {
   documents?: {
     [key: string]: unknown;
   };
+  /**
+   * Buyer-uploaded proof of payment for external escrow funding. Only serialized to the buyer (and admins), never to the seller.
+   */
+  fundingReceipts?: Array<TransactionDocumentFileDto>;
   escrow?: EscrowResponseDto | null;
   assignedLogistics?: {
     [key: string]: unknown;
@@ -2249,6 +2253,17 @@ export type AddTransactionDocumentDto = {
    * Index of the document slot in the requiredDocuments array
    */
   slotIndex?: number;
+};
+
+export type AddFundingReceiptDto = {
+  /**
+   * Display name of the receipt file
+   */
+  name: string;
+  /**
+   * URL of the uploaded receipt
+   */
+  url: string;
 };
 
 export type AssignLogisticsDto = {
@@ -8115,6 +8130,25 @@ export type TransactionsControllerAddDocumentResponses = {
 export type TransactionsControllerAddDocumentResponse =
   TransactionsControllerAddDocumentResponses[keyof TransactionsControllerAddDocumentResponses];
 
+export type TransactionsControllerAddFundingReceiptData = {
+  body: AddFundingReceiptDto;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/transactions/{id}/funding-receipts";
+};
+
+export type TransactionsControllerAddFundingReceiptResponses = {
+  /**
+   * The updated transaction
+   */
+  200: TransactionResponseDto;
+};
+
+export type TransactionsControllerAddFundingReceiptResponse =
+  TransactionsControllerAddFundingReceiptResponses[keyof TransactionsControllerAddFundingReceiptResponses];
+
 export type TransactionsControllerDownloadContractData = {
   body?: never;
   path: {
@@ -11843,20 +11877,6 @@ export type PlacesControllerGetDetailsData = {
 };
 
 export type PlacesControllerGetDetailsResponses = {
-  200: unknown;
-};
-
-export type FlutterwaveWebhooksControllerHandleWebhookData = {
-  body?: never;
-  headers: {
-    "verif-hash": string;
-  };
-  path?: never;
-  query?: never;
-  url: "/api/v1/flutterwave/webhooks";
-};
-
-export type FlutterwaveWebhooksControllerHandleWebhookResponses = {
   200: unknown;
 };
 

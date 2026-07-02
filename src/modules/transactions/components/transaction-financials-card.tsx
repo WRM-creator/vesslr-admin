@@ -7,7 +7,7 @@ import type { TransactionResponseDto } from "@/lib/api/generated";
 import { formatCurrency } from "@/lib/currency";
 import { formatDateTime } from "@/lib/utils";
 import { format } from "date-fns";
-import { AlertCircle, Loader2, RefreshCw, RotateCw } from "lucide-react";
+import { AlertCircle, FileText, Loader2, RefreshCw, RotateCw } from "lucide-react";
 import { toast } from "sonner";
 import { useDifferentialFormula } from "./differential-formula";
 import {
@@ -226,6 +226,37 @@ export function TransactionFinancialsCard({
               </div>
             </div>
           </div>
+
+          {/* Buyer-uploaded proof of payment for external funding. Buyer- and
+              admin-visible only; used to match deposits during reconciliation. */}
+          {(transaction.fundingReceipts?.length ?? 0) > 0 && (
+            <div className="space-y-3">
+              <h4 className="text-muted-foreground text-sm font-medium tracking-wider uppercase">
+                Payment Receipts
+              </h4>
+              <div className="space-y-2">
+                {transaction.fundingReceipts!.map((receipt, i) => (
+                  <div
+                    key={`${receipt.url}-${i}`}
+                    className="flex items-center justify-between text-sm"
+                  >
+                    <a
+                      href={receipt.url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="flex min-w-0 items-center gap-2 underline-offset-2 hover:underline"
+                    >
+                      <FileText className="text-muted-foreground size-3.5 shrink-0" />
+                      <span className="truncate">{receipt.name}</span>
+                    </a>
+                    <span className="text-muted-foreground shrink-0 text-xs">
+                      {formatDateTime(receipt.timestamp)}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Milestone Payouts */}
           {milestonePayouts.length > 0 && (
