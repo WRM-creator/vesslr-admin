@@ -6,8 +6,10 @@ import { api } from "@/lib/api";
 import type { TransactionResponseDto } from "@/lib/api/generated";
 import { formatCurrency } from "@/lib/currency";
 import { formatDateTime } from "@/lib/utils";
+import { format } from "date-fns";
 import { AlertCircle, Loader2, RefreshCw, RotateCw } from "lucide-react";
 import { toast } from "sonner";
+import { useDifferentialFormula } from "./differential-formula";
 import {
   TransactionPaymentStatus,
   TransactionPaymentStatusBadge,
@@ -31,6 +33,7 @@ export function TransactionFinancialsCard({
   ].includes(transaction.status);
 
   const isRefunded = transaction.status === "REFUNDED";
+  const isCancelled = transaction.status === "CANCELLED";
 
   const paymentStatus =
     transaction.status === "SETTLEMENT_RELEASED" ||
@@ -56,6 +59,11 @@ export function TransactionFinancialsCard({
   const totalWithFee = order.totalWithFee ?? goodsAmount + serviceFeeAmount;
   const milestonePayouts = transaction.escrow?.milestonePayouts ?? [];
 
+  // A differential order carries no figures until its benchmark resolves at
+  // escrow funding; the formula stands in until then.
+  const { isDifferential, formula } = useDifferentialFormula(order);
+  const amountPending = isDifferential && order.totalAmount == null;
+
   return (
     <Card className="h-full">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -72,7 +80,7 @@ export function TransactionFinancialsCard({
             <div className="flex items-start gap-3">
               <div
                 className={`mt-0.5 rounded-full p-1 ${
-                  isRefunded
+                  isRefunded || isCancelled
                     ? "bg-amber-100 text-amber-600"
                     : isFunded
                       ? "bg-green-100 text-green-600"
@@ -80,7 +88,7 @@ export function TransactionFinancialsCard({
                 }`}
               >
                 <RefreshCw
-                  className={`size-4 ${!isFunded && !isRefunded && "animate-spin-slow"}`}
+                  className={`size-4 ${!isFunded && !isRefunded && !isCancelled && "animate-spin-slow"}`}
                 />
               </div>
               <div className="space-y-1">
@@ -90,9 +98,11 @@ export function TransactionFinancialsCard({
                     ? "Settlement Released"
                     : isRefunded
                       ? "Refunded to Buyer"
-                      : isFunded
-                        ? "Funds Secured"
-                        : "Awaiting Funding"}
+                      : isCancelled
+                        ? "Cancelled Before Funding"
+                        : isFunded
+                          ? "Funds Secured"
+                          : "Awaiting Funding"}
                 </p>
                 <p className="text-muted-foreground text-xs">
                   {transaction.status === "CLOSED" ||
@@ -100,9 +110,16 @@ export function TransactionFinancialsCard({
                     ? "Funds have been released to the seller and the transaction is closed."
                     : isRefunded
                       ? "Dispute resolved in buyer's favour — escrowed funds have been refunded."
-                      : isFunded
-                        ? `Funds were successfully secured in escrow on ${formatDateTime(fundingEvent?.timestamp || transaction.updatedAt)}.`
-                        : "The buyer has been notified to fund the escrow account via the platform."}
+                      : isCancelled
+                        ? transaction.cancellationReason ===
+                          "funding_window_expired"
+                          ? `The buyer's funding window closed${transaction.fundingDueAt ? ` on ${format(new Date(transaction.fundingDueAt), "MMM d, yyyy")}` : ""} without payment. No funds were moved.`
+                          : "This transaction was cancelled before escrow was funded."
+                        : isFunded
+                          ? `Funds were successfully secured in escrow on ${formatDateTime(fundingEvent?.timestamp || transaction.updatedAt)}.`
+                          : transaction.fundingDueAt
+                            ? `The buyer has been notified to fund the escrow. Their window closes on ${format(new Date(transaction.fundingDueAt), "MMM d, yyyy")}.`
+                            : "The buyer has been notified to fund the escrow account via the platform."}
                 </p>
               </div>
             </div>
@@ -114,43 +131,68 @@ export function TransactionFinancialsCard({
               <h4 className="text-muted-foreground text-sm font-medium tracking-wider uppercase">
                 Breakdown
               </h4>
-              <div className="space-y-3">
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">Goods Amount</span>
-                  <span className="font-medium">
-                    {formatCurrency(goodsAmount, currency)}
-                  </span>
-                </div>
-                {serviceFeeAmount > 0 && (
+              {amountPending ? (
+                <div className="space-y-3">
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">Service Fee (3%)</span>
+                    <span className="text-muted-foreground">Price basis</span>
                     <span className="font-medium">
-                      {formatCurrency(serviceFeeAmount, currency)}
+                      {formula ?? "Benchmark differential"}
                     </span>
                   </div>
-                )}
-                <Separator />
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">Buyer Paid</span>
-                  <span className="font-semibold">
-                    {formatCurrency(totalWithFee, currency)}
-                  </span>
+                  <Separator />
+                  <p className="text-muted-foreground text-xs">
+                    This is a differential order. The figures are fixed against
+                    the benchmark when the buyer funds escrow.
+                  </p>
                 </div>
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">Seller Payout</span>
-                  <span className="font-medium text-green-600">
-                    {formatCurrency(goodsAmount, currency)}
-                  </span>
-                </div>
-                {serviceFeeAmount > 0 && (
+              ) : (
+                <div className="space-y-3">
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">Platform Revenue</span>
-                    <span className="font-medium text-blue-600">
-                      {formatCurrency(serviceFeeAmount, currency)}
+                    <span className="text-muted-foreground">Goods Amount</span>
+                    <span className="font-medium">
+                      {formatCurrency(goodsAmount, currency)}
                     </span>
                   </div>
-                )}
-              </div>
+                  {serviceFeeAmount > 0 && (
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-muted-foreground">Service Fee (3%)</span>
+                      <span className="font-medium">
+                        {formatCurrency(serviceFeeAmount, currency)}
+                      </span>
+                    </div>
+                  )}
+                  <Separator />
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">Buyer Paid</span>
+                    <span className="font-semibold">
+                      {formatCurrency(totalWithFee, currency)}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">Seller Payout</span>
+                    <span className="font-medium text-green-600">
+                      {formatCurrency(goodsAmount, currency)}
+                    </span>
+                  </div>
+                  {serviceFeeAmount > 0 && (
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-muted-foreground">Platform Revenue</span>
+                      <span className="font-medium text-blue-600">
+                        {formatCurrency(serviceFeeAmount, currency)}
+                      </span>
+                    </div>
+                  )}
+                  {isDifferential && order.priceResolvedAt && (
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-muted-foreground">Priced</span>
+                      <span className="text-muted-foreground text-xs">
+                        {formula ?? "Benchmark differential"} on{" "}
+                        {format(new Date(order.priceResolvedAt), "MMM d, yyyy")}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
 
             {/* Right Column: Meta Details */}

@@ -112,6 +112,7 @@ import {
   adminLicenseRequirementsControllerCreate,
   adminLicenseRequirementsControllerUpdate,
   adminLicenseRequirementsControllerRemove,
+  benchmarksControllerFindAll,
 } from "./generated";
 
 export const api = {
@@ -119,6 +120,9 @@ export const api = {
     login: createMutation(adminAuthControllerLogin),
     verifyOtp: createMutation(adminAuthControllerVerifyOtp),
     profile: createQuery(adminAuthControllerGetProfile, ["auth", "profile"]),
+  },
+  benchmarks: {
+    list: createQuery(benchmarksControllerFindAll, ["benchmarks", "list"]),
   },
   admin: {
     dashboard: {

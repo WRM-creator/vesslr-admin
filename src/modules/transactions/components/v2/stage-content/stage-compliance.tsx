@@ -112,6 +112,14 @@ export function StageComplianceContent({
         </div>
       )}
 
+      {/* Completing this review starts the buyer's funding clock. */}
+      {isActive && (
+        <p className="text-muted-foreground text-xs">
+          Approving the final required document completes this review and opens
+          the buyer's 7-day escrow funding window.
+        </p>
+      )}
+
       {/* Add requirement button */}
       {isActive && (
         <div className="flex gap-2">

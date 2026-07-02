@@ -8,6 +8,7 @@ import { formatCurrency } from "@/lib/currency";
 import { type ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
 import { Link } from "react-router-dom";
+import { useDifferentialFormula } from "../differential-formula";
 import { TransactionStatusBadge } from "../transaction-status-badge";
 
 // TODO: Extract the badges into distinct badge components
@@ -18,6 +19,26 @@ const paymentStatusStyles: Record<string, StatusVariant> = {
   partial: "warning",
   refunded: "info",
 };
+
+/**
+ * Order value cell. A differential order is unpriced until its benchmark
+ * resolves at escrow funding; show the formula instead of a zero.
+ */
+function ValueCell({ order }: { order: TransactionResponseDto["order"] }) {
+  const { isDifferential, formula } = useDifferentialFormula(order);
+  if (isDifferential && order.totalAmount == null) {
+    return (
+      <div className="text-muted-foreground text-sm">
+        {formula ?? "Benchmark differential"}
+      </div>
+    );
+  }
+  return (
+    <div className="font-medium">
+      {formatCurrency(order.totalAmount, order.currency || "USD")}
+    </div>
+  );
+}
 
 export const transactionsColumns: ColumnDef<TransactionResponseDto>[] = [
   {
@@ -56,10 +77,7 @@ export const transactionsColumns: ColumnDef<TransactionResponseDto>[] = [
   {
     accessorKey: "order.totalAmount",
     header: "Value",
-    cell: ({ row }) => {
-      const value = row.original.order.totalAmount;
-      return <div className="font-medium">{formatCurrency(value, row.original.order.currency || "USD")}</div>;
-    },
+    cell: ({ row }) => <ValueCell order={row.original.order} />,
   },
   {
     accessorKey: "order.transactionType",

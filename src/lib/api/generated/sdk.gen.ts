@@ -219,6 +219,8 @@ import type {
   AdminTransactionsControllerUpdateStatusResponses,
   AppControllerGetHelloData,
   AppControllerGetHelloResponses,
+  BenchmarksControllerFindAllData,
+  BenchmarksControllerFindAllResponses,
   BushaWebhooksControllerHandleWebhookData,
   BushaWebhooksControllerHandleWebhookResponses,
   CategoriesControllerFindAllData,
@@ -331,6 +333,8 @@ import type {
   NegotiationsControllerRejectResponses,
   NegotiationsControllerSendMessageData,
   NegotiationsControllerSendMessageResponses,
+  NegotiationsControllerWithdrawData,
+  NegotiationsControllerWithdrawResponses,
   NotificationsControllerFindAllData,
   NotificationsControllerFindAllResponses,
   NotificationsControllerGetUnreadCountData,
@@ -1721,6 +1725,20 @@ export const escrowsControllerGetMySummary = <
   });
 
 /**
+ * List active commodity price benchmarks
+ */
+export const benchmarksControllerFindAll = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<BenchmarksControllerFindAllData, ThrowOnError>,
+) =>
+  (options?.client ?? client).get<
+    BenchmarksControllerFindAllResponses,
+    unknown,
+    ThrowOnError
+  >({ url: "/api/v1/benchmarks", ...options });
+
+/**
  * Get the conversation for a transaction
  */
 export const transactionConversationsControllerGetConversation = <
@@ -2216,6 +2234,24 @@ export const negotiationsControllerReject = <
   >({
     security: [{ scheme: "bearer", type: "http" }],
     url: "/api/v1/negotiations/{id}/reject",
+    ...options,
+  });
+
+/**
+ * Withdraw your open offer (returns the turn to you)
+ */
+export const negotiationsControllerWithdraw = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<NegotiationsControllerWithdrawData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    NegotiationsControllerWithdrawResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/negotiations/{id}/withdraw",
     ...options,
   });
 

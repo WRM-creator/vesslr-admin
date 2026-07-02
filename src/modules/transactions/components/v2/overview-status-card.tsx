@@ -4,6 +4,7 @@ import { formatCurrency } from "@/lib/currency";
 import { cn, formatDateTime } from "@/lib/utils";
 import {
   AlertTriangle,
+  Ban,
   Banknote,
   CheckCircle2,
   ClipboardCheck,
@@ -18,16 +19,20 @@ import {
   Truck,
 } from "lucide-react";
 import type { ReactNode } from "react";
+import { format } from "date-fns";
+import { useDifferentialFormula } from "../differential-formula";
 
 interface OverviewStatusCardProps {
   transaction: TransactionResponseDto;
 }
 
-type EscrowState = "awaiting" | "secured" | "released" | "refunded";
+type EscrowState = "awaiting" | "secured" | "released" | "refunded" | "cancelled";
 
 function getEscrowState(status: string): EscrowState {
   if (["SETTLEMENT_RELEASED", "CLOSED"].includes(status)) return "released";
   if (["REFUNDED", "PARTIALLY_REFUNDED"].includes(status)) return "refunded";
+  // A transaction cancelled before funding never had an escrow.
+  if (status === "CANCELLED") return "cancelled";
   if (
     [
       "ESCROW_FUNDED",
@@ -72,6 +77,12 @@ const ESCROW_CONFIG: Record<
     iconClass: "text-amber-500",
     badgeClass: "bg-amber-100 text-amber-700 dark:bg-amber-500/10 dark:text-amber-400",
   },
+  cancelled: {
+    icon: Ban,
+    label: "Not Funded",
+    iconClass: "text-muted-foreground",
+    badgeClass: "bg-gray-100 text-gray-600 dark:bg-gray-500/10 dark:text-gray-400",
+  },
 };
 
 function activeStageIcon(type: string): ReactNode {
@@ -113,8 +124,13 @@ function activeStageMessage(
     }
     case "COMPLIANCE_REVIEW":
       return "Reviewing compliance documents.";
-    case "FUND_ESCROW":
-      return "Awaiting escrow funding to proceed.";
+    case "FUND_ESCROW": {
+      if (!transaction.fundingDueAt) return "Awaiting escrow funding to proceed.";
+      const dueLabel = format(new Date(transaction.fundingDueAt), "MMM d, yyyy");
+      return new Date(transaction.fundingDueAt) < new Date()
+        ? `The buyer's funding window closed on ${dueLabel}.`
+        : `Awaiting escrow funding. The buyer's window closes on ${dueLabel}.`;
+    }
     case "LOGISTICS": {
       const carrier = stage.metadata?.carrierName as string | undefined;
       return carrier ? `Carrier: ${carrier}.` : "Awaiting carrier assignment.";
@@ -152,7 +168,17 @@ export function OverviewStatusCard({
   const serviceFeeAmount = transaction.order?.serviceFeeAmount ?? 0;
   const totalWithFee = transaction.order?.totalWithFee ?? amount + serviceFeeAmount;
 
-  const activeStage = transaction.stages?.find((s) => s.status === "ACTIVE");
+  // A differential order is unpriced until its benchmark resolves at funding;
+  // the formula stands in for the amounts until then.
+  const { isDifferential, formula } = useDifferentialFormula(transaction.order);
+  const amountPending = isDifferential && transaction.order?.totalAmount == null;
+
+  // A cancelled transaction's stages are frozen; the "active" stage is no
+  // longer actionable, so its strip is suppressed.
+  const isCancelled = transaction.status === "CANCELLED";
+  const activeStage = isCancelled
+    ? undefined
+    : transaction.stages?.find((s) => s.status === "ACTIVE");
   const disputedStage = transaction.stages?.find(
     (s) => (s.status as string) === "DISPUTED",
   );
@@ -193,7 +219,9 @@ export function OverviewStatusCard({
                   {quantity != null && (
                     <p className="text-muted-foreground text-xs">
                       {Number(quantity).toLocaleString()} {unitOfMeasurement || "units"}{" "}
-                      · {formatCurrency(amount, currency)}
+                      · {amountPending
+                        ? (formula ?? "Benchmark differential")
+                        : formatCurrency(amount, currency)}
                     </p>
                   )}
                 </div>
@@ -222,12 +250,20 @@ export function OverviewStatusCard({
                 </span>
               </div>
               <div className="flex items-baseline gap-1">
-                <span className="text-base font-semibold tracking-tight">
-                  {formatCurrency(totalWithFee, currency)}
-                </span>
-                <span className="text-muted-foreground text-xs font-medium">
-                  {currency}
-                </span>
+                {amountPending ? (
+                  <span className="text-base font-semibold tracking-tight">
+                    {formula ?? "Benchmark differential"}
+                  </span>
+                ) : (
+                  <>
+                    <span className="text-base font-semibold tracking-tight">
+                      {formatCurrency(totalWithFee, currency)}
+                    </span>
+                    <span className="text-muted-foreground text-xs font-medium">
+                      {currency}
+                    </span>
+                  </>
+                )}
               </div>
 
               {/* Milestone breakdown */}
@@ -256,23 +292,48 @@ export function OverviewStatusCard({
               )}
             </div>
 
-            {/* Financial breakdown — compact right column */}
-            <div className="hidden text-right sm:block">
-              <div className="text-muted-foreground space-y-0.5 text-[11px]">
-                <div>
-                  Goods: {formatCurrency(amount, currency)}
-                </div>
-                {serviceFeeAmount > 0 && (
+            {/* Financial breakdown — compact right column (unpriced orders have no figures yet) */}
+            {!amountPending && (
+              <div className="hidden text-right sm:block">
+                <div className="text-muted-foreground space-y-0.5 text-[11px]">
                   <div>
-                    Fee: {formatCurrency(serviceFeeAmount, currency)}
+                    Goods: {formatCurrency(amount, currency)}
                   </div>
-                )}
-                <div className="font-medium text-green-600">
-                  Seller payout: {formatCurrency(amount, currency)}
+                  {serviceFeeAmount > 0 && (
+                    <div>
+                      Fee: {formatCurrency(serviceFeeAmount, currency)}
+                    </div>
+                  )}
+                  <div className="font-medium text-green-600">
+                    Seller payout: {formatCurrency(amount, currency)}
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
           </div>
+
+          {/* Cancellation strip */}
+          {isCancelled && (
+            <>
+              <div className="border-t" />
+              <div className="flex items-start gap-2.5">
+                <Ban className="text-muted-foreground mt-0.5 size-4 shrink-0" />
+                <div className="space-y-0.5">
+                  <span className="text-muted-foreground text-xs font-medium uppercase tracking-wider">
+                    Cancelled
+                  </span>
+                  <p className="text-sm font-medium">
+                    {transaction.cancellationReason === "funding_window_expired"
+                      ? `Escrow was not funded${transaction.fundingDueAt ? ` by ${format(new Date(transaction.fundingDueAt), "MMM d, yyyy")}` : " in time"}.`
+                      : "This transaction was cancelled."}
+                  </p>
+                  <p className="text-muted-foreground text-xs">
+                    The order is closed. No funds were moved.
+                  </p>
+                </div>
+              </div>
+            </>
+          )}
 
           {/* Dispute strip */}
           {showDispute && (
