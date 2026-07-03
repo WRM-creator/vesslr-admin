@@ -81,7 +81,7 @@ export function ProviderResponsePanel({ kyb }: ProviderResponsePanelProps) {
           <p className="text-muted-foreground">
             A payment provider declined this organization after our approval.
             Review the response below, then request the necessary updates from
-            the customer using a white-labeled message — do not name the
+            the customer using a white-labeled message. Do not name the
             provider.
           </p>
           <div className="mt-3 w-full">{body}</div>

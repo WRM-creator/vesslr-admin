@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { CheckIcon, XIcon } from "lucide-react";
+import { reasonIssueLabel, reasonTargetLabel } from "./reason-options";
 import type { ComplianceCase } from "./types";
 
 interface DecisionHistoryProps {
@@ -10,14 +11,18 @@ interface DecisionHistoryProps {
 
 function formatEventType(eventType: string): string {
   const map: Record<string, string> = {
-    "kyc.approved": "KYC — Approved",
-    "kyc.action_required": "KYC — Action Required",
-    "kyc.rejected": "KYC — Rejected",
-    "kyb.approved": "KYB — Approved",
-    "kyb.action_required": "KYB — Action Required",
-    "kyb.rejected": "KYB — Rejected",
+    "kyc.approved": "Identity approved",
+    "kyc.action_required": "Identity changes requested",
+    "kyc.rejected": "Identity rejected",
+    "kyb.approved": "Business approved",
+    "kyb.action_required": "Business changes requested",
+    "kyb.rejected": "Business rejected",
+    "kyb.changes_requested": "Changes requested",
+    "kyb.documents_requested": "Documents requested",
+    "kyb.document_provided": "Document provided",
+    "kyb.provider_verification_declined": "Provider declined",
   };
-  return map[eventType] ?? eventType;
+  return map[eventType] ?? eventType.replace(/^(kyb|kyc)\./, "").replace(/_/g, " ");
 }
 
 function borderColor(eventType: string): string {
@@ -63,12 +68,29 @@ export function DecisionHistory({ events }: DecisionHistoryProps) {
                       ? "By System"
                       : "By User"}
                 </p>
+                {event.metadata?.label && (
+                  <p className="text-muted-foreground text-xs">
+                    {event.metadata.file?.url ? (
+                      <a
+                        href={event.metadata.file.url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="hover:text-foreground underline underline-offset-2"
+                      >
+                        {event.metadata.label}
+                      </a>
+                    ) : (
+                      event.metadata.label
+                    )}
+                  </p>
+                )}
                 {event.metadata?.reasons &&
                   event.metadata.reasons.length > 0 && (
                     <ul className="text-muted-foreground mt-1 list-inside list-disc space-y-0.5 text-xs">
                       {event.metadata.reasons.map((r, i) => (
                         <li key={i}>
-                          {r.target} — {r.issue}
+                          {reasonTargetLabel(r.target)} ·{" "}
+                          {reasonIssueLabel(r.target, r.issue)}
                           {r.note ? `: ${r.note}` : ""}
                         </li>
                       ))}

@@ -49,6 +49,8 @@ import type {
   AdminComplianceControllerListCasesResponses,
   AdminComplianceControllerOnboardData,
   AdminComplianceControllerOnboardResponses,
+  AdminComplianceControllerRequestChangesData,
+  AdminComplianceControllerRequestChangesResponses,
   AdminComplianceControllerRequestDocumentsData,
   AdminComplianceControllerRequestDocumentsResponses,
   AdminComplianceControllerReviewKybData,
@@ -5078,6 +5080,28 @@ export const adminComplianceControllerRequestDocuments = <
   >({
     security: [{ scheme: "bearer", type: "http" }],
     url: "/api/v1/admin/compliance/kyb/{organizationId}/request-documents",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Request changes: flag issues and/or request documents in one decision
+ */
+export const adminComplianceControllerRequestChanges = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AdminComplianceControllerRequestChangesData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    AdminComplianceControllerRequestChangesResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/compliance/{organizationId}/request-changes",
     ...options,
     headers: {
       "Content-Type": "application/json",

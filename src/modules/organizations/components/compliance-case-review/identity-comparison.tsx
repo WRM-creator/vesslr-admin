@@ -7,10 +7,16 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { TINT } from "@/lib/tint";
 import { cn } from "@/lib/utils";
 import {
   ColumnsIcon,
+  ImageOffIcon,
   RotateCwIcon,
   UserIcon,
   ZoomInIcon,
@@ -18,6 +24,9 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import type { ComplianceCase, ViewableItem } from "./types";
+
+/** An expected identity image that was never captured/uploaded. */
+const isMissingSlot = (item: ViewableItem) => item.slotStatus === "missing";
 
 interface IdentityComparisonProps {
   items: ViewableItem[];
@@ -182,13 +191,24 @@ export function IdentityComparison({
 }: IdentityComparisonProps) {
   const [compareOpen, setCompareOpen] = useState(false);
   const [leftIndex, setLeftIndex] = useState(0);
-  const [rightIndex, setRightIndex] = useState(items.length > 1 ? 1 : 0);
+
+  // Only real files can be viewed/compared; missing slots are visible placeholders.
+  const present = items.filter((it) => !isMissingSlot(it));
+  const missingCount = items.length - present.length;
+  const canCompare = present.length >= 2;
+  const [rightIndex, setRightIndex] = useState(present.length > 1 ? 1 : 0);
 
   return (
     <Card>
       <CardHeader className="flex-row items-center justify-between pb-2">
         <CardTitle className="text-base">Identity verification</CardTitle>
         <div className="flex items-center gap-2">
+          {missingCount > 0 && (
+            <Badge variant="outline" className={cn("gap-1", TINT.amber)}>
+              <ImageOffIcon className="size-3" />
+              {missingCount} missing
+            </Badge>
+          )}
           {summary.verificationMethod && (
             <SourceBadge
               source={
@@ -198,15 +218,27 @@ export function IdentityComparison({
               }
             />
           )}
-          <Button
-            variant="outline"
-            size="sm"
-            disabled={items.length < 2}
-            onClick={() => setCompareOpen(true)}
-          >
-            <ColumnsIcon className="size-4" />
-            Compare
-          </Button>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              {/* Wrapper span so the tooltip still fires on a disabled button. */}
+              <span tabIndex={canCompare ? -1 : 0}>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={!canCompare}
+                  onClick={() => setCompareOpen(true)}
+                >
+                  <ColumnsIcon className="size-4" />
+                  Compare
+                </Button>
+              </span>
+            </TooltipTrigger>
+            {!canCompare && (
+              <TooltipContent>
+                Need at least two uploaded images to compare side by side.
+              </TooltipContent>
+            )}
+          </Tooltip>
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -216,19 +248,44 @@ export function IdentityComparison({
           </p>
         ) : (
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-            {items.map((item, index) => (
-              <button
-                key={item.name}
-                type="button"
-                onClick={() => onOpenSingle(index, items)}
-                className="group hover:border-ring focus-visible:ring-ring flex flex-col overflow-hidden rounded-lg border text-left transition-colors focus-visible:ring-2 focus-visible:outline-none"
-              >
-                <div className="bg-muted flex h-28 items-center justify-center overflow-hidden">
-                  <Thumbnail item={item} />
+            {items.map((item) =>
+              isMissingSlot(item) ? (
+                <div
+                  key={item.name}
+                  className="border-muted-foreground/25 flex flex-col overflow-hidden rounded-lg border border-dashed"
+                >
+                  <div className="bg-muted/40 flex h-28 items-center justify-center overflow-hidden">
+                    <ImageOffIcon
+                      className="size-6 text-amber-500/80"
+                      strokeWidth={1.2}
+                    />
+                  </div>
+                  <div className="space-y-1 p-2">
+                    <p className="text-muted-foreground truncate text-xs font-medium">
+                      {item.label}
+                    </p>
+                    <Badge
+                      variant="outline"
+                      className={cn("text-[10px]", TINT.amber)}
+                    >
+                      Not uploaded
+                    </Badge>
+                  </div>
                 </div>
-                <p className="truncate p-2 text-xs font-medium">{item.label}</p>
-              </button>
-            ))}
+              ) : (
+                <button
+                  key={item.name}
+                  type="button"
+                  onClick={() => onOpenSingle(present.indexOf(item), present)}
+                  className="group hover:border-ring focus-visible:ring-ring flex flex-col overflow-hidden rounded-lg border text-left transition-colors focus-visible:ring-2 focus-visible:outline-none"
+                >
+                  <div className="bg-muted flex h-28 items-center justify-center overflow-hidden">
+                    <Thumbnail item={item} />
+                  </div>
+                  <p className="truncate p-2 text-xs font-medium">{item.label}</p>
+                </button>
+              ),
+            )}
           </div>
         )}
 
@@ -251,12 +308,12 @@ export function IdentityComparison({
           </DialogHeader>
           <div className="flex flex-col gap-4 sm:flex-row">
             <ComparePane
-              items={items}
+              items={present}
               index={leftIndex}
               onSelect={setLeftIndex}
             />
             <ComparePane
-              items={items}
+              items={present}
               index={rightIndex}
               onSelect={setRightIndex}
             />

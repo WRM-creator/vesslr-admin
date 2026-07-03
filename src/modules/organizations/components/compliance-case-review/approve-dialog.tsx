@@ -22,40 +22,37 @@ import type {
   BusinessRegistrationReviewDto,
   ReviewChecklistItemDto,
 } from "@/lib/api/generated";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ReviewerChecklist } from "./reviewer-checklist";
-import type { ChecklistItemDefinition } from "./review-checklist";
+import {
+  KYB_REVIEW_CHECKLIST,
+  KYC_REVIEW_CHECKLIST,
+  type ChecklistItemDefinition,
+} from "./review-checklist";
+
+/** Which verification tracks this approval covers (whatever is still pending). */
+export interface ApproveScope {
+  kyb: boolean;
+  kyc: boolean;
+}
+
+export interface ApproveResult {
+  businessRegistration?: BusinessRegistrationReviewDto;
+  kybChecklist?: ReviewChecklistItemDto[];
+  kycChecklist?: ReviewChecklistItemDto[];
+}
 
 interface ApproveDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onConfirm: (
-    businessRegistration?: BusinessRegistrationReviewDto,
-    checklist?: ReviewChecklistItemDto[],
-  ) => void;
+  onConfirm: (result: ApproveResult) => void;
   isSubmitting: boolean;
-  reviewType: "KYB" | "KYC";
+  scope: ApproveScope;
+  /** Manual corridors gate approval on a reviewer checklist per covered track. */
+  manual: boolean;
   /** Heuristic + saved KYB registration classification to prefill (KYB only). */
   businessRegistrationPrefill?: BusinessRegistrationReviewDto;
-  /**
-   * Manual-corridor reviewer checklist to confirm before approval. When present,
-   * every item must be ticked; the result is persisted to the audit trail.
-   */
-  checklistItems?: ChecklistItemDefinition[];
 }
-
-const APPROVE_COPY = {
-  KYB: {
-    title: "Approve Business Verification",
-    description:
-      "Confirm the business registration classification below — it's prefilled from the registry and used for payment-provider onboarding.",
-  },
-  KYC: {
-    title: "Approve Identity Verification",
-    description:
-      "Are you sure you want to approve this user's identity verification?",
-  },
-};
 
 const STRUCTURE_OPTIONS = [
   { value: "limited_liability_company", label: "Limited Liability Company" },
@@ -94,6 +91,19 @@ type Options = { value: string; label: string }[];
 const toDateInputValue = (s?: string) =>
   s && /^\d{4}-\d{2}-\d{2}/.test(s) ? s.slice(0, 10) : "";
 
+function titleFor(scope: ApproveScope): string {
+  if (scope.kyb && scope.kyc) return "Approve business & identity";
+  if (scope.kyb) return "Approve business verification";
+  return "Approve identity verification";
+}
+
+function descriptionFor(scope: ApproveScope): string {
+  if (scope.kyb) {
+    return "Confirm the business registration classification below. It's prefilled from the registry and used for payment-provider onboarding. Approving also registers the organization with its payment provider.";
+  }
+  return "Confirm this applicant's identity is verified and matches the documents on file.";
+}
+
 function Field({
   label,
   value,
@@ -107,7 +117,7 @@ function Field({
 }) {
   return (
     <div className="flex flex-col gap-1.5">
-      <Label className="text-xs text-muted-foreground">{label}</Label>
+      <Label className="text-muted-foreground text-xs">{label}</Label>
       <Select value={value} onValueChange={onChange}>
         <SelectTrigger className="w-full">
           <SelectValue placeholder={`Select ${label.toLowerCase()}`} />
@@ -124,23 +134,56 @@ function Field({
   );
 }
 
+function ChecklistBlock({
+  title,
+  items,
+  checked,
+  onChange,
+  disabled,
+}: {
+  title: string;
+  items: ChecklistItemDefinition[];
+  checked: Record<string, boolean>;
+  onChange: (key: string, value: boolean) => void;
+  disabled: boolean;
+}) {
+  return (
+    <div className="rounded-lg border p-3">
+      <p className="text-muted-foreground mb-2 text-[10px] font-semibold uppercase tracking-wide">
+        {title}
+      </p>
+      <ReviewerChecklist
+        items={items}
+        checked={checked}
+        onChange={onChange}
+        disabled={disabled}
+      />
+    </div>
+  );
+}
+
+/**
+ * Case-level approval. Covers whatever tracks are still pending in one confirm:
+ * the KYB registration classification (when business is pending) plus a reviewer
+ * checklist per covered track on manual corridors. Blocks until the registration
+ * date is set and every shown checklist item is ticked.
+ */
 export function ApproveDialog({
   open,
   onOpenChange,
   onConfirm,
   isSubmitting,
-  reviewType,
+  scope,
+  manual,
   businessRegistrationPrefill,
-  checklistItems,
 }: ApproveDialogProps) {
-  const copy = APPROVE_COPY[reviewType];
   const [form, setForm] = useState<BusinessRegistrationReviewDto | undefined>(
     businessRegistrationPrefill,
   );
-  const [checked, setChecked] = useState<Record<string, boolean>>({});
+  const [kybChecked, setKybChecked] = useState<Record<string, boolean>>({});
+  const [kycChecked, setKycChecked] = useState<Record<string, boolean>>({});
 
-  // Reset the form to the prefilled values whenever the dialog (re)opens. The
-  // registry incorporation date is often an ISO timestamp — coerce to YYYY-MM-DD.
+  // Reset to the prefilled values whenever the dialog (re)opens.
   useEffect(() => {
     if (open) {
       setForm(
@@ -153,30 +196,48 @@ export function ApproveDialog({
             }
           : undefined,
       );
-      setChecked({});
+      setKybChecked({});
+      setKycChecked({});
     }
   }, [open, businessRegistrationPrefill]);
 
-  const isKyb = reviewType === "KYB";
-  const hasChecklist = !!checklistItems?.length;
-  const allChecked =
-    !hasChecklist || checklistItems!.every((i) => checked[i.key]);
-  // Incorporation date is required by the payment provider; block KYB approval
-  // until it's set (it has no other capture point if the registry lookup missed it).
-  // Manual corridors also require the reviewer checklist to be complete.
-  const canApprove = (!isKyb || !!form?.incorporationDate) && allChecked;
+  const showKybChecklist = manual && scope.kyb;
+  const showKycChecklist = manual && scope.kyc;
+
+  const canApprove = useMemo(() => {
+    const dateOk = !scope.kyb || !!form?.incorporationDate;
+    const kybOk =
+      !showKybChecklist || KYB_REVIEW_CHECKLIST.every((i) => kybChecked[i.key]);
+    const kycOk =
+      !showKycChecklist || KYC_REVIEW_CHECKLIST.every((i) => kycChecked[i.key]);
+    return dateOk && kybOk && kycOk;
+  }, [scope.kyb, form, showKybChecklist, showKycChecklist, kybChecked, kycChecked]);
 
   const handleConfirm = () => {
-    const checklist = checklistItems?.map((i) => ({
-      key: i.key,
-      label: i.label,
-      passed: !!checked[i.key],
-    }));
-    onConfirm(isKyb ? form : undefined, checklist);
+    onConfirm({
+      businessRegistration: scope.kyb ? form : undefined,
+      kybChecklist: showKybChecklist
+        ? KYB_REVIEW_CHECKLIST.map((i) => ({
+            key: i.key,
+            label: i.label,
+            passed: !!kybChecked[i.key],
+          }))
+        : undefined,
+      kycChecklist: showKycChecklist
+        ? KYC_REVIEW_CHECKLIST.map((i) => ({
+            key: i.key,
+            label: i.label,
+            passed: !!kycChecked[i.key],
+          }))
+        : undefined,
+    });
   };
+
   // The Select emits a plain string; options are constrained to valid enum values,
   // so narrow to the generated DTO field types at this boundary.
-  const set = (patch: Partial<Record<keyof BusinessRegistrationReviewDto, string>>) =>
+  const set = (
+    patch: Partial<Record<keyof BusinessRegistrationReviewDto, string>>,
+  ) =>
     setForm((prev) => ({
       ...(prev as BusinessRegistrationReviewDto),
       ...(patch as Partial<BusinessRegistrationReviewDto>),
@@ -184,16 +245,21 @@ export function ApproveDialog({
 
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
-      <AlertDialogContent onInteractOutside={() => onOpenChange(false)}>
+      <AlertDialogContent
+        className="max-h-[85vh] overflow-y-auto"
+        onInteractOutside={() => onOpenChange(false)}
+      >
         <AlertDialogHeader>
-          <AlertDialogTitle>{copy.title}</AlertDialogTitle>
-          <AlertDialogDescription>{copy.description}</AlertDialogDescription>
+          <AlertDialogTitle>{titleFor(scope)}</AlertDialogTitle>
+          <AlertDialogDescription>
+            {descriptionFor(scope)}
+          </AlertDialogDescription>
         </AlertDialogHeader>
 
-        {isKyb && form && (
+        {scope.kyb && form && (
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div className="flex flex-col gap-1.5 sm:col-span-2">
-              <Label className="text-xs text-muted-foreground">
+              <Label className="text-muted-foreground text-xs">
                 Incorporation date <span className="text-destructive">*</span>
               </Label>
               <Input
@@ -202,7 +268,7 @@ export function ApproveDialog({
                 onChange={(e) => set({ incorporationDate: e.target.value })}
               />
               {!form.incorporationDate && (
-                <span className="text-xs text-destructive">
+                <span className="text-destructive text-xs">
                   Required for payment onboarding (not found in the registry).
                 </span>
               )}
@@ -238,7 +304,7 @@ export function ApproveDialog({
             />
             {form.regulationStatus === "regulated" && (
               <div className="flex flex-col gap-1.5 sm:col-span-2">
-                <Label className="text-xs text-muted-foreground">
+                <Label className="text-muted-foreground text-xs">
                   License number
                 </Label>
                 <Input
@@ -251,16 +317,30 @@ export function ApproveDialog({
           </div>
         )}
 
-        {hasChecklist && (
-          <div className="rounded-lg border p-3">
-            <ReviewerChecklist
-              items={checklistItems!}
-              checked={checked}
-              onChange={(key, value) =>
-                setChecked((prev) => ({ ...prev, [key]: value }))
-              }
-              disabled={isSubmitting}
-            />
+        {(showKybChecklist || showKycChecklist) && (
+          <div className="space-y-3">
+            {showKybChecklist && (
+              <ChecklistBlock
+                title="Business review"
+                items={KYB_REVIEW_CHECKLIST}
+                checked={kybChecked}
+                onChange={(key, value) =>
+                  setKybChecked((prev) => ({ ...prev, [key]: value }))
+                }
+                disabled={isSubmitting}
+              />
+            )}
+            {showKycChecklist && (
+              <ChecklistBlock
+                title="Identity review"
+                items={KYC_REVIEW_CHECKLIST}
+                checked={kycChecked}
+                onChange={(key, value) =>
+                  setKycChecked((prev) => ({ ...prev, [key]: value }))
+                }
+                disabled={isSubmitting}
+              />
+            )}
           </div>
         )}
 

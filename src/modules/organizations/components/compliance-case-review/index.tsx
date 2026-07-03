@@ -1,33 +1,38 @@
-import { Spinner } from "@/components/ui/spinner";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { api } from "@/lib/api";
-import type {
-  BusinessRegistrationReviewDto,
-  ComplianceCaseDetailDto,
-  ReviewChecklistItemDto,
-  StructuredReasonDto,
-} from "@/lib/api/generated";
+import type { ComplianceCaseDetailDto } from "@/lib/api/generated";
+import { TINT } from "@/lib/tint";
+import { cn } from "@/lib/utils";
+import { FileX2Icon, RotateCwIcon } from "lucide-react";
 import { useState } from "react";
-import { ApproveDialog } from "./approve-dialog";
-import { AutomatedChecks } from "./automated-checks";
+import { ApproveDialog, type ApproveResult } from "./approve-dialog";
+import { CaseHeader } from "./case-header";
 import { CompanyDetails } from "./company-details";
 import { REGISTRY_SOURCE, toComplianceCase } from "./compliance-utils";
+import { DecisionBar } from "./decision-bar";
 import { DecisionHistory } from "./decision-history";
 import { DocumentViewerSheet } from "./document-viewer-sheet";
 import { DocumentsGrid } from "./documents-grid";
+import { FlagButton } from "./flag-button";
+import { DocFlagButton } from "./doc-flag-button";
 import { IdentityComparison } from "./identity-comparison";
 import { ProviderOnboardingPanel } from "./provider-onboarding-panel";
 import { ProviderResponsePanel } from "./provider-response-panel";
 import { RegistryPeople } from "./registry-people";
-import { RequestActionDialog } from "./request-action-dialog";
 import {
-  KYB_REVIEW_CHECKLIST,
-  KYC_REVIEW_CHECKLIST,
-} from "./review-checklist";
+  RequestChangesSheet,
+  type RequestChangesPayload,
+} from "./request-changes-sheet";
+import { useCaseFlags } from "./use-case-flags";
+import { useDocRequests } from "./use-doc-requests";
+import { VerificationBand } from "./verification-band";
 import type { ViewableItem } from "./types";
 
 /**
  * Build an editable message draft from a provider's decline response. The admin
- * rewrites this into white-labeled copy before sending — it is only a starting
+ * rewrites this into white-labeled copy before sending; it is only a starting
  * point, never sent as-is.
  */
 function buildProviderMessageDraft(
@@ -41,10 +46,17 @@ function buildProviderMessageDraft(
   return lines.length > 0 ? lines.join("\n") : undefined;
 }
 
-type ActiveReview = {
-  type: "KYB" | "KYC";
-  action: "approve" | "request_action";
-} | null;
+/** Skeleton placeholder while the case loads (mirrors the real layout rhythm). */
+function CaseSkeleton() {
+  return (
+    <div className="space-y-6">
+      <Skeleton className="h-16 w-full" />
+      <Skeleton className="h-40 w-full rounded-xl" />
+      <Skeleton className="h-56 w-full rounded-xl" />
+      <Skeleton className="h-40 w-full rounded-xl" />
+    </div>
+  );
+}
 
 export function ComplianceCaseReview({
   organizationId,
@@ -55,6 +67,7 @@ export function ComplianceCaseReview({
     data: rawData,
     isLoading,
     isError,
+    refetch,
   } = api.admin.compliance.getCase.useQuery({
     path: { organizationId },
   });
@@ -73,13 +86,19 @@ export function ComplianceCaseReview({
     api.admin.compliance.reviewKyb.useMutation();
   const { mutate: reviewKyc, isPending: isKycPending } =
     api.admin.compliance.reviewKyc.useMutation();
+  const { mutate: requestChanges, isPending: isRequestingChanges } =
+    api.admin.compliance.requestChanges.useMutation();
   const { mutate: onboard, isPending: isOnboarding } =
     api.admin.compliance.onboard.useMutation();
+
+  const flags = useCaseFlags();
+  const docRequests = useDocRequests();
 
   const [viewerOpen, setViewerOpen] = useState(false);
   const [viewerItems, setViewerItems] = useState<ViewableItem[]>([]);
   const [viewerIndex, setViewerIndex] = useState(0);
-  const [activeReview, setActiveReview] = useState<ActiveReview>(null);
+  const [approveOpen, setApproveOpen] = useState(false);
+  const [requestChangesOpen, setRequestChangesOpen] = useState(false);
 
   const openViewer = (index: number, list: ViewableItem[]) => {
     setViewerItems(list);
@@ -88,101 +107,123 @@ export function ComplianceCaseReview({
   };
 
   const isManual = data?.verificationMode === "manual";
+  const isSubmitting = isKybPending || isKycPending || isRequestingChanges;
 
-  const handleApproveKyc = (checklist?: ReviewChecklistItemDto[]) => {
-    if (!primaryUserId) return;
-    reviewKyc(
+  // Whatever tracks are still pending are approved together in one confirm.
+  const approveScope = {
+    kyb: data ? data.kybStatus !== "approved" : false,
+    kyc: data ? data.kycStatus !== "approved" : false,
+  };
+
+  const handleApproveConfirm = (result: ApproveResult) => {
+    const approveKyc = () => {
+      if (approveScope.kyc && primaryUserId) {
+        reviewKyc(
+          {
+            path: { userId: primaryUserId },
+            body: { decision: "approved", checklist: result.kycChecklist },
+          },
+          { onSuccess: () => setApproveOpen(false) },
+        );
+      } else {
+        setApproveOpen(false);
+      }
+    };
+    // Approve business first (it drives provider onboarding), then identity.
+    if (approveScope.kyb) {
+      reviewKyb(
+        {
+          path: { organizationId },
+          body: {
+            decision: "approved",
+            businessRegistration: result.businessRegistration,
+            checklist: result.kybChecklist,
+          },
+        },
+        { onSuccess: approveKyc },
+      );
+    } else {
+      approveKyc();
+    }
+  };
+
+  const handleSubmitRequestChanges = (payload: RequestChangesPayload) => {
+    requestChanges(
+      { path: { organizationId }, body: payload },
       {
-        path: { userId: primaryUserId },
-        body: { decision: "approved", checklist },
+        onSuccess: () => {
+          setRequestChangesOpen(false);
+          flags.clear();
+          docRequests.clear();
+        },
       },
-      { onSuccess: () => setActiveReview(null) },
     );
   };
 
-  const handleApproveKyb = (
-    businessRegistration?: BusinessRegistrationReviewDto,
-    checklist?: ReviewChecklistItemDto[],
-  ) => {
-    reviewKyb(
-      {
-        path: { organizationId },
-        body: { decision: "approved", businessRegistration, checklist },
-      },
-      { onSuccess: () => setActiveReview(null) },
-    );
-  };
-
-  const handleRequestActionKyb = (
-    reasons: StructuredReasonDto[],
-    message?: string,
-  ) => {
-    reviewKyb(
-      {
-        path: { organizationId },
-        body: { decision: "action_required", reasons, message },
-      },
-      { onSuccess: () => setActiveReview(null) },
-    );
-  };
-
-  const handleRequestActionKyc = (
-    reasons: StructuredReasonDto[],
-    message?: string,
-  ) => {
-    if (!primaryUserId) return;
-    reviewKyc(
-      {
-        path: { userId: primaryUserId },
-        body: { decision: "action_required", reasons, message },
-      },
-      { onSuccess: () => setActiveReview(null) },
-    );
-  };
-
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center py-24">
-        <Spinner />
-      </div>
-    );
-  }
+  if (isLoading) return <CaseSkeleton />;
 
   if (isError || !data) {
     return (
-      <div className="text-muted-foreground py-24 text-center text-sm">
-        Failed to load compliance case.
+      <div className="flex flex-col items-center gap-3 py-24 text-center">
+        <p className="text-muted-foreground text-sm">
+          Couldn’t load this compliance case.
+        </p>
+        <Button variant="outline" size="sm" onClick={() => refetch()}>
+          <RotateCwIcon className="mr-1.5 size-4" />
+          Retry
+        </Button>
       </div>
     );
   }
 
-  return (
-    <div className="space-y-6">
-      {apiData?.kybProfile && (
-        <ProviderResponsePanel kyb={apiData.kybProfile} />
+  const hasRegistry =
+    !isManual &&
+    (data.registryData?.companyInformation || data.registryData);
+
+  // Corridor-adaptive evidence: manual corridors are document-led (the reviewer
+  // is the authority and there is no registry), so documents come first and the
+  // registry cards are omitted; automated corridors lead with registry evidence.
+  const identityBlock = (
+    <IdentityComparison
+      items={data.identityImages}
+      summary={data.identitySummary}
+      onOpenSingle={openViewer}
+    />
+  );
+  const missingDocCount = data.documents.filter(
+    (d) => d.slotStatus === "missing" || d.slotStatus === "requested",
+  ).length;
+  const documentsBlock = (
+    <section className="space-y-2.5">
+      <div className="flex items-center justify-between">
+        <h3 className="text-sm font-semibold">Documents</h3>
+        {missingDocCount > 0 && (
+          <Badge variant="outline" className={cn("gap-1", TINT.amber)}>
+            <FileX2Icon className="size-3" />
+            {missingDocCount} missing
+          </Badge>
+        )}
+      </div>
+      {data.documents.length === 0 ? (
+        <p className="text-muted-foreground text-sm">No documents uploaded.</p>
+      ) : (
+        <DocumentsGrid
+          items={data.documents}
+          onSelect={openViewer}
+          hideHeading
+          cornerSlot={(item) =>
+            item.reasonTarget ? (
+              <FlagButton target={item.reasonTarget} flags={flags} compact />
+            ) : item.requestDoc ? (
+              <DocFlagButton doc={item.requestDoc} docRequests={docRequests} />
+            ) : null
+          }
+        />
       )}
-      <ProviderOnboardingPanel
-        items={apiData?.providerOnboarding ?? []}
-        canRetry={data.kybStatus === "approved"}
-        isRetrying={isOnboarding}
-        onRetry={() => onboard({ path: { organizationId } })}
-      />
-      <AutomatedChecks
-        kyc={data.checks.kyc}
-        kyb={data.checks.kyb}
-        kycReviewStatus={data.kycStatus}
-        kybReviewStatus={data.kybStatus}
-        onApproveKyc={() => setActiveReview({ type: "KYC", action: "approve" })}
-        onRequestActionKyc={() =>
-          setActiveReview({ type: "KYC", action: "request_action" })
-        }
-        onApproveKyb={() => setActiveReview({ type: "KYB", action: "approve" })}
-        onRequestActionKyb={() =>
-          setActiveReview({ type: "KYB", action: "request_action" })
-        }
-        isKycSubmitting={isKycPending}
-        isKybSubmitting={isKybPending}
-      />
+    </section>
+  );
+  const registryBlock = hasRegistry ? (
+    <>
       {data.registryData?.companyInformation && (
         <CompanyDetails
           info={data.registryData.companyInformation}
@@ -192,13 +233,46 @@ export function ComplianceCaseReview({
         />
       )}
       {data.registryData && <RegistryPeople registryData={data.registryData} />}
-      <IdentityComparison
-        items={data.identityImages}
-        summary={data.identitySummary}
-        onOpenSingle={openViewer}
+    </>
+  ) : null;
+
+  return (
+    <div className="space-y-6">
+      <CaseHeader data={data} />
+
+      {apiData?.kybProfile && <ProviderResponsePanel kyb={apiData.kybProfile} />}
+
+      <VerificationBand data={data} flags={flags} />
+
+      {isManual ? (
+        <>
+          {documentsBlock}
+          {identityBlock}
+        </>
+      ) : (
+        <>
+          {identityBlock}
+          {registryBlock}
+          {documentsBlock}
+        </>
+      )}
+
+      <ProviderOnboardingPanel
+        items={apiData?.providerOnboarding ?? []}
+        canRetry={data.kybStatus === "approved"}
+        isRetrying={isOnboarding}
+        onRetry={() => onboard({ path: { organizationId } })}
       />
-      <DocumentsGrid items={data.documents} onSelect={openViewer} />
+
       <DecisionHistory events={data.events} />
+
+      <DecisionBar
+        data={data}
+        onApprove={() => setApproveOpen(true)}
+        onRequestChanges={() => setRequestChangesOpen(true)}
+        isSubmitting={isSubmitting}
+        flagCount={flags.count}
+      />
 
       <DocumentViewerSheet
         open={viewerOpen}
@@ -209,41 +283,23 @@ export function ComplianceCaseReview({
       />
 
       <ApproveDialog
-        open={activeReview?.action === "approve"}
-        onOpenChange={(open) => !open && setActiveReview(null)}
-        reviewType={activeReview?.type ?? "KYB"}
+        open={approveOpen}
+        onOpenChange={setApproveOpen}
+        scope={approveScope}
+        manual={isManual}
         businessRegistrationPrefill={apiData?.businessRegistrationPrefill}
-        checklistItems={
-          isManual
-            ? activeReview?.type === "KYC"
-              ? KYC_REVIEW_CHECKLIST
-              : KYB_REVIEW_CHECKLIST
-            : undefined
-        }
-        onConfirm={
-          activeReview?.type === "KYC"
-            ? (_businessRegistration, checklist) =>
-                handleApproveKyc(checklist)
-            : handleApproveKyb
-        }
-        isSubmitting={activeReview?.type === "KYC" ? isKycPending : isKybPending}
+        onConfirm={handleApproveConfirm}
+        isSubmitting={isKybPending || isKycPending}
       />
 
-      <RequestActionDialog
-        open={activeReview?.action === "request_action"}
-        onOpenChange={(open) => !open && setActiveReview(null)}
-        reviewType={activeReview?.type ?? "KYB"}
-        onConfirm={
-          activeReview?.type === "KYC"
-            ? handleRequestActionKyc
-            : handleRequestActionKyb
-        }
-        defaultMessage={
-          activeReview?.type === "KYB"
-            ? buildProviderMessageDraft(apiData?.kybProfile)
-            : undefined
-        }
-        isSubmitting={activeReview?.type === "KYC" ? isKycPending : isKybPending}
+      <RequestChangesSheet
+        open={requestChangesOpen}
+        onOpenChange={setRequestChangesOpen}
+        initialFlags={flags.flags}
+        initialDocuments={docRequests.list}
+        defaultMessage={buildProviderMessageDraft(apiData?.kybProfile)}
+        onSubmit={handleSubmitRequestChanges}
+        isSubmitting={isRequestingChanges}
       />
     </div>
   );

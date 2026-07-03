@@ -52,6 +52,8 @@ import {
   adminLocationsControllerSetSanctioned,
   adminComplianceControllerReviewKyb,
   adminComplianceControllerReviewKyc,
+  adminComplianceControllerRequestDocuments,
+  adminComplianceControllerRequestChanges,
   adminDisputesControllerFindAll,
   adminDisputesControllerFindOne,
   adminDisputesControllerGetStats,
@@ -513,6 +515,24 @@ export const api = {
           ["admin", "compliance", "case", args.path.organizationId],
         ],
       }),
+      requestDocuments: createMutation(
+        adminComplianceControllerRequestDocuments,
+        {
+          invalidates: (args) => [
+            ["admin", "compliance", "case", args.path.organizationId],
+            ["admin", "compliance", "cases"],
+          ],
+        },
+      ),
+      requestChanges: createMutation(
+        adminComplianceControllerRequestChanges,
+        {
+          invalidates: (args) => [
+            ["admin", "compliance", "case", args.path.organizationId],
+            ["admin", "compliance", "cases"],
+          ],
+        },
+      ),
     },
     licenseRequirements: {
       list: createQuery(adminLicenseRequirementsControllerFindAll, (args) => [
