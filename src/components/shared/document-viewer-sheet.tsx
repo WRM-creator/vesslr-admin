@@ -82,7 +82,11 @@ export function DocumentViewerSheet({
             {current && (
               <p className="text-muted-foreground text-xs capitalize">
                 {current.type} ·{" "}
-                {current.source === "smile_id" ? "Smile ID" : "Uploaded"}
+                {current.source === "smile_id"
+                  ? "Smile ID"
+                  : current.source === "registry"
+                    ? "Registry"
+                    : "Uploaded"}
               </p>
             )}
           </div>

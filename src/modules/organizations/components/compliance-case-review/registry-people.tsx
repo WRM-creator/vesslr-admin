@@ -1,3 +1,4 @@
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type {
@@ -7,6 +8,8 @@ import type {
   RegistryPersonDto,
   RegistryTrusteeDto,
 } from "@/lib/api/generated";
+import { Loader2Icon, UserPlusIcon } from "lucide-react";
+import type { ComplianceCase } from "./types";
 
 function Field({ label, value }: { label: string; value?: string | boolean }) {
   if (value === undefined || value === null || value === "") return null;
@@ -116,9 +119,70 @@ function EmptyTab() {
 
 interface RegistryPeopleProps {
   registryData: RegistryDataDto;
+  /** Registry-vs-stored divergence; drives the adopt banner when present. */
+  reconciliation?: ComplianceCase["peopleReconciliation"];
+  /** Adopt the missing registry people into the stored profile. */
+  onAdopt?: () => void;
+  isAdopting?: boolean;
 }
 
-export function RegistryPeople({ registryData }: RegistryPeopleProps) {
+/**
+ * The registry-found-people-the-profile-never-stored divergence, made visible
+ * and fixable in place. Adoption is gap-fill only (nothing stored is touched)
+ * and the adopted people arrive incomplete, so the banner names exactly who is
+ * missing instead of a bare count.
+ */
+function ReconciliationBanner({
+  reconciliation,
+  onAdopt,
+  isAdopting,
+}: {
+  reconciliation: ComplianceCase["peopleReconciliation"];
+  onAdopt?: () => void;
+  isAdopting?: boolean;
+}) {
+  const missing = [
+    ...reconciliation.directorsNotStored.map((n) => ({ n, role: "director" })),
+    ...reconciliation.ownersNotStored.map((n) => ({ n, role: "owner" })),
+  ];
+  if (missing.length === 0) return null;
+  return (
+    <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-md border border-amber-200 bg-amber-50 p-3 text-sm dark:border-amber-900 dark:bg-amber-950/40">
+      <div>
+        <p className="font-medium">
+          The registry lists {missing.length}{" "}
+          {missing.length === 1 ? "person" : "people"} not stored on this
+          profile
+        </p>
+        <p className="text-muted-foreground mt-0.5 text-xs">
+          {missing.map(({ n, role }) => `${n} (${role})`).join(", ")}
+        </p>
+      </div>
+      {onAdopt && (
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={onAdopt}
+          disabled={isAdopting}
+        >
+          {isAdopting ? (
+            <Loader2Icon className="mr-1.5 size-4 animate-spin" />
+          ) : (
+            <UserPlusIcon className="mr-1.5 size-4" />
+          )}
+          Adopt from registry
+        </Button>
+      )}
+    </div>
+  );
+}
+
+export function RegistryPeople({
+  registryData,
+  reconciliation,
+  onAdopt,
+  isAdopting,
+}: RegistryPeopleProps) {
   const { directors = [], beneficialOwners = [], proprietors = [], trustees = [], fiduciaries = [] } =
     registryData;
 
@@ -135,9 +199,26 @@ export function RegistryPeople({ registryData }: RegistryPeopleProps) {
   return (
     <Card>
       <CardHeader className="pb-2">
-        <CardTitle className="text-base">Associated Persons</CardTitle>
+        <div className="flex items-center justify-between">
+          <CardTitle className="text-base">Associated Persons</CardTitle>
+          {reconciliation && (
+            <span className="text-muted-foreground text-xs">
+              Stored on profile: {reconciliation.storedDirectors}{" "}
+              {reconciliation.storedDirectors === 1 ? "director" : "directors"},{" "}
+              {reconciliation.storedOwners}{" "}
+              {reconciliation.storedOwners === 1 ? "owner" : "owners"}
+            </span>
+          )}
+        </div>
       </CardHeader>
       <CardContent>
+        {reconciliation && (
+          <ReconciliationBanner
+            reconciliation={reconciliation}
+            onAdopt={onAdopt}
+            isAdopting={isAdopting}
+          />
+        )}
         <Tabs defaultValue={defaultTab}>
           <TabsList className="mb-4">
             {tabs.map((t) => (

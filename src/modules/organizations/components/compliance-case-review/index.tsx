@@ -2,7 +2,10 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { api } from "@/lib/api";
-import type { ComplianceCaseDetailDto } from "@/lib/api/generated";
+import type {
+  ComplianceCaseDetailDto,
+  ProviderOnboardingOutcomeDto,
+} from "@/lib/api/generated";
 import { TINT } from "@/lib/tint";
 import { cn } from "@/lib/utils";
 import { FileX2Icon, RotateCwIcon } from "lucide-react";
@@ -10,14 +13,17 @@ import { useState } from "react";
 import { ApproveDialog, type ApproveResult } from "./approve-dialog";
 import { CaseHeader } from "./case-header";
 import { CompanyDetails } from "./company-details";
+import { CompletenessPanel } from "./completeness-panel";
 import { REGISTRY_SOURCE, toComplianceCase } from "./compliance-utils";
 import { DecisionBar } from "./decision-bar";
 import { DecisionHistory } from "./decision-history";
+import { DeclarationsPanel } from "./declarations-panel";
 import { DocumentViewerSheet } from "./document-viewer-sheet";
 import { DocumentsGrid } from "./documents-grid";
 import { FlagButton } from "./flag-button";
 import { DocFlagButton } from "./doc-flag-button";
 import { IdentityComparison } from "./identity-comparison";
+import { LicenseDocumentsPanel } from "./license-documents-panel";
 import { ProviderOnboardingPanel } from "./provider-onboarding-panel";
 import { ProviderResponsePanel } from "./provider-response-panel";
 import { RegistryPeople } from "./registry-people";
@@ -25,10 +31,34 @@ import {
   RequestChangesSheet,
   type RequestChangesPayload,
 } from "./request-changes-sheet";
+import { StatusBadge } from "./status-badge";
 import { useCaseFlags } from "./use-case-flags";
 import { useDocRequests } from "./use-doc-requests";
 import { VerificationBand } from "./verification-band";
 import type { ViewableItem } from "./types";
+
+/**
+ * What the applicant has already been asked for and hasn't resolved, for the
+ * read-only context block at the top of the request-changes sheet. Empty
+ * sub-collections when the case carries no unresolved asks.
+ */
+function buildPriorRequestContext(apiData?: ComplianceCaseDetailDto) {
+  if (!apiData) return undefined;
+  const reasons = [
+    ...(apiData.kybProfile?.actionRequiredReasons ?? []),
+    ...(apiData.kycProfiles ?? []).flatMap(
+      (p) => p.actionRequiredReasons ?? [],
+    ),
+  ];
+  return {
+    message: apiData.kybProfile?.actionRequiredMessage,
+    reasons,
+    outstandingDocuments: (apiData.requestedDocuments ?? []).map((d) => ({
+      label: d.label ?? d.type.replace(/_/g, " "),
+      note: d.note,
+    })),
+  };
+}
 
 /**
  * Build an editable message draft from a provider's decline response. The admin
@@ -80,16 +110,16 @@ export function ComplianceCaseReview({
     | undefined;
   const data = apiData ? toComplianceCase(apiData) : null;
 
-  const primaryUserId = apiData?.kycProfiles?.[0]?.user?._id;
-
   const { mutate: reviewKyb, isPending: isKybPending } =
     api.admin.compliance.reviewKyb.useMutation();
-  const { mutate: reviewKyc, isPending: isKycPending } =
+  const { mutateAsync: reviewKycAsync, isPending: isKycPending } =
     api.admin.compliance.reviewKyc.useMutation();
   const { mutate: requestChanges, isPending: isRequestingChanges } =
     api.admin.compliance.requestChanges.useMutation();
   const { mutate: onboard, isPending: isOnboarding } =
     api.admin.compliance.onboard.useMutation();
+  const { mutate: adoptRegistryPeople, isPending: isAdopting } =
+    api.admin.compliance.adoptRegistryPeople.useMutation();
 
   const flags = useCaseFlags();
   const docRequests = useDocRequests();
@@ -99,6 +129,11 @@ export function ComplianceCaseReview({
   const [viewerIndex, setViewerIndex] = useState(0);
   const [approveOpen, setApproveOpen] = useState(false);
   const [requestChangesOpen, setRequestChangesOpen] = useState(false);
+  // The last manual provisioning run's outcome — its missing[] used to be
+  // silently discarded, leaving the admin no idea why nothing happened.
+  const [onboardOutcome, setOnboardOutcome] = useState<
+    ProviderOnboardingOutcomeDto | undefined
+  >();
 
   const openViewer = (index: number, list: ViewableItem[]) => {
     setViewerItems(list);
@@ -109,25 +144,29 @@ export function ComplianceCaseReview({
   const isManual = data?.verificationMode === "manual";
   const isSubmitting = isKybPending || isKycPending || isRequestingChanges;
 
+  // Every member whose identity is still pending is approved in this pass —
+  // approving through kycProfiles[0] alone left other members unreviewable.
+  const pendingMemberIds = (data?.members ?? [])
+    .filter((m) => m.status !== "approved" && m.userId)
+    .map((m) => m.userId as string);
+
   // Whatever tracks are still pending are approved together in one confirm.
   const approveScope = {
     kyb: data ? data.kybStatus !== "approved" : false,
-    kyc: data ? data.kycStatus !== "approved" : false,
+    kyc: pendingMemberIds.length > 0,
   };
 
   const handleApproveConfirm = (result: ApproveResult) => {
-    const approveKyc = () => {
-      if (approveScope.kyc && primaryUserId) {
-        reviewKyc(
-          {
-            path: { userId: primaryUserId },
-            body: { decision: "approved", checklist: result.kycChecklist },
-          },
-          { onSuccess: () => setApproveOpen(false) },
-        );
-      } else {
-        setApproveOpen(false);
+    const approveKyc = async () => {
+      // Sequential on purpose: each review re-syncs the composite status, and
+      // a failure stops the run so the dialog stays open on a partial pass.
+      for (const userId of pendingMemberIds) {
+        await reviewKycAsync({
+          path: { userId },
+          body: { decision: "approved", checklist: result.kycChecklist },
+        });
       }
+      setApproveOpen(false);
     };
     // Approve business first (it drives provider onboarding), then identity.
     if (approveScope.kyb) {
@@ -140,10 +179,10 @@ export function ComplianceCaseReview({
             checklist: result.kybChecklist,
           },
         },
-        { onSuccess: approveKyc },
+        { onSuccess: () => void approveKyc() },
       );
     } else {
-      approveKyc();
+      void approveKyc();
     }
   };
 
@@ -176,20 +215,72 @@ export function ComplianceCaseReview({
     );
   }
 
+  // An empty registry object ({}) is NOT registry data — treating it as truthy
+  // rendered hollow registry cards while a genuinely-absent lookup vanished
+  // silently. Both now resolve to the explicit no-registry notice below.
   const hasRegistry =
     !isManual &&
-    (data.registryData?.companyInformation || data.registryData);
+    !!data.registryData &&
+    Object.values(data.registryData).some(
+      (v) => v && (!Array.isArray(v) || v.length > 0) && Object.keys(v).length > 0,
+    );
 
   // Corridor-adaptive evidence: manual corridors are document-led (the reviewer
   // is the authority and there is no registry), so documents come first and the
   // registry cards are omitted; automated corridors lead with registry evidence.
-  const identityBlock = (
-    <IdentityComparison
-      items={data.identityImages}
-      summary={data.identitySummary}
-      onOpenSingle={openViewer}
-    />
-  );
+  //
+  // One identity + declarations group PER MEMBER: the payload returns every org
+  // member's KYC profile and each must be reviewable, not just the first. A
+  // single-member case renders without the member header (nothing to tell apart).
+  const multiMember = data.members.length > 1;
+  const identityBlock =
+    data.members.length === 0 ? (
+      <>
+        <IdentityComparison
+          items={[]}
+          summary={data.identitySummary}
+          onOpenSingle={openViewer}
+        />
+        <DeclarationsPanel
+          declarations={data.declarations}
+          hasApplicant={false}
+        />
+      </>
+    ) : (
+      <>
+        {data.members.map((member, i) => (
+          <div key={member.userId ?? i} className="space-y-4">
+            {multiMember && (
+              <div className="flex items-center justify-between border-b pb-2">
+                <div className="flex items-baseline gap-2">
+                  <h3 className="text-sm font-semibold">
+                    {member.identitySummary.name ??
+                      member.identitySummary.email ??
+                      `Member ${i + 1}`}
+                  </h3>
+                  {member.identitySummary.role && (
+                    <span className="text-muted-foreground text-xs">
+                      {member.identitySummary.role}
+                    </span>
+                  )}
+                </div>
+                <StatusBadge status={member.status} />
+              </div>
+            )}
+            <IdentityComparison
+              items={member.identityImages}
+              summary={member.identitySummary}
+              onOpenSingle={openViewer}
+            />
+            <DeclarationsPanel
+              declarations={member.declarations}
+              applicantName={member.identitySummary.name}
+              hasApplicant
+            />
+          </div>
+        ))}
+      </>
+    );
   const missingDocCount = data.documents.filter(
     (d) => d.slotStatus === "missing" || d.slotStatus === "requested",
   ).length;
@@ -232,8 +323,26 @@ export function ComplianceCaseReview({
           }
         />
       )}
-      {data.registryData && <RegistryPeople registryData={data.registryData} />}
+      {data.registryData && (
+        <RegistryPeople
+          registryData={data.registryData}
+          reconciliation={data.peopleReconciliation}
+          onAdopt={() =>
+            adoptRegistryPeople({ path: { organizationId } })
+          }
+          isAdopting={isAdopting}
+        />
+      )}
     </>
+  ) : !isManual ? (
+    // Automated corridor with no registry payload: say so — a reviewer must be
+    // able to tell "the registry returned nothing" from "we never looked".
+    <p className="text-muted-foreground rounded-xl border border-dashed p-4 text-sm">
+      No registry data on this case. The{" "}
+      {REGISTRY_SOURCE[data.organization.countryCode] ?? "registry"} lookup
+      either has not run or returned nothing; company details below come from
+      the application only.
+    </p>
   ) : null;
 
   return (
@@ -247,6 +356,8 @@ export function ComplianceCaseReview({
       {isManual ? (
         <>
           {documentsBlock}
+          <LicenseDocumentsPanel organizationId={organizationId} />
+          <CompletenessPanel data={data} organizationId={organizationId} />
           {identityBlock}
         </>
       ) : (
@@ -254,6 +365,8 @@ export function ComplianceCaseReview({
           {identityBlock}
           {registryBlock}
           {documentsBlock}
+          <LicenseDocumentsPanel organizationId={organizationId} />
+          <CompletenessPanel data={data} organizationId={organizationId} />
         </>
       )}
 
@@ -261,10 +374,26 @@ export function ComplianceCaseReview({
         items={apiData?.providerOnboarding ?? []}
         canRetry={data.kybStatus === "approved"}
         isRetrying={isOnboarding}
-        onRetry={() => onboard({ path: { organizationId } })}
+        onRetry={() =>
+          onboard(
+            { path: { organizationId } },
+            {
+              onSuccess: (res) => {
+                // The endpoint wraps its payload in { message, data }.
+                const outcome = ((res as { data?: ProviderOnboardingOutcomeDto })
+                  ?.data ?? res) as ProviderOnboardingOutcomeDto;
+                setOnboardOutcome(outcome);
+              },
+            },
+          )
+        }
+        lastOutcome={onboardOutcome}
       />
 
-      <DecisionHistory events={data.events} />
+      <DecisionHistory
+        events={data.events}
+        totalEvents={apiData?.eventsTotal}
+      />
 
       <DecisionBar
         data={data}
@@ -298,6 +427,7 @@ export function ComplianceCaseReview({
         initialFlags={flags.flags}
         initialDocuments={docRequests.list}
         defaultMessage={buildProviderMessageDraft(apiData?.kybProfile)}
+        priorRequest={buildPriorRequestContext(apiData)}
         onSubmit={handleSubmitRequestChanges}
         isSubmitting={isRequestingChanges}
       />

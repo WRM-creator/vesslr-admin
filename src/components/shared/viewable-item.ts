@@ -2,7 +2,13 @@ export interface ViewableItem {
   url: string;
   name: string;
   type: string;
-  source: "smile_id" | "uploaded";
+  /**
+   * Where the file actually came from: the identity provider (Smile ID), the
+   * company registry (e.g. a CAC search certificate), or an applicant upload.
+   * Rendered as a provenance badge — it must never claim a provider fetched
+   * something the applicant uploaded.
+   */
+  source: "smile_id" | "registry" | "uploaded";
   label: string;
   /**
    * Compliance reason target this document maps to, if any (e.g. a certificate →
@@ -21,6 +27,13 @@ export interface ViewableItem {
   note?: string;
   /** ISO timestamp of when the current file was (last) provided, when known. */
   uploadedAt?: string;
+  /**
+   * Review trail verdict on a provided document: an admin accepted or rejected
+   * it. Absent while no verdict exists — never defaulted to "accepted".
+   */
+  reviewVerdict?: "accepted" | "rejected";
+  /** ISO timestamp of when an outstanding request was made, for requested slots. */
+  requestedAt?: string;
   /**
    * The file was provided after the reviewer's last action on the case —
    * surfaced as an "Updated" chip so what changed since the last review pops.

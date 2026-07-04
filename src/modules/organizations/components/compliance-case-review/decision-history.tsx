@@ -7,6 +7,8 @@ import type { ComplianceCase } from "./types";
 
 interface DecisionHistoryProps {
   events: ComplianceCase["events"];
+  /** Total events on the case; larger than events.length means truncation. */
+  totalEvents?: number;
 }
 
 function formatEventType(eventType: string): string {
@@ -20,23 +22,39 @@ function formatEventType(eventType: string): string {
     "kyb.changes_requested": "Changes requested",
     "kyb.documents_requested": "Documents requested",
     "kyb.document_provided": "Document provided",
+    "kyb.registry_people_adopted": "Registry people adopted",
     "kyb.provider_verification_declined": "Provider declined",
+    "payments.provisioning_triggered": "Payments provisioning triggered",
+    "payments.onboarding_status_changed": "Payments provider status changed",
   };
-  return map[eventType] ?? eventType.replace(/^(kyb|kyc)\./, "").replace(/_/g, " ");
+  const label =
+    map[eventType] ??
+    eventType.replace(/^(kyb|kyc|payments)\./, "").replace(/_/g, " ");
+  return label.charAt(0).toUpperCase() + label.slice(1);
 }
 
-function borderColor(eventType: string): string {
-  if (eventType.includes("approved")) return "border-l-green-500";
-  if (eventType.includes("action_required")) return "border-l-amber-500";
-  if (eventType.includes("rejected")) return "border-l-red-500";
-  return "border-l-border";
+function dotColor(eventType: string): string {
+  if (eventType.includes("approved")) return "bg-green-500";
+  if (eventType.includes("action_required")) return "bg-amber-500";
+  if (eventType.includes("rejected") || eventType.includes("declined"))
+    return "bg-red-500";
+  return "bg-muted-foreground/40";
 }
 
-export function DecisionHistory({ events }: DecisionHistoryProps) {
+export function DecisionHistory({ events, totalEvents }: DecisionHistoryProps) {
+  const truncated =
+    typeof totalEvents === "number" && totalEvents > events.length;
   return (
     <Card>
       <CardHeader className="pb-2">
-        <CardTitle className="text-base">Decision History</CardTitle>
+        <div className="flex items-center justify-between">
+          <CardTitle className="text-base">Decision History</CardTitle>
+          {truncated && (
+            <span className="text-muted-foreground text-xs">
+              Showing the latest {events.length} of {totalEvents} events
+            </span>
+          )}
+        </div>
       </CardHeader>
       <CardContent>
         {events.length === 0 ? (
@@ -46,30 +64,30 @@ export function DecisionHistory({ events }: DecisionHistoryProps) {
         ) : (
           <div className="space-y-2">
             {events.map((event) => (
-              <div
-                key={event.id}
-                className={cn(
-                  "space-y-1 border-l-2 py-2 pl-4",
-                  borderColor(event.eventType),
-                )}
-              >
+              <div key={event.id} className="space-y-1 py-2">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium">
+                  <span className="flex items-center gap-2 text-sm font-medium">
+                    <span
+                      className={cn(
+                        "size-1.5 shrink-0 rounded-full",
+                        dotColor(event.eventType),
+                      )}
+                    />
                     {formatEventType(event.eventType)}
                   </span>
                   <span className="text-muted-foreground text-xs">
                     {format(new Date(event.createdAt), "dd MMM yyyy, HH:mm")}
                   </span>
                 </div>
-                <p className="text-muted-foreground text-xs">
-                  {event.actorType === "admin" && event.actorName
-                    ? `By ${event.actorName}`
+                <p className="text-muted-foreground pl-3.5 text-xs">
+                  {event.actorType === "admin"
+                    ? `By ${event.actorName ?? "an admin"}`
                     : event.actorType === "system"
                       ? "By System"
-                      : "By User"}
+                      : "By Applicant"}
                 </p>
                 {event.metadata?.label && (
-                  <p className="text-muted-foreground text-xs">
+                  <p className="text-muted-foreground pl-3.5 text-xs">
                     {event.metadata.file?.url ? (
                       <a
                         href={event.metadata.file.url}
@@ -86,7 +104,7 @@ export function DecisionHistory({ events }: DecisionHistoryProps) {
                 )}
                 {event.metadata?.reasons &&
                   event.metadata.reasons.length > 0 && (
-                    <ul className="text-muted-foreground mt-1 list-inside list-disc space-y-0.5 text-xs">
+                    <ul className="text-muted-foreground mt-1 list-inside list-disc space-y-0.5 pl-3.5 text-xs">
                       {event.metadata.reasons.map((r, i) => (
                         <li key={i}>
                           {reasonTargetLabel(r.target)} ·{" "}
@@ -98,7 +116,7 @@ export function DecisionHistory({ events }: DecisionHistoryProps) {
                   )}
                 {event.metadata?.checklist &&
                   event.metadata.checklist.length > 0 && (
-                    <ul className="mt-1 space-y-0.5 text-xs">
+                    <ul className="mt-1 space-y-0.5 pl-3.5 text-xs">
                       {event.metadata.checklist.map((c, i) => (
                         <li
                           key={i}

@@ -4,10 +4,19 @@ import { cn } from "@/lib/utils";
 import { CheckIcon, FileTextIcon, UserIcon, XIcon } from "lucide-react";
 import { FlagButton } from "./flag-button";
 import type { CaseFlagsApi } from "./use-case-flags";
-import type { ComplianceCase } from "./types";
+import type { ComplianceCase, ScreeningResult } from "./types";
 
 type CheckStatus = "passed" | "manual_review" | "failed";
 type ReviewStatus = ComplianceCase["kybStatus"];
+
+/** Honest wording for the provider's single identity verdict. */
+const PROVIDER_RESULT_LABEL: Record<string, string> = {
+  passed: "Verified",
+  manual_review: "Needs review",
+  failed: "Failed",
+  pending: "In progress",
+  none: "Not run",
+};
 
 /**
  * The automated-check result for a track: what the machine found. Kept visually
@@ -70,7 +79,7 @@ function CheckRow({
   flags,
 }: {
   label: string;
-  value: boolean | string;
+  value: boolean | React.ReactNode;
   /** Reason target this row can be flagged against, if any. */
   flagTarget?: string;
   flags?: CaseFlagsApi;
@@ -85,14 +94,39 @@ function CheckRow({
           ) : (
             <XIcon className="text-muted-foreground/60 size-4" />
           )
-        ) : (
+        ) : typeof value === "string" ? (
           <span className="font-medium tabular-nums">{value || "—"}</span>
+        ) : (
+          value
         )}
         {flagTarget && flags && (
           <FlagButton target={flagTarget} flags={flags} compact />
         )}
       </div>
     </div>
+  );
+}
+
+/**
+ * A sanctions/PEP screening verdict. "Not run" is rendered deliberately — a
+ * reviewer must be able to tell "screened clean" from "never screened"; hiding
+ * the row would collapse the two.
+ */
+function ScreeningValue({ result }: { result?: ScreeningResult }) {
+  if (!result) {
+    return <span className="text-muted-foreground">Not run</span>;
+  }
+  const map: Record<ScreeningResult["status"], { tint: string; label: string }> =
+    {
+      passed: { tint: TINT.green, label: "Passed" },
+      manual_review: { tint: TINT.amber, label: "Needs review" },
+      failed: { tint: TINT.red, label: "Failed" },
+    };
+  const { tint, label } = map[result.status];
+  return (
+    <Badge variant="outline" className={cn("font-medium", tint)}>
+      {label}
+    </Badge>
   );
 }
 
@@ -180,37 +214,62 @@ export function VerificationBand({
           decision={kycStatus}
           manual={manual}
         >
-          {manual ? (
-            <>
-              <CheckRow
-                label="ID document"
-                value={!!checks.kyc.idType}
-                flagTarget="id_document"
-                flags={flags}
-              />
-              <CheckRow
-                label="Selfie"
-                value={kycStatus === "approved"}
-                flagTarget="selfie_liveness"
-                flags={flags}
-              />
-            </>
+          {!data.hasKycProfile ? (
+            <CheckRow label="Identity profile" value="Not submitted" />
           ) : (
             <>
+              {manual ? (
+                <>
+                  <CheckRow
+                    label="ID document"
+                    value={!!checks.kyc.idType}
+                    flagTarget="id_document"
+                    flags={flags}
+                  />
+                  <CheckRow
+                    label="Selfie"
+                    value={checks.kyc.selfieProvided}
+                    flagTarget="selfie_liveness"
+                    flags={flags}
+                  />
+                </>
+              ) : (
+                <>
+                  {/* One row on purpose: the provider returns a single verdict, and
+                      splitting it into selfie/liveness/document rows would fabricate
+                      granularity the data does not have. */}
+                  <CheckRow
+                    label="Provider verification"
+                    value={
+                      PROVIDER_RESULT_LABEL[checks.kyc.providerResult ?? "none"]
+                    }
+                    flagTarget="selfie_liveness"
+                    flags={flags}
+                  />
+                  <CheckRow
+                    label="ID type"
+                    value={checks.kyc.idType}
+                    flagTarget="id_document"
+                    flags={flags}
+                  />
+                </>
+              )}
               <CheckRow
-                label="Selfie match"
-                value={checks.kyc.selfieMatch}
-                flagTarget="selfie_liveness"
-                flags={flags}
+                label="Sanctions screening"
+                value={<ScreeningValue result={checks.kyc.sanctions} />}
               />
-              <CheckRow label="Liveness" value={checks.kyc.liveness} />
-              <CheckRow label="Document auth" value={checks.kyc.documentAuth} />
               <CheckRow
-                label="ID type"
-                value={checks.kyc.idType}
-                flagTarget="id_document"
-                flags={flags}
+                label="PEP screening"
+                value={<ScreeningValue result={checks.kyc.pep} />}
               />
+              {/* Multi-member orgs: the rows above describe the primary member;
+                  this row keeps the others from being invisible in the rollup. */}
+              {data.members.length > 1 && (
+                <CheckRow
+                  label="Members approved"
+                  value={`${data.members.filter((m) => m.status === "approved").length} of ${data.members.length}`}
+                />
+              )}
             </>
           )}
         </Track>
@@ -223,10 +282,20 @@ export function VerificationBand({
           manual={manual}
         >
           {manual ? (
-            <CheckRow
-              label="Confirmed on approval"
-              value={kybStatus === "approved"}
-            />
+            <>
+              <CheckRow
+                label="Registration number"
+                value={checks.kyb.rcNumber}
+                flagTarget="rc_number"
+                flags={flags}
+              />
+              <CheckRow
+                label="Company name"
+                value={checks.kyb.companyName}
+                flagTarget="company_name"
+                flags={flags}
+              />
+            </>
           ) : (
             <>
               <CheckRow
@@ -250,6 +319,10 @@ export function VerificationBand({
               <CheckRow label="Registry source" value={checks.kyb.registrySource} />
             </>
           )}
+          <CheckRow
+            label="Sanctions screening"
+            value={<ScreeningValue result={checks.kyb.sanctions} />}
+          />
         </Track>
       </div>
     </section>

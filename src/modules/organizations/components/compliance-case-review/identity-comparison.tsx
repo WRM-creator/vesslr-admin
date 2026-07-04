@@ -36,13 +36,16 @@ interface IdentityComparisonProps {
 }
 
 function SourceBadge({ source }: { source: ViewableItem["source"] }) {
-  return source === "smile_id" ? (
-    <Badge variant="outline" className={TINT.green}>
-      Smile ID ✓
-    </Badge>
-  ) : (
+  if (source === "smile_id") {
+    return (
+      <Badge variant="outline" className={TINT.green}>
+        Smile ID ✓
+      </Badge>
+    );
+  }
+  return (
     <Badge variant="outline" className={TINT.gray}>
-      Uploaded
+      {source === "registry" ? "Registry" : "Uploaded"}
     </Badge>
   );
 }

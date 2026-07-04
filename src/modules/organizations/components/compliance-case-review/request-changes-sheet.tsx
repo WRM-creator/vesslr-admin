@@ -43,6 +43,17 @@ export interface RequestChangesPayload {
   message?: string;
 }
 
+/**
+ * What the applicant has ALREADY been asked for and hasn't resolved — shown
+ * read-only above the new request so the reviewer composes against the full
+ * outstanding picture instead of re-asking or contradicting a prior message.
+ */
+export interface PriorRequestContext {
+  message?: string;
+  reasons: Array<{ target: string; issue: string; note?: string }>;
+  outstandingDocuments: Array<{ label: string; note?: string }>;
+}
+
 interface RequestChangesSheetProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -52,6 +63,8 @@ interface RequestChangesSheetProps {
   initialDocuments?: { type: string; label: string; note?: string }[];
   /** Optional message draft (e.g. from a provider decline) to seed the message. */
   defaultMessage?: string;
+  /** Unresolved asks from the previous request-changes pass, if any. */
+  priorRequest?: PriorRequestContext;
   onSubmit: (payload: RequestChangesPayload) => void;
   isSubmitting: boolean;
 }
@@ -163,6 +176,7 @@ export function RequestChangesSheet({
   initialFlags,
   initialDocuments,
   defaultMessage,
+  priorRequest,
   onSubmit,
   isSubmitting,
 }: RequestChangesSheetProps) {
@@ -281,6 +295,41 @@ export function RequestChangesSheet({
         </SheetHeader>
 
         <div className="flex-1 space-y-6 overflow-y-auto px-5 py-4">
+          {/* What's already outstanding, so the new request composes against the
+              full picture instead of re-asking or contradicting the last one. */}
+          {priorRequest &&
+            (priorRequest.message ||
+              priorRequest.reasons.length > 0 ||
+              priorRequest.outstandingDocuments.length > 0) && (
+              <section className="bg-muted/50 space-y-1.5 rounded-lg border p-3">
+                <p className="text-muted-foreground text-[10px] font-semibold uppercase tracking-wide">
+                  Already requested, still unresolved
+                </p>
+                {priorRequest.reasons.map((r, i) => (
+                  <p key={`r-${i}`} className="text-xs leading-snug">
+                    {reasonTargetLabel(r.target)}:{" "}
+                    {reasonIssueLabel(r.target, r.issue)}
+                    {r.note && (
+                      <span className="text-muted-foreground"> ({r.note})</span>
+                    )}
+                  </p>
+                ))}
+                {priorRequest.outstandingDocuments.map((d, i) => (
+                  <p key={`d-${i}`} className="text-xs leading-snug">
+                    Document: {d.label}
+                    {d.note && (
+                      <span className="text-muted-foreground"> ({d.note})</span>
+                    )}
+                  </p>
+                ))}
+                {priorRequest.message && (
+                  <p className="text-muted-foreground text-xs italic">
+                    Last message: "{priorRequest.message}"
+                  </p>
+                )}
+              </section>
+            )}
+
           {/* Issues to fix */}
           <section className="space-y-2.5">
             <div className="flex items-center justify-between">

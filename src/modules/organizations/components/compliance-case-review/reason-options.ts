@@ -31,6 +31,8 @@ export const TARGET_LABEL: Record<string, string> = {
   selfie_liveness: "Selfie / liveness",
   proof_of_past_performance: "Proof of past performance",
   statement_of_account: "Statement of account",
+  business_owners: "Directors & business owners",
+  transaction_profile: "Expected transaction activity",
 };
 
 export const KYB_REASON_GROUPS: ReasonGroup[] = [
@@ -78,6 +80,17 @@ export const KYB_REASON_GROUPS: ReasonGroup[] = [
       { target: "director_id", issue: "missing", label: "Not uploaded" },
       { target: "director_info", issue: "incomplete", label: "Incomplete" },
       { target: "director_info", issue: "mismatch", label: "Does not match" },
+    ],
+  },
+  {
+    heading: "People & activity",
+    options: [
+      // The targets the provisioning request-missing action flags; also
+      // available here so a reviewer can raise them by hand. Both open real
+      // editors on the customer's /verification fix view.
+      { target: "business_owners", issue: "information_requested", label: "Details needed (ownership %, PEP, identification)" },
+      { target: "business_owners", issue: "mismatch", label: "Does not match the registry" },
+      { target: "transaction_profile", issue: "information_requested", label: "Purpose and expected monthly volume needed" },
     ],
   },
 ];
@@ -139,6 +152,8 @@ export const ISSUE_PICKER_GROUPS: {
   "proof_of_address",
   "director_id",
   "director_info",
+  "business_owners",
+  "transaction_profile",
   "id_document",
   "selfie_liveness",
 ]

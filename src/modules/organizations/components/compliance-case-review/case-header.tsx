@@ -6,18 +6,11 @@ import { ArrowLeftIcon } from "lucide-react";
 import { Link } from "react-router-dom";
 import { CorridorBadge } from "../corridor-badge";
 import { STATUS_LABEL, STATUS_VARIANT } from "../compliance-worklist/status";
+import { formatAccountType } from "./compliance-utils";
 import type { ComplianceCase } from "./types";
 
 /** Cases waiting longer than this read as overdue (mirrors the worklist). */
 const OVERDUE_AFTER_DAYS = 3;
-
-/** "buyer_seller" → "Buyer & Seller"; "logistics_provider" → "Logistics provider". */
-function formatAccountType(value?: string): string | null {
-  if (!value) return null;
-  if (value === "buyer_seller") return "Buyer & Seller";
-  const spaced = value.replace(/_/g, " ");
-  return spaced.charAt(0).toUpperCase() + spaced.slice(1);
-}
 
 function Waiting({ submittedAt }: { submittedAt?: string }) {
   if (!submittedAt) return null;

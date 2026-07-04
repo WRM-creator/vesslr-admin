@@ -109,6 +109,16 @@ function MissingTile({ item }: { item: ViewableItem }) {
         >
           {requested ? "Requested" : "Not uploaded"}
         </Badge>
+        {requested && item.requestedAt && (
+          <p className="text-muted-foreground text-xs">
+            Requested{" "}
+            {new Date(item.requestedAt).toLocaleDateString("en-GB", {
+              day: "numeric",
+              month: "short",
+              year: "numeric",
+            })}
+          </p>
+        )}
         {item.note && (
           <p className="text-muted-foreground text-xs">{item.note}</p>
         )}
@@ -158,6 +168,10 @@ export function DocumentsGrid({
                     <Badge className="bg-green-100 text-xs text-green-700 hover:bg-green-100">
                       Smile ID ✓
                     </Badge>
+                  ) : item.source === "registry" ? (
+                    <Badge variant="secondary" className="text-xs">
+                      Registry
+                    </Badge>
                   ) : (
                     <Badge variant="secondary" className="text-xs">
                       Uploaded
@@ -166,6 +180,19 @@ export function DocumentsGrid({
                   {item.updatedSinceReview && (
                     <Badge variant="outline" className={cn("text-xs", TINT.amber)}>
                       Updated
+                    </Badge>
+                  )}
+                  {/* Trail verdict: only rendered when an admin actually ruled
+                      on the file — no verdict is shown as nothing, not a
+                      default "accepted". */}
+                  {item.reviewVerdict === "accepted" && (
+                    <Badge variant="outline" className={cn("text-xs", TINT.green)}>
+                      Accepted
+                    </Badge>
+                  )}
+                  {item.reviewVerdict === "rejected" && (
+                    <Badge variant="outline" className={cn("text-xs", TINT.red)}>
+                      Rejected
                     </Badge>
                   )}
                 </div>
