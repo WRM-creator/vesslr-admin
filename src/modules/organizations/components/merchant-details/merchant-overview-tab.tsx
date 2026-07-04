@@ -2,15 +2,13 @@ import { api } from "@/lib/api";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  GlobeIcon,
-  InstagramIcon,
-  LinkedinIcon,
-  TwitterIcon,
-} from "lucide-react";
+import { formatAccountType } from "../compliance-case-review/compliance-utils";
 
 interface MerchantOverviewTabProps {
-  organization: any; // Type will be improved later
+  // The admin org detail endpoint has no response DTO in swagger yet, so there
+  // is no generated type to use; typed once the org record surface gets one.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  organization: any;
 }
 
 export function MerchantOverviewTab({
@@ -26,7 +24,7 @@ export function MerchantOverviewTab({
 
   const { data: transactionsData, isLoading: transactionsLoading } =
     api.admin.transactions.list.useQuery(
-      { query: { seller: orgId, limit: "1" } },
+      { query: { organization: orgId, limit: "1" } },
       { enabled: !!orgId },
     );
 
@@ -36,25 +34,21 @@ export function MerchantOverviewTab({
       { enabled: !!orgId },
     );
 
-  const totalProducts =
-    (productsData as any)?.data?.totalDocs ?? 0;
-  const totalOrders =
-    (transactionsData as any)?.data?.totalDocs ?? 0;
-  const totalDisputes =
-    (disputesData as any)?.data?.totalDocs ?? 0;
+  const totalProducts = productsData?.data?.totalDocs ?? 0;
+  const totalOrders = transactionsData?.data?.totalDocs ?? 0;
+  const totalDisputes = disputesData?.data?.totalDocs ?? 0;
   const statsLoading = productsLoading || transactionsLoading || disputesLoading;
 
   const analytics = [
     { label: "Total Products", value: totalProducts },
     { label: "Total Orders", value: totalOrders },
     { label: "Total Disputes", value: totalDisputes },
-    { label: "Trust Score", value: "-" },
   ];
 
   return (
     <div className="space-y-6">
-      {/* Analytics Snapshot - 4 Separate Cards */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      {/* Analytics Snapshot */}
+      <div className="grid gap-4 md:grid-cols-3">
         {analytics.map((item) => (
           <Card key={item.label}>
             <CardHeader className="max-h-5 pb-2">
@@ -63,7 +57,7 @@ export function MerchantOverviewTab({
               </CardTitle>
             </CardHeader>
             <CardContent>
-              {statsLoading && item.label !== "Trust Score" ? (
+              {statsLoading ? (
                 <Skeleton className="h-8 w-16" />
               ) : (
                 <div className="text-2xl font-bold">{item.value}</div>
@@ -86,6 +80,14 @@ export function MerchantOverviewTab({
                 </span>
                 <p className="mt-1 text-sm [overflow-wrap:anywhere]">
                   {organization.tradingName || "-"}
+                </p>
+              </div>
+              <div>
+                <span className="text-muted-foreground text-sm font-medium">
+                  Account Type
+                </span>
+                <p className="mt-1 text-sm">
+                  {formatAccountType(organization.accountType) || "-"}
                 </p>
               </div>
               <div>
@@ -189,17 +191,6 @@ export function MerchantOverviewTab({
                       .join(", ")
                   : "-"}
               </p>
-            </div>
-            <div>
-              <span className="text-muted-foreground text-sm font-medium">
-                Socials
-              </span>
-              <div className="mt-2 flex gap-2">
-                <GlobeIcon className="text-muted-foreground h-4 w-4" />
-                <LinkedinIcon className="text-muted-foreground h-4 w-4" />
-                <TwitterIcon className="text-muted-foreground h-4 w-4" />
-                <InstagramIcon className="text-muted-foreground h-4 w-4" />
-              </div>
             </div>
           </CardContent>
         </Card>

@@ -5,7 +5,6 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import type { MemberResponseDto } from "@/lib/api/generated/types.gen";
@@ -88,13 +87,6 @@ export const merchantUserColumns: ColumnDef<MemberResponseDto>[] = [
               onClick={() => navigator.clipboard.writeText(user.email)}
             >
               Copy email
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>Edit Member</DropdownMenuItem>
-            <DropdownMenuItem>Reset Password</DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem className="text-destructive">
-              Remove from Team
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

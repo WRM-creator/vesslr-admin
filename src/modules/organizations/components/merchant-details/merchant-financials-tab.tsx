@@ -1,17 +1,9 @@
 import { api } from "@/lib/api";
 import type { AccountBalanceResponseDto } from "@/lib/api/generated";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { TINT } from "@/lib/tint";
+import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatCurrency } from "@/lib/currency";
-import {
-  CheckCircleIcon,
-  CreditCardIcon,
-  LockIcon,
-  ReceiptTextIcon,
-  WalletIcon,
-} from "lucide-react";
+import { LockIcon, ReceiptTextIcon, WalletIcon } from "lucide-react";
 import { useMemo } from "react";
 import { MerchantLedgerTable } from "./merchant-ledger-table";
 import {
@@ -42,11 +34,13 @@ export function MerchantFinancialsTab({
   organization,
 }: MerchantFinancialsTabProps) {
   const orgId = organization._id as string;
-  const bankDetails = organization.bankDetails;
 
+  // Ledger semantics (ledger-accounts.ts): PAYABLE = in-flight inbound from
+  // the org; RECEIVABLE = in-flight outbound to the org's bank. Neither is
+  // escrow — escrowed funds live on the platform escrow liability account.
   const wallet = useAccountBalance(orgId, "WALLET");
-  const escrow = useAccountBalance(orgId, "PAYABLE");
-  const receivable = useAccountBalance(orgId, "RECEIVABLE");
+  const inbound = useAccountBalance(orgId, "PAYABLE");
+  const outbound = useAccountBalance(orgId, "RECEIVABLE");
 
   const walletCode = `ORG:${orgId}:WALLET`;
   const { data: statementData, isLoading: statementLoading } =
@@ -61,7 +55,7 @@ export function MerchantFinancialsTab({
     return entries.map((e) => toLedgerEntry(e, walletCode));
   }, [statementData, walletCode]);
 
-  const balanceLoading = wallet.isLoading || escrow.isLoading || receivable.isLoading;
+  const balanceLoading = wallet.isLoading || inbound.isLoading || outbound.isLoading;
   const currency = wallet.currency;
 
   return (
@@ -94,12 +88,12 @@ export function MerchantFinancialsTab({
                   <LockIcon className="h-4 w-4 text-blue-400" />
                 </div>
                 <div>
-                  <p className="text-xs text-white/50">Escrow Locked</p>
+                  <p className="text-xs text-white/50">Inbound In-flight</p>
                   {balanceLoading ? (
                     <Skeleton className="h-7 w-28 bg-white/10" />
                   ) : (
                     <p className="text-lg font-semibold">
-                      {formatCurrency(escrow.balance, currency, {
+                      {formatCurrency(inbound.balance, currency, {
                         maximumFractionDigits: 2,
                       })}
                     </p>
@@ -114,12 +108,12 @@ export function MerchantFinancialsTab({
                   <ReceiptTextIcon className="h-4 w-4 text-amber-400" />
                 </div>
                 <div>
-                  <p className="text-xs text-white/50">Receivables</p>
+                  <p className="text-xs text-white/50">Outbound In-flight</p>
                   {balanceLoading ? (
                     <Skeleton className="h-7 w-28 bg-white/10" />
                   ) : (
                     <p className="text-lg font-semibold">
-                      {formatCurrency(receivable.balance, currency, {
+                      {formatCurrency(outbound.balance, currency, {
                         maximumFractionDigits: 2,
                       })}
                     </p>
@@ -128,62 +122,6 @@ export function MerchantFinancialsTab({
               </div>
             </div>
           </div>
-        </CardContent>
-      </Card>
-
-      {/* Payout Method */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <CreditCardIcon className="h-4 w-4" />
-            Payout Method
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          {bankDetails ? (
-            <div className="rounded-lg border p-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <span className="font-medium">
-                        {bankDetails.bankName}
-                      </span>
-                      <Badge variant="outline" className="text-[10px]">
-                        {bankDetails.currency}
-                      </Badge>
-                      {bankDetails.verifiedAt ? (
-                        <Badge
-                          variant="outline"
-                          className={`gap-1 text-[10px] ${TINT.green}`}
-                        >
-                          <CheckCircleIcon className="h-3 w-3" />
-                          Verified
-                        </Badge>
-                      ) : (
-                        <Badge
-                          variant="outline"
-                          className="text-[10px] text-yellow-700 dark:text-yellow-400"
-                        >
-                          Unverified
-                        </Badge>
-                      )}
-                    </div>
-                    <p className="text-muted-foreground mt-1 text-sm">
-                      {bankDetails.accountName}
-                    </p>
-                    <p className="mt-0.5 font-mono text-sm">
-                      {bankDetails.accountNumber}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          ) : (
-            <p className="text-muted-foreground text-sm italic">
-              No bank account linked.
-            </p>
-          )}
         </CardContent>
       </Card>
 

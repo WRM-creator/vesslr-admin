@@ -48,6 +48,7 @@ export default function OrganizationsPage() {
       .filter((c: any) => c && typeof c === "object" && c.name)
       .map((c: any) => c.name),
     verificationStatus: item.verificationStatus || "unverified",
+    providerReviewPending: item.providerReviewPending === true,
     createdAt: item.createdAt,
   }));
 
