@@ -12,7 +12,7 @@ import { WithdrawnSummary } from "./withdrawn-summary";
 
 interface DisputeResolutionProps {
   dispute: AdminDisputeResponseDto;
-  escrowStatus: any;
+  escrowStatus: { status: string; lockedAmount: number };
   amount: number;
   onResolved?: () => void;
 }
@@ -73,7 +73,7 @@ export function DisputeResolution({
           setCustomRefund(0);
           onResolved?.();
         },
-        onError: (error: any) => {
+        onError: (error: unknown) => {
           console.error("Failed to resolve dispute:", error);
         },
       },

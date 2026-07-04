@@ -16,7 +16,7 @@ export interface DisputeFilters {
 
 interface FiltersProps {
   filters: DisputeFilters;
-  onFilterChange: (key: keyof DisputeFilters, value: any) => void;
+  onFilterChange: (key: keyof DisputeFilters, value: string) => void;
   onReset: () => void;
 }
 

@@ -1,9 +1,9 @@
 import { DataTable } from "@/components/shared/data-table";
 import { Badge } from "@/components/ui/badge";
-import { getDisputes, type Dispute } from "@/lib/api/disputes";
+import { api } from "@/lib/api";
+import { type AdminDisputeResponseDto } from "@/lib/api/generated";
 import { formatCurrency } from "@/lib/currency";
 import { formatDateTime } from "@/lib/utils";
-import { useQuery } from "@tanstack/react-query";
 import type { ColumnDef } from "@tanstack/react-table";
 import { Link, useOutletContext } from "react-router-dom";
 
@@ -12,17 +12,15 @@ export function MerchantDisputesTab() {
     organization: { _id: string };
   }>();
 
-  const { data, isLoading } = useQuery({
-    queryKey: ["disputes", "merchant", organization._id],
-    queryFn: () =>
-      getDisputes({
-        page: 1,
-        limit: 10,
-        respondent: organization._id,
-      }),
+  const { data, isLoading } = api.admin.disputes.list.useQuery({
+    query: {
+      page: "1",
+      limit: "10",
+      respondent: organization._id,
+    },
   });
 
-  const columns: ColumnDef<Dispute>[] = [
+  const columns: ColumnDef<AdminDisputeResponseDto>[] = [
     {
       accessorKey: "_id",
       header: "Dispute ID",

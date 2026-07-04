@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { api } from "@/lib/api";
+import { type AdminDisputeResponseDto } from "@/lib/api/generated";
 import { formatCurrency } from "@/lib/currency";
 import { AlertCircle, ArrowLeft, ArrowUpRight, RefreshCw } from "lucide-react";
 import { Link, useParams } from "react-router-dom";
@@ -72,12 +73,12 @@ export default function DisputeDetailsPage() {
     );
   }
 
-  if (!dispute) {
+  if (!dispute?.data) {
     return <NotFoundPage />;
   }
 
-  // Cast for component compatibility
-  const d = dispute as any;
+  // The endpoint wraps the dispute in { message, data }.
+  const d = dispute.data;
   const amount = d.amount ?? 0;
   const status = d.status as string;
   const statusStyle = STATUS_STYLES[status] ?? { variant: "outline" as const };
@@ -162,7 +163,11 @@ export default function DisputeDetailsPage() {
 }
 
 // ─── Transaction Context Card ──────────────────────────────────────
-function TransactionContextCard({ dispute }: { dispute: any }) {
+function TransactionContextCard({
+  dispute,
+}: {
+  dispute: AdminDisputeResponseDto;
+}) {
   const tx = dispute.transaction;
   if (!tx) return null;
 

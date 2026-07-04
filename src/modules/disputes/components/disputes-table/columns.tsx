@@ -1,11 +1,11 @@
 import { Badge } from "@/components/ui/badge";
-import type { Dispute } from "@/lib/api/disputes";
+import { type AdminDisputeResponseDto } from "@/lib/api/generated";
 import { formatCurrency } from "@/lib/currency";
 import { formatDateTime } from "@/lib/utils";
 import type { ColumnDef } from "@tanstack/react-table";
 import { Link } from "react-router-dom";
 
-export const disputesColumns: ColumnDef<Dispute>[] = [
+export const disputesColumns: ColumnDef<AdminDisputeResponseDto>[] = [
   {
     accessorKey: "_id",
     header: "Dispute ID",

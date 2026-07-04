@@ -1,13 +1,10 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { getDisputeStats } from "@/lib/api/disputes";
-import { useQuery } from "@tanstack/react-query";
+import { api } from "@/lib/api";
 import { AlertCircle, CheckCircle, Scale } from "lucide-react";
 
 export function DisputeStats() {
-  const { data: stats } = useQuery({
-    queryKey: ["disputes", "stats"],
-    queryFn: getDisputeStats,
-  });
+  const { data: statsData } = api.admin.disputes.stats.useQuery({});
+  const stats = statsData?.data;
 
   return (
     <div className="grid gap-4 md:grid-cols-3">

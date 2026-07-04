@@ -1,6 +1,9 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import type { InformationRequest } from "@/lib/api/disputes";
+import {
+  type AdminDisputeInformationRequestDto,
+  type AdminDisputeResponseDto,
+} from "@/lib/api/generated";
 import { Plus } from "lucide-react";
 import { useState } from "react";
 import { CreateRequestDialog } from "./create-request-dialog";
@@ -11,7 +14,7 @@ import { RequestItem } from "./request-item";
 // ─────────────────────────────────────────────────────────────────────────────
 
 interface DisputeInformationRequestsProps {
-  dispute: any; // AdminDisputeResponseDto extended with informationRequests
+  dispute: AdminDisputeResponseDto;
   onUpdate: () => void;
 }
 
@@ -22,7 +25,8 @@ export function DisputeInformationRequests({
   const [createOpen, setCreateOpen] = useState(false);
 
   const isResolved = !!dispute.resolution || dispute.status === "withdrawn";
-  const requests: InformationRequest[] = dispute.informationRequests ?? [];
+  const requests: AdminDisputeInformationRequestDto[] =
+    dispute.informationRequests ?? [];
 
   return (
     <>

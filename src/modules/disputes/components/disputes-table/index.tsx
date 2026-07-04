@@ -1,14 +1,14 @@
 "use client";
 
 import { DataTable } from "@/components/shared/data-table";
-import type { Dispute } from "@/lib/api/disputes";
+import { type AdminDisputeResponseDto } from "@/lib/api/generated";
 import * as React from "react";
 import { useNavigate } from "react-router-dom";
 import { disputesColumns } from "./columns";
 import { type DisputeFilters, Filters } from "./filters";
 
 interface DisputesTableProps {
-  data: Dispute[];
+  data: AdminDisputeResponseDto[];
   isLoading?: boolean;
 }
 
@@ -20,7 +20,10 @@ export function DisputesTable({ data, isLoading }: DisputesTableProps) {
     status: "all",
   });
 
-  const handleFilterChange = (key: keyof DisputeFilters, value: any) => {
+  const handleFilterChange = (
+    key: keyof DisputeFilters,
+    value: DisputeFilters[keyof DisputeFilters],
+  ) => {
     setFilters((prev) => ({ ...prev, [key]: value }));
   };
 
