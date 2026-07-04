@@ -9,11 +9,14 @@ import {
   Globe,
   LayoutDashboard,
   LifeBuoy,
+  LineChart,
   Lock,
   Package,
   Scale,
   Settings,
   Tags,
+  TimerIcon,
+  Waypoints,
 } from "lucide-react";
 import * as React from "react";
 
@@ -96,9 +99,24 @@ const navGroups: NavGroup[] = [
         icon: Lock,
       },
       {
+        title: "Funding Windows",
+        url: "/funding-windows",
+        icon: TimerIcon,
+      },
+      {
         title: "Ledger",
         url: "/ledger",
         icon: BookOpenIcon,
+      },
+      {
+        title: "Payment Routing",
+        url: "/routing",
+        icon: Waypoints,
+      },
+      {
+        title: "Benchmarks",
+        url: "/benchmarks",
+        icon: LineChart,
       },
       {
         title: "Disputes",

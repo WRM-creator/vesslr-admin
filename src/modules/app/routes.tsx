@@ -5,17 +5,20 @@ import AppLayout from "./_layout";
 import { AppErrorBoundary } from "./error-boundary";
 
 import { analyticsRoutes } from "../analytics/routes";
+import { benchmarksRoutes } from "../benchmarks/routes";
 import { categoryRoutes } from "../categories/routes";
 import { countriesRoutes } from "../countries/routes";
 import { dashboardRoutes } from "../dashboard/routes";
 import { disputesRoutes } from "../disputes/routes";
 import { escrowsRoutes } from "../escrows/routes";
+import { fundingWindowsRoutes } from "../funding-windows/routes";
 import { ledgerRoutes } from "../ledger/routes";
 import { logisticsRoutes } from "../logistics/routes";
 import { organizationsRoutes } from "../organizations/routes";
 import { supportRoutes } from "../support/routes";
 import { productsRoutes } from "../products/routes";
 import { requestsRoutes } from "../requests/routes";
+import { routingRoutes } from "../routing/routes";
 import { settingsRoutes } from "../settings/routes";
 import { transactionRoutes } from "../transactions/routes";
 import { cmsRoutes } from "../cms/routes";
@@ -41,6 +44,9 @@ export const appRoutes: RouteObject[] = [
           ...productsRoutes,
           ...escrowsRoutes,
           ...ledgerRoutes,
+          ...routingRoutes,
+          ...benchmarksRoutes,
+          ...fundingWindowsRoutes,
           ...disputesRoutes,
           ...supportRoutes,
           ...logisticsRoutes,
