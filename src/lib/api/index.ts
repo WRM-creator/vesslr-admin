@@ -11,10 +11,6 @@
  */
 
 import { createMutation, createQuery } from "./factory";
-import {
-  adminDisputesControllerCreateRequest,
-  adminDisputesControllerDismissRequest,
-} from "./disputes";
 import { adminTransactionsControllerGetConversation } from "./transaction-conversations";
 
 // Import client config to initialize interceptors
@@ -33,6 +29,7 @@ import {
   adminCategoriesControllerFindOne,
   adminCategoriesControllerRemove,
   adminCategoriesControllerUpdate,
+  adminComplianceControllerAdoptRegistryPeople,
   adminComplianceControllerGetCase,
   adminComplianceControllerListCases,
   adminComplianceControllerOnboard,
@@ -50,10 +47,28 @@ import {
   adminLedgerControllerTriggerInternalReconciliation,
   adminLocationsControllerListCountries,
   adminLocationsControllerSetSanctioned,
+  adminPaymentsControllerGetPaymentProfile,
+  adminPaymentsControllerProvision,
+  adminBenchmarksControllerCreate,
+  adminFundingWindowsControllerClose,
+  adminFundingWindowsControllerExtend,
+  adminFundingWindowsControllerQueue,
+  adminFundingWindowsControllerReopen,
+  adminBenchmarksControllerList,
+  adminBenchmarksControllerRemove,
+  adminBenchmarksControllerUpdate,
+  adminRoutingControllerCreate,
+  adminRoutingControllerList,
+  adminRoutingControllerReload,
+  adminRoutingControllerRemove,
+  adminRoutingControllerResolve,
+  adminRoutingControllerUpdate,
   adminComplianceControllerReviewKyb,
   adminComplianceControllerReviewKyc,
-  adminComplianceControllerRequestDocuments,
   adminComplianceControllerRequestChanges,
+  adminComplianceControllerRequestMissing,
+  adminDisputesControllerCreateInformationRequest,
+  adminDisputesControllerDismissInformationRequest,
   adminDisputesControllerFindAll,
   adminDisputesControllerFindOne,
   adminDisputesControllerGetStats,
@@ -163,13 +178,13 @@ export const api = {
         "disputes",
         "stats",
       ]),
-      createRequest: createMutation(adminDisputesControllerCreateRequest, {
+      createRequest: createMutation(adminDisputesControllerCreateInformationRequest, {
         invalidates: (args) => [
           ["admin", "disputes", "list"],
           ["admin", "disputes", "detail", args.path.id],
         ],
       }),
-      dismissRequest: createMutation(adminDisputesControllerDismissRequest, {
+      dismissRequest: createMutation(adminDisputesControllerDismissInformationRequest, {
         invalidates: (args) => [
           ["admin", "disputes", "list"],
           ["admin", "disputes", "detail", args.path.id],
@@ -485,6 +500,77 @@ export const api = {
         invalidates: () => [["admin", "locations", "countries"]],
       }),
     },
+    payments: {
+      profile: createQuery(adminPaymentsControllerGetPaymentProfile, (args) => [
+        "admin",
+        "payments",
+        "profile",
+        args.path.id,
+      ]),
+      provision: createMutation(adminPaymentsControllerProvision, {
+        invalidates: (args) => [
+          ["admin", "payments", "profile", args.path.id],
+          ["admin", "compliance", "case", args.path.id],
+        ],
+      }),
+    },
+    fundingWindows: {
+      queue: createQuery(adminFundingWindowsControllerQueue, [
+        "admin",
+        "funding-windows",
+        "queue",
+      ]),
+      extend: createMutation(adminFundingWindowsControllerExtend, {
+        invalidates: () => [["admin", "funding-windows", "queue"]],
+      }),
+      close: createMutation(adminFundingWindowsControllerClose, {
+        invalidates: () => [["admin", "funding-windows", "queue"]],
+      }),
+      reopen: createMutation(adminFundingWindowsControllerReopen, {
+        invalidates: () => [["admin", "funding-windows", "queue"]],
+      }),
+    },
+    benchmarks: {
+      list: createQuery(adminBenchmarksControllerList, [
+        "admin",
+        "benchmarks",
+        "list",
+      ]),
+      create: createMutation(adminBenchmarksControllerCreate, {
+        invalidates: () => [["admin", "benchmarks", "list"]],
+      }),
+      update: createMutation(adminBenchmarksControllerUpdate, {
+        invalidates: () => [["admin", "benchmarks", "list"]],
+      }),
+      remove: createMutation(adminBenchmarksControllerRemove, {
+        invalidates: () => [["admin", "benchmarks", "list"]],
+      }),
+    },
+    routing: {
+      rules: createQuery(adminRoutingControllerList, [
+        "admin",
+        "routing",
+        "rules",
+      ]),
+      resolve: createQuery(adminRoutingControllerResolve, (args) => [
+        "admin",
+        "routing",
+        "resolve",
+        args.query,
+      ]),
+      create: createMutation(adminRoutingControllerCreate, {
+        invalidates: () => [["admin", "routing", "rules"]],
+      }),
+      update: createMutation(adminRoutingControllerUpdate, {
+        invalidates: () => [["admin", "routing", "rules"]],
+      }),
+      remove: createMutation(adminRoutingControllerRemove, {
+        invalidates: () => [["admin", "routing", "rules"]],
+      }),
+      reload: createMutation(adminRoutingControllerReload, {
+        invalidates: () => [["admin", "routing", "rules"]],
+      }),
+    },
     compliance: {
       cases: createQuery(adminComplianceControllerListCases, (args) => [
         "admin",
@@ -515,12 +601,11 @@ export const api = {
           ["admin", "compliance", "case", args.path.organizationId],
         ],
       }),
-      requestDocuments: createMutation(
-        adminComplianceControllerRequestDocuments,
+      adoptRegistryPeople: createMutation(
+        adminComplianceControllerAdoptRegistryPeople,
         {
           invalidates: (args) => [
             ["admin", "compliance", "case", args.path.organizationId],
-            ["admin", "compliance", "cases"],
           ],
         },
       ),
@@ -530,6 +615,16 @@ export const api = {
           invalidates: (args) => [
             ["admin", "compliance", "case", args.path.organizationId],
             ["admin", "compliance", "cases"],
+          ],
+        },
+      ),
+      requestMissing: createMutation(
+        adminComplianceControllerRequestMissing,
+        {
+          invalidates: (args) => [
+            ["admin", "compliance", "case", args.path.organizationId],
+            ["admin", "compliance", "cases"],
+            ["admin", "payments", "profile", args.path.organizationId],
           ],
         },
       ),

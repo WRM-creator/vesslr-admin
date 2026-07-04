@@ -2,7 +2,10 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Spinner } from "@/components/ui/spinner";
-import type { ProviderOnboardingStatusDto } from "@/lib/api/generated";
+import type {
+  ProviderOnboardingOutcomeDto,
+  ProviderOnboardingStatusDto,
+} from "@/lib/api/generated";
 
 interface ProviderOnboardingPanelProps {
   items: ProviderOnboardingStatusDto[];
@@ -10,6 +13,40 @@ interface ProviderOnboardingPanelProps {
   canRetry: boolean;
   isRetrying: boolean;
   onRetry: () => void;
+  /** Result of the last manual run this session — its `missing[]` says exactly
+   * why provisioning deferred, which used to be silently discarded. */
+  lastOutcome?: ProviderOnboardingOutcomeDto;
+}
+
+/** The last run's result, spelled out — especially the deferred-because list. */
+function OutcomeNote({ outcome }: { outcome: ProviderOnboardingOutcomeDto }) {
+  if (outcome.status === "incomplete") {
+    return (
+      <div className="mt-3 rounded-md border border-amber-200 bg-amber-50 p-3 text-xs dark:border-amber-900 dark:bg-amber-950/40">
+        <p className="font-medium">
+          Provisioning deferred — the provider still needs:
+        </p>
+        <ul className="text-muted-foreground mt-1 list-disc space-y-0.5 pl-4">
+          {(outcome.missing ?? []).map((m) => (
+            <li key={m.field}>{m.reason}</li>
+          ))}
+        </ul>
+      </div>
+    );
+  }
+  if (outcome.status === "noop") {
+    return (
+      <p className="text-muted-foreground mt-3 text-xs">
+        Nothing to do{outcome.reason ? `: ${outcome.reason}` : "."}
+      </p>
+    );
+  }
+  return (
+    <p className="mt-3 text-xs text-green-700">
+      Onboarding ran{outcome.bindingStatus ? ` (${outcome.bindingStatus})` : ""}
+      .
+    </p>
+  );
 }
 
 type Status = ProviderOnboardingStatusDto["status"];
@@ -70,6 +107,7 @@ export function ProviderOnboardingPanel({
   canRetry,
   isRetrying,
   onRetry,
+  lastOutcome,
 }: ProviderOnboardingPanelProps) {
   const list = items ?? [];
   const isEmpty = list.length === 0;
@@ -129,6 +167,7 @@ export function ProviderOnboardingPanel({
             ))}
           </div>
         )}
+        {lastOutcome && <OutcomeNote outcome={lastOutcome} />}
       </CardContent>
     </Card>
   );

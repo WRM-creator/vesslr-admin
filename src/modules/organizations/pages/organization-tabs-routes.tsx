@@ -3,6 +3,7 @@ import { ComplianceCaseReview } from "../components/compliance-case-review";
 import { MerchantDisputesTab } from "../components/merchant-details/merchant-disputes-tab";
 import { MerchantFinancialsTab } from "../components/merchant-details/merchant-financials-tab";
 import { MerchantOverviewTab } from "../components/merchant-details/merchant-overview-tab";
+import { MerchantPaymentsTab } from "../components/merchant-details/payments/merchant-payments-tab";
 import { MerchantProductsTab } from "../components/merchant-details/merchant-products-tab";
 import { MerchantTeamTab } from "../components/merchant-details/merchant-team-tab";
 import { MerchantTransactionsTab } from "../components/merchant-details/merchant-transactions-tab";
@@ -31,6 +32,11 @@ export function OrganizationProductsRoute() {
 export function OrganizationComplianceRoute() {
   const { organization } = useOutletContext<OrganizationContext>();
   return <ComplianceCaseReview organizationId={organization._id} />;
+}
+
+export function OrganizationPaymentsRoute() {
+  const { organization } = useOutletContext<OrganizationContext>();
+  return <MerchantPaymentsTab organizationId={organization._id} />;
 }
 
 export function OrganizationFinancialsRoute() {

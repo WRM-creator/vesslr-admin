@@ -13,6 +13,14 @@ import type {
   AdminAuthControllerLoginResponses,
   AdminAuthControllerVerifyOtpData,
   AdminAuthControllerVerifyOtpResponses,
+  AdminBenchmarksControllerCreateData,
+  AdminBenchmarksControllerCreateResponses,
+  AdminBenchmarksControllerListData,
+  AdminBenchmarksControllerListResponses,
+  AdminBenchmarksControllerRemoveData,
+  AdminBenchmarksControllerRemoveResponses,
+  AdminBenchmarksControllerUpdateData,
+  AdminBenchmarksControllerUpdateResponses,
   AdminCategoriesControllerCreateData,
   AdminCategoriesControllerCreateResponses,
   AdminCategoriesControllerFindAllData,
@@ -43,6 +51,8 @@ import type {
   AdminCmsControllerRemoveResponses,
   AdminCmsControllerUpdateData,
   AdminCmsControllerUpdateResponses,
+  AdminComplianceControllerAdoptRegistryPeopleData,
+  AdminComplianceControllerAdoptRegistryPeopleResponses,
   AdminComplianceControllerGetCaseData,
   AdminComplianceControllerGetCaseResponses,
   AdminComplianceControllerListCasesData,
@@ -53,6 +63,8 @@ import type {
   AdminComplianceControllerRequestChangesResponses,
   AdminComplianceControllerRequestDocumentsData,
   AdminComplianceControllerRequestDocumentsResponses,
+  AdminComplianceControllerRequestMissingData,
+  AdminComplianceControllerRequestMissingResponses,
   AdminComplianceControllerReviewKybData,
   AdminComplianceControllerReviewKybResponses,
   AdminComplianceControllerReviewKycData,
@@ -77,6 +89,14 @@ import type {
   AdminEscrowsControllerFindAllResponses,
   AdminEscrowsControllerGetStatsData,
   AdminEscrowsControllerGetStatsResponses,
+  AdminFundingWindowsControllerCloseData,
+  AdminFundingWindowsControllerCloseResponses,
+  AdminFundingWindowsControllerExtendData,
+  AdminFundingWindowsControllerExtendResponses,
+  AdminFundingWindowsControllerQueueData,
+  AdminFundingWindowsControllerQueueResponses,
+  AdminFundingWindowsControllerReopenData,
+  AdminFundingWindowsControllerReopenResponses,
   AdminLedgerControllerGetAccountData,
   AdminLedgerControllerGetAccountResponses,
   AdminLedgerControllerGetEntryData,
@@ -155,6 +175,10 @@ import type {
   AdminOrganizationsControllerFindOneResponses,
   AdminOrganizationsControllerListMembersData,
   AdminOrganizationsControllerListMembersResponses,
+  AdminPaymentsControllerGetPaymentProfileData,
+  AdminPaymentsControllerGetPaymentProfileResponses,
+  AdminPaymentsControllerProvisionData,
+  AdminPaymentsControllerProvisionResponses,
   AdminProductsControllerApproveData,
   AdminProductsControllerApproveResponses,
   AdminProductsControllerCreateData,
@@ -175,6 +199,18 @@ import type {
   AdminRequestsControllerFindOneResponses,
   AdminRequestsControllerUpdateStatusData,
   AdminRequestsControllerUpdateStatusResponses,
+  AdminRoutingControllerCreateData,
+  AdminRoutingControllerCreateResponses,
+  AdminRoutingControllerListData,
+  AdminRoutingControllerListResponses,
+  AdminRoutingControllerReloadData,
+  AdminRoutingControllerReloadResponses,
+  AdminRoutingControllerRemoveData,
+  AdminRoutingControllerRemoveResponses,
+  AdminRoutingControllerResolveData,
+  AdminRoutingControllerResolveResponses,
+  AdminRoutingControllerUpdateData,
+  AdminRoutingControllerUpdateResponses,
   AdminSupportControllerAddMessageData,
   AdminSupportControllerAddMessageResponses,
   AdminSupportControllerFindAllData,
@@ -3582,38 +3618,38 @@ export const adminLicenseRequirementsControllerUpdate = <
   });
 
 /**
- * List all products (Admin)
+ * List all benchmarks (active and inactive) with usage counts
  */
-export const adminProductsControllerFindAll = <
+export const adminBenchmarksControllerList = <
   ThrowOnError extends boolean = false,
 >(
-  options?: Options<AdminProductsControllerFindAllData, ThrowOnError>,
+  options?: Options<AdminBenchmarksControllerListData, ThrowOnError>,
 ) =>
   (options?.client ?? client).get<
-    AdminProductsControllerFindAllResponses,
+    AdminBenchmarksControllerListResponses,
     unknown,
     ThrowOnError
   >({
     security: [{ scheme: "bearer", type: "http" }],
-    url: "/api/v1/admin/products",
+    url: "/api/v1/admin/benchmarks",
     ...options,
   });
 
 /**
- * Create a new product (Admin)
+ * Create a benchmark
  */
-export const adminProductsControllerCreate = <
+export const adminBenchmarksControllerCreate = <
   ThrowOnError extends boolean = false,
 >(
-  options: Options<AdminProductsControllerCreateData, ThrowOnError>,
+  options: Options<AdminBenchmarksControllerCreateData, ThrowOnError>,
 ) =>
   (options.client ?? client).post<
-    AdminProductsControllerCreateResponses,
+    AdminBenchmarksControllerCreateResponses,
     unknown,
     ThrowOnError
   >({
     security: [{ scheme: "bearer", type: "http" }],
-    url: "/api/v1/admin/products",
+    url: "/api/v1/admin/benchmarks",
     ...options,
     headers: {
       "Content-Type": "application/json",
@@ -3622,79 +3658,43 @@ export const adminProductsControllerCreate = <
   });
 
 /**
- * Delete a product (Admin)
+ * Delete an unreferenced benchmark
  */
-export const adminProductsControllerRemove = <
+export const adminBenchmarksControllerRemove = <
   ThrowOnError extends boolean = false,
 >(
-  options: Options<AdminProductsControllerRemoveData, ThrowOnError>,
+  options: Options<AdminBenchmarksControllerRemoveData, ThrowOnError>,
 ) =>
   (options.client ?? client).delete<
-    AdminProductsControllerRemoveResponses,
+    AdminBenchmarksControllerRemoveResponses,
     unknown,
     ThrowOnError
   >({
     security: [{ scheme: "bearer", type: "http" }],
-    url: "/api/v1/admin/products/{id}",
+    url: "/api/v1/admin/benchmarks/{id}",
     ...options,
   });
 
 /**
- * Get a product by ID (Admin)
+ * Update a benchmark
  */
-export const adminProductsControllerFindOne = <
+export const adminBenchmarksControllerUpdate = <
   ThrowOnError extends boolean = false,
 >(
-  options: Options<AdminProductsControllerFindOneData, ThrowOnError>,
-) =>
-  (options.client ?? client).get<
-    AdminProductsControllerFindOneResponses,
-    unknown,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/api/v1/admin/products/{id}",
-    ...options,
-  });
-
-/**
- * Update an existing product (Admin)
- */
-export const adminProductsControllerUpdate = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<AdminProductsControllerUpdateData, ThrowOnError>,
+  options: Options<AdminBenchmarksControllerUpdateData, ThrowOnError>,
 ) =>
   (options.client ?? client).patch<
-    AdminProductsControllerUpdateResponses,
+    AdminBenchmarksControllerUpdateResponses,
     unknown,
     ThrowOnError
   >({
     security: [{ scheme: "bearer", type: "http" }],
-    url: "/api/v1/admin/products/{id}",
+    url: "/api/v1/admin/benchmarks/{id}",
     ...options,
     headers: {
       "Content-Type": "application/json",
       ...options.headers,
     },
-  });
-
-/**
- * Approve a product (Admin) — requires org KYB approved
- */
-export const adminProductsControllerApprove = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<AdminProductsControllerApproveData, ThrowOnError>,
-) =>
-  (options.client ?? client).post<
-    AdminProductsControllerApproveResponses,
-    unknown,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/api/v1/admin/products/{id}/approve",
-    ...options,
   });
 
 /**
@@ -3942,6 +3942,202 @@ export const adminManagementControllerReactivate = <
   >({
     security: [{ scheme: "bearer", type: "http" }],
     url: "/api/v1/admin/admins/{id}/reactivate",
+    ...options,
+  });
+
+/**
+ * Queue of escrow funding windows (open, overdue, recently expired)
+ */
+export const adminFundingWindowsControllerQueue = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<AdminFundingWindowsControllerQueueData, ThrowOnError>,
+) =>
+  (options?.client ?? client).get<
+    AdminFundingWindowsControllerQueueResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/funding-windows",
+    ...options,
+  });
+
+/**
+ * Extend a live funding window
+ */
+export const adminFundingWindowsControllerExtend = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AdminFundingWindowsControllerExtendData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    AdminFundingWindowsControllerExtendResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/funding-windows/{transactionId}/extend",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Close a live funding window now (cancels the transaction and order)
+ */
+export const adminFundingWindowsControllerClose = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AdminFundingWindowsControllerCloseData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    AdminFundingWindowsControllerCloseResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/funding-windows/{transactionId}/close",
+    ...options,
+  });
+
+/**
+ * Re-open an expired funding window (restores the transaction, order, and request claim)
+ */
+export const adminFundingWindowsControllerReopen = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AdminFundingWindowsControllerReopenData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    AdminFundingWindowsControllerReopenResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/funding-windows/{transactionId}/reopen",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * List all products (Admin)
+ */
+export const adminProductsControllerFindAll = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<AdminProductsControllerFindAllData, ThrowOnError>,
+) =>
+  (options?.client ?? client).get<
+    AdminProductsControllerFindAllResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/products",
+    ...options,
+  });
+
+/**
+ * Create a new product (Admin)
+ */
+export const adminProductsControllerCreate = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AdminProductsControllerCreateData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    AdminProductsControllerCreateResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/products",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Delete a product (Admin)
+ */
+export const adminProductsControllerRemove = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AdminProductsControllerRemoveData, ThrowOnError>,
+) =>
+  (options.client ?? client).delete<
+    AdminProductsControllerRemoveResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/products/{id}",
+    ...options,
+  });
+
+/**
+ * Get a product by ID (Admin)
+ */
+export const adminProductsControllerFindOne = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AdminProductsControllerFindOneData, ThrowOnError>,
+) =>
+  (options.client ?? client).get<
+    AdminProductsControllerFindOneResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/products/{id}",
+    ...options,
+  });
+
+/**
+ * Update an existing product (Admin)
+ */
+export const adminProductsControllerUpdate = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AdminProductsControllerUpdateData, ThrowOnError>,
+) =>
+  (options.client ?? client).patch<
+    AdminProductsControllerUpdateResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/products/{id}",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Approve a product (Admin) — requires org KYB approved
+ */
+export const adminProductsControllerApprove = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AdminProductsControllerApproveData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    AdminProductsControllerApproveResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/products/{id}/approve",
     ...options,
   });
 
@@ -5110,6 +5306,49 @@ export const adminComplianceControllerRequestChanges = <
   });
 
 /**
+ * Request everything provisioning still needs: adopt registry-satisfiable gaps, send the organization one ask covering the rest (verified orgs only)
+ */
+export const adminComplianceControllerRequestMissing = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AdminComplianceControllerRequestMissingData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    AdminComplianceControllerRequestMissingResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/compliance/kyb/{organizationId}/request-missing",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Adopt registry directors/owners the stored profile is missing (gap-fill only)
+ */
+export const adminComplianceControllerAdoptRegistryPeople = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    AdminComplianceControllerAdoptRegistryPeopleData,
+    ThrowOnError
+  >,
+) =>
+  (options.client ?? client).post<
+    AdminComplianceControllerAdoptRegistryPeopleResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/compliance/kyb/{organizationId}/adopt-registry-people",
+    ...options,
+  });
+
+/**
  * Re-run provider onboarding for an approved organization
  */
 export const adminComplianceControllerOnboard = <
@@ -5636,6 +5875,158 @@ export const adminLocationsControllerSetSanctioned = <
       "Content-Type": "application/json",
       ...options.headers,
     },
+  });
+
+/**
+ * Get an organization's payment provisioning state (bindings, capabilities, payout destinations, provider verdict)
+ */
+export const adminPaymentsControllerGetPaymentProfile = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AdminPaymentsControllerGetPaymentProfileData, ThrowOnError>,
+) =>
+  (options.client ?? client).get<
+    AdminPaymentsControllerGetPaymentProfileResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/organizations/{id}/payment-profile",
+    ...options,
+  });
+
+/**
+ * Manually (re-)run provider provisioning for an approved organization
+ */
+export const adminPaymentsControllerProvision = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AdminPaymentsControllerProvisionData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    AdminPaymentsControllerProvisionResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/organizations/{id}/payment-profile/provision",
+    ...options,
+  });
+
+/**
+ * List all routing rules (most specific first)
+ */
+export const adminRoutingControllerList = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<AdminRoutingControllerListData, ThrowOnError>,
+) =>
+  (options?.client ?? client).get<
+    AdminRoutingControllerListResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/routing/rules",
+    ...options,
+  });
+
+/**
+ * Create a routing rule
+ */
+export const adminRoutingControllerCreate = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AdminRoutingControllerCreateData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    AdminRoutingControllerCreateResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/routing/rules",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Delete a routing rule
+ */
+export const adminRoutingControllerRemove = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AdminRoutingControllerRemoveData, ThrowOnError>,
+) =>
+  (options.client ?? client).delete<
+    AdminRoutingControllerRemoveResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/routing/rules/{id}",
+    ...options,
+  });
+
+/**
+ * Update a routing rule
+ */
+export const adminRoutingControllerUpdate = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AdminRoutingControllerUpdateData, ThrowOnError>,
+) =>
+  (options.client ?? client).patch<
+    AdminRoutingControllerUpdateResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/routing/rules/{id}",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Reload the in-memory routing table from the database
+ */
+export const adminRoutingControllerReload = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<AdminRoutingControllerReloadData, ThrowOnError>,
+) =>
+  (options?.client ?? client).post<
+    AdminRoutingControllerReloadResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/routing/reload",
+    ...options,
+  });
+
+/**
+ * Preview which rule and providers a corridor resolves to
+ */
+export const adminRoutingControllerResolve = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AdminRoutingControllerResolveData, ThrowOnError>,
+) =>
+  (options.client ?? client).get<
+    AdminRoutingControllerResolveResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/routing/resolve",
+    ...options,
   });
 
 export const orgProductsControllerFindAll = <

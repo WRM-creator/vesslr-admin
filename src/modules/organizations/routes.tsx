@@ -49,6 +49,13 @@ export const organizationsRoutes: RouteObject[] = [
         }),
       },
       {
+        path: "payments",
+        lazy: async () => ({
+          Component: (await import("./pages/organization-tabs-routes"))
+            .OrganizationPaymentsRoute,
+        }),
+      },
+      {
         path: "financials",
         lazy: async () => ({
           Component: (await import("./pages/organization-tabs-routes"))

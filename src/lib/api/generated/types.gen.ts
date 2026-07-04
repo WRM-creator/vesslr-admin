@@ -149,6 +149,8 @@ export type StructuredReasonDto = {
     | "rc_number"
     | "director_id"
     | "director_info"
+    | "business_owners"
+    | "transaction_profile"
     | "id_document"
     | "selfie_liveness"
     | "proof_of_past_performance"
@@ -162,7 +164,8 @@ export type StructuredReasonDto = {
     | "incomplete"
     | "failed"
     | "insufficient"
-    | "outdated";
+    | "outdated"
+    | "information_requested";
   note?: string;
 };
 
@@ -261,6 +264,10 @@ export type UserProfileResponseDto = {
     | "pending_review"
     | "action_required"
     | "approved";
+  /**
+   * Durable verification verdict — platform access gates on this. complianceStatus is the conversational case state and may cycle post-approval without affecting access. Absent = never approved.
+   */
+  verificationStanding?: "verified" | "revoked";
   kycStatus?:
     | "draft"
     | "submitted"
@@ -1939,6 +1946,9 @@ export type TransactionEventDto = {
   action:
     | "CREATED"
     | "STATUS_CHANGE"
+    | "FUNDING_WINDOW_EXTENDED"
+    | "FUNDING_WINDOW_REOPENED"
+    | "FUNDING_WINDOW_CLOSED"
     | "DOCUMENT_UPLOADED"
     | "DOCUMENT_REVIEWED"
     | "LOGISTICS_UPDATE"
@@ -2222,7 +2232,9 @@ export type TransactionResponseDto = {
   /**
    * Why the platform cancelled this transaction, when it did.
    */
-  cancellationReason?: "funding_window_expired";
+  cancellationReason?:
+    | "funding_window_expired"
+    | "funding_window_closed_by_admin";
   createdAt: string;
   updatedAt: string;
 };
@@ -4277,6 +4289,8 @@ export type OnboardingRequestedDocumentDto = {
   type: string;
   label: string;
   note?: string;
+  status: "requested" | "provided" | "accepted" | "rejected";
+  file?: FileMetadataResponseDto;
 };
 
 export type OnboardingStatusResponseDto = {
@@ -4518,6 +4532,7 @@ export type UpdateCompanyDocumentsDto = {
 
 export type PatchCompanyDocumentsDto = {
   certificateOfIncorporation?: FileMetadataDto;
+  proofOfResidenceFile?: FileMetadataDto;
   memorandum?: FileMetadataDto;
   shareholderStructure?: FileMetadataDto;
   taxIdDocument?: FileMetadataDto;
@@ -4793,6 +4808,179 @@ export type UpdateLicenseRequirementDto = {
   categoryIds?: Array<string>;
 };
 
+export type AdminBenchmarkDto = {
+  _id: string;
+  code: string;
+  name: string;
+  benchmarkCurrency: "NGN" | "KES" | "USD" | "EUR" | "USDT";
+  defaultUnit:
+    | "bbl"
+    | "liter"
+    | "gallon"
+    | "m3"
+    | "mt"
+    | "kg"
+    | "ton"
+    | "lb"
+    | "m"
+    | "ft"
+    | "sqm"
+    | "sqft"
+    | "scf"
+    | "sm3"
+    | "nm3"
+    | "mmbtu"
+    | "kwh"
+    | "mwh"
+    | "kva"
+    | "kw"
+    | "mw"
+    | "unit"
+    | "set"
+    | "kit"
+    | "pair"
+    | "joint"
+    | "roll"
+    | "sheet"
+    | "box"
+    | "pack"
+    | "drum"
+    | "bag"
+    | "cylinder"
+    | "ream"
+    | "license"
+    | "skid"
+    | "package"
+    | "plate"
+    | "bar";
+  active: boolean;
+  /**
+   * How many orders, requests, and negotiations reference this benchmark
+   */
+  usageCount: number;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type AdminBenchmarksResponseDto = {
+  message: string;
+  data: Array<AdminBenchmarkDto>;
+};
+
+export type CreateBenchmarkDto = {
+  /**
+   * Stable machine code (A-Z, 0-9, underscores). Referenced by the mock price map and immutable once the benchmark is in use.
+   */
+  code: string;
+  name: string;
+  benchmarkCurrency: "NGN" | "KES" | "USD" | "EUR" | "USDT";
+  defaultUnit:
+    | "bbl"
+    | "liter"
+    | "gallon"
+    | "m3"
+    | "mt"
+    | "kg"
+    | "ton"
+    | "lb"
+    | "m"
+    | "ft"
+    | "sqm"
+    | "sqft"
+    | "scf"
+    | "sm3"
+    | "nm3"
+    | "mmbtu"
+    | "kwh"
+    | "mwh"
+    | "kva"
+    | "kw"
+    | "mw"
+    | "unit"
+    | "set"
+    | "kit"
+    | "pair"
+    | "joint"
+    | "roll"
+    | "sheet"
+    | "box"
+    | "pack"
+    | "drum"
+    | "bag"
+    | "cylinder"
+    | "ream"
+    | "license"
+    | "skid"
+    | "package"
+    | "plate"
+    | "bar";
+  active?: boolean;
+};
+
+export type AdminBenchmarkResponseDto = {
+  message: string;
+  data: AdminBenchmarkDto;
+};
+
+export type UpdateBenchmarkDto = {
+  /**
+   * Changeable only while the benchmark is unreferenced
+   */
+  code?: string;
+  name?: string;
+  /**
+   * Changeable only while the benchmark is unreferenced
+   */
+  benchmarkCurrency?: "NGN" | "KES" | "USD" | "EUR" | "USDT";
+  /**
+   * Changeable only while the benchmark is unreferenced
+   */
+  defaultUnit?:
+    | "bbl"
+    | "liter"
+    | "gallon"
+    | "m3"
+    | "mt"
+    | "kg"
+    | "ton"
+    | "lb"
+    | "m"
+    | "ft"
+    | "sqm"
+    | "sqft"
+    | "scf"
+    | "sm3"
+    | "nm3"
+    | "mmbtu"
+    | "kwh"
+    | "mwh"
+    | "kva"
+    | "kw"
+    | "mw"
+    | "unit"
+    | "set"
+    | "kit"
+    | "pair"
+    | "joint"
+    | "roll"
+    | "sheet"
+    | "box"
+    | "pack"
+    | "drum"
+    | "bag"
+    | "cylinder"
+    | "ream"
+    | "license"
+    | "skid"
+    | "package"
+    | "plate"
+    | "bar";
+  /**
+   * Deactivating removes the benchmark from new deals AND blocks price resolution for existing unfunded differential orders
+   */
+  active?: boolean;
+};
+
 export type AdminLoginDto = {
   /**
    * Admin's email address
@@ -4850,6 +5038,12 @@ export type PermissionOverridesDto = {
     | "settings:view"
     | "settings:manage"
     | "ledger:view"
+    | "payments:view"
+    | "payments:manage"
+    | "routing:view"
+    | "routing:manage"
+    | "benchmark:view"
+    | "benchmark:manage"
     | "user:view"
     | "user:manage"
     | "cms:view"
@@ -4895,6 +5089,12 @@ export type PermissionOverridesDto = {
     | "settings:view"
     | "settings:manage"
     | "ledger:view"
+    | "payments:view"
+    | "payments:manage"
+    | "routing:view"
+    | "routing:manage"
+    | "benchmark:view"
+    | "benchmark:manage"
     | "user:view"
     | "user:manage"
     | "cms:view"
@@ -4988,6 +5188,12 @@ export type PermissionOverridesResponseDto = {
     | "settings:view"
     | "settings:manage"
     | "ledger:view"
+    | "payments:view"
+    | "payments:manage"
+    | "routing:view"
+    | "routing:manage"
+    | "benchmark:view"
+    | "benchmark:manage"
     | "user:view"
     | "user:manage"
     | "cms:view"
@@ -5030,6 +5236,12 @@ export type PermissionOverridesResponseDto = {
     | "settings:view"
     | "settings:manage"
     | "ledger:view"
+    | "payments:view"
+    | "payments:manage"
+    | "routing:view"
+    | "routing:manage"
+    | "benchmark:view"
+    | "benchmark:manage"
     | "user:view"
     | "user:manage"
     | "cms:view"
@@ -5091,6 +5303,12 @@ export type AdminResponseDto = {
     | "settings:view"
     | "settings:manage"
     | "ledger:view"
+    | "payments:view"
+    | "payments:manage"
+    | "routing:view"
+    | "routing:manage"
+    | "benchmark:view"
+    | "benchmark:manage"
     | "user:view"
     | "user:manage"
     | "cms:view"
@@ -5146,6 +5364,70 @@ export type UpdateAdminDto = {
    * Permission overrides on top of role defaults
    */
   permissionOverrides?: PermissionOverridesDto;
+};
+
+export type FundingWindowOrgDto = {
+  _id: string;
+  name: string;
+};
+
+export type FundingWindowRowDto = {
+  /**
+   * Transaction id (the window lives on it)
+   */
+  transactionId: string;
+  transactionDisplayId: number;
+  orderId: string;
+  orderDisplayId: number;
+  buyer: FundingWindowOrgDto | null;
+  seller: FundingWindowOrgDto | null;
+  /**
+   * Order total in minor units; absent while UNPRICED
+   */
+  totalAmount?: number;
+  currency?: string;
+  state: "open" | "overdue" | "expired";
+  complianceApprovedAt?: string;
+  fundingDueAt: string;
+  /**
+   * When the <48h reminder went out
+   */
+  fundingReminderSentAt?: string;
+  /**
+   * Why the window closed (expired states only)
+   */
+  cancellationReason?: string;
+};
+
+export type FundingWindowQueueDataDto = {
+  rows: Array<FundingWindowRowDto>;
+  openCount: number;
+  overdueCount: number;
+  expiredCount: number;
+};
+
+export type FundingWindowQueueResponseDto = {
+  message: string;
+  data: FundingWindowQueueDataDto;
+};
+
+export type ExtendFundingWindowDto = {
+  /**
+   * Days to add, counted from the later of now and the current deadline
+   */
+  days: number;
+};
+
+export type FundingWindowRowResponseDto = {
+  message: string;
+  data: FundingWindowRowDto;
+};
+
+export type ReopenFundingWindowDto = {
+  /**
+   * Length of the fresh funding window in days
+   */
+  days?: number;
 };
 
 export type CategoryDocumentTemplateInput = {
@@ -5728,6 +6010,17 @@ export type ReviewInspectionDto = {
   rejectionReason?: string;
 };
 
+export type AdminDisputeStatsDto = {
+  totalDocs: number;
+  openDocs: number;
+  resolvedDocs: number;
+};
+
+export type AdminDisputeStatsResponseDto = {
+  message: string;
+  data: AdminDisputeStatsDto;
+};
+
 export type AdminDisputeResolvedByDto = {
   _id: string;
   firstName: string;
@@ -5755,6 +6048,7 @@ export type AdminDisputeTransactionProductDto = {
 
 export type AdminDisputeTransactionDto = {
   _id: string;
+  displayId?: number;
   status: string;
   type: string;
   product?: AdminDisputeTransactionProductDto;
@@ -5796,11 +6090,36 @@ export type AdminDisputeAttachmentDto = {
   uploadedByRole: "BUYER" | "SELLER";
 };
 
+export type AdminDisputeAttachmentRefDto = {
+  url: string;
+  name: string;
+};
+
+export type AdminDisputeInformationRequestResponseDto = {
+  message: string | null;
+  attachments: Array<AdminDisputeAttachmentRefDto>;
+  submittedBy: string;
+  submittedAt: string;
+};
+
+export type AdminDisputeInformationRequestDto = {
+  _id: string;
+  requestedFrom: "BUYER" | "SELLER";
+  requestedBy: string;
+  message: string;
+  requiresDocuments: boolean;
+  documentDescription: string | null;
+  deadline: string | null;
+  status: "PENDING" | "FULFILLED" | "DISMISSED";
+  response: AdminDisputeInformationRequestResponseDto | null;
+  createdAt: string;
+};
+
 export type AdminDisputeResponseDto = {
   _id: string;
   displayId: number;
   type: string;
-  raisedByRole: string;
+  raisedByRole: "BUYER" | "SELLER";
   stageId?: string;
   resolution: AdminDisputeResolutionDto | null;
   transaction: AdminDisputeTransactionDto;
@@ -5814,6 +6133,7 @@ export type AdminDisputeResponseDto = {
   updatedAt: string;
   auditLog: Array<AdminDisputeAuditEventDto>;
   attachments: Array<AdminDisputeAttachmentDto>;
+  informationRequests: Array<AdminDisputeInformationRequestDto>;
 };
 
 export type PaginatedAdminDisputesDataDto = {
@@ -6150,6 +6470,33 @@ export type RegistryDataDto = {
   fiduciaries?: Array<RegistryFiduciaryDto>;
 };
 
+export type BusinessPersonDto = {
+  _id: string;
+  name?: string;
+  firstName?: string;
+  lastName?: string;
+  occupation?: string;
+  nationalityCode?: string;
+  dateOfBirth?: string;
+  gender?: string;
+  shareholdings?: string;
+  shareholderType?: string;
+  ownsMoreThanFivePercent?: boolean;
+  percentageOwnership?: number;
+  isPep?: boolean;
+  email?: string;
+  phoneNumber?: string;
+  idDocumentType?: string;
+  idDocumentNumber?: string;
+  idExpiryDate?: string;
+  idDocument?: ComplianceFileMetadataDto;
+  completed?: boolean;
+  /**
+   * A BVN is stored for this person (the value is never exposed).
+   */
+  hasBvn: boolean;
+};
+
 export type KybProfileDto = {
   _id: string;
   status:
@@ -6158,6 +6505,10 @@ export type KybProfileDto = {
     | "pending_review"
     | "action_required"
     | "approved";
+  /**
+   * Durable verification verdict — access gates on this, while `status` is the conversational case state and cycles freely post-approval. Absent = never approved.
+   */
+  verificationStanding?: "verified" | "revoked";
   companySnapshot: CompanySnapshotDto;
   documents: KybDocumentsDto;
   checks: KybChecksDto;
@@ -6173,6 +6524,14 @@ export type KybProfileDto = {
   providerVerification?: ProviderVerificationDto;
   submittedByUser?: SubmittedByUserDto;
   registryData?: RegistryDataDto;
+  /**
+   * Stored directors (BVN values projected off).
+   */
+  directors: Array<BusinessPersonDto>;
+  /**
+   * Stored beneficial owners (BVN values projected off).
+   */
+  beneficialOwners: Array<BusinessPersonDto>;
   /**
    * Corridor verification mode. `manual` (no automated KYB/KYC provider) drives the admin reviewer checklist and document-led case layout; `automated` keeps the provider/registry-led layout.
    */
@@ -6207,12 +6566,27 @@ export type KycChecksDto = {
   pep?: ComplianceCheckDto;
 };
 
+export type RepresentativePepRelationDto = {
+  name?: string;
+  position?: string;
+};
+
+export type RepresentativeDeclarationsDto = {
+  isDirector?: boolean;
+  ownsMoreThanFivePercent?: boolean;
+  isPep?: boolean;
+  pepRelations?: Array<RepresentativePepRelationDto>;
+  attestation?: boolean;
+  nationalityCode?: string;
+};
+
 export type KycUserDto = {
   _id: string;
   firstName?: string;
   lastName?: string;
   email?: string;
   role?: string;
+  businessRepresentative?: RepresentativeDeclarationsDto;
 };
 
 export type KycProfileDto = {
@@ -6260,6 +6634,18 @@ export type DocumentChecklistItemDto = {
    * When the current file was (last) provided.
    */
   uploadedAt?: string;
+  /**
+   * Trail state of the provided entry; absent while nothing is provided.
+   */
+  status?: "provided" | "accepted" | "rejected";
+  /**
+   * When the outstanding request was made.
+   */
+  requestedAt?: string;
+  /**
+   * When the provided file was last reviewed.
+   */
+  reviewedAt?: string;
 };
 
 export type OutstandingDocumentDto = {
@@ -6321,11 +6707,69 @@ export type ProviderOnboardingStatusDto = {
   currencies: Array<string>;
 };
 
+export type CompletenessItemDto = {
+  key: string;
+  label: string;
+  satisfied: boolean;
+  detail?: string;
+  source: "platform" | "provider";
+  /**
+   * Set on provider-sourced items (admin-facing only; never shown to users).
+   */
+  provider?: string;
+  /**
+   * Provider-sourced items only: how the gap closes — auto-filled from the registry, requestable from the organization, or platform-side.
+   */
+  resolution?:
+    | "registry_adoptable"
+    | "org_data"
+    | "org_document"
+    | "platform"
+    | "unmapped";
+};
+
+export type UboSummaryDto = {
+  /**
+   * Sum of percentageOwnership across stored beneficial owners.
+   */
+  totalPercent: number;
+  ownersWithPercent: number;
+  /**
+   * Owners stored without a numeric stake — the sum under-counts.
+   */
+  ownersWithoutPercent: number;
+  /**
+   * Listed stakes exceed 100% — a data error.
+   */
+  over100: boolean;
+  threshold: number;
+  thresholdLabel: string;
+};
+
+export type PeopleReconciliationDto = {
+  registryDirectors: number;
+  storedDirectors: number;
+  registryOwners: number;
+  storedOwners: number;
+  /**
+   * Registry director names with no stored match (adoptable).
+   */
+  directorsNotStored: Array<string>;
+  /**
+   * Registry owner names with no stored match (adoptable).
+   */
+  ownersNotStored: Array<string>;
+};
+
 export type ComplianceEventDto = {
   _id: string;
   eventType: string;
   actorType: "user" | "admin" | "system";
   actorId?: string;
+  /**
+   * Display name of the admin actor, resolved from actorId at read time.
+   */
+  actorName?: string;
   fromStatus?: string;
   toStatus?: string;
   metadata?: {
@@ -6372,7 +6816,17 @@ export type ComplianceCaseDetailDto = {
    * Per-provider payment onboarding status board (ops/admin only). One entry per onboarding-capable provider the org is bound to.
    */
   providerOnboarding: Array<ProviderOnboardingStatusDto>;
+  /**
+   * Data-completeness checklist: platform items (country identifiers + provisioning-known fields) plus provider items from the SAME missingRequirements call the onboarding pipeline gates on.
+   */
+  completeness: Array<CompletenessItemDto>;
+  ubo: UboSummaryDto;
+  peopleReconciliation: PeopleReconciliationDto;
   events: Array<ComplianceEventDto>;
+  /**
+   * Total events on the case; `events` carries only the latest 200, so a larger total means the visible history is truncated.
+   */
+  eventsTotal: number;
 };
 
 export type ReviewChecklistItemDto = {
@@ -6470,6 +6924,64 @@ export type RequestChangesDto = {
    * Free-text message shown to the customer (white-labeled — must not name any payment provider).
    */
   message?: string;
+};
+
+export type RequestMissingDataDto = {
+  /**
+   * Optional note shown to the customer with the request (white-labeled — must not name a provider). A default message is used when omitted.
+   */
+  message?: string;
+  /**
+   * Also set the org's verificationStanding to 'revoked': platform access is suspended until an admin re-approves the case. Default false — a routine ask leaves the org trading; suspension is an explicit choice.
+   */
+  revokeVerification?: boolean;
+};
+
+export type MissingFieldItemDto = {
+  /**
+   * Canonical ComplianceProfile field path
+   */
+  field: string;
+  /**
+   * The provider adapter's reason text
+   */
+  reason: string;
+};
+
+export type RequestMissingOutcomeDto = {
+  /**
+   * Canonical fields satisfied from the registry snapshot during this call (no org involvement needed)
+   */
+  adopted: Array<string>;
+  /**
+   * Data-section reason targets newly flagged on the case
+   */
+  dataRequested: Array<string>;
+  /**
+   * Document codes newly requested from the organization
+   */
+  documentsRequested: Array<string>;
+  /**
+   * Asks that were already outstanding — not re-issued
+   */
+  alreadyPending: Array<string>;
+  /**
+   * Gaps only the platform side can fix (derived fields, org-record edits) — nothing was sent to the org for these
+   */
+  platform: Array<MissingFieldItemDto>;
+  /**
+   * Requirement fields with no known resolution — need a manual decision
+   */
+  unmapped: Array<MissingFieldItemDto>;
+  /**
+   * Whether this call revoked the org's verification standing (access suspended until re-approval)
+   */
+  verificationRevoked: boolean;
+};
+
+export type RequestMissingResponseDto = {
+  message: string;
+  data: RequestMissingOutcomeDto;
 };
 
 export type ProviderOnboardingMissingDto = {
@@ -6835,6 +7347,369 @@ export type UpdateCountrySanctionedDto = {
    * Whether to block this country from onboarding (sanctioned). When true the country is hidden from the onboarding picker and signup/operating-country changes for it are rejected.
    */
   sanctioned: boolean;
+};
+
+export type AdminFundingAccountDto = {
+  /**
+   * Masked funding account number
+   */
+  accountNumber: string;
+  bankName: string;
+  bankCode?: string;
+};
+
+export type AdminProviderBindingDto = {
+  /**
+   * Payment provider backing this binding
+   */
+  provider: string;
+  /**
+   * Currency the binding holds (NGN, USDT, ...)
+   */
+  currency: string;
+  /**
+   * ISO2 corridor country at provisioning time
+   */
+  country: string;
+  onboardingStatus: "none" | "pending" | "in_review" | "active" | "rejected";
+  status: "active" | "disabled";
+  /**
+   * Provider-side principal (e.g. Busha business customer id)
+   */
+  principalId?: string;
+  /**
+   * Custodian account/subaccount handle
+   */
+  walletRef?: string;
+  /**
+   * Masked static funding account number
+   */
+  walletAccountNumber?: string;
+  fundingAccount?: AdminFundingAccountDto;
+  /**
+   * When provisioning last touched this binding
+   */
+  lastAttemptAt?: string;
+  /**
+   * created | resubmitted | status_refreshed | reconciled | webhook_update | incomplete | error
+   */
+  lastOutcome?: string;
+  lastError?: string;
+  /**
+   * Why the binding is not active, bucketed by whose move it is: transient (retry helps), data_actionable (org must correct data via request-changes), provider_blocked (waiting on the provider; retrying is futile). Null when healthy or normally in progress.
+   */
+  blockedBy: "transient" | "data_actionable" | "provider_blocked";
+};
+
+export type AdminCurrencyCapabilityDto = {
+  currency: string;
+  /**
+   * Derived per-currency capability, same projection users see
+   */
+  status: "active" | "setting_up" | "unavailable";
+};
+
+export type AdminBankDetailsDto = {
+  /**
+   * Masked account number
+   */
+  accountNumber: string;
+  bankCode: string;
+  bankName: string;
+  accountName: string;
+  currency: string;
+  swiftBic?: string;
+  verifiedAt?: string;
+};
+
+export type AdminCryptoPayoutDetailsDto = {
+  /**
+   * Asset held/received, e.g. USDT
+   */
+  asset: string;
+  /**
+   * Masked on-chain destination address
+   */
+  address: string;
+  /**
+   * Network code (TRX, ERC20, ...)
+   */
+  network: string;
+  memo?: string;
+  verifiedAt?: string;
+};
+
+export type AdminProviderVerificationItemDto = {
+  label: string;
+  reason: string;
+};
+
+export type AdminProviderVerificationDto = {
+  provider: string;
+  status: string;
+  summary?: string;
+  items?: Array<AdminProviderVerificationItemDto>;
+  currencies?: Array<string>;
+  receivedAt: string;
+};
+
+export type AdminPaymentsEventDto = {
+  /**
+   * payments.provisioning_triggered | payments.onboarding_status_changed
+   */
+  eventType: string;
+  actorType: "user" | "admin" | "system";
+  /**
+   * Acting admin id when actorType=admin
+   */
+  actorId?: string;
+  /**
+   * provider, status, currencies, source, reason, outcome
+   */
+  metadata?: {
+    [key: string]: unknown;
+  };
+  createdAt: string;
+};
+
+export type AdminProviderRequirementDto = {
+  /**
+   * Canonical ComplianceProfile field path the provider reports missing (e.g. owners[].bvn)
+   */
+  field: string;
+  /**
+   * Reviewer-facing name for the gap (curated per canonical field)
+   */
+  label: string;
+  /**
+   * The provider adapter's reason text
+   */
+  reason: string;
+  /**
+   * How the gap is resolved: registry_adoptable (auto-filled from the registry snapshot), org_data / org_document (requestable from the organization), platform (admin/derived — nothing to ask the org), unmapped (unknown field, manual decision)
+   */
+  resolution:
+    | "registry_adoptable"
+    | "org_data"
+    | "org_document"
+    | "platform"
+    | "unmapped";
+  /**
+   * For org_data: the data-request type; for org_document: the document code
+   */
+  requestTarget?: string;
+};
+
+export type AdminProviderRequirementsDto = {
+  provider: string;
+  missing: Array<AdminProviderRequirementDto>;
+};
+
+export type AdminOutstandingAskDto = {
+  /**
+   * Whether the org must complete a data section (a flagged reason) or upload a document
+   */
+  kind: "data" | "document";
+  /**
+   * Reason target (business_owners, transaction_profile, ...) or document code
+   */
+  target: string;
+  /**
+   * Human label for the ask
+   */
+  label: string;
+  /**
+   * Admin's instruction to the customer
+   */
+  note?: string;
+};
+
+export type AdminPaymentProfileDto = {
+  organizationId: string;
+  /**
+   * Whether a payment profile document exists for this org yet. False for orgs approved before provisioning or not yet onboarded.
+   */
+  hasPaymentProfile: boolean;
+  /**
+   * Org KYB status (draft | submitted | pending_review | action_required | approved); null if no KYB profile
+   */
+  kybStatus: string | null;
+  /**
+   * Durable verification verdict (access gates on this). kybStatus above is the conversational case state and cycles freely post-approval. Null = never approved.
+   */
+  verificationStanding: "verified" | "revoked";
+  /**
+   * A payment provider declined the org after our KYB approval; needs admin review
+   */
+  providerReviewPending: boolean;
+  bindings: Array<AdminProviderBindingDto>;
+  capabilities: Array<AdminCurrencyCapabilityDto>;
+  bankDetails: AdminBankDetailsDto | null;
+  cryptoPayoutDetails: AdminCryptoPayoutDetailsDto | null;
+  /**
+   * Provider's verification verdict snapshot (raw payload excluded; see compliance case for full detail)
+   */
+  providerVerification: AdminProviderVerificationDto | null;
+  /**
+   * Recent provisioning activity, newest first (last 50)
+   */
+  events: Array<AdminPaymentsEventDto>;
+  /**
+   * What each onboarding-capable provider still needs before it can verify this org — the same gate provisioning runs, so this list and a provision attempt can never disagree
+   */
+  requirements: Array<AdminProviderRequirementsDto>;
+  /**
+   * What the org has been asked for and hasn't provided yet (case reasons + outstanding document requests); fulfilled asks clear from here and live on the case's event trail
+   */
+  outstandingAsks: Array<AdminOutstandingAskDto>;
+};
+
+export type AdminPaymentProfileResponseDto = {
+  message: string;
+  data: AdminPaymentProfileDto;
+};
+
+export type AdminProvisionMissingItemDto = {
+  field: string;
+  reason: string;
+};
+
+export type AdminProvisionOutcomeDto = {
+  /**
+   * Result of the provisioning attempt
+   */
+  status: "noop" | "incomplete" | "onboarded";
+  reason?: string;
+  principalId?: string;
+  bindingStatus?: string;
+  missing?: Array<AdminProvisionMissingItemDto>;
+};
+
+export type AdminProvisionResultDto = {
+  outcome: AdminProvisionOutcomeDto;
+  profile: AdminPaymentProfileDto;
+};
+
+export type AdminProvisionResponseDto = {
+  message: string;
+  data: AdminProvisionResultDto;
+};
+
+export type RoutingRuleDto = {
+  _id: string;
+  matchCurrency?: string;
+  matchCountry?: string;
+  matchRegion?: string;
+  custodian: "flutterwave" | "busha";
+  bankDirectoryProvider?: "flutterwave" | "busha";
+  accountResolutionProvider?: "flutterwave" | "busha";
+  enabled: boolean;
+  /**
+   * Number of constrained match dimensions; most specific rule wins
+   */
+  specificity: number;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type RoutingRulesResponseDto = {
+  message: string;
+  data: Array<RoutingRuleDto>;
+};
+
+export type CreateRoutingRuleDto = {
+  /**
+   * Currency this rule matches (e.g. NGN, USDT); omit for any
+   */
+  matchCurrency?: string;
+  /**
+   * ISO-3166-1 alpha-2 country (e.g. NG); omit for any
+   */
+  matchCountry?: string;
+  /**
+   * Region/state; omit for any
+   */
+  matchRegion?: string;
+  /**
+   * Custodian provider for this corridor
+   */
+  custodian: "flutterwave" | "busha";
+  /**
+   * Override provider for BANK_DIRECTORY lookups
+   */
+  bankDirectoryProvider?: "flutterwave" | "busha";
+  /**
+   * Override provider for ACCOUNT_RESOLUTION lookups
+   */
+  accountResolutionProvider?: "flutterwave" | "busha";
+  enabled?: boolean;
+};
+
+export type RoutingRuleResponseDto = {
+  message: string;
+  data: RoutingRuleDto;
+};
+
+export type UpdateRoutingRuleDto = {
+  /**
+   * Currency match; empty string clears the dimension
+   */
+  matchCurrency?: string;
+  /**
+   * Country match; empty string clears the dimension
+   */
+  matchCountry?: string;
+  /**
+   * Region match; empty string clears the dimension
+   */
+  matchRegion?: string;
+  custodian?: "flutterwave" | "busha";
+  /**
+   * BANK_DIRECTORY override; empty string clears it
+   */
+  bankDirectoryProvider?: "flutterwave" | "busha" | "";
+  /**
+   * ACCOUNT_RESOLUTION override; empty string clears it
+   */
+  accountResolutionProvider?: "flutterwave" | "busha" | "";
+  enabled?: boolean;
+};
+
+export type RoutingReloadResultDto = {
+  /**
+   * Enabled rules now loaded in memory
+   */
+  rulesLoaded: number;
+};
+
+export type RoutingReloadResponseDto = {
+  message: string;
+  data: RoutingReloadResultDto;
+};
+
+export type RoutingResolveResultDto = {
+  /**
+   * Whether any rule matched the corridor
+   */
+  routed: boolean;
+  custodian?: "flutterwave" | "busha";
+  /**
+   * Provider that will serve BANK_DIRECTORY lookups
+   */
+  bankDirectoryProvider?: "flutterwave" | "busha";
+  /**
+   * Provider that will serve ACCOUNT_RESOLUTION lookups
+   */
+  accountResolutionProvider?: "flutterwave" | "busha";
+  /**
+   * The winning rule, when routed
+   */
+  rule?: RoutingRuleDto | null;
+};
+
+export type RoutingResolveResponseDto = {
+  message: string;
+  data: RoutingResolveResultDto;
 };
 
 export type QqFieldDef = {
@@ -10220,106 +11095,65 @@ export type AdminLicenseRequirementsControllerUpdateResponses = {
 export type AdminLicenseRequirementsControllerUpdateResponse =
   AdminLicenseRequirementsControllerUpdateResponses[keyof AdminLicenseRequirementsControllerUpdateResponses];
 
-export type AdminProductsControllerFindAllData = {
+export type AdminBenchmarksControllerListData = {
   body?: never;
   path?: never;
-  query?: {
-    page?: string;
-    limit?: string;
-    status?: string;
-    category?: string;
-    search?: string;
-    merchant?: string;
-    transactionType?: string;
-    "price[gte]"?: string;
-    "price[lte]"?: string;
-    "created[gte]"?: string;
-    "created[lte]"?: string;
-  };
-  url: "/api/v1/admin/products";
+  query?: never;
+  url: "/api/v1/admin/benchmarks";
 };
 
-export type AdminProductsControllerFindAllResponses = {
-  200: PaginatedProductsResponseDto;
+export type AdminBenchmarksControllerListResponses = {
+  200: AdminBenchmarksResponseDto;
 };
 
-export type AdminProductsControllerFindAllResponse =
-  AdminProductsControllerFindAllResponses[keyof AdminProductsControllerFindAllResponses];
+export type AdminBenchmarksControllerListResponse =
+  AdminBenchmarksControllerListResponses[keyof AdminBenchmarksControllerListResponses];
 
-export type AdminProductsControllerCreateData = {
-  body: CreateProductDto;
+export type AdminBenchmarksControllerCreateData = {
+  body: CreateBenchmarkDto;
   path?: never;
   query?: never;
-  url: "/api/v1/admin/products";
+  url: "/api/v1/admin/benchmarks";
 };
 
-export type AdminProductsControllerCreateResponses = {
-  201: ProductResponseDto;
+export type AdminBenchmarksControllerCreateResponses = {
+  201: AdminBenchmarkResponseDto;
 };
 
-export type AdminProductsControllerCreateResponse =
-  AdminProductsControllerCreateResponses[keyof AdminProductsControllerCreateResponses];
+export type AdminBenchmarksControllerCreateResponse =
+  AdminBenchmarksControllerCreateResponses[keyof AdminBenchmarksControllerCreateResponses];
 
-export type AdminProductsControllerRemoveData = {
+export type AdminBenchmarksControllerRemoveData = {
   body?: never;
   path: {
     id: string;
   };
   query?: never;
-  url: "/api/v1/admin/products/{id}";
+  url: "/api/v1/admin/benchmarks/{id}";
 };
 
-export type AdminProductsControllerRemoveResponses = {
+export type AdminBenchmarksControllerRemoveResponses = {
+  /**
+   * Benchmark deleted
+   */
   200: unknown;
 };
 
-export type AdminProductsControllerFindOneData = {
-  body?: never;
+export type AdminBenchmarksControllerUpdateData = {
+  body: UpdateBenchmarkDto;
   path: {
     id: string;
   };
   query?: never;
-  url: "/api/v1/admin/products/{id}";
+  url: "/api/v1/admin/benchmarks/{id}";
 };
 
-export type AdminProductsControllerFindOneResponses = {
-  200: ProductResponseDto;
+export type AdminBenchmarksControllerUpdateResponses = {
+  200: AdminBenchmarkResponseDto;
 };
 
-export type AdminProductsControllerFindOneResponse =
-  AdminProductsControllerFindOneResponses[keyof AdminProductsControllerFindOneResponses];
-
-export type AdminProductsControllerUpdateData = {
-  body: UpdateProductDto;
-  path: {
-    id: string;
-  };
-  query?: never;
-  url: "/api/v1/admin/products/{id}";
-};
-
-export type AdminProductsControllerUpdateResponses = {
-  200: ProductResponseDto;
-};
-
-export type AdminProductsControllerUpdateResponse =
-  AdminProductsControllerUpdateResponses[keyof AdminProductsControllerUpdateResponses];
-
-export type AdminProductsControllerApproveData = {
-  body?: never;
-  path: {
-    id: string;
-  };
-  query?: never;
-  url: "/api/v1/admin/products/{id}/approve";
-};
-
-export type AdminProductsControllerApproveResponses = {
-  200: ProductResponseDto;
-};
-
-export type AdminProductsControllerApproveResponse =
-  AdminProductsControllerApproveResponses[keyof AdminProductsControllerApproveResponses];
+export type AdminBenchmarksControllerUpdateResponse =
+  AdminBenchmarksControllerUpdateResponses[keyof AdminBenchmarksControllerUpdateResponses];
 
 export type AdminAuthControllerLoginData = {
   body: AdminLoginDto;
@@ -10548,6 +11382,169 @@ export type AdminManagementControllerReactivateResponses = {
   201: unknown;
 };
 
+export type AdminFundingWindowsControllerQueueData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: "/api/v1/admin/funding-windows";
+};
+
+export type AdminFundingWindowsControllerQueueResponses = {
+  200: FundingWindowQueueResponseDto;
+};
+
+export type AdminFundingWindowsControllerQueueResponse =
+  AdminFundingWindowsControllerQueueResponses[keyof AdminFundingWindowsControllerQueueResponses];
+
+export type AdminFundingWindowsControllerExtendData = {
+  body: ExtendFundingWindowDto;
+  path: {
+    transactionId: string;
+  };
+  query?: never;
+  url: "/api/v1/admin/funding-windows/{transactionId}/extend";
+};
+
+export type AdminFundingWindowsControllerExtendResponses = {
+  200: FundingWindowRowResponseDto;
+};
+
+export type AdminFundingWindowsControllerExtendResponse =
+  AdminFundingWindowsControllerExtendResponses[keyof AdminFundingWindowsControllerExtendResponses];
+
+export type AdminFundingWindowsControllerCloseData = {
+  body?: never;
+  path: {
+    transactionId: string;
+  };
+  query?: never;
+  url: "/api/v1/admin/funding-windows/{transactionId}/close";
+};
+
+export type AdminFundingWindowsControllerCloseResponses = {
+  200: FundingWindowRowResponseDto;
+};
+
+export type AdminFundingWindowsControllerCloseResponse =
+  AdminFundingWindowsControllerCloseResponses[keyof AdminFundingWindowsControllerCloseResponses];
+
+export type AdminFundingWindowsControllerReopenData = {
+  body: ReopenFundingWindowDto;
+  path: {
+    transactionId: string;
+  };
+  query?: never;
+  url: "/api/v1/admin/funding-windows/{transactionId}/reopen";
+};
+
+export type AdminFundingWindowsControllerReopenResponses = {
+  200: FundingWindowRowResponseDto;
+};
+
+export type AdminFundingWindowsControllerReopenResponse =
+  AdminFundingWindowsControllerReopenResponses[keyof AdminFundingWindowsControllerReopenResponses];
+
+export type AdminProductsControllerFindAllData = {
+  body?: never;
+  path?: never;
+  query?: {
+    page?: string;
+    limit?: string;
+    status?: string;
+    category?: string;
+    search?: string;
+    merchant?: string;
+    transactionType?: string;
+    "price[gte]"?: string;
+    "price[lte]"?: string;
+    "created[gte]"?: string;
+    "created[lte]"?: string;
+  };
+  url: "/api/v1/admin/products";
+};
+
+export type AdminProductsControllerFindAllResponses = {
+  200: PaginatedProductsResponseDto;
+};
+
+export type AdminProductsControllerFindAllResponse =
+  AdminProductsControllerFindAllResponses[keyof AdminProductsControllerFindAllResponses];
+
+export type AdminProductsControllerCreateData = {
+  body: CreateProductDto;
+  path?: never;
+  query?: never;
+  url: "/api/v1/admin/products";
+};
+
+export type AdminProductsControllerCreateResponses = {
+  201: ProductResponseDto;
+};
+
+export type AdminProductsControllerCreateResponse =
+  AdminProductsControllerCreateResponses[keyof AdminProductsControllerCreateResponses];
+
+export type AdminProductsControllerRemoveData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/admin/products/{id}";
+};
+
+export type AdminProductsControllerRemoveResponses = {
+  200: unknown;
+};
+
+export type AdminProductsControllerFindOneData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/admin/products/{id}";
+};
+
+export type AdminProductsControllerFindOneResponses = {
+  200: ProductResponseDto;
+};
+
+export type AdminProductsControllerFindOneResponse =
+  AdminProductsControllerFindOneResponses[keyof AdminProductsControllerFindOneResponses];
+
+export type AdminProductsControllerUpdateData = {
+  body: UpdateProductDto;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/admin/products/{id}";
+};
+
+export type AdminProductsControllerUpdateResponses = {
+  200: ProductResponseDto;
+};
+
+export type AdminProductsControllerUpdateResponse =
+  AdminProductsControllerUpdateResponses[keyof AdminProductsControllerUpdateResponses];
+
+export type AdminProductsControllerApproveData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/admin/products/{id}/approve";
+};
+
+export type AdminProductsControllerApproveResponses = {
+  200: ProductResponseDto;
+};
+
+export type AdminProductsControllerApproveResponse =
+  AdminProductsControllerApproveResponses[keyof AdminProductsControllerApproveResponses];
+
 export type AdminCategoriesControllerFindAllData = {
   body?: never;
   path?: never;
@@ -10738,6 +11735,14 @@ export type AdminTransactionsControllerFindAllData = {
      * Filter by seller organization ID
      */
     seller?: string;
+    /**
+     * Filter by buyer organization ID
+     */
+    buyer?: string;
+    /**
+     * Filter by organization ID on either side (buyer or seller)
+     */
+    organization?: string;
   };
   url: "/api/v1/admin/transactions";
 };
@@ -11161,8 +12166,11 @@ export type AdminDisputesControllerGetStatsData = {
 };
 
 export type AdminDisputesControllerGetStatsResponses = {
-  200: unknown;
+  200: AdminDisputeStatsResponseDto;
 };
+
+export type AdminDisputesControllerGetStatsResponse =
+  AdminDisputesControllerGetStatsResponses[keyof AdminDisputesControllerGetStatsResponses];
 
 export type AdminDisputesControllerFindAllData = {
   body?: never;
@@ -11550,6 +12558,39 @@ export type AdminComplianceControllerRequestChangesResponses = {
 
 export type AdminComplianceControllerRequestChangesResponse =
   AdminComplianceControllerRequestChangesResponses[keyof AdminComplianceControllerRequestChangesResponses];
+
+export type AdminComplianceControllerRequestMissingData = {
+  body: RequestMissingDataDto;
+  path: {
+    organizationId: string;
+  };
+  query?: never;
+  url: "/api/v1/admin/compliance/kyb/{organizationId}/request-missing";
+};
+
+export type AdminComplianceControllerRequestMissingResponses = {
+  201: RequestMissingResponseDto;
+};
+
+export type AdminComplianceControllerRequestMissingResponse =
+  AdminComplianceControllerRequestMissingResponses[keyof AdminComplianceControllerRequestMissingResponses];
+
+export type AdminComplianceControllerAdoptRegistryPeopleData = {
+  body?: never;
+  path: {
+    organizationId: string;
+  };
+  query?: never;
+  url: "/api/v1/admin/compliance/kyb/{organizationId}/adopt-registry-people";
+};
+
+export type AdminComplianceControllerAdoptRegistryPeopleResponses = {
+  200: ComplianceCaseDetailDto;
+  201: unknown;
+};
+
+export type AdminComplianceControllerAdoptRegistryPeopleResponse =
+  AdminComplianceControllerAdoptRegistryPeopleResponses[keyof AdminComplianceControllerAdoptRegistryPeopleResponses];
 
 export type AdminComplianceControllerOnboardData = {
   body?: never;
@@ -12060,6 +13101,130 @@ export type AdminLocationsControllerSetSanctionedResponses = {
 
 export type AdminLocationsControllerSetSanctionedResponse =
   AdminLocationsControllerSetSanctionedResponses[keyof AdminLocationsControllerSetSanctionedResponses];
+
+export type AdminPaymentsControllerGetPaymentProfileData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/admin/organizations/{id}/payment-profile";
+};
+
+export type AdminPaymentsControllerGetPaymentProfileResponses = {
+  200: AdminPaymentProfileResponseDto;
+};
+
+export type AdminPaymentsControllerGetPaymentProfileResponse =
+  AdminPaymentsControllerGetPaymentProfileResponses[keyof AdminPaymentsControllerGetPaymentProfileResponses];
+
+export type AdminPaymentsControllerProvisionData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/admin/organizations/{id}/payment-profile/provision";
+};
+
+export type AdminPaymentsControllerProvisionResponses = {
+  201: AdminProvisionResponseDto;
+};
+
+export type AdminPaymentsControllerProvisionResponse =
+  AdminPaymentsControllerProvisionResponses[keyof AdminPaymentsControllerProvisionResponses];
+
+export type AdminRoutingControllerListData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: "/api/v1/admin/routing/rules";
+};
+
+export type AdminRoutingControllerListResponses = {
+  200: RoutingRulesResponseDto;
+};
+
+export type AdminRoutingControllerListResponse =
+  AdminRoutingControllerListResponses[keyof AdminRoutingControllerListResponses];
+
+export type AdminRoutingControllerCreateData = {
+  body: CreateRoutingRuleDto;
+  path?: never;
+  query?: never;
+  url: "/api/v1/admin/routing/rules";
+};
+
+export type AdminRoutingControllerCreateResponses = {
+  201: RoutingRuleResponseDto;
+};
+
+export type AdminRoutingControllerCreateResponse =
+  AdminRoutingControllerCreateResponses[keyof AdminRoutingControllerCreateResponses];
+
+export type AdminRoutingControllerRemoveData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/admin/routing/rules/{id}";
+};
+
+export type AdminRoutingControllerRemoveResponses = {
+  /**
+   * Rule deleted
+   */
+  200: unknown;
+};
+
+export type AdminRoutingControllerUpdateData = {
+  body: UpdateRoutingRuleDto;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/admin/routing/rules/{id}";
+};
+
+export type AdminRoutingControllerUpdateResponses = {
+  200: RoutingRuleResponseDto;
+};
+
+export type AdminRoutingControllerUpdateResponse =
+  AdminRoutingControllerUpdateResponses[keyof AdminRoutingControllerUpdateResponses];
+
+export type AdminRoutingControllerReloadData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: "/api/v1/admin/routing/reload";
+};
+
+export type AdminRoutingControllerReloadResponses = {
+  200: RoutingReloadResponseDto;
+};
+
+export type AdminRoutingControllerReloadResponse =
+  AdminRoutingControllerReloadResponses[keyof AdminRoutingControllerReloadResponses];
+
+export type AdminRoutingControllerResolveData = {
+  body?: never;
+  path?: never;
+  query: {
+    currency: string;
+    country: string;
+    region?: string;
+  };
+  url: "/api/v1/admin/routing/resolve";
+};
+
+export type AdminRoutingControllerResolveResponses = {
+  200: RoutingResolveResponseDto;
+};
+
+export type AdminRoutingControllerResolveResponse =
+  AdminRoutingControllerResolveResponses[keyof AdminRoutingControllerResolveResponses];
 
 export type OrgProductsControllerFindAllData = {
   body?: never;

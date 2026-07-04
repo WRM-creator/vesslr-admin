@@ -24,6 +24,7 @@ export default function OrganizationDetailsPage() {
       "team",
       "products",
       "compliance",
+      "payments",
       "financials",
       "transactions",
       "disputes",
@@ -125,6 +126,9 @@ export default function OrganizationDetailsPage() {
           </TabsTrigger>
           <TabsTrigger value="compliance" asChild>
             <Link to="compliance">Compliance</Link>
+          </TabsTrigger>
+          <TabsTrigger value="payments" asChild>
+            <Link to="payments">Payments</Link>
           </TabsTrigger>
           <TabsTrigger value="financials" asChild>
             <Link to="financials">Financials</Link>
