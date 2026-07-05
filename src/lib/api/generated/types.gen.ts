@@ -369,6 +369,10 @@ export type ComplianceRequirementsDto = {
    * Per-person identity-KYC verification: automated (Smile ID) where covered, else manual ID-document upload reviewed by an admin.
    */
   identityVerification: VerificationDto;
+  /**
+   * Whether the business representative must verify their phone via OTP. Platform-global (PHONE_VERIFICATION_ENABLED), stamped on every profile; false while SMS provider integration is unresolved. When false the API also skips its phone-verified write gates, so the UI must not ask.
+   */
+  phoneVerificationRequired: boolean;
 };
 
 export type GeneratePresignedUrlDto = {
@@ -4397,6 +4401,7 @@ export type UpdateIntentDto = {
     | "seller"
     | "service_provider"
     | "logistics_provider"
+    | "warehousing_provider"
     | "financial_partner"
     | "inspection_partner";
 };
@@ -4581,6 +4586,30 @@ export type UpdateFinancialSetupDto = {
     | "above_1m_usd";
   /**
    * Expected monthly transaction count band (Busha KYB).
+   */
+  monthlyTransactionCount:
+    | "10_or_less"
+    | "10_to_50"
+    | "50_to_100"
+    | "100_to_200"
+    | "above_200";
+};
+
+export type UpdateTransactionProfileDto = {
+  /**
+   * Expected primary purpose of transactions (provider KYB).
+   */
+  transactionPurpose: string;
+  /**
+   * Expected monthly transaction value band (provider KYB).
+   */
+  monthlyTransactionValue:
+    | "100_usd_or_less"
+    | "100_usd_to_500_usd"
+    | "500_usd_to_1m_usd"
+    | "above_1m_usd";
+  /**
+   * Expected monthly transaction count band (provider KYB).
    */
   monthlyTransactionCount:
     | "10_or_less"
@@ -6718,14 +6747,15 @@ export type CompletenessItemDto = {
    */
   provider?: string;
   /**
-   * Provider-sourced items only: how the gap closes — auto-filled from the registry, requestable from the organization, or platform-side.
+   * How the gap closes. Provider items: auto-filled from the registry, requestable from the organization, or platform-side. `approval` marks reviewer-confirmed items (set at approval; pending, not missing, before then).
    */
   resolution?:
     | "registry_adoptable"
     | "org_data"
     | "org_document"
     | "platform"
-    | "unmapped";
+    | "unmapped"
+    | "approval";
 };
 
 export type UboSummaryDto = {
@@ -10594,6 +10624,23 @@ export type OnboardingControllerUpdateFinancialSetupResponses = {
 
 export type OnboardingControllerUpdateFinancialSetupResponse =
   OnboardingControllerUpdateFinancialSetupResponses[keyof OnboardingControllerUpdateFinancialSetupResponses];
+
+export type OnboardingControllerUpdateTransactionProfileData = {
+  body: UpdateTransactionProfileDto;
+  path?: never;
+  query?: never;
+  url: "/api/v1/onboarding/transaction-profile";
+};
+
+export type OnboardingControllerUpdateTransactionProfileResponses = {
+  /**
+   * Transaction profile saved
+   */
+  200: OnboardingStatusResponseDto;
+};
+
+export type OnboardingControllerUpdateTransactionProfileResponse =
+  OnboardingControllerUpdateTransactionProfileResponses[keyof OnboardingControllerUpdateTransactionProfileResponses];
 
 export type OnboardingControllerUpdateBusinessRepresentativeData = {
   body: UpdateBusinessRepresentativeDto;

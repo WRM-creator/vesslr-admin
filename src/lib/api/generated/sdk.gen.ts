@@ -439,6 +439,8 @@ import type {
   OnboardingControllerUpdateResidentialResponses,
   OnboardingControllerUpdateSellingInterestsData,
   OnboardingControllerUpdateSellingInterestsResponses,
+  OnboardingControllerUpdateTransactionProfileData,
+  OnboardingControllerUpdateTransactionProfileResponses,
   OnboardingControllerVerifyPhoneOtpData,
   OnboardingControllerVerifyPhoneOtpResponses,
   OrdersControllerCancelData,
@@ -2989,6 +2991,31 @@ export const onboardingControllerUpdateFinancialSetup = <
   >({
     security: [{ scheme: "bearer", type: "http" }],
     url: "/api/v1/onboarding/financial-setup",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Save expected transaction activity (purpose + monthly bands) without touching bank details
+ */
+export const onboardingControllerUpdateTransactionProfile = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    OnboardingControllerUpdateTransactionProfileData,
+    ThrowOnError
+  >,
+) =>
+  (options.client ?? client).put<
+    OnboardingControllerUpdateTransactionProfileResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/onboarding/transaction-profile",
     ...options,
     headers: {
       "Content-Type": "application/json",

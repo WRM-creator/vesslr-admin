@@ -167,13 +167,18 @@ export interface ComplianceCase {
     detail?: string;
     source: "platform" | "provider";
     provider?: string;
-    /** Provider items only: how the gap closes (drives the request action). */
+    /**
+     * How the gap closes (drives the request action). Provider items carry the
+     * requestable kinds; `approval` marks reviewer-confirmed platform items
+     * (set at approval; pending, not missing, before then).
+     */
     resolution?:
       | "registry_adoptable"
       | "org_data"
       | "org_document"
       | "platform"
-      | "unmapped";
+      | "unmapped"
+      | "approval";
   }>;
   /** Ownership math over stored beneficial owners. Only over100 is an error. */
   ubo: {

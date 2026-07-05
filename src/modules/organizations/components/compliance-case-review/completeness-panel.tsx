@@ -16,7 +16,13 @@ import { api } from "@/lib/api";
 import type { RequestMissingOutcomeDto } from "@/lib/api/generated";
 import { TINT } from "@/lib/tint";
 import { cn } from "@/lib/utils";
-import { CheckIcon, ClipboardListIcon, Loader2Icon, XIcon } from "lucide-react";
+import {
+  CheckIcon,
+  ClipboardListIcon,
+  ClockIcon,
+  Loader2Icon,
+  XIcon,
+} from "lucide-react";
 import { toast } from "sonner";
 import type { ComplianceCase } from "./types";
 
@@ -25,10 +31,19 @@ function ItemRow({
 }: {
   item: ComplianceCase["completeness"][number];
 }) {
+  // Reviewer-confirmed items are pending until approval, not missing — amber
+  // clock, and the label stays quiet instead of demanding attention.
+  const pendingApproval = !item.satisfied && item.resolution === "approval";
   return (
     <div className="flex items-center justify-between gap-3 py-1.5 text-sm">
       <div className="min-w-0">
-        <span className={item.satisfied ? "text-muted-foreground" : "font-medium"}>
+        <span
+          className={
+            item.satisfied || pendingApproval
+              ? "text-muted-foreground"
+              : "font-medium"
+          }
+        >
           {item.label}
         </span>
         {item.detail && (
@@ -37,6 +52,8 @@ function ItemRow({
       </div>
       {item.satisfied ? (
         <CheckIcon className="size-4 shrink-0 text-green-600" />
+      ) : pendingApproval ? (
+        <ClockIcon className="size-4 shrink-0 text-amber-500" />
       ) : (
         <XIcon className="size-4 shrink-0 text-red-500" />
       )}
@@ -103,7 +120,12 @@ export function CompletenessPanel({
 
   const platform = completeness.filter((i) => i.source === "platform");
   const provider = completeness.filter((i) => i.source === "provider");
-  const missing = completeness.filter((i) => !i.satisfied).length;
+  // Reviewer-confirmed (`approval`) items are pending, not missing — they
+  // resolve themselves at approval, so they never count toward the badge or
+  // the request-missing callout.
+  const missing = completeness.filter(
+    (i) => !i.satisfied && i.resolution !== "approval",
+  ).length;
 
   const adoptableCount = provider.filter(
     (i) => !i.satisfied && i.resolution === "registry_adoptable",
@@ -178,6 +200,12 @@ export function CompletenessPanel({
           <Badge variant="outline" className={cn("font-medium", TINT.amber)}>
             {missing} missing
           </Badge>
+        ) : completeness.some(
+            (i) => !i.satisfied && i.resolution === "approval",
+          ) ? (
+          <span className="text-muted-foreground text-xs">
+            Remaining items are confirmed at approval
+          </span>
         ) : (
           <span className="text-muted-foreground text-xs">
             Everything required is on file
