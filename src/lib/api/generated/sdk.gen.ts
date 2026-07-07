@@ -295,6 +295,8 @@ import type {
   EscrowsControllerGetMyEscrowsResponses,
   EscrowsControllerGetMySummaryData,
   EscrowsControllerGetMySummaryResponses,
+  FlutterwaveWebhooksControllerHandleWebhookData,
+  FlutterwaveWebhooksControllerHandleWebhookResponses,
   InspectionControllerListInspectionsData,
   InspectionControllerListInspectionsResponses,
   InspectionControllerSubmitInspectionData,
@@ -6326,21 +6328,24 @@ export const placesControllerGetDetails = <
   });
 
 /**
- * Handle Busha webhook events (public)
+ * Handle Flutterwave webhook events (public)
  */
-export const bushaWebhooksControllerHandleWebhook = <
+export const flutterwaveWebhooksControllerHandleWebhook = <
   ThrowOnError extends boolean = false,
 >(
-  options: Options<BushaWebhooksControllerHandleWebhookData, ThrowOnError>,
+  options: Options<
+    FlutterwaveWebhooksControllerHandleWebhookData,
+    ThrowOnError
+  >,
 ) =>
   (options.client ?? client).post<
-    BushaWebhooksControllerHandleWebhookResponses,
+    FlutterwaveWebhooksControllerHandleWebhookResponses,
     unknown,
     ThrowOnError
-  >({ url: "/api/v1/busha/webhooks", ...options });
+  >({ url: "/api/v1/flutterwave/webhooks", ...options });
 
 /**
- * List the org's wallets — one per currency, each with balance and status
+ * List the org's wallets — numbered "Wallet 1", "Wallet 2", …, each holding per-currency balances with status
  */
 export const walletControllerListWallets = <
   ThrowOnError extends boolean = false,
@@ -6668,6 +6673,20 @@ export const walletControllerFundEscrow = <
       ...options.headers,
     },
   });
+
+/**
+ * Handle Busha webhook events (public)
+ */
+export const bushaWebhooksControllerHandleWebhook = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<BushaWebhooksControllerHandleWebhookData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    BushaWebhooksControllerHandleWebhookResponses,
+    unknown,
+    ThrowOnError
+  >({ url: "/api/v1/busha/webhooks", ...options });
 
 /**
  * List support tickets for your organization

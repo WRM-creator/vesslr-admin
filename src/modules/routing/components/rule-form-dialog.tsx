@@ -44,6 +44,7 @@ interface FormState {
   matchCountry: string;
   matchRegion: string;
   custodian: Provider | "";
+  rank: string;
   bankDirectoryProvider: string;
   accountResolutionProvider: string;
   enabled: boolean;
@@ -54,6 +55,7 @@ const EMPTY: FormState = {
   matchCountry: "",
   matchRegion: "",
   custodian: "",
+  rank: "1",
   bankDirectoryProvider: NO_OVERRIDE,
   accountResolutionProvider: NO_OVERRIDE,
   enabled: true,
@@ -71,6 +73,7 @@ export function RuleFormDialog({ open, onOpenChange, rule }: RuleFormDialogProps
             matchCountry: rule.matchCountry ?? "",
             matchRegion: rule.matchRegion ?? "",
             custodian: rule.custodian,
+            rank: String(rule.rank ?? 1),
             bankDirectoryProvider: rule.bankDirectoryProvider ?? NO_OVERRIDE,
             accountResolutionProvider:
               rule.accountResolutionProvider ?? NO_OVERRIDE,
@@ -94,6 +97,11 @@ export function RuleFormDialog({ open, onOpenChange, rule }: RuleFormDialogProps
       toast.error("Pick a custodian provider");
       return;
     }
+    const rank = Number.parseInt(form.rank, 10);
+    if (!Number.isInteger(rank) || rank < 1) {
+      toast.error("Rank must be a whole number of 1 or more");
+      return;
+    }
     const onError = (err: unknown) => {
       const message = (err as { message?: string | string[] })?.message;
       toast.error(Array.isArray(message) ? message.join("; ") : message || "Save failed");
@@ -114,6 +122,7 @@ export function RuleFormDialog({ open, onOpenChange, rule }: RuleFormDialogProps
             matchCountry: form.matchCountry.trim(),
             matchRegion: form.matchRegion.trim(),
             custodian: form.custodian,
+            rank,
             bankDirectoryProvider:
               form.bankDirectoryProvider === NO_OVERRIDE
                 ? ""
@@ -130,6 +139,7 @@ export function RuleFormDialog({ open, onOpenChange, rule }: RuleFormDialogProps
     } else {
       const body: CreateRoutingRuleDto = {
         custodian: form.custodian,
+        rank,
         enabled: form.enabled,
       };
       if (form.matchCurrency.trim()) body.matchCurrency = form.matchCurrency.trim();
@@ -193,24 +203,41 @@ export function RuleFormDialog({ open, onOpenChange, rule }: RuleFormDialogProps
             </div>
           </div>
 
-          <div className="space-y-1.5">
-            <Label>Custodian</Label>
-            <Select
-              value={form.custodian}
-              onValueChange={(v) => set("custodian", v as Provider)}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select provider" />
-              </SelectTrigger>
-              <SelectContent>
-                {PROVIDERS.map((p) => (
-                  <SelectItem key={p} value={p}>
-                    {formatProvider(p)}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+          <div className="grid grid-cols-[1fr_6rem] gap-3">
+            <div className="space-y-1.5">
+              <Label>Custodian</Label>
+              <Select
+                value={form.custodian}
+                onValueChange={(v) => set("custodian", v as Provider)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select provider" />
+                </SelectTrigger>
+                <SelectContent>
+                  {PROVIDERS.map((p) => (
+                    <SelectItem key={p} value={p}>
+                      {formatProvider(p)}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="rr-rank">Rank</Label>
+              <Input
+                id="rr-rank"
+                type="number"
+                min={1}
+                value={form.rank}
+                onChange={(e) => set("rank", e.target.value)}
+              />
+            </div>
           </div>
+          <p className="text-muted-foreground -mt-2 text-xs">
+            A corridor may offer several custodians — one rule each. Rank 1 is
+            the default for new work; each rank appears as another numbered
+            wallet for orgs on the corridor.
+          </p>
 
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">

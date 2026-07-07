@@ -96,29 +96,44 @@ export function ResolvePreviewCard() {
         {result && (
           <div className="text-sm">
             {result.routed ? (
-              <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
-                <span>
-                  Custodian:{" "}
-                  <span className="font-medium">
-                    {result.custodian ? formatProvider(result.custodian) : "-"}
+              <div className="space-y-2">
+                <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
+                  <span>
+                    Custodian:{" "}
+                    <span className="font-medium">
+                      {result.custodian ? formatProvider(result.custodian) : "-"}
+                    </span>
                   </span>
-                </span>
-                <span className="text-muted-foreground">
-                  Bank directory:{" "}
-                  {result.bankDirectoryProvider
-                    ? formatProvider(result.bankDirectoryProvider)
-                    : "-"}
-                </span>
-                <span className="text-muted-foreground">
-                  Account resolution:{" "}
-                  {result.accountResolutionProvider
-                    ? formatProvider(result.accountResolutionProvider)
-                    : "-"}
-                </span>
-                {result.rule && (
-                  <Badge variant="secondary">
-                    via rule: {matchLabel(result.rule)}
-                  </Badge>
+                  <span className="text-muted-foreground">
+                    Bank directory:{" "}
+                    {result.bankDirectoryProvider
+                      ? formatProvider(result.bankDirectoryProvider)
+                      : "-"}
+                  </span>
+                  <span className="text-muted-foreground">
+                    Account resolution:{" "}
+                    {result.accountResolutionProvider
+                      ? formatProvider(result.accountResolutionProvider)
+                      : "-"}
+                  </span>
+                  {result.rule && (
+                    <Badge variant="secondary">
+                      via rule: {matchLabel(result.rule)}
+                    </Badge>
+                  )}
+                </div>
+                {(result.offeredCustodians?.length ?? 0) > 1 && (
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="text-muted-foreground">
+                      Offered wallets:
+                    </span>
+                    {result.offeredCustodians?.map((p, i) => (
+                      <Badge key={p} variant={i === 0 ? "default" : "outline"}>
+                        {formatProvider(p)}
+                        {i === 0 ? " · default" : ""}
+                      </Badge>
+                    ))}
+                  </div>
                 )}
               </div>
             ) : (

@@ -7631,6 +7631,10 @@ export type RoutingRuleDto = {
   matchCountry?: string;
   matchRegion?: string;
   custodian: "flutterwave" | "busha";
+  /**
+   * Order among same-corridor rules; 1 = default custodian
+   */
+  rank: number;
   bankDirectoryProvider?: "flutterwave" | "busha";
   accountResolutionProvider?: "flutterwave" | "busha";
   enabled: boolean;
@@ -7665,6 +7669,10 @@ export type CreateRoutingRuleDto = {
    */
   custodian: "flutterwave" | "busha";
   /**
+   * Order among same-corridor rules: rank 1 is the default custodian, higher ranks are additional offered wallets
+   */
+  rank?: number;
+  /**
    * Override provider for BANK_DIRECTORY lookups
    */
   bankDirectoryProvider?: "flutterwave" | "busha";
@@ -7694,6 +7702,10 @@ export type UpdateRoutingRuleDto = {
    */
   matchRegion?: string;
   custodian?: "flutterwave" | "busha";
+  /**
+   * Order among same-corridor rules; 1 = default custodian
+   */
+  rank?: number;
   /**
    * BANK_DIRECTORY override; empty string clears it
    */
@@ -7732,9 +7744,13 @@ export type RoutingResolveResultDto = {
    */
   accountResolutionProvider?: "flutterwave" | "busha";
   /**
-   * The winning rule, when routed
+   * The winning (default) rule, when routed
    */
   rule?: RoutingRuleDto | null;
+  /**
+   * Every custodian offered for this corridor, default first — one org wallet per entry
+   */
+  offeredCustodians?: Array<"flutterwave" | "busha"> | null;
 };
 
 export type RoutingResolveResponseDto = {
@@ -7789,9 +7805,16 @@ export type InspectionReport = {
   [key: string]: unknown;
 };
 
+/**
+ * Wallet-level rollup: active if any currency is active, else pending if any is pending, else disabled
+ */
 export type WalletStatus = "active" | "pending_activation" | "disabled";
 
 export type WalletDto = {
+  /**
+   * Which of the org's wallets this balance lives in ("Wallet 1", "Wallet 2", …)
+   */
+  walletIndex: number;
   currency: "NGN" | "KES" | "USD" | "EUR" | "USDT";
   /**
    * Balance in minor currency units
@@ -7814,6 +7837,21 @@ export type WalletDto = {
    * True when the live balance could not be fetched; balance is a 0 placeholder
    */
   balanceUnavailable?: boolean;
+};
+
+export type WalletGroupDto = {
+  /**
+   * Permanent wallet number; label is "Wallet {walletIndex}"
+   */
+  walletIndex: number;
+  /**
+   * Wallet-level rollup: active if any currency is active, else pending if any is pending, else disabled
+   */
+  status: WalletStatus;
+  /**
+   * The currency balances held in this wallet
+   */
+  currencies: Array<WalletDto>;
 };
 
 export type WalletValuationComponentDto = {
@@ -7934,9 +7972,13 @@ export type WalletFundDetailsResponseDto = {
 
 export type WalletProvisionFundingDto = {
   /**
-   * Wallet to fund
+   * Currency to fund
    */
   currency: "NGN" | "KES" | "USD" | "EUR" | "USDT";
+  /**
+   * Which wallet to fund; defaults to the lowest-numbered wallet holding the currency
+   */
+  walletIndex?: number;
   /**
    * Amount to fund, minor currency units
    */
@@ -7956,9 +7998,13 @@ export type WalletConvertOptionsResponseDto = {
 
 export type WalletConvertQuoteDto = {
   /**
-   * Wallet to convert from
+   * Currency to convert from
    */
   source: "NGN" | "KES" | "USD" | "EUR" | "USDT";
+  /**
+   * Which wallet converts (a conversion never leaves its wallet); defaults to the lowest-numbered wallet holding the source currency
+   */
+  walletIndex?: number;
   /**
    * Wallet to convert into
    */
@@ -8008,9 +8054,13 @@ export type WalletConvertQuoteResponseDto = {
 
 export type WalletConvertExecuteDto = {
   /**
-   * Source wallet of the quote
+   * Source currency of the quote
    */
   source: "NGN" | "KES" | "USD" | "EUR" | "USDT";
+  /**
+   * Wallet the quote was issued for; defaults like the quote call
+   */
+  walletIndex?: number;
   /**
    * The quote to execute
    */
@@ -8153,9 +8203,13 @@ export type WalletTransactionPageResponseDto = {
 
 export type WalletDisburseDto = {
   /**
-   * Wallet to disburse from
+   * Currency to disburse
    */
   currency: "NGN" | "KES" | "USD" | "EUR" | "USDT";
+  /**
+   * Which wallet to disburse from; defaults to the lowest-numbered wallet holding the currency
+   */
+  walletIndex?: number;
   /**
    * Amount in minor currency units
    */
@@ -8292,6 +8346,10 @@ export type WalletFundEscrowDto = {
    * Transaction ID to fund escrow for
    */
   transactionId: string;
+  /**
+   * Which wallet funds the escrow; defaults to the lowest-numbered wallet holding the escrow currency
+   */
+  walletIndex?: number;
 };
 
 export type RelatedResourceDto = {
@@ -13549,17 +13607,17 @@ export type PlacesControllerGetDetailsResponses = {
 export type PlacesControllerGetDetailsResponse =
   PlacesControllerGetDetailsResponses[keyof PlacesControllerGetDetailsResponses];
 
-export type BushaWebhooksControllerHandleWebhookData = {
+export type FlutterwaveWebhooksControllerHandleWebhookData = {
   body?: never;
   headers: {
-    "x-bu-signature": string;
+    "verif-hash": string;
   };
   path?: never;
   query?: never;
-  url: "/api/v1/busha/webhooks";
+  url: "/api/v1/flutterwave/webhooks";
 };
 
-export type BushaWebhooksControllerHandleWebhookResponses = {
+export type FlutterwaveWebhooksControllerHandleWebhookResponses = {
   200: unknown;
 };
 
@@ -13571,7 +13629,7 @@ export type WalletControllerListWalletsData = {
 };
 
 export type WalletControllerListWalletsResponses = {
-  200: Array<WalletDto>;
+  200: Array<WalletGroupDto>;
 };
 
 export type WalletControllerListWalletsResponse =
@@ -13601,9 +13659,13 @@ export type WalletControllerGetFundOptionsData = {
   path?: never;
   query: {
     /**
-     * Which wallet
+     * Which currency
      */
     currency: "NGN" | "KES" | "USD" | "EUR" | "USDT";
+    /**
+     * Which wallet holds the currency; defaults to the lowest-numbered wallet with a balance in it
+     */
+    walletIndex?: number;
   };
   url: "/api/v1/wallet/fund-options";
 };
@@ -13620,9 +13682,13 @@ export type WalletControllerGetFundDetailsData = {
   path?: never;
   query: {
     /**
-     * Which wallet
+     * Which currency
      */
     currency: "NGN" | "KES" | "USD" | "EUR" | "USDT";
+    /**
+     * Which wallet holds the currency; defaults to the lowest-numbered wallet with a balance in it
+     */
+    walletIndex?: number;
   };
   url: "/api/v1/wallet/fund-details";
 };
@@ -13653,9 +13719,13 @@ export type WalletControllerGetConvertOptionsData = {
   path?: never;
   query: {
     /**
-     * Which wallet
+     * Which currency
      */
     currency: "NGN" | "KES" | "USD" | "EUR" | "USDT";
+    /**
+     * Which wallet holds the currency; defaults to the lowest-numbered wallet with a balance in it
+     */
+    walletIndex?: number;
   };
   url: "/api/v1/wallet/convert/options";
 };
@@ -13737,9 +13807,13 @@ export type WalletControllerGetTransactionsData = {
   path?: never;
   query?: {
     /**
-     * Limit history to one wallet; omit for all wallets merged
+     * Limit history to one currency; omit for all merged
      */
     currency?: "NGN" | "KES" | "USD" | "EUR" | "USDT";
+    /**
+     * Limit history to one numbered wallet; omit for all wallets merged
+     */
+    walletIndex?: number;
     /**
      * Coarse type partition; ignored when `categories` is given
      */
@@ -13868,6 +13942,20 @@ export type WalletControllerFundEscrowResponses = {
   /**
    * The updated transaction with escrow created
    */
+  200: unknown;
+};
+
+export type BushaWebhooksControllerHandleWebhookData = {
+  body?: never;
+  headers: {
+    "x-bu-signature": string;
+  };
+  path?: never;
+  query?: never;
+  url: "/api/v1/busha/webhooks";
+};
+
+export type BushaWebhooksControllerHandleWebhookResponses = {
   200: unknown;
 };
 

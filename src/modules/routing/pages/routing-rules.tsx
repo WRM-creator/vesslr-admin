@@ -143,6 +143,7 @@ export default function RoutingRulesPage() {
             <TableRow>
               <TableHead>Match</TableHead>
               <TableHead>Custodian</TableHead>
+              <TableHead className="text-center">Rank</TableHead>
               <TableHead>Lookup overrides</TableHead>
               <TableHead className="text-center">Specificity</TableHead>
               <TableHead className="text-center">Enabled</TableHead>
@@ -160,6 +161,14 @@ export default function RoutingRulesPage() {
                 </TableCell>
                 <TableCell className="font-medium">
                   {formatProvider(rule.custodian)}
+                </TableCell>
+                <TableCell className="text-center">
+                  {rule.rank}
+                  {rule.rank === 1 && (
+                    <span className="text-muted-foreground ml-1 text-xs">
+                      (default)
+                    </span>
+                  )}
                 </TableCell>
                 <TableCell className="text-muted-foreground text-sm">
                   <OverridesCell rule={rule} />
