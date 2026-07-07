@@ -327,8 +327,10 @@ import type {
   InvoicesControllerSendResponses,
   InvoicesControllerUpdateData,
   InvoicesControllerUpdateResponses,
-  InvoicesWebhooksControllerHandlePaymentWebhookData,
-  InvoicesWebhooksControllerHandlePaymentWebhookResponses,
+  InvoicesPayControllerGetPublicInvoiceData,
+  InvoicesPayControllerGetPublicInvoiceResponses,
+  InvoicesPayControllerProvisionInstructionsData,
+  InvoicesPayControllerProvisionInstructionsResponses,
   LicenseDocumentsControllerDeleteData,
   LicenseDocumentsControllerDeleteResponses,
   LicenseDocumentsControllerGetRequirementsData,
@@ -527,6 +529,8 @@ import type {
   SuppliersControllerFindAllResponses,
   SuppliersControllerFindOneData,
   SuppliersControllerFindOneResponses,
+  SuppliersControllerGetPaymentsData,
+  SuppliersControllerGetPaymentsResponses,
   SuppliersControllerRemoveData,
   SuppliersControllerRemoveResponses,
   SuppliersControllerUpdateData,
@@ -2442,21 +2446,372 @@ export const invoicesControllerMarkPaid = <
   });
 
 /**
- * Handle payment provider webhook for invoices (public)
+ * Public: the invoice behind a pay-page token
  */
-export const invoicesWebhooksControllerHandlePaymentWebhook = <
+export const invoicesPayControllerGetPublicInvoice = <
   ThrowOnError extends boolean = false,
 >(
-  options?: Options<
-    InvoicesWebhooksControllerHandlePaymentWebhookData,
+  options: Options<InvoicesPayControllerGetPublicInvoiceData, ThrowOnError>,
+) =>
+  (options.client ?? client).get<
+    InvoicesPayControllerGetPublicInvoiceResponses,
+    unknown,
+    ThrowOnError
+  >({ url: "/api/v1/invoices/pay/{token}", ...options });
+
+/**
+ * Public: mint a single-use payment destination for the invoice
+ */
+export const invoicesPayControllerProvisionInstructions = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    InvoicesPayControllerProvisionInstructionsData,
     ThrowOnError
   >,
 ) =>
-  (options?.client ?? client).post<
-    InvoicesWebhooksControllerHandlePaymentWebhookResponses,
+  (options.client ?? client).post<
+    InvoicesPayControllerProvisionInstructionsResponses,
     unknown,
     ThrowOnError
-  >({ url: "/api/v1/invoices/webhooks/payment", ...options });
+  >({
+    url: "/api/v1/invoices/pay/{token}/instructions",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * List the org's wallets — numbered "Wallet 1", "Wallet 2", …, each holding per-currency balances with status
+ */
+export const walletControllerListWallets = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<WalletControllerListWalletsData, ThrowOnError>,
+) =>
+  (options?.client ?? client).get<
+    WalletControllerListWalletsResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/wallet/balances",
+    ...options,
+  });
+
+/**
+ * The org's whole position valued in one reference currency at indicative rates
+ */
+export const walletControllerGetValuation = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<WalletControllerGetValuationData, ThrowOnError>,
+) =>
+  (options?.client ?? client).get<
+    WalletControllerGetValuationResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/wallet/valuation",
+    ...options,
+  });
+
+/**
+ * List the funding methods a wallet supports (no provisioning)
+ */
+export const walletControllerGetFundOptions = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<WalletControllerGetFundOptionsData, ThrowOnError>,
+) =>
+  (options.client ?? client).get<
+    WalletControllerGetFundOptionsResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/wallet/fund-options",
+    ...options,
+  });
+
+/**
+ * Get funding instructions for a wallet
+ */
+export const walletControllerGetFundDetails = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<WalletControllerGetFundDetailsData, ThrowOnError>,
+) =>
+  (options.client ?? client).get<
+    WalletControllerGetFundDetailsResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/wallet/fund-details",
+    ...options,
+  });
+
+/**
+ * Provision an amount-bound funding destination (a single-use account)
+ */
+export const walletControllerProvisionFunding = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<WalletControllerProvisionFundingData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    WalletControllerProvisionFundingResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/wallet/fund-instructions",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * List the currencies a wallet can be converted into
+ */
+export const walletControllerGetConvertOptions = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<WalletControllerGetConvertOptionsData, ThrowOnError>,
+) =>
+  (options.client ?? client).get<
+    WalletControllerGetConvertOptionsResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/wallet/convert/options",
+    ...options,
+  });
+
+/**
+ * Get a rate-locked conversion quote (moves no money)
+ */
+export const walletControllerQuoteConversion = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<WalletControllerQuoteConversionData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    WalletControllerQuoteConversionResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/wallet/convert/quote",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Execute a held conversion quote (moves money)
+ */
+export const walletControllerExecuteConversion = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<WalletControllerExecuteConversionData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    WalletControllerExecuteConversionResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/wallet/convert",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Get month-to-date stats (inflow and spend) per wallet
+ */
+export const walletControllerGetStats = <ThrowOnError extends boolean = false>(
+  options?: Options<WalletControllerGetStatsData, ThrowOnError>,
+) =>
+  (options?.client ?? client).get<
+    WalletControllerGetStatsResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/wallet/stats",
+    ...options,
+  });
+
+/**
+ * Net business flow (in/out/net) for a period — excludes own-money movements; NGN-pinned
+ */
+export const walletControllerGetFlowSummary = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<WalletControllerGetFlowSummaryData, ThrowOnError>,
+) =>
+  (options?.client ?? client).get<
+    WalletControllerGetFlowSummaryResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/wallet/flow-summary",
+    ...options,
+  });
+
+/**
+ * Get a filtered, paginated page of wallet transaction history (all wallets, or one currency)
+ */
+export const walletControllerGetTransactions = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<WalletControllerGetTransactionsData, ThrowOnError>,
+) =>
+  (options?.client ?? client).get<
+    WalletControllerGetTransactionsResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/wallet/transactions",
+    ...options,
+  });
+
+/**
+ * Estimate the fee/total for a withdrawal before initiating it
+ */
+export const walletControllerQuoteDisbursement = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<WalletControllerQuoteDisbursementData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    WalletControllerQuoteDisbursementResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/wallet/disburse/quote",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Initiate a bank or crypto transfer from a wallet
+ */
+export const walletControllerDisburse = <ThrowOnError extends boolean = false>(
+  options: Options<WalletControllerDisburseData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    WalletControllerDisburseResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/wallet/disburse",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * List the org's saved withdrawal destinations
+ */
+export const walletControllerListBeneficiaries = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<WalletControllerListBeneficiariesData, ThrowOnError>,
+) =>
+  (options?.client ?? client).get<
+    WalletControllerListBeneficiariesResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/wallet/beneficiaries",
+    ...options,
+  });
+
+/**
+ * Save a reusable withdrawal destination
+ */
+export const walletControllerCreateBeneficiary = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<WalletControllerCreateBeneficiaryData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    WalletControllerCreateBeneficiaryResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/wallet/beneficiaries",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Delete a saved withdrawal destination
+ */
+export const walletControllerDeleteBeneficiary = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<WalletControllerDeleteBeneficiaryData, ThrowOnError>,
+) =>
+  (options.client ?? client).delete<
+    WalletControllerDeleteBeneficiaryResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/wallet/beneficiaries/{id}",
+    ...options,
+  });
+
+/**
+ * Fund a transaction escrow from the wallet
+ */
+export const walletControllerFundEscrow = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<WalletControllerFundEscrowData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    WalletControllerFundEscrowResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/wallet/fund-escrow",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
 
 export const suppliersControllerFindAll = <
   ThrowOnError extends boolean = false,
@@ -2533,6 +2888,21 @@ export const suppliersControllerUpdate = <ThrowOnError extends boolean = false>(
       "Content-Type": "application/json",
       ...options.headers,
     },
+  });
+
+export const suppliersControllerGetPayments = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<SuppliersControllerGetPaymentsData, ThrowOnError>,
+) =>
+  (options.client ?? client).get<
+    SuppliersControllerGetPaymentsResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/suppliers/{id}/payments",
+    ...options,
   });
 
 /**
@@ -6343,336 +6713,6 @@ export const flutterwaveWebhooksControllerHandleWebhook = <
     unknown,
     ThrowOnError
   >({ url: "/api/v1/flutterwave/webhooks", ...options });
-
-/**
- * List the org's wallets — numbered "Wallet 1", "Wallet 2", …, each holding per-currency balances with status
- */
-export const walletControllerListWallets = <
-  ThrowOnError extends boolean = false,
->(
-  options?: Options<WalletControllerListWalletsData, ThrowOnError>,
-) =>
-  (options?.client ?? client).get<
-    WalletControllerListWalletsResponses,
-    unknown,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/api/v1/wallet/balances",
-    ...options,
-  });
-
-/**
- * The org's whole position valued in one reference currency at indicative rates
- */
-export const walletControllerGetValuation = <
-  ThrowOnError extends boolean = false,
->(
-  options?: Options<WalletControllerGetValuationData, ThrowOnError>,
-) =>
-  (options?.client ?? client).get<
-    WalletControllerGetValuationResponses,
-    unknown,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/api/v1/wallet/valuation",
-    ...options,
-  });
-
-/**
- * List the funding methods a wallet supports (no provisioning)
- */
-export const walletControllerGetFundOptions = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<WalletControllerGetFundOptionsData, ThrowOnError>,
-) =>
-  (options.client ?? client).get<
-    WalletControllerGetFundOptionsResponses,
-    unknown,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/api/v1/wallet/fund-options",
-    ...options,
-  });
-
-/**
- * Get funding instructions for a wallet
- */
-export const walletControllerGetFundDetails = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<WalletControllerGetFundDetailsData, ThrowOnError>,
-) =>
-  (options.client ?? client).get<
-    WalletControllerGetFundDetailsResponses,
-    unknown,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/api/v1/wallet/fund-details",
-    ...options,
-  });
-
-/**
- * Provision an amount-bound funding destination (a single-use account)
- */
-export const walletControllerProvisionFunding = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<WalletControllerProvisionFundingData, ThrowOnError>,
-) =>
-  (options.client ?? client).post<
-    WalletControllerProvisionFundingResponses,
-    unknown,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/api/v1/wallet/fund-instructions",
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options.headers,
-    },
-  });
-
-/**
- * List the currencies a wallet can be converted into
- */
-export const walletControllerGetConvertOptions = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<WalletControllerGetConvertOptionsData, ThrowOnError>,
-) =>
-  (options.client ?? client).get<
-    WalletControllerGetConvertOptionsResponses,
-    unknown,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/api/v1/wallet/convert/options",
-    ...options,
-  });
-
-/**
- * Get a rate-locked conversion quote (moves no money)
- */
-export const walletControllerQuoteConversion = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<WalletControllerQuoteConversionData, ThrowOnError>,
-) =>
-  (options.client ?? client).post<
-    WalletControllerQuoteConversionResponses,
-    unknown,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/api/v1/wallet/convert/quote",
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options.headers,
-    },
-  });
-
-/**
- * Execute a held conversion quote (moves money)
- */
-export const walletControllerExecuteConversion = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<WalletControllerExecuteConversionData, ThrowOnError>,
-) =>
-  (options.client ?? client).post<
-    WalletControllerExecuteConversionResponses,
-    unknown,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/api/v1/wallet/convert",
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options.headers,
-    },
-  });
-
-/**
- * Get month-to-date stats (inflow and spend) per wallet
- */
-export const walletControllerGetStats = <ThrowOnError extends boolean = false>(
-  options?: Options<WalletControllerGetStatsData, ThrowOnError>,
-) =>
-  (options?.client ?? client).get<
-    WalletControllerGetStatsResponses,
-    unknown,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/api/v1/wallet/stats",
-    ...options,
-  });
-
-/**
- * Net business flow (in/out/net) for a period — excludes own-money movements; NGN-pinned
- */
-export const walletControllerGetFlowSummary = <
-  ThrowOnError extends boolean = false,
->(
-  options?: Options<WalletControllerGetFlowSummaryData, ThrowOnError>,
-) =>
-  (options?.client ?? client).get<
-    WalletControllerGetFlowSummaryResponses,
-    unknown,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/api/v1/wallet/flow-summary",
-    ...options,
-  });
-
-/**
- * Get a filtered, paginated page of wallet transaction history (all wallets, or one currency)
- */
-export const walletControllerGetTransactions = <
-  ThrowOnError extends boolean = false,
->(
-  options?: Options<WalletControllerGetTransactionsData, ThrowOnError>,
-) =>
-  (options?.client ?? client).get<
-    WalletControllerGetTransactionsResponses,
-    unknown,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/api/v1/wallet/transactions",
-    ...options,
-  });
-
-/**
- * Estimate the fee/total for a withdrawal before initiating it
- */
-export const walletControllerQuoteDisbursement = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<WalletControllerQuoteDisbursementData, ThrowOnError>,
-) =>
-  (options.client ?? client).post<
-    WalletControllerQuoteDisbursementResponses,
-    unknown,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/api/v1/wallet/disburse/quote",
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options.headers,
-    },
-  });
-
-/**
- * Initiate a bank or crypto transfer from a wallet
- */
-export const walletControllerDisburse = <ThrowOnError extends boolean = false>(
-  options: Options<WalletControllerDisburseData, ThrowOnError>,
-) =>
-  (options.client ?? client).post<
-    WalletControllerDisburseResponses,
-    unknown,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/api/v1/wallet/disburse",
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options.headers,
-    },
-  });
-
-/**
- * List the org's saved withdrawal destinations
- */
-export const walletControllerListBeneficiaries = <
-  ThrowOnError extends boolean = false,
->(
-  options?: Options<WalletControllerListBeneficiariesData, ThrowOnError>,
-) =>
-  (options?.client ?? client).get<
-    WalletControllerListBeneficiariesResponses,
-    unknown,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/api/v1/wallet/beneficiaries",
-    ...options,
-  });
-
-/**
- * Save a reusable withdrawal destination
- */
-export const walletControllerCreateBeneficiary = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<WalletControllerCreateBeneficiaryData, ThrowOnError>,
-) =>
-  (options.client ?? client).post<
-    WalletControllerCreateBeneficiaryResponses,
-    unknown,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/api/v1/wallet/beneficiaries",
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options.headers,
-    },
-  });
-
-/**
- * Delete a saved withdrawal destination
- */
-export const walletControllerDeleteBeneficiary = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<WalletControllerDeleteBeneficiaryData, ThrowOnError>,
-) =>
-  (options.client ?? client).delete<
-    WalletControllerDeleteBeneficiaryResponses,
-    unknown,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/api/v1/wallet/beneficiaries/{id}",
-    ...options,
-  });
-
-/**
- * Fund a transaction escrow from the wallet
- */
-export const walletControllerFundEscrow = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<WalletControllerFundEscrowData, ThrowOnError>,
-) =>
-  (options.client ?? client).post<
-    WalletControllerFundEscrowResponses,
-    unknown,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/api/v1/wallet/fund-escrow",
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options.headers,
-    },
-  });
 
 /**
  * Handle Busha webhook events (public)

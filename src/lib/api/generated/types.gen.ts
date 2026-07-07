@@ -4020,6 +4020,620 @@ export type UpdateInvoiceDto = {
   notes?: string;
 };
 
+export type InvoiceItem = {
+  description: string;
+  quantity: number;
+  price: number;
+  amount: number;
+};
+
+export type WalletFundOptionDto = {
+  method: "bank_account" | "deposit_address" | "mobile_money" | "checkout_url";
+  /**
+   * User-facing, provider-neutral label
+   */
+  label: string;
+  currency: "NGN" | "KES" | "USD" | "EUR" | "USDT";
+  /**
+   * True when the method must be provisioned against a specific amount up front
+   */
+  requiresAmount: boolean;
+  /**
+   * True for a permanent/dedicated destination reusable across deposits
+   */
+  reusable: boolean;
+  /**
+   * Minimum amount, minor currency units
+   */
+  minAmount?: number;
+  /**
+   * Maximum amount, minor currency units
+   */
+  maxAmount?: number;
+  /**
+   * deposit_address only — the on-chain network this option provisions. A crypto wallet lists one option per supported network; echo it back when provisioning.
+   */
+  network?: string;
+};
+
+export type PublicInvoiceResponseDto = {
+  /**
+   * Org-scoped invoice number
+   */
+  displayId: number;
+  /**
+   * Name of the organization collecting payment
+   */
+  organizationName: string;
+  title: string;
+  customerName: string;
+  items: Array<InvoiceItem>;
+  /**
+   * Minor units of `currency`
+   */
+  subtotal: number;
+  /**
+   * Minor units of `currency`
+   */
+  taxAmount: number;
+  /**
+   * Minor units of `currency`
+   */
+  discountAmount: number;
+  /**
+   * Minor units of `currency`
+   */
+  total: number;
+  /**
+   * Pricing currency the invoice was issued in
+   */
+  currency: string;
+  /**
+   * Currency the payment actually moves in (differs when the pricing currency has no direct rail, e.g. USD funds 1:1 in USDT)
+   */
+  custodyCurrency: string;
+  /**
+   * Amount to pay, minor units of `custodyCurrency`
+   */
+  custodyTotal: number;
+  dueDate: string;
+  status: "draft" | "pending" | "paid";
+  notes?: string;
+  /**
+   * Ways this invoice can be paid right now (empty once paid or when no rail is available)
+   */
+  methods: Array<WalletFundOptionDto>;
+};
+
+export type PublicPaymentInstructionsRequestDto = {
+  /**
+   * Chosen on-chain network for a crypto method (from the method menu)
+   */
+  network?: string;
+};
+
+export type WalletFundDetailsResponseDto = {
+  /**
+   * How this wallet is funded — a bank transfer or an on-chain deposit
+   */
+  method: "bank_account" | "deposit_address";
+  currency: "NGN" | "KES" | "USD" | "EUR" | "USDT";
+  /**
+   * bank_account only
+   */
+  accountNumber?: string;
+  /**
+   * bank_account only
+   */
+  bankName?: string;
+  /**
+   * bank_account only — bank/sort code
+   */
+  bankCode?: string;
+  /**
+   * True for a permanent dedicated account: the same number can be reused for every top-up (no amount/expiry).
+   */
+  reusable?: boolean;
+  /**
+   * Exact amount to send, minor units — single-use amount-bound accounts only
+   */
+  amount?: number;
+  /**
+   * Transfer narration/reference, when the rail requires one
+   */
+  reference?: string;
+  /**
+   * When a single-use account lapses (ISO 8601)
+   */
+  expiresAt?: string;
+  /**
+   * deposit_address only
+   */
+  address?: string;
+  /**
+   * deposit_address only
+   */
+  network?: string;
+  /**
+   * deposit_address only
+   */
+  memo?: string;
+};
+
+/**
+ * Wallet-level rollup: active if any currency is active, else pending if any is pending, else disabled
+ */
+export type WalletStatus = "active" | "pending_activation" | "disabled";
+
+export type WalletDto = {
+  /**
+   * Which of the org's wallets this balance lives in ("Wallet 1", "Wallet 2", …)
+   */
+  walletIndex: number;
+  currency: "NGN" | "KES" | "USD" | "EUR" | "USDT";
+  /**
+   * Balance in minor currency units
+   */
+  balance: number;
+  status: WalletStatus;
+  /**
+   * Funding instructions are available for this wallet
+   */
+  canFund: boolean;
+  /**
+   * Bank disbursement from this wallet is supported
+   */
+  canDisburse: boolean;
+  /**
+   * Escrow can be funded directly from this wallet
+   */
+  canFundEscrow: boolean;
+  /**
+   * True when the live balance could not be fetched; balance is a 0 placeholder
+   */
+  balanceUnavailable?: boolean;
+};
+
+export type WalletGroupDto = {
+  /**
+   * Permanent wallet number; label is "Wallet {walletIndex}"
+   */
+  walletIndex: number;
+  /**
+   * Wallet-level rollup: active if any currency is active, else pending if any is pending, else disabled
+   */
+  status: WalletStatus;
+  /**
+   * The currency balances held in this wallet
+   */
+  currencies: Array<WalletDto>;
+};
+
+export type WalletValuationComponentDto = {
+  currency: "NGN" | "KES" | "USD" | "EUR" | "USDT";
+  /**
+   * Wallet balance in its own minor units
+   */
+  balanceMinor: number;
+  /**
+   * Indicative value in the reference currency, minor units
+   */
+  valueMinor: number;
+};
+
+export type WalletValuationResponseDto = {
+  /**
+   * Reference currency everything is valued in
+   */
+  reference: "NGN" | "KES" | "USD" | "EUR" | "USDT";
+  /**
+   * Indicative total position in reference minor units
+   */
+  totalMinor: number;
+  /**
+   * Oldest rate timestamp contributing to the total
+   */
+  asOf: string;
+  /**
+   * Always true — rates ignore execution fees and slippage
+   */
+  indicative: boolean;
+  /**
+   * Per-wallet contributions to the total
+   */
+  components: Array<WalletValuationComponentDto>;
+  /**
+   * Currencies left out: balance unavailable or no rate to the reference
+   */
+  excluded: Array<string>;
+};
+
+export type WalletProvisionFundingDto = {
+  /**
+   * Currency to fund
+   */
+  currency: "NGN" | "KES" | "USD" | "EUR" | "USDT";
+  /**
+   * Which wallet to fund; defaults to the lowest-numbered wallet holding the currency
+   */
+  walletIndex?: number;
+  /**
+   * Amount to fund, minor currency units
+   */
+  amount: number;
+  /**
+   * For a crypto deposit, the chosen on-chain network (from fund-options). Ignored for fiat; defaults to the provider network when omitted.
+   */
+  network?: string;
+};
+
+export type WalletConvertOptionsResponseDto = {
+  /**
+   * Target currencies this wallet can convert into
+   */
+  targets: Array<"NGN" | "KES" | "USD" | "EUR" | "USDT">;
+};
+
+export type WalletConvertQuoteDto = {
+  /**
+   * Currency to convert from
+   */
+  source: "NGN" | "KES" | "USD" | "EUR" | "USDT";
+  /**
+   * Which wallet converts (a conversion never leaves its wallet); defaults to the lowest-numbered wallet holding the source currency
+   */
+  walletIndex?: number;
+  /**
+   * Wallet to convert into
+   */
+  target: "NGN" | "KES" | "USD" | "EUR" | "USDT";
+  /**
+   * Spend exactly this much of the source, minor units (omit if targetAmount is set)
+   */
+  sourceAmount?: number;
+  /**
+   * Receive exactly this much of the target, minor units (omit if sourceAmount is set)
+   */
+  targetAmount?: number;
+};
+
+export type WalletConvertQuoteResponseDto = {
+  /**
+   * Quote id, to execute within the window
+   */
+  quoteId: string;
+  sourceCurrency: "NGN" | "KES" | "USD" | "EUR" | "USDT";
+  targetCurrency: "NGN" | "KES" | "USD" | "EUR" | "USDT";
+  /**
+   * Debited from the source wallet, minor units
+   */
+  sourceAmount: number;
+  /**
+   * Credited to the target wallet, minor units
+   */
+  targetAmount: number;
+  /**
+   * Target units per 1 source unit (display only)
+   */
+  rate: number;
+  /**
+   * Human-readable rate string
+   */
+  rateExplained?: string;
+  /**
+   * Spread/fee kept, minor units of source (0 when baked into the rate)
+   */
+  feeMinor?: number;
+  /**
+   * When the locked rate lapses (ISO 8601)
+   */
+  expiresAt: string;
+};
+
+export type WalletConvertExecuteDto = {
+  /**
+   * Source currency of the quote
+   */
+  source: "NGN" | "KES" | "USD" | "EUR" | "USDT";
+  /**
+   * Wallet the quote was issued for; defaults like the quote call
+   */
+  walletIndex?: number;
+  /**
+   * The quote to execute
+   */
+  quoteId: string;
+};
+
+export type WalletConvertReceiptResponseDto = {
+  /**
+   * Provider transfer id
+   */
+  transferId: string;
+  /**
+   * Whether the funds have converted yet
+   */
+  status: "settled" | "pending";
+  /**
+   * Debited from the source wallet, minor units
+   */
+  sourceAmount: number;
+  /**
+   * Credited to the target wallet, minor units
+   */
+  targetAmount: number;
+};
+
+export type WalletStatsResponseDto = {
+  /**
+   * Month-to-date inflow in minor currency units (kobo)
+   */
+  inflow: number;
+  /**
+   * Month-to-date spend in minor currency units (kobo)
+   */
+  spend: number;
+  currency: "NGN" | "KES" | "USD" | "EUR" | "USDT";
+};
+
+export type WalletFlowSummaryResponseDto = {
+  /**
+   * Reporting currency the summary is pinned to
+   */
+  reference: "NGN" | "KES" | "USD" | "EUR" | "USDT";
+  /**
+   * Net business flow (in − out) for the period, in minor units; can be negative
+   */
+  net: number;
+  /**
+   * Business money in (seller settlements, refunds) in minor units
+   */
+  in: number;
+  /**
+   * Business money out (escrow funding / purchases) in minor units
+   */
+  out: number;
+};
+
+/**
+ * UI activity category, derived from the entry type
+ */
+export type WalletActivityCategory =
+  | "deposit"
+  | "withdrawal"
+  | "convert"
+  | "fund_escrow"
+  | "refund"
+  | "payout";
+
+export type WalletTransactionResponseDto = {
+  id: string;
+  currency: "NGN" | "KES" | "USD" | "EUR" | "USDT";
+  /**
+   * Amount in minor currency units (kobo)
+   */
+  amount: number;
+  type: "credit" | "debit";
+  /**
+   * Short human-readable label
+   */
+  narration: string;
+  /**
+   * Detailed description
+   */
+  description?: string;
+  /**
+   * Ledger entry type
+   */
+  entryType: string;
+  /**
+   * UI activity category, derived from the entry type
+   */
+  category: WalletActivityCategory;
+  status: string;
+  createdAt: string;
+  reference?: string;
+  /**
+   * Linked transaction ID
+   */
+  transactionId?: string;
+  /**
+   * Linked transaction display ID
+   */
+  transactionDisplayId?: number;
+  /**
+   * Linked order ID
+   */
+  orderId?: string;
+};
+
+export type WalletActivityTabCountsDto = {
+  /**
+   * All activity
+   */
+  all: number;
+  /**
+   * Business flows (escrow/settlement/refund)
+   */
+  business: number;
+  /**
+   * Own-money movements (deposit/withdrawal/convert)
+   */
+  transfers: number;
+};
+
+export type WalletTransactionPageResponseDto = {
+  items: Array<WalletTransactionResponseDto>;
+  /**
+   * Total rows matching the filters, ignoring paging
+   */
+  total: number;
+  /**
+   * Page size used
+   */
+  limit: number;
+  /**
+   * Offset used
+   */
+  offset: number;
+  tabCounts: WalletActivityTabCountsDto;
+};
+
+export type WalletDisburseDto = {
+  /**
+   * Currency to disburse
+   */
+  currency: "NGN" | "KES" | "USD" | "EUR" | "USDT";
+  /**
+   * Which wallet to disburse from; defaults to the lowest-numbered wallet holding the currency
+   */
+  walletIndex?: number;
+  /**
+   * Amount in minor currency units
+   */
+  amount: number;
+  /**
+   * Destination type; defaults to bank_account when omitted
+   */
+  method?: "bank_account" | "crypto_address";
+  /**
+   * Required for bank_account
+   */
+  accountNumber?: string;
+  /**
+   * Bank code; required for bank_account
+   */
+  bankCode?: string;
+  /**
+   * Required for bank_account
+   */
+  accountName?: string;
+  /**
+   * On-chain destination address; required for crypto_address
+   */
+  address?: string;
+  /**
+   * On-chain network (e.g. TRX/ETH/BSC); required for crypto_address
+   */
+  network?: string;
+  /**
+   * Destination tag/memo for networks that require it (crypto_address)
+   */
+  memo?: string;
+  /**
+   * Required for bank_account; ignored for crypto_address
+   */
+  narration?: string;
+  /**
+   * Supplier (vendor) this disbursement pays — links the payment into the vendor payment history
+   */
+  supplierId?: string;
+};
+
+export type WalletDisburseQuoteResponseDto = {
+  currency: "NGN" | "KES" | "USD" | "EUR" | "USDT";
+  /**
+   * Withdrawal fee in minor units; null when the provider can’t quote ahead of execution
+   */
+  feeMinor: number | null;
+  /**
+   * Total debited from the wallet (amount + fee) in minor units; null when unknown
+   */
+  totalDebitMinor: number | null;
+};
+
+export type WalletDisburseResponseDto = {
+  transferId: string;
+  status: string;
+};
+
+export type WalletBeneficiaryResponseDto = {
+  id: string;
+  label: string;
+  currency: "NGN" | "KES" | "USD" | "EUR" | "USDT";
+  method: "bank_account" | "crypto_address";
+  /**
+   * bank_account only
+   */
+  accountNumber?: string;
+  /**
+   * bank_account only
+   */
+  bankCode?: string;
+  /**
+   * bank_account only
+   */
+  bankName?: string;
+  /**
+   * bank_account only
+   */
+  accountName?: string;
+  /**
+   * crypto_address only
+   */
+  address?: string;
+  /**
+   * crypto_address only
+   */
+  network?: string;
+  /**
+   * crypto_address only
+   */
+  memo?: string;
+  createdAt: string;
+};
+
+export type CreateWalletBeneficiaryDto = {
+  /**
+   * User-friendly label
+   */
+  label: string;
+  currency: "NGN" | "KES" | "USD" | "EUR" | "USDT";
+  /**
+   * Destination type
+   */
+  method: "bank_account" | "crypto_address";
+  /**
+   * Required for bank_account
+   */
+  accountNumber?: string;
+  /**
+   * Bank code; required for bank_account
+   */
+  bankCode?: string;
+  /**
+   * Bank name for display
+   */
+  bankName?: string;
+  /**
+   * Required for bank_account
+   */
+  accountName?: string;
+  /**
+   * Required for crypto_address
+   */
+  address?: string;
+  /**
+   * On-chain network; required for crypto_address
+   */
+  network?: string;
+  /**
+   * Destination tag/memo (crypto_address)
+   */
+  memo?: string;
+};
+
+export type WalletFundEscrowDto = {
+  /**
+   * Transaction ID to fund escrow for
+   */
+  transactionId: string;
+  /**
+   * Which wallet funds the escrow; defaults to the lowest-numbered wallet holding the escrow currency
+   */
+  walletIndex?: number;
+};
+
 export type CreateSupplierDto = {
   name: string;
   businessType: string;
@@ -4086,6 +4700,39 @@ export type SupplierResponseDto = {
   status: "active" | "inactive";
   createdAt: string;
   updatedAt: string;
+};
+
+export type SupplierPaymentDto = {
+  /**
+   * Journal entry id
+   */
+  id: string;
+  /**
+   * When the payment was made (ISO date)
+   */
+  date: string;
+  /**
+   * Amount paid, minor currency units
+   */
+  amount: number;
+  currency: string;
+  /**
+   * Ledger description (e.g. destination account)
+   */
+  description: string;
+  /**
+   * Platform payment reference
+   */
+  reference?: string;
+  /**
+   * Ledger status; disbursements post as completed
+   */
+  status: string;
+};
+
+export type SupplierPaymentsResponseDto = {
+  items: Array<SupplierPaymentDto>;
+  total: number;
 };
 
 export type UpdateSupplierDto = {
@@ -7805,553 +8452,6 @@ export type InspectionReport = {
   [key: string]: unknown;
 };
 
-/**
- * Wallet-level rollup: active if any currency is active, else pending if any is pending, else disabled
- */
-export type WalletStatus = "active" | "pending_activation" | "disabled";
-
-export type WalletDto = {
-  /**
-   * Which of the org's wallets this balance lives in ("Wallet 1", "Wallet 2", …)
-   */
-  walletIndex: number;
-  currency: "NGN" | "KES" | "USD" | "EUR" | "USDT";
-  /**
-   * Balance in minor currency units
-   */
-  balance: number;
-  status: WalletStatus;
-  /**
-   * Funding instructions are available for this wallet
-   */
-  canFund: boolean;
-  /**
-   * Bank disbursement from this wallet is supported
-   */
-  canDisburse: boolean;
-  /**
-   * Escrow can be funded directly from this wallet
-   */
-  canFundEscrow: boolean;
-  /**
-   * True when the live balance could not be fetched; balance is a 0 placeholder
-   */
-  balanceUnavailable?: boolean;
-};
-
-export type WalletGroupDto = {
-  /**
-   * Permanent wallet number; label is "Wallet {walletIndex}"
-   */
-  walletIndex: number;
-  /**
-   * Wallet-level rollup: active if any currency is active, else pending if any is pending, else disabled
-   */
-  status: WalletStatus;
-  /**
-   * The currency balances held in this wallet
-   */
-  currencies: Array<WalletDto>;
-};
-
-export type WalletValuationComponentDto = {
-  currency: "NGN" | "KES" | "USD" | "EUR" | "USDT";
-  /**
-   * Wallet balance in its own minor units
-   */
-  balanceMinor: number;
-  /**
-   * Indicative value in the reference currency, minor units
-   */
-  valueMinor: number;
-};
-
-export type WalletValuationResponseDto = {
-  /**
-   * Reference currency everything is valued in
-   */
-  reference: "NGN" | "KES" | "USD" | "EUR" | "USDT";
-  /**
-   * Indicative total position in reference minor units
-   */
-  totalMinor: number;
-  /**
-   * Oldest rate timestamp contributing to the total
-   */
-  asOf: string;
-  /**
-   * Always true — rates ignore execution fees and slippage
-   */
-  indicative: boolean;
-  /**
-   * Per-wallet contributions to the total
-   */
-  components: Array<WalletValuationComponentDto>;
-  /**
-   * Currencies left out: balance unavailable or no rate to the reference
-   */
-  excluded: Array<string>;
-};
-
-export type WalletFundOptionDto = {
-  method: "bank_account" | "deposit_address" | "mobile_money" | "checkout_url";
-  /**
-   * User-facing, provider-neutral label
-   */
-  label: string;
-  currency: "NGN" | "KES" | "USD" | "EUR" | "USDT";
-  /**
-   * True when the method must be provisioned against a specific amount up front
-   */
-  requiresAmount: boolean;
-  /**
-   * True for a permanent/dedicated destination reusable across deposits
-   */
-  reusable: boolean;
-  /**
-   * Minimum amount, minor currency units
-   */
-  minAmount?: number;
-  /**
-   * Maximum amount, minor currency units
-   */
-  maxAmount?: number;
-  /**
-   * deposit_address only — the on-chain network this option provisions. A crypto wallet lists one option per supported network; echo it back when provisioning.
-   */
-  network?: string;
-};
-
-export type WalletFundDetailsResponseDto = {
-  /**
-   * How this wallet is funded — a bank transfer or an on-chain deposit
-   */
-  method: "bank_account" | "deposit_address";
-  currency: "NGN" | "KES" | "USD" | "EUR" | "USDT";
-  /**
-   * bank_account only
-   */
-  accountNumber?: string;
-  /**
-   * bank_account only
-   */
-  bankName?: string;
-  /**
-   * bank_account only — bank/sort code
-   */
-  bankCode?: string;
-  /**
-   * True for a permanent dedicated account: the same number can be reused for every top-up (no amount/expiry).
-   */
-  reusable?: boolean;
-  /**
-   * Exact amount to send, minor units — single-use amount-bound accounts only
-   */
-  amount?: number;
-  /**
-   * Transfer narration/reference, when the rail requires one
-   */
-  reference?: string;
-  /**
-   * When a single-use account lapses (ISO 8601)
-   */
-  expiresAt?: string;
-  /**
-   * deposit_address only
-   */
-  address?: string;
-  /**
-   * deposit_address only
-   */
-  network?: string;
-  /**
-   * deposit_address only
-   */
-  memo?: string;
-};
-
-export type WalletProvisionFundingDto = {
-  /**
-   * Currency to fund
-   */
-  currency: "NGN" | "KES" | "USD" | "EUR" | "USDT";
-  /**
-   * Which wallet to fund; defaults to the lowest-numbered wallet holding the currency
-   */
-  walletIndex?: number;
-  /**
-   * Amount to fund, minor currency units
-   */
-  amount: number;
-  /**
-   * For a crypto deposit, the chosen on-chain network (from fund-options). Ignored for fiat; defaults to the provider network when omitted.
-   */
-  network?: string;
-};
-
-export type WalletConvertOptionsResponseDto = {
-  /**
-   * Target currencies this wallet can convert into
-   */
-  targets: Array<"NGN" | "KES" | "USD" | "EUR" | "USDT">;
-};
-
-export type WalletConvertQuoteDto = {
-  /**
-   * Currency to convert from
-   */
-  source: "NGN" | "KES" | "USD" | "EUR" | "USDT";
-  /**
-   * Which wallet converts (a conversion never leaves its wallet); defaults to the lowest-numbered wallet holding the source currency
-   */
-  walletIndex?: number;
-  /**
-   * Wallet to convert into
-   */
-  target: "NGN" | "KES" | "USD" | "EUR" | "USDT";
-  /**
-   * Spend exactly this much of the source, minor units (omit if targetAmount is set)
-   */
-  sourceAmount?: number;
-  /**
-   * Receive exactly this much of the target, minor units (omit if sourceAmount is set)
-   */
-  targetAmount?: number;
-};
-
-export type WalletConvertQuoteResponseDto = {
-  /**
-   * Quote id, to execute within the window
-   */
-  quoteId: string;
-  sourceCurrency: "NGN" | "KES" | "USD" | "EUR" | "USDT";
-  targetCurrency: "NGN" | "KES" | "USD" | "EUR" | "USDT";
-  /**
-   * Debited from the source wallet, minor units
-   */
-  sourceAmount: number;
-  /**
-   * Credited to the target wallet, minor units
-   */
-  targetAmount: number;
-  /**
-   * Target units per 1 source unit (display only)
-   */
-  rate: number;
-  /**
-   * Human-readable rate string
-   */
-  rateExplained?: string;
-  /**
-   * Spread/fee kept, minor units of source (0 when baked into the rate)
-   */
-  feeMinor?: number;
-  /**
-   * When the locked rate lapses (ISO 8601)
-   */
-  expiresAt: string;
-};
-
-export type WalletConvertExecuteDto = {
-  /**
-   * Source currency of the quote
-   */
-  source: "NGN" | "KES" | "USD" | "EUR" | "USDT";
-  /**
-   * Wallet the quote was issued for; defaults like the quote call
-   */
-  walletIndex?: number;
-  /**
-   * The quote to execute
-   */
-  quoteId: string;
-};
-
-export type WalletConvertReceiptResponseDto = {
-  /**
-   * Provider transfer id
-   */
-  transferId: string;
-  /**
-   * Whether the funds have converted yet
-   */
-  status: "settled" | "pending";
-  /**
-   * Debited from the source wallet, minor units
-   */
-  sourceAmount: number;
-  /**
-   * Credited to the target wallet, minor units
-   */
-  targetAmount: number;
-};
-
-export type WalletStatsResponseDto = {
-  /**
-   * Month-to-date inflow in minor currency units (kobo)
-   */
-  inflow: number;
-  /**
-   * Month-to-date spend in minor currency units (kobo)
-   */
-  spend: number;
-  currency: "NGN" | "KES" | "USD" | "EUR" | "USDT";
-};
-
-export type WalletFlowSummaryResponseDto = {
-  /**
-   * Reporting currency the summary is pinned to
-   */
-  reference: "NGN" | "KES" | "USD" | "EUR" | "USDT";
-  /**
-   * Net business flow (in − out) for the period, in minor units; can be negative
-   */
-  net: number;
-  /**
-   * Business money in (seller settlements, refunds) in minor units
-   */
-  in: number;
-  /**
-   * Business money out (escrow funding / purchases) in minor units
-   */
-  out: number;
-};
-
-/**
- * UI activity category, derived from the entry type
- */
-export type WalletActivityCategory =
-  | "deposit"
-  | "withdrawal"
-  | "convert"
-  | "fund_escrow"
-  | "refund"
-  | "payout";
-
-export type WalletTransactionResponseDto = {
-  id: string;
-  currency: "NGN" | "KES" | "USD" | "EUR" | "USDT";
-  /**
-   * Amount in minor currency units (kobo)
-   */
-  amount: number;
-  type: "credit" | "debit";
-  /**
-   * Short human-readable label
-   */
-  narration: string;
-  /**
-   * Detailed description
-   */
-  description?: string;
-  /**
-   * Ledger entry type
-   */
-  entryType: string;
-  /**
-   * UI activity category, derived from the entry type
-   */
-  category: WalletActivityCategory;
-  status: string;
-  createdAt: string;
-  reference?: string;
-  /**
-   * Linked transaction ID
-   */
-  transactionId?: string;
-  /**
-   * Linked transaction display ID
-   */
-  transactionDisplayId?: number;
-  /**
-   * Linked order ID
-   */
-  orderId?: string;
-};
-
-export type WalletActivityTabCountsDto = {
-  /**
-   * All activity
-   */
-  all: number;
-  /**
-   * Business flows (escrow/settlement/refund)
-   */
-  business: number;
-  /**
-   * Own-money movements (deposit/withdrawal/convert)
-   */
-  transfers: number;
-};
-
-export type WalletTransactionPageResponseDto = {
-  items: Array<WalletTransactionResponseDto>;
-  /**
-   * Total rows matching the filters, ignoring paging
-   */
-  total: number;
-  /**
-   * Page size used
-   */
-  limit: number;
-  /**
-   * Offset used
-   */
-  offset: number;
-  tabCounts: WalletActivityTabCountsDto;
-};
-
-export type WalletDisburseDto = {
-  /**
-   * Currency to disburse
-   */
-  currency: "NGN" | "KES" | "USD" | "EUR" | "USDT";
-  /**
-   * Which wallet to disburse from; defaults to the lowest-numbered wallet holding the currency
-   */
-  walletIndex?: number;
-  /**
-   * Amount in minor currency units
-   */
-  amount: number;
-  /**
-   * Destination type; defaults to bank_account when omitted
-   */
-  method?: "bank_account" | "crypto_address";
-  /**
-   * Required for bank_account
-   */
-  accountNumber?: string;
-  /**
-   * Bank code; required for bank_account
-   */
-  bankCode?: string;
-  /**
-   * Required for bank_account
-   */
-  accountName?: string;
-  /**
-   * On-chain destination address; required for crypto_address
-   */
-  address?: string;
-  /**
-   * On-chain network (e.g. TRX/ETH/BSC); required for crypto_address
-   */
-  network?: string;
-  /**
-   * Destination tag/memo for networks that require it (crypto_address)
-   */
-  memo?: string;
-  /**
-   * Required for bank_account; ignored for crypto_address
-   */
-  narration?: string;
-};
-
-export type WalletDisburseQuoteResponseDto = {
-  currency: "NGN" | "KES" | "USD" | "EUR" | "USDT";
-  /**
-   * Withdrawal fee in minor units; null when the provider can’t quote ahead of execution
-   */
-  feeMinor: number | null;
-  /**
-   * Total debited from the wallet (amount + fee) in minor units; null when unknown
-   */
-  totalDebitMinor: number | null;
-};
-
-export type WalletDisburseResponseDto = {
-  transferId: string;
-  status: string;
-};
-
-export type WalletBeneficiaryResponseDto = {
-  id: string;
-  label: string;
-  currency: "NGN" | "KES" | "USD" | "EUR" | "USDT";
-  method: "bank_account" | "crypto_address";
-  /**
-   * bank_account only
-   */
-  accountNumber?: string;
-  /**
-   * bank_account only
-   */
-  bankCode?: string;
-  /**
-   * bank_account only
-   */
-  bankName?: string;
-  /**
-   * bank_account only
-   */
-  accountName?: string;
-  /**
-   * crypto_address only
-   */
-  address?: string;
-  /**
-   * crypto_address only
-   */
-  network?: string;
-  /**
-   * crypto_address only
-   */
-  memo?: string;
-  createdAt: string;
-};
-
-export type CreateWalletBeneficiaryDto = {
-  /**
-   * User-friendly label
-   */
-  label: string;
-  currency: "NGN" | "KES" | "USD" | "EUR" | "USDT";
-  /**
-   * Destination type
-   */
-  method: "bank_account" | "crypto_address";
-  /**
-   * Required for bank_account
-   */
-  accountNumber?: string;
-  /**
-   * Bank code; required for bank_account
-   */
-  bankCode?: string;
-  /**
-   * Bank name for display
-   */
-  bankName?: string;
-  /**
-   * Required for bank_account
-   */
-  accountName?: string;
-  /**
-   * Required for crypto_address
-   */
-  address?: string;
-  /**
-   * On-chain network; required for crypto_address
-   */
-  network?: string;
-  /**
-   * Destination tag/memo (crypto_address)
-   */
-  memo?: string;
-};
-
-export type WalletFundEscrowDto = {
-  /**
-   * Transaction ID to fund escrow for
-   */
-  transactionId: string;
-  /**
-   * Which wallet funds the escrow; defaults to the lowest-numbered wallet holding the escrow currency
-   */
-  walletIndex?: number;
-};
-
 export type RelatedResourceDto = {
   /**
    * Resource type: transaction, order, request
@@ -10237,14 +10337,360 @@ export type InvoicesControllerMarkPaidResponses = {
 export type InvoicesControllerMarkPaidResponse =
   InvoicesControllerMarkPaidResponses[keyof InvoicesControllerMarkPaidResponses];
 
-export type InvoicesWebhooksControllerHandlePaymentWebhookData = {
+export type InvoicesPayControllerGetPublicInvoiceData = {
+  body?: never;
+  path: {
+    token: string;
+  };
+  query?: never;
+  url: "/api/v1/invoices/pay/{token}";
+};
+
+export type InvoicesPayControllerGetPublicInvoiceResponses = {
+  200: PublicInvoiceResponseDto;
+};
+
+export type InvoicesPayControllerGetPublicInvoiceResponse =
+  InvoicesPayControllerGetPublicInvoiceResponses[keyof InvoicesPayControllerGetPublicInvoiceResponses];
+
+export type InvoicesPayControllerProvisionInstructionsData = {
+  body: PublicPaymentInstructionsRequestDto;
+  path: {
+    token: string;
+  };
+  query?: never;
+  url: "/api/v1/invoices/pay/{token}/instructions";
+};
+
+export type InvoicesPayControllerProvisionInstructionsResponses = {
+  200: WalletFundDetailsResponseDto;
+  201: unknown;
+};
+
+export type InvoicesPayControllerProvisionInstructionsResponse =
+  InvoicesPayControllerProvisionInstructionsResponses[keyof InvoicesPayControllerProvisionInstructionsResponses];
+
+export type WalletControllerListWalletsData = {
   body?: never;
   path?: never;
   query?: never;
-  url: "/api/v1/invoices/webhooks/payment";
+  url: "/api/v1/wallet/balances";
 };
 
-export type InvoicesWebhooksControllerHandlePaymentWebhookResponses = {
+export type WalletControllerListWalletsResponses = {
+  200: Array<WalletGroupDto>;
+};
+
+export type WalletControllerListWalletsResponse =
+  WalletControllerListWalletsResponses[keyof WalletControllerListWalletsResponses];
+
+export type WalletControllerGetValuationData = {
+  body?: never;
+  path?: never;
+  query?: {
+    /**
+     * Reference currency; defaults to the primary wallet currency
+     */
+    currency?: "NGN" | "KES" | "USD" | "EUR" | "USDT";
+  };
+  url: "/api/v1/wallet/valuation";
+};
+
+export type WalletControllerGetValuationResponses = {
+  200: WalletValuationResponseDto;
+};
+
+export type WalletControllerGetValuationResponse =
+  WalletControllerGetValuationResponses[keyof WalletControllerGetValuationResponses];
+
+export type WalletControllerGetFundOptionsData = {
+  body?: never;
+  path?: never;
+  query: {
+    /**
+     * Which currency
+     */
+    currency: "NGN" | "KES" | "USD" | "EUR" | "USDT";
+    /**
+     * Which wallet holds the currency; defaults to the lowest-numbered wallet with a balance in it
+     */
+    walletIndex?: number;
+  };
+  url: "/api/v1/wallet/fund-options";
+};
+
+export type WalletControllerGetFundOptionsResponses = {
+  200: Array<WalletFundOptionDto>;
+};
+
+export type WalletControllerGetFundOptionsResponse =
+  WalletControllerGetFundOptionsResponses[keyof WalletControllerGetFundOptionsResponses];
+
+export type WalletControllerGetFundDetailsData = {
+  body?: never;
+  path?: never;
+  query: {
+    /**
+     * Which currency
+     */
+    currency: "NGN" | "KES" | "USD" | "EUR" | "USDT";
+    /**
+     * Which wallet holds the currency; defaults to the lowest-numbered wallet with a balance in it
+     */
+    walletIndex?: number;
+  };
+  url: "/api/v1/wallet/fund-details";
+};
+
+export type WalletControllerGetFundDetailsResponses = {
+  200: WalletFundDetailsResponseDto;
+};
+
+export type WalletControllerGetFundDetailsResponse =
+  WalletControllerGetFundDetailsResponses[keyof WalletControllerGetFundDetailsResponses];
+
+export type WalletControllerProvisionFundingData = {
+  body: WalletProvisionFundingDto;
+  path?: never;
+  query?: never;
+  url: "/api/v1/wallet/fund-instructions";
+};
+
+export type WalletControllerProvisionFundingResponses = {
+  200: WalletFundDetailsResponseDto;
+};
+
+export type WalletControllerProvisionFundingResponse =
+  WalletControllerProvisionFundingResponses[keyof WalletControllerProvisionFundingResponses];
+
+export type WalletControllerGetConvertOptionsData = {
+  body?: never;
+  path?: never;
+  query: {
+    /**
+     * Which currency
+     */
+    currency: "NGN" | "KES" | "USD" | "EUR" | "USDT";
+    /**
+     * Which wallet holds the currency; defaults to the lowest-numbered wallet with a balance in it
+     */
+    walletIndex?: number;
+  };
+  url: "/api/v1/wallet/convert/options";
+};
+
+export type WalletControllerGetConvertOptionsResponses = {
+  200: WalletConvertOptionsResponseDto;
+};
+
+export type WalletControllerGetConvertOptionsResponse =
+  WalletControllerGetConvertOptionsResponses[keyof WalletControllerGetConvertOptionsResponses];
+
+export type WalletControllerQuoteConversionData = {
+  body: WalletConvertQuoteDto;
+  path?: never;
+  query?: never;
+  url: "/api/v1/wallet/convert/quote";
+};
+
+export type WalletControllerQuoteConversionResponses = {
+  200: WalletConvertQuoteResponseDto;
+};
+
+export type WalletControllerQuoteConversionResponse =
+  WalletControllerQuoteConversionResponses[keyof WalletControllerQuoteConversionResponses];
+
+export type WalletControllerExecuteConversionData = {
+  body: WalletConvertExecuteDto;
+  path?: never;
+  query?: never;
+  url: "/api/v1/wallet/convert";
+};
+
+export type WalletControllerExecuteConversionResponses = {
+  200: WalletConvertReceiptResponseDto;
+};
+
+export type WalletControllerExecuteConversionResponse =
+  WalletControllerExecuteConversionResponses[keyof WalletControllerExecuteConversionResponses];
+
+export type WalletControllerGetStatsData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: "/api/v1/wallet/stats";
+};
+
+export type WalletControllerGetStatsResponses = {
+  200: Array<WalletStatsResponseDto>;
+};
+
+export type WalletControllerGetStatsResponse =
+  WalletControllerGetStatsResponses[keyof WalletControllerGetStatsResponses];
+
+export type WalletControllerGetFlowSummaryData = {
+  body?: never;
+  path?: never;
+  query?: {
+    /**
+     * Start of the reporting window (inclusive); omit for all-time
+     */
+    from?: string;
+    /**
+     * End of the reporting window (inclusive); omit for open-ended
+     */
+    to?: string;
+  };
+  url: "/api/v1/wallet/flow-summary";
+};
+
+export type WalletControllerGetFlowSummaryResponses = {
+  200: WalletFlowSummaryResponseDto;
+};
+
+export type WalletControllerGetFlowSummaryResponse =
+  WalletControllerGetFlowSummaryResponses[keyof WalletControllerGetFlowSummaryResponses];
+
+export type WalletControllerGetTransactionsData = {
+  body?: never;
+  path?: never;
+  query?: {
+    /**
+     * Limit history to one currency; omit for all merged
+     */
+    currency?: "NGN" | "KES" | "USD" | "EUR" | "USDT";
+    /**
+     * Limit history to one numbered wallet; omit for all wallets merged
+     */
+    walletIndex?: number;
+    /**
+     * Coarse type partition; ignored when `categories` is given
+     */
+    tab?: "all" | "business" | "transfers";
+    /**
+     * Refine to these categories (overrides `tab` when present)
+     */
+    categories?: Array<
+      "deposit" | "withdrawal" | "convert" | "fund_escrow" | "refund" | "payout"
+    >;
+    /**
+     * Filter by status; defaults to completed (posted) only
+     */
+    statuses?: Array<"completed" | "reversed">;
+    /**
+     * Only entries on/after this instant (inclusive)
+     */
+    from?: string;
+    /**
+     * Only entries on/before this instant (inclusive)
+     */
+    to?: string;
+    /**
+     * Page size (1–200)
+     */
+    limit?: number;
+    /**
+     * Rows to skip from the newest (page offset)
+     */
+    offset?: number;
+  };
+  url: "/api/v1/wallet/transactions";
+};
+
+export type WalletControllerGetTransactionsResponses = {
+  200: WalletTransactionPageResponseDto;
+};
+
+export type WalletControllerGetTransactionsResponse =
+  WalletControllerGetTransactionsResponses[keyof WalletControllerGetTransactionsResponses];
+
+export type WalletControllerQuoteDisbursementData = {
+  body: WalletDisburseDto;
+  path?: never;
+  query?: never;
+  url: "/api/v1/wallet/disburse/quote";
+};
+
+export type WalletControllerQuoteDisbursementResponses = {
+  200: WalletDisburseQuoteResponseDto;
+};
+
+export type WalletControllerQuoteDisbursementResponse =
+  WalletControllerQuoteDisbursementResponses[keyof WalletControllerQuoteDisbursementResponses];
+
+export type WalletControllerDisburseData = {
+  body: WalletDisburseDto;
+  path?: never;
+  query?: never;
+  url: "/api/v1/wallet/disburse";
+};
+
+export type WalletControllerDisburseResponses = {
+  200: WalletDisburseResponseDto;
+};
+
+export type WalletControllerDisburseResponse =
+  WalletControllerDisburseResponses[keyof WalletControllerDisburseResponses];
+
+export type WalletControllerListBeneficiariesData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: "/api/v1/wallet/beneficiaries";
+};
+
+export type WalletControllerListBeneficiariesResponses = {
+  200: Array<WalletBeneficiaryResponseDto>;
+};
+
+export type WalletControllerListBeneficiariesResponse =
+  WalletControllerListBeneficiariesResponses[keyof WalletControllerListBeneficiariesResponses];
+
+export type WalletControllerCreateBeneficiaryData = {
+  body: CreateWalletBeneficiaryDto;
+  path?: never;
+  query?: never;
+  url: "/api/v1/wallet/beneficiaries";
+};
+
+export type WalletControllerCreateBeneficiaryResponses = {
+  200: WalletBeneficiaryResponseDto;
+  201: WalletBeneficiaryResponseDto;
+};
+
+export type WalletControllerCreateBeneficiaryResponse =
+  WalletControllerCreateBeneficiaryResponses[keyof WalletControllerCreateBeneficiaryResponses];
+
+export type WalletControllerDeleteBeneficiaryData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/wallet/beneficiaries/{id}";
+};
+
+export type WalletControllerDeleteBeneficiaryResponses = {
+  /**
+   * Beneficiary deleted
+   */
+  204: void;
+};
+
+export type WalletControllerDeleteBeneficiaryResponse =
+  WalletControllerDeleteBeneficiaryResponses[keyof WalletControllerDeleteBeneficiaryResponses];
+
+export type WalletControllerFundEscrowData = {
+  body: WalletFundEscrowDto;
+  path?: never;
+  query?: never;
+  url: "/api/v1/wallet/fund-escrow";
+};
+
+export type WalletControllerFundEscrowResponses = {
+  /**
+   * The updated transaction with escrow created
+   */
   200: unknown;
 };
 
@@ -10320,6 +10766,22 @@ export type SuppliersControllerUpdateResponses = {
 
 export type SuppliersControllerUpdateResponse =
   SuppliersControllerUpdateResponses[keyof SuppliersControllerUpdateResponses];
+
+export type SuppliersControllerGetPaymentsData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/suppliers/{id}/payments";
+};
+
+export type SuppliersControllerGetPaymentsResponses = {
+  200: SupplierPaymentsResponseDto;
+};
+
+export type SuppliersControllerGetPaymentsResponse =
+  SuppliersControllerGetPaymentsResponses[keyof SuppliersControllerGetPaymentsResponses];
 
 export type DisputesControllerRaiseDisputeData = {
   body: RaiseDisputeDto;
@@ -13618,330 +14080,6 @@ export type FlutterwaveWebhooksControllerHandleWebhookData = {
 };
 
 export type FlutterwaveWebhooksControllerHandleWebhookResponses = {
-  200: unknown;
-};
-
-export type WalletControllerListWalletsData = {
-  body?: never;
-  path?: never;
-  query?: never;
-  url: "/api/v1/wallet/balances";
-};
-
-export type WalletControllerListWalletsResponses = {
-  200: Array<WalletGroupDto>;
-};
-
-export type WalletControllerListWalletsResponse =
-  WalletControllerListWalletsResponses[keyof WalletControllerListWalletsResponses];
-
-export type WalletControllerGetValuationData = {
-  body?: never;
-  path?: never;
-  query?: {
-    /**
-     * Reference currency; defaults to the primary wallet currency
-     */
-    currency?: "NGN" | "KES" | "USD" | "EUR" | "USDT";
-  };
-  url: "/api/v1/wallet/valuation";
-};
-
-export type WalletControllerGetValuationResponses = {
-  200: WalletValuationResponseDto;
-};
-
-export type WalletControllerGetValuationResponse =
-  WalletControllerGetValuationResponses[keyof WalletControllerGetValuationResponses];
-
-export type WalletControllerGetFundOptionsData = {
-  body?: never;
-  path?: never;
-  query: {
-    /**
-     * Which currency
-     */
-    currency: "NGN" | "KES" | "USD" | "EUR" | "USDT";
-    /**
-     * Which wallet holds the currency; defaults to the lowest-numbered wallet with a balance in it
-     */
-    walletIndex?: number;
-  };
-  url: "/api/v1/wallet/fund-options";
-};
-
-export type WalletControllerGetFundOptionsResponses = {
-  200: Array<WalletFundOptionDto>;
-};
-
-export type WalletControllerGetFundOptionsResponse =
-  WalletControllerGetFundOptionsResponses[keyof WalletControllerGetFundOptionsResponses];
-
-export type WalletControllerGetFundDetailsData = {
-  body?: never;
-  path?: never;
-  query: {
-    /**
-     * Which currency
-     */
-    currency: "NGN" | "KES" | "USD" | "EUR" | "USDT";
-    /**
-     * Which wallet holds the currency; defaults to the lowest-numbered wallet with a balance in it
-     */
-    walletIndex?: number;
-  };
-  url: "/api/v1/wallet/fund-details";
-};
-
-export type WalletControllerGetFundDetailsResponses = {
-  200: WalletFundDetailsResponseDto;
-};
-
-export type WalletControllerGetFundDetailsResponse =
-  WalletControllerGetFundDetailsResponses[keyof WalletControllerGetFundDetailsResponses];
-
-export type WalletControllerProvisionFundingData = {
-  body: WalletProvisionFundingDto;
-  path?: never;
-  query?: never;
-  url: "/api/v1/wallet/fund-instructions";
-};
-
-export type WalletControllerProvisionFundingResponses = {
-  200: WalletFundDetailsResponseDto;
-};
-
-export type WalletControllerProvisionFundingResponse =
-  WalletControllerProvisionFundingResponses[keyof WalletControllerProvisionFundingResponses];
-
-export type WalletControllerGetConvertOptionsData = {
-  body?: never;
-  path?: never;
-  query: {
-    /**
-     * Which currency
-     */
-    currency: "NGN" | "KES" | "USD" | "EUR" | "USDT";
-    /**
-     * Which wallet holds the currency; defaults to the lowest-numbered wallet with a balance in it
-     */
-    walletIndex?: number;
-  };
-  url: "/api/v1/wallet/convert/options";
-};
-
-export type WalletControllerGetConvertOptionsResponses = {
-  200: WalletConvertOptionsResponseDto;
-};
-
-export type WalletControllerGetConvertOptionsResponse =
-  WalletControllerGetConvertOptionsResponses[keyof WalletControllerGetConvertOptionsResponses];
-
-export type WalletControllerQuoteConversionData = {
-  body: WalletConvertQuoteDto;
-  path?: never;
-  query?: never;
-  url: "/api/v1/wallet/convert/quote";
-};
-
-export type WalletControllerQuoteConversionResponses = {
-  200: WalletConvertQuoteResponseDto;
-};
-
-export type WalletControllerQuoteConversionResponse =
-  WalletControllerQuoteConversionResponses[keyof WalletControllerQuoteConversionResponses];
-
-export type WalletControllerExecuteConversionData = {
-  body: WalletConvertExecuteDto;
-  path?: never;
-  query?: never;
-  url: "/api/v1/wallet/convert";
-};
-
-export type WalletControllerExecuteConversionResponses = {
-  200: WalletConvertReceiptResponseDto;
-};
-
-export type WalletControllerExecuteConversionResponse =
-  WalletControllerExecuteConversionResponses[keyof WalletControllerExecuteConversionResponses];
-
-export type WalletControllerGetStatsData = {
-  body?: never;
-  path?: never;
-  query?: never;
-  url: "/api/v1/wallet/stats";
-};
-
-export type WalletControllerGetStatsResponses = {
-  200: Array<WalletStatsResponseDto>;
-};
-
-export type WalletControllerGetStatsResponse =
-  WalletControllerGetStatsResponses[keyof WalletControllerGetStatsResponses];
-
-export type WalletControllerGetFlowSummaryData = {
-  body?: never;
-  path?: never;
-  query?: {
-    /**
-     * Start of the reporting window (inclusive); omit for all-time
-     */
-    from?: string;
-    /**
-     * End of the reporting window (inclusive); omit for open-ended
-     */
-    to?: string;
-  };
-  url: "/api/v1/wallet/flow-summary";
-};
-
-export type WalletControllerGetFlowSummaryResponses = {
-  200: WalletFlowSummaryResponseDto;
-};
-
-export type WalletControllerGetFlowSummaryResponse =
-  WalletControllerGetFlowSummaryResponses[keyof WalletControllerGetFlowSummaryResponses];
-
-export type WalletControllerGetTransactionsData = {
-  body?: never;
-  path?: never;
-  query?: {
-    /**
-     * Limit history to one currency; omit for all merged
-     */
-    currency?: "NGN" | "KES" | "USD" | "EUR" | "USDT";
-    /**
-     * Limit history to one numbered wallet; omit for all wallets merged
-     */
-    walletIndex?: number;
-    /**
-     * Coarse type partition; ignored when `categories` is given
-     */
-    tab?: "all" | "business" | "transfers";
-    /**
-     * Refine to these categories (overrides `tab` when present)
-     */
-    categories?: Array<
-      "deposit" | "withdrawal" | "convert" | "fund_escrow" | "refund" | "payout"
-    >;
-    /**
-     * Filter by status; defaults to completed (posted) only
-     */
-    statuses?: Array<"completed" | "reversed">;
-    /**
-     * Only entries on/after this instant (inclusive)
-     */
-    from?: string;
-    /**
-     * Only entries on/before this instant (inclusive)
-     */
-    to?: string;
-    /**
-     * Page size (1–200)
-     */
-    limit?: number;
-    /**
-     * Rows to skip from the newest (page offset)
-     */
-    offset?: number;
-  };
-  url: "/api/v1/wallet/transactions";
-};
-
-export type WalletControllerGetTransactionsResponses = {
-  200: WalletTransactionPageResponseDto;
-};
-
-export type WalletControllerGetTransactionsResponse =
-  WalletControllerGetTransactionsResponses[keyof WalletControllerGetTransactionsResponses];
-
-export type WalletControllerQuoteDisbursementData = {
-  body: WalletDisburseDto;
-  path?: never;
-  query?: never;
-  url: "/api/v1/wallet/disburse/quote";
-};
-
-export type WalletControllerQuoteDisbursementResponses = {
-  200: WalletDisburseQuoteResponseDto;
-};
-
-export type WalletControllerQuoteDisbursementResponse =
-  WalletControllerQuoteDisbursementResponses[keyof WalletControllerQuoteDisbursementResponses];
-
-export type WalletControllerDisburseData = {
-  body: WalletDisburseDto;
-  path?: never;
-  query?: never;
-  url: "/api/v1/wallet/disburse";
-};
-
-export type WalletControllerDisburseResponses = {
-  200: WalletDisburseResponseDto;
-};
-
-export type WalletControllerDisburseResponse =
-  WalletControllerDisburseResponses[keyof WalletControllerDisburseResponses];
-
-export type WalletControllerListBeneficiariesData = {
-  body?: never;
-  path?: never;
-  query?: never;
-  url: "/api/v1/wallet/beneficiaries";
-};
-
-export type WalletControllerListBeneficiariesResponses = {
-  200: Array<WalletBeneficiaryResponseDto>;
-};
-
-export type WalletControllerListBeneficiariesResponse =
-  WalletControllerListBeneficiariesResponses[keyof WalletControllerListBeneficiariesResponses];
-
-export type WalletControllerCreateBeneficiaryData = {
-  body: CreateWalletBeneficiaryDto;
-  path?: never;
-  query?: never;
-  url: "/api/v1/wallet/beneficiaries";
-};
-
-export type WalletControllerCreateBeneficiaryResponses = {
-  200: WalletBeneficiaryResponseDto;
-  201: WalletBeneficiaryResponseDto;
-};
-
-export type WalletControllerCreateBeneficiaryResponse =
-  WalletControllerCreateBeneficiaryResponses[keyof WalletControllerCreateBeneficiaryResponses];
-
-export type WalletControllerDeleteBeneficiaryData = {
-  body?: never;
-  path: {
-    id: string;
-  };
-  query?: never;
-  url: "/api/v1/wallet/beneficiaries/{id}";
-};
-
-export type WalletControllerDeleteBeneficiaryResponses = {
-  /**
-   * Beneficiary deleted
-   */
-  204: void;
-};
-
-export type WalletControllerDeleteBeneficiaryResponse =
-  WalletControllerDeleteBeneficiaryResponses[keyof WalletControllerDeleteBeneficiaryResponses];
-
-export type WalletControllerFundEscrowData = {
-  body: WalletFundEscrowDto;
-  path?: never;
-  query?: never;
-  url: "/api/v1/wallet/fund-escrow";
-};
-
-export type WalletControllerFundEscrowResponses = {
-  /**
-   * The updated transaction with escrow created
-   */
   200: unknown;
 };
 
