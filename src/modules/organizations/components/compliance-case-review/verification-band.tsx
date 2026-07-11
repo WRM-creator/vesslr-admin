@@ -1,4 +1,5 @@
 import { Badge } from "@/components/ui/badge";
+import type { BusinessPersonDto } from "@/lib/api/generated";
 import { TINT } from "@/lib/tint";
 import { cn } from "@/lib/utils";
 import { CheckIcon, FileTextIcon, UserIcon, XIcon } from "lucide-react";
@@ -130,6 +131,50 @@ function ScreeningValue({ result }: { result?: ScreeningResult }) {
   );
 }
 
+/**
+ * Worst-state rollup of the stored people's AML screens for the one-glance
+ * row; the AML screening panel below is its expansion. Merged humans share a
+ * check, so screened rows dedupe by provider reference before counting.
+ */
+function PeopleScreeningValue({ people }: { people: BusinessPersonDto[] }) {
+  const seen = new Set<string>();
+  let needReview = 0;
+  let failed = 0;
+  let notRun = 0;
+  for (const person of people) {
+    const check = person.amlCheck;
+    const key = check?.referenceId ?? `p-${person._id}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    if (!check || (check.status === "manual_review" && check.provider !== "smile_id")) {
+      notRun += 1;
+    } else if (check.status === "failed") failed += 1;
+    else if (check.status === "manual_review") needReview += 1;
+  }
+  if (failed > 0) {
+    return (
+      <Badge variant="outline" className={cn("font-medium", TINT.red)}>
+        Failed
+      </Badge>
+    );
+  }
+  if (needReview > 0) {
+    return (
+      <Badge variant="outline" className={cn("font-medium", TINT.amber)}>
+        {needReview} need{needReview === 1 ? "s" : ""} review
+      </Badge>
+    );
+  }
+  if (notRun > 0) {
+    return <span className="text-muted-foreground">Not run</span>;
+  }
+  return (
+    <Badge variant="outline" className={cn("font-medium", TINT.green)}>
+      Passed
+    </Badge>
+  );
+}
+
 function Track({
   icon,
   title,
@@ -188,10 +233,13 @@ function Track({
 export function VerificationBand({
   data,
   flags,
+  people,
 }: {
   data: ComplianceCase;
   /** Case flag store; enables the inline "flag" control on check rows. */
   flags?: CaseFlagsApi;
+  /** Stored directors + owners; drives the People screening rollup row. */
+  people?: BusinessPersonDto[];
 }) {
   const { checks, kybStatus, kycStatus, verificationMode } = data;
   const manual = verificationMode === "manual";
@@ -323,6 +371,12 @@ export function VerificationBand({
             label="Sanctions screening"
             value={<ScreeningValue result={checks.kyb.sanctions} />}
           />
+          {people && people.length > 0 && (
+            <CheckRow
+              label="People screening"
+              value={<PeopleScreeningValue people={people} />}
+            />
+          )}
         </Track>
       </div>
     </section>

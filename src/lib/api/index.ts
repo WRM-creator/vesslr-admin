@@ -29,10 +29,15 @@ import {
   adminCategoriesControllerFindOne,
   adminCategoriesControllerRemove,
   adminCategoriesControllerUpdate,
+  adminComplianceControllerAdjudicateScreening,
   adminComplianceControllerAdoptRegistryPeople,
   adminComplianceControllerGetCase,
+  adminComplianceControllerGetScreeningDetail,
   adminComplianceControllerListCases,
+  adminComplianceControllerListScreenings,
   adminComplianceControllerOnboard,
+  adminComplianceControllerScreenAll,
+  adminComplianceControllerScreenPerson,
   adminEscrowsControllerFindAll,
   adminEscrowsControllerGetStats,
   adminLedgerControllerGetAccount,
@@ -625,6 +630,49 @@ export const api = {
             ["admin", "compliance", "case", args.path.organizationId],
             ["admin", "compliance", "cases"],
             ["admin", "payments", "profile", args.path.organizationId],
+          ],
+        },
+      ),
+      screenings: createQuery(
+        adminComplianceControllerListScreenings,
+        (args) => [
+          "admin",
+          "compliance",
+          "screenings",
+          args.path.organizationId,
+        ],
+      ),
+      screeningDetail: createQuery(
+        adminComplianceControllerGetScreeningDetail,
+        (args) => [
+          "admin",
+          "compliance",
+          "screening",
+          args.path.organizationId,
+          args.path.personId,
+        ],
+      ),
+      screenPerson: createMutation(adminComplianceControllerScreenPerson, {
+        invalidates: (args) => [
+          ["admin", "compliance", "screenings", args.path.organizationId],
+          ["admin", "compliance", "screening", args.path.organizationId],
+          ["admin", "compliance", "case", args.path.organizationId],
+        ],
+      }),
+      screenAll: createMutation(adminComplianceControllerScreenAll, {
+        invalidates: (args) => [
+          ["admin", "compliance", "screenings", args.path.organizationId],
+          ["admin", "compliance", "screening", args.path.organizationId],
+          ["admin", "compliance", "case", args.path.organizationId],
+        ],
+      }),
+      adjudicateScreening: createMutation(
+        adminComplianceControllerAdjudicateScreening,
+        {
+          invalidates: (args) => [
+            ["admin", "compliance", "screenings", args.path.organizationId],
+            ["admin", "compliance", "screening", args.path.organizationId],
+            ["admin", "compliance", "case", args.path.organizationId],
           ],
         },
       ),

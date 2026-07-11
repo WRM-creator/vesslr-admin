@@ -24,6 +24,7 @@ import { FlagButton } from "./flag-button";
 import { DocFlagButton } from "./doc-flag-button";
 import { IdentityComparison } from "./identity-comparison";
 import { LicenseDocumentsPanel } from "./license-documents-panel";
+import { PersonScreeningPanel } from "./person-screening-panel";
 import { ProviderOnboardingPanel } from "./provider-onboarding-panel";
 import { ProviderResponsePanel } from "./provider-response-panel";
 import { RegistryPeople } from "./registry-people";
@@ -345,13 +346,27 @@ export function ComplianceCaseReview({
     </p>
   ) : null;
 
+  // Stored directors + owners (the screening subjects); drives the People
+  // screening rollup row and the review sheet's comparison context.
+  const storedPeople = apiData?.kybProfile
+    ? [
+        ...(apiData.kybProfile.directors ?? []),
+        ...(apiData.kybProfile.beneficialOwners ?? []),
+      ]
+    : undefined;
+
   return (
     <div className="space-y-6">
       <CaseHeader data={data} />
 
       {apiData?.kybProfile && <ProviderResponsePanel kyb={apiData.kybProfile} />}
 
-      <VerificationBand data={data} flags={flags} />
+      <VerificationBand data={data} flags={flags} people={storedPeople} />
+
+      <PersonScreeningPanel
+        organizationId={organizationId}
+        people={storedPeople}
+      />
 
       {isManual ? (
         <>

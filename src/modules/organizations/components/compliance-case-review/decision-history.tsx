@@ -24,6 +24,11 @@ function formatEventType(eventType: string): string {
     "kyb.document_provided": "Document provided",
     "kyb.registry_people_adopted": "Registry people adopted",
     "kyb.provider_verification_declined": "Provider declined",
+    "kyb.people_screening_completed": "People screened (submission)",
+    "kyb.person_screening_requested": "Screening requested",
+    "kyb.person_screening_completed": "Screening completed",
+    "kyb.person_screening_failed": "Screening failed",
+    "kyb.person_screening_adjudicated": "Screening match adjudicated",
     "payments.provisioning_triggered": "Payments provisioning triggered",
     "payments.onboarding_status_changed": "Payments provider status changed",
   };
@@ -33,12 +38,76 @@ function formatEventType(eventType: string): string {
   return label.charAt(0).toUpperCase() + label.slice(1);
 }
 
-function dotColor(eventType: string): string {
+function dotColor(eventType: string, metadata?: ScreeningEventMetadata): string {
+  if (eventType.includes("screening_failed")) return "bg-red-500";
+  if (eventType.includes("screening_completed")) {
+    // A completed screen that found a match is not a green moment.
+    return metadata?.outcome === "passed"
+      ? "bg-green-500"
+      : "bg-muted-foreground/40";
+  }
   if (eventType.includes("approved")) return "bg-green-500";
   if (eventType.includes("action_required")) return "bg-amber-500";
   if (eventType.includes("rejected") || eventType.includes("declined"))
     return "bg-red-500";
   return "bg-muted-foreground/40";
+}
+
+/** Screening event metadata written by PersonScreeningService. */
+interface ScreeningEventMetadata {
+  name?: string;
+  outcome?: string;
+  listed?: string;
+  referenceId?: string;
+  verdict?: "false_positive" | "confirmed";
+  note?: string;
+  subjects?: Array<{ name?: string; outcome?: string }>;
+  failures?: number;
+}
+
+const OUTCOME_LABEL: Record<string, string> = {
+  passed: "Passed",
+  manual_review: "Needs review",
+  failed: "Failed",
+};
+
+/** One-line summary for a screening event, from its metadata. */
+function screeningLine(
+  eventType: string,
+  metadata?: ScreeningEventMetadata,
+): string | undefined {
+  if (!eventType.includes("screening")) return undefined;
+  if (!metadata) return undefined;
+  if (eventType.endsWith("adjudicated")) {
+    const verdict =
+      metadata.verdict === "false_positive"
+        ? "Dismissed as false positive"
+        : "Match confirmed";
+    return [
+      metadata.name,
+      metadata.note ? `${verdict}: “${metadata.note}”` : verdict,
+    ]
+      .filter(Boolean)
+      .join(" · ");
+  }
+  if (metadata.subjects && metadata.subjects.length > 0) {
+    const failures = metadata.failures ?? 0;
+    return (
+      `${metadata.subjects.length} ${metadata.subjects.length === 1 ? "person" : "people"} screened` +
+      (failures > 0 ? `, ${failures} failed` : "") +
+      `: ${metadata.subjects.map((s) => s.name).filter(Boolean).join(", ")}`
+    );
+  }
+  return (
+    [
+      metadata.name,
+      metadata.outcome && (OUTCOME_LABEL[metadata.outcome] ?? metadata.outcome),
+      metadata.listed && `(${metadata.listed})`,
+      metadata.referenceId && `ref ${metadata.referenceId}`,
+    ]
+      .filter(Boolean)
+      .join(" · ") || undefined
+  );
 }
 
 export function DecisionHistory({ events, totalEvents }: DecisionHistoryProps) {
@@ -63,14 +132,22 @@ export function DecisionHistory({ events, totalEvents }: DecisionHistoryProps) {
           </p>
         ) : (
           <div className="space-y-2">
-            {events.map((event) => (
+            {events.map((event) => {
+              const screeningMeta = event.metadata as
+                | ScreeningEventMetadata
+                | undefined;
+              const screeningSummary = screeningLine(
+                event.eventType,
+                screeningMeta,
+              );
+              return (
               <div key={event.id} className="space-y-1 py-2">
                 <div className="flex items-center justify-between">
                   <span className="flex items-center gap-2 text-sm font-medium">
                     <span
                       className={cn(
                         "size-1.5 shrink-0 rounded-full",
-                        dotColor(event.eventType),
+                        dotColor(event.eventType, screeningMeta),
                       )}
                     />
                     {formatEventType(event.eventType)}
@@ -86,6 +163,11 @@ export function DecisionHistory({ events, totalEvents }: DecisionHistoryProps) {
                       ? "By System"
                       : "By Applicant"}
                 </p>
+                {screeningSummary && (
+                  <p className="text-muted-foreground pl-3.5 text-xs tabular-nums">
+                    {screeningSummary}
+                  </p>
+                )}
                 {event.metadata?.label && (
                   <p className="text-muted-foreground pl-3.5 text-xs">
                     {event.metadata.file?.url ? (
@@ -133,7 +215,8 @@ export function DecisionHistory({ events, totalEvents }: DecisionHistoryProps) {
                     </ul>
                   )}
               </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </CardContent>
