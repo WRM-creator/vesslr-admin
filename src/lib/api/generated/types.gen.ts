@@ -608,7 +608,7 @@ export type PopulatedProductResponseDto = {
    * Price per unit in minor currency units (kobo/cents)
    */
   pricePerUnit: number;
-  currency?: "NGN" | "KES" | "USD" | "EUR" | "USDT";
+  currency?: "NGN" | "KES" | "USD" | "EUR" | "USDT" | "USDC";
   images?: Array<string>;
   features?: Array<string>;
   availableQuantity?: number;
@@ -715,7 +715,7 @@ export type ProductResponseDto = {
    * Price per unit in minor currency units (kobo/cents)
    */
   pricePerUnit: number;
-  currency?: "NGN" | "KES" | "USD" | "EUR" | "USDT";
+  currency?: "NGN" | "KES" | "USD" | "EUR" | "USDT" | "USDC";
   images?: Array<string>;
   features?: Array<string>;
   availableQuantity?: number;
@@ -1089,7 +1089,7 @@ export type CreateProductDto = {
    * Price per unit in minor currency units (kobo/cents)
    */
   pricePerUnit: number;
-  currency?: "NGN" | "KES" | "USD" | "EUR" | "USDT";
+  currency?: "NGN" | "KES" | "USD" | "EUR" | "USDT" | "USDC";
   images?: Array<string>;
   documents?: Array<string>;
   features?: Array<string>;
@@ -1178,7 +1178,7 @@ export type UpdateProductDto = {
    * Price per unit in minor currency units (kobo/cents)
    */
   pricePerUnit?: number;
-  currency?: "NGN" | "KES" | "USD" | "EUR" | "USDT";
+  currency?: "NGN" | "KES" | "USD" | "EUR" | "USDT" | "USDC";
   images?: Array<string>;
   documents?: Array<string>;
   features?: Array<string>;
@@ -1277,7 +1277,7 @@ export type CategoryGroupDto = {
   requiresCompliance: boolean;
   allowsOrderQuantityLimits: boolean;
   allowsInventoryTracking: boolean;
-  allowedCurrencies: Array<"NGN" | "KES" | "USD" | "EUR" | "USDT">;
+  allowedCurrencies: Array<"NGN" | "KES" | "USD" | "EUR" | "USDT" | "USDC">;
   allowedListingTypes: Array<
     "product" | "service" | "rental" | "lease" | "charter" | "rfq"
   >;
@@ -1365,7 +1365,7 @@ export type UpdateCategoryGroupDto = {
   milestoneDelivery?: boolean;
   allowsOrderQuantityLimits?: boolean;
   allowsInventoryTracking?: boolean;
-  allowedCurrencies?: Array<"NGN" | "KES" | "USD" | "EUR" | "USDT">;
+  allowedCurrencies?: Array<"NGN" | "KES" | "USD" | "EUR" | "USDT" | "USDC">;
   allowedListingTypes?: Array<
     "product" | "service" | "rental" | "lease" | "charter" | "rfq"
   >;
@@ -1565,7 +1565,7 @@ export type CreateTransactionDto = {
 export type DifferentialPriceResponseDto = {
   benchmarkId: string;
   differentialValue: number;
-  differentialCurrency: "NGN" | "KES" | "USD" | "EUR" | "USDT";
+  differentialCurrency: "NGN" | "KES" | "USD" | "EUR" | "USDT" | "USDC";
   notes?: string;
 };
 
@@ -1889,7 +1889,7 @@ export type OrderResponseDto = {
    * Price per unit in minor currency units. Unset for a differential order until funding.
    */
   pricePerUnit?: number;
-  currency: "NGN" | "KES" | "USD" | "EUR" | "USDT";
+  currency: "NGN" | "KES" | "USD" | "EUR" | "USDT" | "USDC";
   /**
    * Total amount in minor currency units. Unset for a differential order until funding.
    */
@@ -2087,7 +2087,7 @@ export type EscrowResponseDto = {
    * Platform service fee amount
    */
   serviceFeeAmount: number;
-  currency: "NGN" | "KES" | "USD" | "EUR" | "USDT";
+  currency: "NGN" | "KES" | "USD" | "EUR" | "USDT" | "USDC";
   referenceId?: string | null;
   fundedAt?: string | null;
   releasedAt?: string | null;
@@ -2372,7 +2372,7 @@ export type VirtualAccountResponseDto = {
   /**
    * Funding currency
    */
-  currency: "NGN" | "KES" | "USD" | "EUR" | "USDT";
+  currency: "NGN" | "KES" | "USD" | "EUR" | "USDT" | "USDC";
   /**
    * Goods amount before service fee (minor units)
    */
@@ -2450,7 +2450,7 @@ export type EscrowWithTransactionResponseDto = {
    * Platform service fee amount
    */
   serviceFeeAmount: number;
-  currency: "NGN" | "KES" | "USD" | "EUR" | "USDT";
+  currency: "NGN" | "KES" | "USD" | "EUR" | "USDT" | "USDC";
   referenceId?: string | null;
   fundedAt?: string | null;
   releasedAt?: string | null;
@@ -2497,14 +2497,14 @@ export type EscrowSummaryResponseDto = {
    * Total refunded in minor currency units (kobo/cents)
    */
   refunded: number;
-  currency: "NGN" | "KES" | "USD" | "EUR" | "USDT";
+  currency: "NGN" | "KES" | "USD" | "EUR" | "USDT" | "USDC";
 };
 
 export type BenchmarkDto = {
   _id: string;
   code: string;
   name: string;
-  benchmarkCurrency: "NGN" | "KES" | "USD" | "EUR" | "USDT";
+  benchmarkCurrency: "NGN" | "KES" | "USD" | "EUR" | "USDT" | "USDC";
   defaultUnit:
     | "bbl"
     | "liter"
@@ -2792,7 +2792,7 @@ export type RecommendationFeedItemDto = {
   differentialPrice?: DifferentialPriceResponseDto;
   duration?: number;
   durationUnit?: string;
-  currency: "NGN" | "KES" | "USD" | "EUR" | "USDT";
+  currency: "NGN" | "KES" | "USD" | "EUR" | "USDT" | "USDC";
   transactionType: Array<string>;
   condition?: Array<string>;
   description?: string;
@@ -2839,7 +2839,7 @@ export type DifferentialPriceDto = {
   /**
    * Currency of the differential; must equal the deal / benchmark currency
    */
-  differentialCurrency: "NGN" | "KES" | "USD" | "EUR" | "USDT";
+  differentialCurrency: "NGN" | "KES" | "USD" | "EUR" | "USDT" | "USDC";
   /**
    * Free-text clarification of the basis
    */
@@ -2916,7 +2916,7 @@ export type CreateRequestDto = {
    * Commodity differential price. Required when pricingBasis is differential.
    */
   differentialPrice?: DifferentialPriceDto;
-  currency: "NGN" | "KES" | "USD" | "EUR" | "USDT";
+  currency: "NGN" | "KES" | "USD" | "EUR" | "USDT" | "USDC";
   /**
    * List of transaction types
    */
@@ -3072,7 +3072,7 @@ export type RequestResponseDto = {
     | "project"
     | "milestone"
     | "contract";
-  currency: "NGN" | "KES" | "USD" | "EUR" | "USDT";
+  currency: "NGN" | "KES" | "USD" | "EUR" | "USDT" | "USDC";
   listingType: "product" | "service" | "rental" | "lease" | "charter" | "rfq";
   transactionType?: Array<string>;
   /**
@@ -3178,7 +3178,7 @@ export type UpdateRequestDto = {
    * Commodity differential price. Required when pricingBasis is differential.
    */
   differentialPrice?: DifferentialPriceDto;
-  currency?: "NGN" | "KES" | "USD" | "EUR" | "USDT";
+  currency?: "NGN" | "KES" | "USD" | "EUR" | "USDT" | "USDC";
   /**
    * List of transaction types
    */
@@ -3425,7 +3425,7 @@ export type CreateNegotiationDto = {
    */
   differentialPrice?: DifferentialPriceDto;
   quantity: number;
-  currency: "NGN" | "KES" | "USD" | "EUR" | "USDT";
+  currency: "NGN" | "KES" | "USD" | "EUR" | "USDT" | "USDC";
   unitOfMeasurement:
     | "bbl"
     | "liter"
@@ -3537,7 +3537,7 @@ export type NegotiationRequestDto = {
    * The request differential (present only when pricingBasis is differential)
    */
   differentialPrice?: DifferentialPriceResponseDto;
-  currency?: "NGN" | "KES" | "USD" | "EUR" | "USDT";
+  currency?: "NGN" | "KES" | "USD" | "EUR" | "USDT" | "USDC";
   unitOfMeasurement?:
     | "bbl"
     | "liter"
@@ -3612,7 +3612,7 @@ export type NegotiationOffer = {
    */
   differentialPrice?: DifferentialPriceResponseDto;
   quantity: number;
-  currency: "NGN" | "KES" | "USD" | "EUR" | "USDT";
+  currency: "NGN" | "KES" | "USD" | "EUR" | "USDT" | "USDC";
   unitOfMeasurement:
     | "bbl"
     | "liter"
@@ -3758,7 +3758,7 @@ export type CounterOfferDto = {
    */
   differentialPrice?: DifferentialPriceDto;
   quantity: number;
-  currency: "NGN" | "KES" | "USD" | "EUR" | "USDT";
+  currency: "NGN" | "KES" | "USD" | "EUR" | "USDT" | "USDC";
   unitOfMeasurement:
     | "bbl"
     | "liter"
@@ -3872,7 +3872,7 @@ export type CreateInvoiceDto = {
   customerName: string;
   customerEmail?: string;
   title: string;
-  currency: "NGN" | "KES" | "USD" | "EUR" | "USDT";
+  currency: "NGN" | "KES" | "USD" | "EUR" | "USDT" | "USDC";
   /**
    * ISO 8601 date string
    */
@@ -3991,7 +3991,7 @@ export type UpdateInvoiceDto = {
   customerName?: string;
   customerEmail?: string;
   title?: string;
-  currency?: "NGN" | "KES" | "USD" | "EUR" | "USDT";
+  currency?: "NGN" | "KES" | "USD" | "EUR" | "USDT" | "USDC";
   /**
    * ISO 8601 date string
    */
@@ -4033,7 +4033,7 @@ export type WalletFundOptionDto = {
    * User-facing, provider-neutral label
    */
   label: string;
-  currency: "NGN" | "KES" | "USD" | "EUR" | "USDT";
+  currency: "NGN" | "KES" | "USD" | "EUR" | "USDT" | "USDC";
   /**
    * True when the method must be provisioned against a specific amount up front
    */
@@ -4117,7 +4117,7 @@ export type WalletFundDetailsResponseDto = {
    * How this wallet is funded — a bank transfer or an on-chain deposit
    */
   method: "bank_account" | "deposit_address";
-  currency: "NGN" | "KES" | "USD" | "EUR" | "USDT";
+  currency: "NGN" | "KES" | "USD" | "EUR" | "USDT" | "USDC";
   /**
    * bank_account only
    */
@@ -4170,7 +4170,7 @@ export type WalletDto = {
    * Which of the org's wallets this balance lives in ("Wallet 1", "Wallet 2", …)
    */
   walletIndex: number;
-  currency: "NGN" | "KES" | "USD" | "EUR" | "USDT";
+  currency: "NGN" | "KES" | "USD" | "EUR" | "USDT" | "USDC";
   /**
    * Balance in minor currency units
    */
@@ -4210,7 +4210,7 @@ export type WalletGroupDto = {
 };
 
 export type WalletValuationComponentDto = {
-  currency: "NGN" | "KES" | "USD" | "EUR" | "USDT";
+  currency: "NGN" | "KES" | "USD" | "EUR" | "USDT" | "USDC";
   /**
    * Wallet balance in its own minor units
    */
@@ -4225,7 +4225,7 @@ export type WalletValuationResponseDto = {
   /**
    * Reference currency everything is valued in
    */
-  reference: "NGN" | "KES" | "USD" | "EUR" | "USDT";
+  reference: "NGN" | "KES" | "USD" | "EUR" | "USDT" | "USDC";
   /**
    * Indicative total position in reference minor units
    */
@@ -4252,11 +4252,11 @@ export type WalletProvisionFundingDto = {
   /**
    * Currency to fund
    */
-  currency: "NGN" | "KES" | "USD" | "EUR" | "USDT";
+  currency: "NGN" | "KES" | "USD" | "EUR" | "USDT" | "USDC";
   /**
-   * Which wallet to fund; defaults to the lowest-numbered wallet holding the currency
+   * Which numbered wallet to fund. Required: the destination wallet is always named explicitly.
    */
-  walletIndex?: number;
+  walletIndex: number;
   /**
    * Amount to fund, minor currency units
    */
@@ -4271,22 +4271,22 @@ export type WalletConvertOptionsResponseDto = {
   /**
    * Target currencies this wallet can convert into
    */
-  targets: Array<"NGN" | "KES" | "USD" | "EUR" | "USDT">;
+  targets: Array<"NGN" | "KES" | "USD" | "EUR" | "USDT" | "USDC">;
 };
 
 export type WalletConvertQuoteDto = {
   /**
    * Currency to convert from
    */
-  source: "NGN" | "KES" | "USD" | "EUR" | "USDT";
+  source: "NGN" | "KES" | "USD" | "EUR" | "USDT" | "USDC";
   /**
-   * Which wallet converts (a conversion never leaves its wallet); defaults to the lowest-numbered wallet holding the source currency
+   * Which numbered wallet converts (a conversion never leaves its wallet). Required: the caller must name the wallet explicitly.
    */
-  walletIndex?: number;
+  walletIndex: number;
   /**
    * Wallet to convert into
    */
-  target: "NGN" | "KES" | "USD" | "EUR" | "USDT";
+  target: "NGN" | "KES" | "USD" | "EUR" | "USDT" | "USDC";
   /**
    * Spend exactly this much of the source, minor units (omit if targetAmount is set)
    */
@@ -4302,8 +4302,8 @@ export type WalletConvertQuoteResponseDto = {
    * Quote id, to execute within the window
    */
   quoteId: string;
-  sourceCurrency: "NGN" | "KES" | "USD" | "EUR" | "USDT";
-  targetCurrency: "NGN" | "KES" | "USD" | "EUR" | "USDT";
+  sourceCurrency: "NGN" | "KES" | "USD" | "EUR" | "USDT" | "USDC";
+  targetCurrency: "NGN" | "KES" | "USD" | "EUR" | "USDT" | "USDC";
   /**
    * Debited from the source wallet, minor units
    */
@@ -4334,11 +4334,11 @@ export type WalletConvertExecuteDto = {
   /**
    * Source currency of the quote
    */
-  source: "NGN" | "KES" | "USD" | "EUR" | "USDT";
+  source: "NGN" | "KES" | "USD" | "EUR" | "USDT" | "USDC";
   /**
-   * Wallet the quote was issued for; defaults like the quote call
+   * Wallet the quote was issued for. Required, matching the quote call.
    */
-  walletIndex?: number;
+  walletIndex: number;
   /**
    * The quote to execute
    */
@@ -4373,14 +4373,14 @@ export type WalletStatsResponseDto = {
    * Month-to-date spend in minor currency units (kobo)
    */
   spend: number;
-  currency: "NGN" | "KES" | "USD" | "EUR" | "USDT";
+  currency: "NGN" | "KES" | "USD" | "EUR" | "USDT" | "USDC";
 };
 
 export type WalletFlowSummaryResponseDto = {
   /**
    * Reporting currency the summary is pinned to
    */
-  reference: "NGN" | "KES" | "USD" | "EUR" | "USDT";
+  reference: "NGN" | "KES" | "USD" | "EUR" | "USDT" | "USDC";
   /**
    * Net business flow (in − out) for the period, in minor units; can be negative
    */
@@ -4408,7 +4408,7 @@ export type WalletActivityCategory =
 
 export type WalletTransactionResponseDto = {
   id: string;
-  currency: "NGN" | "KES" | "USD" | "EUR" | "USDT";
+  currency: "NGN" | "KES" | "USD" | "EUR" | "USDT" | "USDC";
   /**
    * Amount in minor currency units (kobo)
    */
@@ -4483,11 +4483,11 @@ export type WalletDisburseDto = {
   /**
    * Currency to disburse
    */
-  currency: "NGN" | "KES" | "USD" | "EUR" | "USDT";
+  currency: "NGN" | "KES" | "USD" | "EUR" | "USDT" | "USDC";
   /**
-   * Which wallet to disburse from; defaults to the lowest-numbered wallet holding the currency
+   * Which numbered wallet to disburse from. Required: money never leaves a wallet the caller did not name explicitly.
    */
-  walletIndex?: number;
+  walletIndex: number;
   /**
    * Amount in minor currency units
    */
@@ -4531,7 +4531,7 @@ export type WalletDisburseDto = {
 };
 
 export type WalletDisburseQuoteResponseDto = {
-  currency: "NGN" | "KES" | "USD" | "EUR" | "USDT";
+  currency: "NGN" | "KES" | "USD" | "EUR" | "USDT" | "USDC";
   /**
    * Withdrawal fee in minor units; null when the provider can’t quote ahead of execution
    */
@@ -4550,7 +4550,7 @@ export type WalletDisburseResponseDto = {
 export type WalletBeneficiaryResponseDto = {
   id: string;
   label: string;
-  currency: "NGN" | "KES" | "USD" | "EUR" | "USDT";
+  currency: "NGN" | "KES" | "USD" | "EUR" | "USDT" | "USDC";
   method: "bank_account" | "crypto_address";
   /**
    * bank_account only
@@ -4588,7 +4588,7 @@ export type CreateWalletBeneficiaryDto = {
    * User-friendly label
    */
   label: string;
-  currency: "NGN" | "KES" | "USD" | "EUR" | "USDT";
+  currency: "NGN" | "KES" | "USD" | "EUR" | "USDT" | "USDC";
   /**
    * Destination type
    */
@@ -4629,9 +4629,9 @@ export type WalletFundEscrowDto = {
    */
   transactionId: string;
   /**
-   * Which wallet funds the escrow; defaults to the lowest-numbered wallet holding the escrow currency
+   * Which numbered wallet funds the escrow. Required: the paying wallet is always chosen explicitly (the UI shows a picker).
    */
-  walletIndex?: number;
+  walletIndex: number;
 };
 
 export type CreateSupplierDto = {
@@ -4648,7 +4648,7 @@ export type CreateSupplierDto = {
   bankName: string;
   accountNumber: string;
   accountName: string;
-  currency: "NGN" | "KES" | "USD" | "EUR" | "USDT";
+  currency: "NGN" | "KES" | "USD" | "EUR" | "USDT" | "USDC";
 };
 
 export type SupplierContactDto = {
@@ -4685,7 +4685,7 @@ export type SupplierBankDetailsDto = {
   bankName: string;
   accountNumber: string;
   accountName: string;
-  currency: "NGN" | "KES" | "USD" | "EUR" | "USDT";
+  currency: "NGN" | "KES" | "USD" | "EUR" | "USDT" | "USDC";
 };
 
 export type SupplierResponseDto = {
@@ -4749,7 +4749,7 @@ export type UpdateSupplierDto = {
   bankName?: string;
   accountNumber?: string;
   accountName?: string;
-  currency?: "NGN" | "KES" | "USD" | "EUR" | "USDT";
+  currency?: "NGN" | "KES" | "USD" | "EUR" | "USDT" | "USDC";
 };
 
 export type DisputeAttachmentInputDto = {
@@ -5488,7 +5488,7 @@ export type AdminBenchmarkDto = {
   _id: string;
   code: string;
   name: string;
-  benchmarkCurrency: "NGN" | "KES" | "USD" | "EUR" | "USDT";
+  benchmarkCurrency: "NGN" | "KES" | "USD" | "EUR" | "USDT" | "USDC";
   defaultUnit:
     | "bbl"
     | "liter"
@@ -5549,7 +5549,7 @@ export type CreateBenchmarkDto = {
    */
   code: string;
   name: string;
-  benchmarkCurrency: "NGN" | "KES" | "USD" | "EUR" | "USDT";
+  benchmarkCurrency: "NGN" | "KES" | "USD" | "EUR" | "USDT" | "USDC";
   defaultUnit:
     | "bbl"
     | "liter"
@@ -5607,7 +5607,7 @@ export type UpdateBenchmarkDto = {
   /**
    * Changeable only while the benchmark is unreferenced
    */
-  benchmarkCurrency?: "NGN" | "KES" | "USD" | "EUR" | "USDT";
+  benchmarkCurrency?: "NGN" | "KES" | "USD" | "EUR" | "USDT" | "USDC";
   /**
    * Changeable only while the benchmark is unreferenced
    */
@@ -6929,7 +6929,7 @@ export type AcceptRequestOrderDto = {
     | "plate"
     | "bar";
   pricePerUnit: number;
-  currency: "NGN" | "KES" | "USD" | "EUR" | "USDT";
+  currency: "NGN" | "KES" | "USD" | "EUR" | "USDT" | "USDC";
   condition?: "New" | "Used - Good" | "Used - Fair" | "Refurbished";
   notes?: string;
 };
@@ -7146,6 +7146,26 @@ export type RegistryDataDto = {
   fiduciaries?: Array<RegistryFiduciaryDto>;
 };
 
+export type PersonAmlCheckSummaryDto = {
+  provider?: string;
+  status?: "manual_review" | "passed" | "failed";
+  /**
+   * Provider verdict: Listed | Not Listed | Not Listed - Warning
+   */
+  listed?: string;
+  /**
+   * Match candidates returned by the screen
+   */
+  matchCount: number;
+  /**
+   * Match candidates not yet dismissed as false positives
+   */
+  unresolvedMatches: number;
+  checkedAt?: string;
+  referenceId?: string;
+  errorMessage?: string;
+};
+
 export type BusinessPersonDto = {
   _id: string;
   name?: string;
@@ -7171,6 +7191,10 @@ export type BusinessPersonDto = {
    * A BVN is stored for this person (the value is never exposed).
    */
   hasBvn: boolean;
+  /**
+   * Latest AML screening state (summary only; raw match candidates come from the screening detail endpoint).
+   */
+  amlCheck?: PersonAmlCheckSummaryDto;
 };
 
 export type KybProfileDto = {
@@ -7659,6 +7683,60 @@ export type RequestMissingOutcomeDto = {
 export type RequestMissingResponseDto = {
   message: string;
   data: RequestMissingOutcomeDto;
+};
+
+export type PersonScreeningSubjectDto = {
+  /**
+   * BusinessPerson id, or the literal "representative" for the account holder
+   */
+  personId: string;
+  /**
+   * Every BusinessPerson entry backed by this human (director + owner rows share one screen)
+   */
+  personIds: Array<string>;
+  name: string;
+  roles: Array<string>;
+  amlCheck?: PersonAmlCheckSummaryDto | null;
+};
+
+export type ScreenAllResponseDto = {
+  screened: Array<PersonScreeningSubjectDto>;
+  /**
+   * Subjects skipped because they already have a usable screen
+   */
+  skipped: number;
+};
+
+export type PersonScreeningDetailDto = {
+  /**
+   * BusinessPerson id, or the literal "representative" for the account holder
+   */
+  personId: string;
+  /**
+   * Every BusinessPerson entry backed by this human (director + owner rows share one screen)
+   */
+  personIds: Array<string>;
+  name: string;
+  roles: Array<string>;
+  amlCheck?: PersonAmlCheckSummaryDto | null;
+  /**
+   * Full stored check including the raw provider payload (match candidates) and adjudications
+   */
+  check?: {
+    [key: string]: unknown;
+  } | null;
+};
+
+export type AdjudicateScreeningDto = {
+  /**
+   * Candidate reference from the screening detail payload
+   */
+  candidateRef: string;
+  verdict: "false_positive" | "confirmed";
+  /**
+   * Why the candidate is / is not the screened person
+   */
+  note: string;
 };
 
 export type ProviderOnboardingMissingDto = {
@@ -8277,13 +8355,13 @@ export type RoutingRuleDto = {
   matchCurrency?: string;
   matchCountry?: string;
   matchRegion?: string;
-  custodian: "flutterwave" | "busha";
+  custodian: "flutterwave" | "busha" | "mock";
   /**
    * Order among same-corridor rules; 1 = default custodian
    */
   rank: number;
-  bankDirectoryProvider?: "flutterwave" | "busha";
-  accountResolutionProvider?: "flutterwave" | "busha";
+  bankDirectoryProvider?: "flutterwave" | "busha" | "mock";
+  accountResolutionProvider?: "flutterwave" | "busha" | "mock";
   enabled: boolean;
   /**
    * Number of constrained match dimensions; most specific rule wins
@@ -8314,7 +8392,7 @@ export type CreateRoutingRuleDto = {
   /**
    * Custodian provider for this corridor
    */
-  custodian: "flutterwave" | "busha";
+  custodian: "flutterwave" | "busha" | "mock";
   /**
    * Order among same-corridor rules: rank 1 is the default custodian, higher ranks are additional offered wallets
    */
@@ -8322,11 +8400,11 @@ export type CreateRoutingRuleDto = {
   /**
    * Override provider for BANK_DIRECTORY lookups
    */
-  bankDirectoryProvider?: "flutterwave" | "busha";
+  bankDirectoryProvider?: "flutterwave" | "busha" | "mock";
   /**
    * Override provider for ACCOUNT_RESOLUTION lookups
    */
-  accountResolutionProvider?: "flutterwave" | "busha";
+  accountResolutionProvider?: "flutterwave" | "busha" | "mock";
   enabled?: boolean;
 };
 
@@ -8348,7 +8426,7 @@ export type UpdateRoutingRuleDto = {
    * Region match; empty string clears the dimension
    */
   matchRegion?: string;
-  custodian?: "flutterwave" | "busha";
+  custodian?: "flutterwave" | "busha" | "mock";
   /**
    * Order among same-corridor rules; 1 = default custodian
    */
@@ -8356,11 +8434,11 @@ export type UpdateRoutingRuleDto = {
   /**
    * BANK_DIRECTORY override; empty string clears it
    */
-  bankDirectoryProvider?: "flutterwave" | "busha" | "";
+  bankDirectoryProvider?: "flutterwave" | "busha" | "mock" | "";
   /**
    * ACCOUNT_RESOLUTION override; empty string clears it
    */
-  accountResolutionProvider?: "flutterwave" | "busha" | "";
+  accountResolutionProvider?: "flutterwave" | "busha" | "mock" | "";
   enabled?: boolean;
 };
 
@@ -8381,15 +8459,15 @@ export type RoutingResolveResultDto = {
    * Whether any rule matched the corridor
    */
   routed: boolean;
-  custodian?: "flutterwave" | "busha";
+  custodian?: "flutterwave" | "busha" | "mock";
   /**
    * Provider that will serve BANK_DIRECTORY lookups
    */
-  bankDirectoryProvider?: "flutterwave" | "busha";
+  bankDirectoryProvider?: "flutterwave" | "busha" | "mock";
   /**
    * Provider that will serve ACCOUNT_RESOLUTION lookups
    */
-  accountResolutionProvider?: "flutterwave" | "busha";
+  accountResolutionProvider?: "flutterwave" | "busha" | "mock";
   /**
    * The winning (default) rule, when routed
    */
@@ -8397,12 +8475,28 @@ export type RoutingResolveResultDto = {
   /**
    * Every custodian offered for this corridor, default first — one org wallet per entry
    */
-  offeredCustodians?: Array<"flutterwave" | "busha"> | null;
+  offeredCustodians?: Array<"flutterwave" | "busha" | "mock"> | null;
 };
 
 export type RoutingResolveResponseDto = {
   message: string;
   data: RoutingResolveResultDto;
+};
+
+export type SimulateDepositDto = {
+  /**
+   * Provider reference of a provisioned amount-bound destination to settle
+   */
+  providerRef?: string;
+  /**
+   * Org to credit (standing-deposit mode)
+   */
+  orgId?: string;
+  currency?: "NGN" | "KES" | "USD" | "EUR" | "USDT" | "USDC";
+  /**
+   * Amount in minor units
+   */
+  amount: number;
 };
 
 export type QqFieldDef = {
@@ -10391,7 +10485,7 @@ export type WalletControllerGetValuationData = {
     /**
      * Reference currency; defaults to the primary wallet currency
      */
-    currency?: "NGN" | "KES" | "USD" | "EUR" | "USDT";
+    currency?: "NGN" | "KES" | "USD" | "EUR" | "USDT" | "USDC";
   };
   url: "/api/v1/wallet/valuation";
 };
@@ -10410,11 +10504,11 @@ export type WalletControllerGetFundOptionsData = {
     /**
      * Which currency
      */
-    currency: "NGN" | "KES" | "USD" | "EUR" | "USDT";
+    currency: "NGN" | "KES" | "USD" | "EUR" | "USDT" | "USDC";
     /**
-     * Which wallet holds the currency; defaults to the lowest-numbered wallet with a balance in it
+     * Which numbered wallet holds the currency. Required: money-scoped requests must name their wallet explicitly (the UI pre-selects the primary wallet); the backend never resolves a default silently.
      */
-    walletIndex?: number;
+    walletIndex: number;
   };
   url: "/api/v1/wallet/fund-options";
 };
@@ -10433,11 +10527,11 @@ export type WalletControllerGetFundDetailsData = {
     /**
      * Which currency
      */
-    currency: "NGN" | "KES" | "USD" | "EUR" | "USDT";
+    currency: "NGN" | "KES" | "USD" | "EUR" | "USDT" | "USDC";
     /**
-     * Which wallet holds the currency; defaults to the lowest-numbered wallet with a balance in it
+     * Which numbered wallet holds the currency. Required: money-scoped requests must name their wallet explicitly (the UI pre-selects the primary wallet); the backend never resolves a default silently.
      */
-    walletIndex?: number;
+    walletIndex: number;
   };
   url: "/api/v1/wallet/fund-details";
 };
@@ -10470,11 +10564,11 @@ export type WalletControllerGetConvertOptionsData = {
     /**
      * Which currency
      */
-    currency: "NGN" | "KES" | "USD" | "EUR" | "USDT";
+    currency: "NGN" | "KES" | "USD" | "EUR" | "USDT" | "USDC";
     /**
-     * Which wallet holds the currency; defaults to the lowest-numbered wallet with a balance in it
+     * Which numbered wallet holds the currency. Required: money-scoped requests must name their wallet explicitly (the UI pre-selects the primary wallet); the backend never resolves a default silently.
      */
-    walletIndex?: number;
+    walletIndex: number;
   };
   url: "/api/v1/wallet/convert/options";
 };
@@ -10558,7 +10652,7 @@ export type WalletControllerGetTransactionsData = {
     /**
      * Limit history to one currency; omit for all merged
      */
-    currency?: "NGN" | "KES" | "USD" | "EUR" | "USDT";
+    currency?: "NGN" | "KES" | "USD" | "EUR" | "USDT" | "USDC";
     /**
      * Limit history to one numbered wallet; omit for all wallets merged
      */
@@ -13159,6 +13253,89 @@ export type AdminComplianceControllerAdoptRegistryPeopleResponses = {
 export type AdminComplianceControllerAdoptRegistryPeopleResponse =
   AdminComplianceControllerAdoptRegistryPeopleResponses[keyof AdminComplianceControllerAdoptRegistryPeopleResponses];
 
+export type AdminComplianceControllerListScreeningsData = {
+  body?: never;
+  path: {
+    organizationId: string;
+  };
+  query?: never;
+  url: "/api/v1/admin/compliance/kyb/{organizationId}/people/screenings";
+};
+
+export type AdminComplianceControllerListScreeningsResponses = {
+  200: Array<PersonScreeningSubjectDto>;
+};
+
+export type AdminComplianceControllerListScreeningsResponse =
+  AdminComplianceControllerListScreeningsResponses[keyof AdminComplianceControllerListScreeningsResponses];
+
+export type AdminComplianceControllerScreenPersonData = {
+  body?: never;
+  path: {
+    organizationId: string;
+    personId: string;
+  };
+  query?: never;
+  url: "/api/v1/admin/compliance/kyb/{organizationId}/people/{personId}/screen";
+};
+
+export type AdminComplianceControllerScreenPersonResponses = {
+  201: PersonScreeningSubjectDto;
+};
+
+export type AdminComplianceControllerScreenPersonResponse =
+  AdminComplianceControllerScreenPersonResponses[keyof AdminComplianceControllerScreenPersonResponses];
+
+export type AdminComplianceControllerScreenAllData = {
+  body?: never;
+  path: {
+    organizationId: string;
+  };
+  query?: never;
+  url: "/api/v1/admin/compliance/kyb/{organizationId}/people/screen-all";
+};
+
+export type AdminComplianceControllerScreenAllResponses = {
+  201: ScreenAllResponseDto;
+};
+
+export type AdminComplianceControllerScreenAllResponse =
+  AdminComplianceControllerScreenAllResponses[keyof AdminComplianceControllerScreenAllResponses];
+
+export type AdminComplianceControllerGetScreeningDetailData = {
+  body?: never;
+  path: {
+    organizationId: string;
+    personId: string;
+  };
+  query?: never;
+  url: "/api/v1/admin/compliance/kyb/{organizationId}/people/{personId}/screening";
+};
+
+export type AdminComplianceControllerGetScreeningDetailResponses = {
+  200: PersonScreeningDetailDto;
+};
+
+export type AdminComplianceControllerGetScreeningDetailResponse =
+  AdminComplianceControllerGetScreeningDetailResponses[keyof AdminComplianceControllerGetScreeningDetailResponses];
+
+export type AdminComplianceControllerAdjudicateScreeningData = {
+  body: AdjudicateScreeningDto;
+  path: {
+    organizationId: string;
+    personId: string;
+  };
+  query?: never;
+  url: "/api/v1/admin/compliance/kyb/{organizationId}/people/{personId}/adjudicate";
+};
+
+export type AdminComplianceControllerAdjudicateScreeningResponses = {
+  201: PersonScreeningDetailDto;
+};
+
+export type AdminComplianceControllerAdjudicateScreeningResponse =
+  AdminComplianceControllerAdjudicateScreeningResponses[keyof AdminComplianceControllerAdjudicateScreeningResponses];
+
 export type AdminComplianceControllerOnboardData = {
   body?: never;
   path: {
@@ -13792,6 +13969,22 @@ export type AdminRoutingControllerResolveResponses = {
 
 export type AdminRoutingControllerResolveResponse =
   AdminRoutingControllerResolveResponses[keyof AdminRoutingControllerResolveResponses];
+
+export type MockProviderDevControllerSimulateDepositData = {
+  body: SimulateDepositDto;
+  path?: never;
+  query?: never;
+  url: "/api/v1/dev/mock-provider/deposit";
+};
+
+export type MockProviderDevControllerSimulateDepositResponses = {
+  201: {
+    [key: string]: unknown;
+  };
+};
+
+export type MockProviderDevControllerSimulateDepositResponse =
+  MockProviderDevControllerSimulateDepositResponses[keyof MockProviderDevControllerSimulateDepositResponses];
 
 export type OrgProductsControllerFindAllData = {
   body?: never;

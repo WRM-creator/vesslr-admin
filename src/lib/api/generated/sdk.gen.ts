@@ -51,12 +51,18 @@ import type {
   AdminCmsControllerRemoveResponses,
   AdminCmsControllerUpdateData,
   AdminCmsControllerUpdateResponses,
+  AdminComplianceControllerAdjudicateScreeningData,
+  AdminComplianceControllerAdjudicateScreeningResponses,
   AdminComplianceControllerAdoptRegistryPeopleData,
   AdminComplianceControllerAdoptRegistryPeopleResponses,
   AdminComplianceControllerGetCaseData,
   AdminComplianceControllerGetCaseResponses,
+  AdminComplianceControllerGetScreeningDetailData,
+  AdminComplianceControllerGetScreeningDetailResponses,
   AdminComplianceControllerListCasesData,
   AdminComplianceControllerListCasesResponses,
+  AdminComplianceControllerListScreeningsData,
+  AdminComplianceControllerListScreeningsResponses,
   AdminComplianceControllerOnboardData,
   AdminComplianceControllerOnboardResponses,
   AdminComplianceControllerRequestChangesData,
@@ -69,6 +75,10 @@ import type {
   AdminComplianceControllerReviewKybResponses,
   AdminComplianceControllerReviewKycData,
   AdminComplianceControllerReviewKycResponses,
+  AdminComplianceControllerScreenAllData,
+  AdminComplianceControllerScreenAllResponses,
+  AdminComplianceControllerScreenPersonData,
+  AdminComplianceControllerScreenPersonResponses,
   AdminDashboardControllerGetStatsData,
   AdminDashboardControllerGetStatsResponses,
   AdminDashboardControllerGetTrendsData,
@@ -345,6 +355,8 @@ import type {
   LocationsControllerGetRegionsResponses,
   LocationsControllerGetStatesData,
   LocationsControllerGetStatesResponses,
+  MockProviderDevControllerSimulateDepositData,
+  MockProviderDevControllerSimulateDepositResponses,
   MyProductsControllerCreateData,
   MyProductsControllerCreateResponses,
   MyProductsControllerFindAllData,
@@ -5748,6 +5760,106 @@ export const adminComplianceControllerAdoptRegistryPeople = <
   });
 
 /**
+ * List every natural person on the case (representative, directors, owners) with their AML screening state
+ */
+export const adminComplianceControllerListScreenings = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AdminComplianceControllerListScreeningsData, ThrowOnError>,
+) =>
+  (options.client ?? client).get<
+    AdminComplianceControllerListScreeningsResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/compliance/kyb/{organizationId}/people/screenings",
+    ...options,
+  });
+
+/**
+ * Run (or re-run) an AML screen for one person; personId "representative" targets the account holder. Provider failures return a failed check snapshot, not a 5xx.
+ */
+export const adminComplianceControllerScreenPerson = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AdminComplianceControllerScreenPersonData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    AdminComplianceControllerScreenPersonResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/compliance/kyb/{organizationId}/people/{personId}/screen",
+    ...options,
+  });
+
+/**
+ * AML-screen every person on the case that is unscreened or previously failed
+ */
+export const adminComplianceControllerScreenAll = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AdminComplianceControllerScreenAllData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    AdminComplianceControllerScreenAllResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/compliance/kyb/{organizationId}/people/screen-all",
+    ...options,
+  });
+
+/**
+ * Full screening record for one person, including raw match candidates and adjudications
+ */
+export const adminComplianceControllerGetScreeningDetail = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    AdminComplianceControllerGetScreeningDetailData,
+    ThrowOnError
+  >,
+) =>
+  (options.client ?? client).get<
+    AdminComplianceControllerGetScreeningDetailResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/compliance/kyb/{organizationId}/people/{personId}/screening",
+    ...options,
+  });
+
+/**
+ * Rule on one screening match candidate (false positive or confirmed). All candidates dismissed flips the check to passed.
+ */
+export const adminComplianceControllerAdjudicateScreening = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    AdminComplianceControllerAdjudicateScreeningData,
+    ThrowOnError
+  >,
+) =>
+  (options.client ?? client).post<
+    AdminComplianceControllerAdjudicateScreeningResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/compliance/kyb/{organizationId}/people/{personId}/adjudicate",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
  * Re-run provider onboarding for an approved organization
  */
 export const adminComplianceControllerOnboard = <
@@ -6426,6 +6538,27 @@ export const adminRoutingControllerResolve = <
     security: [{ scheme: "bearer", type: "http" }],
     url: "/api/v1/admin/routing/resolve",
     ...options,
+  });
+
+/**
+ * Dev: simulate an inbound deposit at the mock provider
+ */
+export const mockProviderDevControllerSimulateDeposit = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<MockProviderDevControllerSimulateDepositData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    MockProviderDevControllerSimulateDepositResponses,
+    unknown,
+    ThrowOnError
+  >({
+    url: "/api/v1/dev/mock-provider/deposit",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
   });
 
 export const orgProductsControllerFindAll = <
