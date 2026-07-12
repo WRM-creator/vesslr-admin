@@ -201,6 +201,26 @@ import type {
   AdminProductsControllerRemoveResponses,
   AdminProductsControllerUpdateData,
   AdminProductsControllerUpdateResponses,
+  AdminProviderDrainControllerCompleteData,
+  AdminProviderDrainControllerCompleteResponses,
+  AdminProviderDrainControllerCreateData,
+  AdminProviderDrainControllerCreateResponses,
+  AdminProviderDrainControllerDetailData,
+  AdminProviderDrainControllerDetailResponses,
+  AdminProviderDrainControllerFreezeData,
+  AdminProviderDrainControllerFreezeResponses,
+  AdminProviderDrainControllerItemsData,
+  AdminProviderDrainControllerItemsResponses,
+  AdminProviderDrainControllerListData,
+  AdminProviderDrainControllerListResponses,
+  AdminProviderDrainControllerPauseData,
+  AdminProviderDrainControllerPauseResponses,
+  AdminProviderDrainControllerRetryItemData,
+  AdminProviderDrainControllerRetryItemResponses,
+  AdminProviderDrainControllerScanData,
+  AdminProviderDrainControllerScanResponses,
+  AdminProviderDrainControllerSweepData,
+  AdminProviderDrainControllerSweepResponses,
   AdminRequestsControllerAcceptRequestData,
   AdminRequestsControllerAcceptRequestResponses,
   AdminRequestsControllerFindAllData,
@@ -630,6 +650,8 @@ import type {
   UsersControllerUpdateAddressResponses,
   WalletControllerCreateBeneficiaryData,
   WalletControllerCreateBeneficiaryResponses,
+  WalletControllerCreateTransferData,
+  WalletControllerCreateTransferResponses,
   WalletControllerDeleteBeneficiaryData,
   WalletControllerDeleteBeneficiaryResponses,
   WalletControllerDisburseData,
@@ -650,10 +672,14 @@ import type {
   WalletControllerGetStatsResponses,
   WalletControllerGetTransactionsData,
   WalletControllerGetTransactionsResponses,
+  WalletControllerGetTransferData,
+  WalletControllerGetTransferResponses,
   WalletControllerGetValuationData,
   WalletControllerGetValuationResponses,
   WalletControllerListBeneficiariesData,
   WalletControllerListBeneficiariesResponses,
+  WalletControllerListTransfersData,
+  WalletControllerListTransfersResponses,
   WalletControllerListWalletsData,
   WalletControllerListWalletsResponses,
   WalletControllerProvisionFundingData,
@@ -2800,6 +2826,64 @@ export const walletControllerDeleteBeneficiary = <
   >({
     security: [{ scheme: "bearer", type: "http" }],
     url: "/api/v1/wallet/beneficiaries/{id}",
+    ...options,
+  });
+
+/**
+ * List the org's wallet-to-wallet transfers
+ */
+export const walletControllerListTransfers = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<WalletControllerListTransfersData, ThrowOnError>,
+) =>
+  (options?.client ?? client).get<
+    WalletControllerListTransfersResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/wallet/transfers",
+    ...options,
+  });
+
+/**
+ * Transfer between two of the org's wallets (same currency, exact match)
+ */
+export const walletControllerCreateTransfer = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<WalletControllerCreateTransferData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    WalletControllerCreateTransferResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/wallet/transfers",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * A single wallet-to-wallet transfer
+ */
+export const walletControllerGetTransfer = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<WalletControllerGetTransferData, ThrowOnError>,
+) =>
+  (options.client ?? client).get<
+    WalletControllerGetTransferResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/wallet/transfers/{id}",
     ...options,
   });
 
@@ -6559,6 +6643,190 @@ export const mockProviderDevControllerSimulateDeposit = <
       "Content-Type": "application/json",
       ...options.headers,
     },
+  });
+
+/**
+ * List provider drains (newest first)
+ */
+export const adminProviderDrainControllerList = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<AdminProviderDrainControllerListData, ThrowOnError>,
+) =>
+  (options?.client ?? client).get<
+    AdminProviderDrainControllerListResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/provider-drain",
+    ...options,
+  });
+
+/**
+ * Create a drain (draft — nothing changes yet)
+ */
+export const adminProviderDrainControllerCreate = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AdminProviderDrainControllerCreateData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    AdminProviderDrainControllerCreateResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/provider-drain",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Drain detail: status, plan, costs, progress, events
+ */
+export const adminProviderDrainControllerDetail = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AdminProviderDrainControllerDetailData, ThrowOnError>,
+) =>
+  (options.client ?? client).get<
+    AdminProviderDrainControllerDetailResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/provider-drain/{id}",
+    ...options,
+  });
+
+/**
+ * Drain items (one per org+currency balance)
+ */
+export const adminProviderDrainControllerItems = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AdminProviderDrainControllerItemsData, ThrowOnError>,
+) =>
+  (options.client ?? client).get<
+    AdminProviderDrainControllerItemsResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/provider-drain/{id}/items",
+    ...options,
+  });
+
+/**
+ * Freeze intake: disable routing rules, refuse new deposits
+ */
+export const adminProviderDrainControllerFreeze = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AdminProviderDrainControllerFreezeData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    AdminProviderDrainControllerFreezeResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/provider-drain/{id}/freeze",
+    ...options,
+  });
+
+/**
+ * Run the coverage scan (background; poll the drain for CHECKED)
+ */
+export const adminProviderDrainControllerScan = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AdminProviderDrainControllerScanData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    AdminProviderDrainControllerScanResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/provider-drain/{id}/scan",
+    ...options,
+  });
+
+/**
+ * Start (or resume) the paced sweep
+ */
+export const adminProviderDrainControllerSweep = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AdminProviderDrainControllerSweepData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    AdminProviderDrainControllerSweepResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/provider-drain/{id}/sweep",
+    ...options,
+  });
+
+/**
+ * Pause the sweep (in-flight items still settle)
+ */
+export const adminProviderDrainControllerPause = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AdminProviderDrainControllerPauseData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    AdminProviderDrainControllerPauseResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/provider-drain/{id}/pause",
+    ...options,
+  });
+
+/**
+ * Retry a failed or stuck item
+ */
+export const adminProviderDrainControllerRetryItem = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AdminProviderDrainControllerRetryItemData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    AdminProviderDrainControllerRetryItemResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/provider-drain/{id}/items/{itemId}/retry",
+    ...options,
+  });
+
+/**
+ * Complete the drain (requires every item done and orgs retired)
+ */
+export const adminProviderDrainControllerComplete = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AdminProviderDrainControllerCompleteData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    AdminProviderDrainControllerCompleteResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/provider-drain/{id}/complete",
+    ...options,
   });
 
 export const orgProductsControllerFindAll = <

@@ -2374,6 +2374,10 @@ export type VirtualAccountResponseDto = {
    */
   currency: "NGN" | "KES" | "USD" | "EUR" | "USDT" | "USDC";
   /**
+   * Currency of `amount` — what the payer actually sends. Differs from `currency` only for cross-currency deposits (e.g. a USD escrow funded by sending USDT); `subtotal`/`serviceFeeAmount` stay in `currency`.
+   */
+  payerCurrency: "NGN" | "KES" | "USD" | "EUR" | "USDT" | "USDC";
+  /**
    * Goods amount before service fee (minor units)
    */
   subtotal: number;
@@ -4402,6 +4406,7 @@ export type WalletActivityCategory =
   | "deposit"
   | "withdrawal"
   | "convert"
+  | "transfer"
   | "fund_escrow"
   | "refund"
   | "payout";
@@ -4621,6 +4626,45 @@ export type CreateWalletBeneficiaryDto = {
    * Destination tag/memo (crypto_address)
    */
   memo?: string;
+};
+
+export type CreateWalletTransferDto = {
+  currency: "NGN" | "KES" | "USD" | "EUR" | "USDT" | "USDC";
+  /**
+   * Amount the TARGET wallet must receive, minor units. The source wallet is debited this plus fees.
+   */
+  amount: number;
+  /**
+   * Wallet to send from
+   */
+  sourceWalletIndex: number;
+  /**
+   * Wallet to receive into
+   */
+  targetWalletIndex: number;
+};
+
+export type WalletTransferResponseDto = {
+  id: string;
+  status: "pending" | "in_transit" | "completed" | "failed" | "stuck";
+  currency: "NGN" | "KES" | "USD" | "EUR" | "USDT" | "USDC";
+  /**
+   * Amount the target wallet receives, minor units
+   */
+  amount: number;
+  /**
+   * Amount the source wallet sends (amount + deposit fee), minor units
+   */
+  payerAmount?: number;
+  /**
+   * Source-side payout fee, minor units, when quotable
+   */
+  feeMinor?: number;
+  sourceWalletIndex: number;
+  targetWalletIndex: number;
+  failureReason?: string;
+  createdAt: string;
+  completedAt?: string;
 };
 
 export type WalletFundEscrowDto = {
@@ -5718,6 +5762,8 @@ export type PermissionOverridesDto = {
     | "payments:manage"
     | "routing:view"
     | "routing:manage"
+    | "drain:view"
+    | "drain:manage"
     | "benchmark:view"
     | "benchmark:manage"
     | "user:view"
@@ -5769,6 +5815,8 @@ export type PermissionOverridesDto = {
     | "payments:manage"
     | "routing:view"
     | "routing:manage"
+    | "drain:view"
+    | "drain:manage"
     | "benchmark:view"
     | "benchmark:manage"
     | "user:view"
@@ -5868,6 +5916,8 @@ export type PermissionOverridesResponseDto = {
     | "payments:manage"
     | "routing:view"
     | "routing:manage"
+    | "drain:view"
+    | "drain:manage"
     | "benchmark:view"
     | "benchmark:manage"
     | "user:view"
@@ -5916,6 +5966,8 @@ export type PermissionOverridesResponseDto = {
     | "payments:manage"
     | "routing:view"
     | "routing:manage"
+    | "drain:view"
+    | "drain:manage"
     | "benchmark:view"
     | "benchmark:manage"
     | "user:view"
@@ -5983,6 +6035,8 @@ export type AdminResponseDto = {
     | "payments:manage"
     | "routing:view"
     | "routing:manage"
+    | "drain:view"
+    | "drain:manage"
     | "benchmark:view"
     | "benchmark:manage"
     | "user:view"
@@ -8355,13 +8409,13 @@ export type RoutingRuleDto = {
   matchCurrency?: string;
   matchCountry?: string;
   matchRegion?: string;
-  custodian: "flutterwave" | "busha" | "mock";
+  custodian: "flutterwave" | "busha" | "mock" | "mock_b";
   /**
    * Order among same-corridor rules; 1 = default custodian
    */
   rank: number;
-  bankDirectoryProvider?: "flutterwave" | "busha" | "mock";
-  accountResolutionProvider?: "flutterwave" | "busha" | "mock";
+  bankDirectoryProvider?: "flutterwave" | "busha" | "mock" | "mock_b";
+  accountResolutionProvider?: "flutterwave" | "busha" | "mock" | "mock_b";
   enabled: boolean;
   /**
    * Number of constrained match dimensions; most specific rule wins
@@ -8392,7 +8446,7 @@ export type CreateRoutingRuleDto = {
   /**
    * Custodian provider for this corridor
    */
-  custodian: "flutterwave" | "busha" | "mock";
+  custodian: "flutterwave" | "busha" | "mock" | "mock_b";
   /**
    * Order among same-corridor rules: rank 1 is the default custodian, higher ranks are additional offered wallets
    */
@@ -8400,11 +8454,11 @@ export type CreateRoutingRuleDto = {
   /**
    * Override provider for BANK_DIRECTORY lookups
    */
-  bankDirectoryProvider?: "flutterwave" | "busha" | "mock";
+  bankDirectoryProvider?: "flutterwave" | "busha" | "mock" | "mock_b";
   /**
    * Override provider for ACCOUNT_RESOLUTION lookups
    */
-  accountResolutionProvider?: "flutterwave" | "busha" | "mock";
+  accountResolutionProvider?: "flutterwave" | "busha" | "mock" | "mock_b";
   enabled?: boolean;
 };
 
@@ -8426,7 +8480,7 @@ export type UpdateRoutingRuleDto = {
    * Region match; empty string clears the dimension
    */
   matchRegion?: string;
-  custodian?: "flutterwave" | "busha" | "mock";
+  custodian?: "flutterwave" | "busha" | "mock" | "mock_b";
   /**
    * Order among same-corridor rules; 1 = default custodian
    */
@@ -8434,11 +8488,11 @@ export type UpdateRoutingRuleDto = {
   /**
    * BANK_DIRECTORY override; empty string clears it
    */
-  bankDirectoryProvider?: "flutterwave" | "busha" | "mock" | "";
+  bankDirectoryProvider?: "flutterwave" | "busha" | "mock" | "mock_b" | "";
   /**
    * ACCOUNT_RESOLUTION override; empty string clears it
    */
-  accountResolutionProvider?: "flutterwave" | "busha" | "mock" | "";
+  accountResolutionProvider?: "flutterwave" | "busha" | "mock" | "mock_b" | "";
   enabled?: boolean;
 };
 
@@ -8459,15 +8513,15 @@ export type RoutingResolveResultDto = {
    * Whether any rule matched the corridor
    */
   routed: boolean;
-  custodian?: "flutterwave" | "busha" | "mock";
+  custodian?: "flutterwave" | "busha" | "mock" | "mock_b";
   /**
    * Provider that will serve BANK_DIRECTORY lookups
    */
-  bankDirectoryProvider?: "flutterwave" | "busha" | "mock";
+  bankDirectoryProvider?: "flutterwave" | "busha" | "mock" | "mock_b";
   /**
    * Provider that will serve ACCOUNT_RESOLUTION lookups
    */
-  accountResolutionProvider?: "flutterwave" | "busha" | "mock";
+  accountResolutionProvider?: "flutterwave" | "busha" | "mock" | "mock_b";
   /**
    * The winning (default) rule, when routed
    */
@@ -8475,7 +8529,7 @@ export type RoutingResolveResultDto = {
   /**
    * Every custodian offered for this corridor, default first — one org wallet per entry
    */
-  offeredCustodians?: Array<"flutterwave" | "busha" | "mock"> | null;
+  offeredCustodians?: Array<"flutterwave" | "busha" | "mock" | "mock_b"> | null;
 };
 
 export type RoutingResolveResponseDto = {
@@ -8497,6 +8551,153 @@ export type SimulateDepositDto = {
    * Amount in minor units
    */
   amount: number;
+};
+
+export type DrainCurrencyTotalDto = {
+  currency: string;
+  /**
+   * Sum of org balances to move, minor units
+   */
+  balanceMinor: number;
+  /**
+   * Estimated platform cost (quotable items only), minor units
+   */
+  estimatedFeeMinor: number;
+  /**
+   * Items with no pre-quote — their cost is NOT in the estimate
+   */
+  unquotableCount: number;
+  itemCount: number;
+};
+
+export type DrainCurrencyActualDto = {
+  currency: string;
+  /**
+   * Actual platform cost so far (fee reimbursements), minor units
+   */
+  actualFeeMinor: number;
+  /**
+   * Amount that reached surviving wallets, minor units
+   */
+  sweptMinor: number;
+  doneCount: number;
+};
+
+export type DrainItemCountsDto = {
+  blocked: number;
+  pending: number;
+  transferring: number;
+  compensating: number;
+  done: number;
+  failed: number;
+  stuck: number;
+};
+
+export type DrainEventDto = {
+  at: string;
+  adminId?: string;
+  action: string;
+  detail?: string;
+};
+
+export type ProviderDrainDto = {
+  id: string;
+  provider: "flutterwave" | "busha" | "mock" | "mock_b";
+  status:
+    | "draft"
+    | "frozen"
+    | "scanning"
+    | "checked"
+    | "sweeping"
+    | "paused"
+    | "completed";
+  pacePerTick: number;
+  totals: Array<DrainCurrencyTotalDto>;
+  actuals: Array<DrainCurrencyActualDto>;
+  itemCounts: DrainItemCountsDto;
+  events: Array<DrainEventDto>;
+  createdAt: string;
+  frozenAt?: string;
+  scanCompletedAt?: string;
+  sweepStartedAt?: string;
+  completedAt?: string;
+};
+
+export type ProviderDrainListResponseDto = {
+  message: string;
+  data: Array<ProviderDrainDto>;
+};
+
+export type CreateProviderDrainDto = {
+  provider: "flutterwave" | "busha" | "mock" | "mock_b";
+  /**
+   * Items the sweep starts per minute tick (default 10)
+   */
+  pacePerTick?: number;
+};
+
+export type ProviderDrainResponseDto = {
+  message: string;
+  data: ProviderDrainDto;
+};
+
+export type DrainItemDto = {
+  id: string;
+  orgId: string;
+  orgName?: string;
+  currency: string;
+  /**
+   * Sweep pass (residue re-sweeps increment it)
+   */
+  pass: number;
+  status:
+    | "blocked"
+    | "pending"
+    | "transferring"
+    | "compensating"
+    | "done"
+    | "failed"
+    | "stuck";
+  gapReason?:
+    | "source_inactive"
+    | "no_payout_rail"
+    | "no_target_wallet"
+    | "balance_unavailable";
+  sourceWalletIndex: number;
+  targetWalletIndex?: number;
+  /**
+   * Org balance at scan time, minor units
+   */
+  balanceMinor: number;
+  /**
+   * Pre-quoted source payout fee; null = not quotable up front
+   */
+  estimatedFeeMinor?: number | null;
+  /**
+   * What the target wallet received
+   */
+  amountMinor?: number;
+  /**
+   * Fee shortfall the platform reimburses (balance − amount)
+   */
+  compensationDueMinor?: number;
+  transferId?: string;
+  attempts: number;
+  lastError?: string;
+  completedAt?: string;
+  updatedAt: string;
+};
+
+export type DrainItemsDataDto = {
+  items: Array<DrainItemDto>;
+  total: number;
+  page: number;
+  pageSize: number;
+};
+
+export type DrainItemsResponseDto = {
+  message: string;
+  data: DrainItemsDataDto;
 };
 
 export type QqFieldDef = {
@@ -10665,7 +10866,13 @@ export type WalletControllerGetTransactionsData = {
      * Refine to these categories (overrides `tab` when present)
      */
     categories?: Array<
-      "deposit" | "withdrawal" | "convert" | "fund_escrow" | "refund" | "payout"
+      | "deposit"
+      | "withdrawal"
+      | "convert"
+      | "transfer"
+      | "fund_escrow"
+      | "refund"
+      | "payout"
     >;
     /**
      * Filter by status; defaults to completed (posted) only
@@ -10773,6 +10980,51 @@ export type WalletControllerDeleteBeneficiaryResponses = {
 
 export type WalletControllerDeleteBeneficiaryResponse =
   WalletControllerDeleteBeneficiaryResponses[keyof WalletControllerDeleteBeneficiaryResponses];
+
+export type WalletControllerListTransfersData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: "/api/v1/wallet/transfers";
+};
+
+export type WalletControllerListTransfersResponses = {
+  200: Array<WalletTransferResponseDto>;
+};
+
+export type WalletControllerListTransfersResponse =
+  WalletControllerListTransfersResponses[keyof WalletControllerListTransfersResponses];
+
+export type WalletControllerCreateTransferData = {
+  body: CreateWalletTransferDto;
+  path?: never;
+  query?: never;
+  url: "/api/v1/wallet/transfers";
+};
+
+export type WalletControllerCreateTransferResponses = {
+  200: WalletTransferResponseDto;
+  201: WalletTransferResponseDto;
+};
+
+export type WalletControllerCreateTransferResponse =
+  WalletControllerCreateTransferResponses[keyof WalletControllerCreateTransferResponses];
+
+export type WalletControllerGetTransferData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/wallet/transfers/{id}";
+};
+
+export type WalletControllerGetTransferResponses = {
+  200: WalletTransferResponseDto;
+};
+
+export type WalletControllerGetTransferResponse =
+  WalletControllerGetTransferResponses[keyof WalletControllerGetTransferResponses];
 
 export type WalletControllerFundEscrowData = {
   body: WalletFundEscrowDto;
@@ -13985,6 +14237,171 @@ export type MockProviderDevControllerSimulateDepositResponses = {
 
 export type MockProviderDevControllerSimulateDepositResponse =
   MockProviderDevControllerSimulateDepositResponses[keyof MockProviderDevControllerSimulateDepositResponses];
+
+export type AdminProviderDrainControllerListData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: "/api/v1/admin/provider-drain";
+};
+
+export type AdminProviderDrainControllerListResponses = {
+  200: ProviderDrainListResponseDto;
+};
+
+export type AdminProviderDrainControllerListResponse =
+  AdminProviderDrainControllerListResponses[keyof AdminProviderDrainControllerListResponses];
+
+export type AdminProviderDrainControllerCreateData = {
+  body: CreateProviderDrainDto;
+  path?: never;
+  query?: never;
+  url: "/api/v1/admin/provider-drain";
+};
+
+export type AdminProviderDrainControllerCreateResponses = {
+  201: ProviderDrainResponseDto;
+};
+
+export type AdminProviderDrainControllerCreateResponse =
+  AdminProviderDrainControllerCreateResponses[keyof AdminProviderDrainControllerCreateResponses];
+
+export type AdminProviderDrainControllerDetailData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/admin/provider-drain/{id}";
+};
+
+export type AdminProviderDrainControllerDetailResponses = {
+  200: ProviderDrainResponseDto;
+};
+
+export type AdminProviderDrainControllerDetailResponse =
+  AdminProviderDrainControllerDetailResponses[keyof AdminProviderDrainControllerDetailResponses];
+
+export type AdminProviderDrainControllerItemsData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: {
+    status?:
+      | "blocked"
+      | "pending"
+      | "transferring"
+      | "compensating"
+      | "done"
+      | "failed"
+      | "stuck";
+    page?: number;
+    pageSize?: number;
+  };
+  url: "/api/v1/admin/provider-drain/{id}/items";
+};
+
+export type AdminProviderDrainControllerItemsResponses = {
+  200: DrainItemsResponseDto;
+};
+
+export type AdminProviderDrainControllerItemsResponse =
+  AdminProviderDrainControllerItemsResponses[keyof AdminProviderDrainControllerItemsResponses];
+
+export type AdminProviderDrainControllerFreezeData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/admin/provider-drain/{id}/freeze";
+};
+
+export type AdminProviderDrainControllerFreezeResponses = {
+  200: ProviderDrainResponseDto;
+};
+
+export type AdminProviderDrainControllerFreezeResponse =
+  AdminProviderDrainControllerFreezeResponses[keyof AdminProviderDrainControllerFreezeResponses];
+
+export type AdminProviderDrainControllerScanData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/admin/provider-drain/{id}/scan";
+};
+
+export type AdminProviderDrainControllerScanResponses = {
+  200: ProviderDrainResponseDto;
+};
+
+export type AdminProviderDrainControllerScanResponse =
+  AdminProviderDrainControllerScanResponses[keyof AdminProviderDrainControllerScanResponses];
+
+export type AdminProviderDrainControllerSweepData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/admin/provider-drain/{id}/sweep";
+};
+
+export type AdminProviderDrainControllerSweepResponses = {
+  200: ProviderDrainResponseDto;
+};
+
+export type AdminProviderDrainControllerSweepResponse =
+  AdminProviderDrainControllerSweepResponses[keyof AdminProviderDrainControllerSweepResponses];
+
+export type AdminProviderDrainControllerPauseData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/admin/provider-drain/{id}/pause";
+};
+
+export type AdminProviderDrainControllerPauseResponses = {
+  200: ProviderDrainResponseDto;
+};
+
+export type AdminProviderDrainControllerPauseResponse =
+  AdminProviderDrainControllerPauseResponses[keyof AdminProviderDrainControllerPauseResponses];
+
+export type AdminProviderDrainControllerRetryItemData = {
+  body?: never;
+  path: {
+    id: string;
+    itemId: string;
+  };
+  query?: never;
+  url: "/api/v1/admin/provider-drain/{id}/items/{itemId}/retry";
+};
+
+export type AdminProviderDrainControllerRetryItemResponses = {
+  200: unknown;
+};
+
+export type AdminProviderDrainControllerCompleteData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/admin/provider-drain/{id}/complete";
+};
+
+export type AdminProviderDrainControllerCompleteResponses = {
+  200: ProviderDrainResponseDto;
+};
+
+export type AdminProviderDrainControllerCompleteResponse =
+  AdminProviderDrainControllerCompleteResponses[keyof AdminProviderDrainControllerCompleteResponses];
 
 export type OrgProductsControllerFindAllData = {
   body?: never;
