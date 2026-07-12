@@ -8583,6 +8583,64 @@ export type DrainCurrencyActualDto = {
   doneCount: number;
 };
 
+export type DrainVaultDto = {
+  id: string;
+  currency: string;
+  /**
+   * Migration pass (residue re-runs increment it)
+   */
+  pass: number;
+  status:
+    | "blocked"
+    | "pending"
+    | "transferring"
+    | "compensating"
+    | "done"
+    | "failed"
+    | "stuck";
+  gapReason?:
+    | "source_inactive"
+    | "no_payout_rail"
+    | "no_target_wallet"
+    | "balance_unavailable";
+  /**
+   * Surviving custodian receiving this pot
+   */
+  targetProvider?: string;
+  /**
+   * The pot at planning time, minor units
+   */
+  balanceMinor: number;
+  /**
+   * Pre-quoted pot-move fee; null = not quotable up front
+   */
+  estimatedFeeMinor?: number | null;
+  /**
+   * Receivable sent (pot minus overhead)
+   */
+  amountMinor?: number;
+  /**
+   * What landed in the survivor's pot
+   */
+  receivedMinor?: number;
+  /**
+   * Left at the source after this pass (re-run to sweep)
+   */
+  residualMinor?: number;
+  /**
+   * Actual cost: pot − residual − received (VAULT_MIGRATION)
+   */
+  feeMinor?: number;
+  /**
+   * Escrows re-stamped to the survivor before the move
+   */
+  escrowsRestamped?: number;
+  attempts: number;
+  lastError?: string;
+  completedAt?: string;
+  updatedAt: string;
+};
+
 export type DrainItemCountsDto = {
   blocked: number;
   pending: number;
@@ -8614,6 +8672,10 @@ export type ProviderDrainDto = {
   pacePerTick: number;
   totals: Array<DrainCurrencyTotalDto>;
   actuals: Array<DrainCurrencyActualDto>;
+  /**
+   * Escrow pot moves (one per currency per pass)
+   */
+  vaults: Array<DrainVaultDto>;
   itemCounts: DrainItemCountsDto;
   events: Array<DrainEventDto>;
   createdAt: string;
@@ -8698,6 +8760,11 @@ export type DrainItemsDataDto = {
 export type DrainItemsResponseDto = {
   message: string;
   data: DrainItemsDataDto;
+};
+
+export type DrainVaultResponseDto = {
+  message: string;
+  data: DrainVaultDto;
 };
 
 export type QqFieldDef = {
@@ -14386,6 +14453,39 @@ export type AdminProviderDrainControllerRetryItemData = {
 export type AdminProviderDrainControllerRetryItemResponses = {
   200: unknown;
 };
+
+export type AdminProviderDrainControllerMigrateVaultsData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/admin/provider-drain/{id}/migrate-vaults";
+};
+
+export type AdminProviderDrainControllerMigrateVaultsResponses = {
+  200: ProviderDrainResponseDto;
+};
+
+export type AdminProviderDrainControllerMigrateVaultsResponse =
+  AdminProviderDrainControllerMigrateVaultsResponses[keyof AdminProviderDrainControllerMigrateVaultsResponses];
+
+export type AdminProviderDrainControllerRetryVaultData = {
+  body?: never;
+  path: {
+    id: string;
+    vaultId: string;
+  };
+  query?: never;
+  url: "/api/v1/admin/provider-drain/{id}/vaults/{vaultId}/retry";
+};
+
+export type AdminProviderDrainControllerRetryVaultResponses = {
+  200: DrainVaultResponseDto;
+};
+
+export type AdminProviderDrainControllerRetryVaultResponse =
+  AdminProviderDrainControllerRetryVaultResponses[keyof AdminProviderDrainControllerRetryVaultResponses];
 
 export type AdminProviderDrainControllerCompleteData = {
   body?: never;

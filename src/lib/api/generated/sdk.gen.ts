@@ -213,10 +213,14 @@ import type {
   AdminProviderDrainControllerItemsResponses,
   AdminProviderDrainControllerListData,
   AdminProviderDrainControllerListResponses,
+  AdminProviderDrainControllerMigrateVaultsData,
+  AdminProviderDrainControllerMigrateVaultsResponses,
   AdminProviderDrainControllerPauseData,
   AdminProviderDrainControllerPauseResponses,
   AdminProviderDrainControllerRetryItemData,
   AdminProviderDrainControllerRetryItemResponses,
+  AdminProviderDrainControllerRetryVaultData,
+  AdminProviderDrainControllerRetryVaultResponses,
   AdminProviderDrainControllerScanData,
   AdminProviderDrainControllerScanResponses,
   AdminProviderDrainControllerSweepData,
@@ -6808,6 +6812,42 @@ export const adminProviderDrainControllerRetryItem = <
   >({
     security: [{ scheme: "bearer", type: "http" }],
     url: "/api/v1/admin/provider-drain/{id}/items/{itemId}/retry",
+    ...options,
+  });
+
+/**
+ * Migrate the escrow pots: re-stamp vault-holding escrows to survivors, then move each currency pot (requires all org items done)
+ */
+export const adminProviderDrainControllerMigrateVaults = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AdminProviderDrainControllerMigrateVaultsData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    AdminProviderDrainControllerMigrateVaultsResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/provider-drain/{id}/migrate-vaults",
+    ...options,
+  });
+
+/**
+ * Retry a failed or stuck escrow pot move
+ */
+export const adminProviderDrainControllerRetryVault = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AdminProviderDrainControllerRetryVaultData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    AdminProviderDrainControllerRetryVaultResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/provider-drain/{id}/vaults/{vaultId}/retry",
     ...options,
   });
 
