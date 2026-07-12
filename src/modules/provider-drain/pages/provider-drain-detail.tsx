@@ -33,7 +33,11 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { api } from "@/lib/api";
-import type { DrainItemDto, ProviderDrainDto } from "@/lib/api/generated";
+import type {
+  DrainItemDto,
+  DrainVaultDto,
+  ProviderDrainDto,
+} from "@/lib/api/generated";
 import { formatCurrency } from "@/lib/currency";
 import { cn } from "@/lib/utils";
 import { format, formatDistanceToNowStrict } from "date-fns";
@@ -107,6 +111,7 @@ export default function ProviderDrainDetailPage() {
       />
 
       <CostPanel drain={drain} />
+      <VaultsPanel drain={drain} />
       <ItemsPanel drain={drain} />
       <EventsPanel drain={drain} />
     </Page>
@@ -153,7 +158,7 @@ function stageDescription(drain: ProviderDrainDto): string {
 function DrainActions({ drain }: { drain: ProviderDrainDto }) {
   const id = drain.id;
   const [confirming, setConfirming] = useState<
-    "freeze" | "sweep" | "complete" | null
+    "freeze" | "sweep" | "migrate-vaults" | "complete" | null
   >(null);
 
   const { mutate: freeze, isPending: freezing } =
@@ -164,6 +169,8 @@ function DrainActions({ drain }: { drain: ProviderDrainDto }) {
     api.admin.providerDrain.sweep.useMutation();
   const { mutate: pause, isPending: pausing } =
     api.admin.providerDrain.pause.useMutation();
+  const { mutate: migrateVaults, isPending: migrating } =
+    api.admin.providerDrain.migrateVaults.useMutation();
   const { mutate: complete, isPending: completing } =
     api.admin.providerDrain.complete.useMutation();
 
@@ -187,7 +194,14 @@ function DrainActions({ drain }: { drain: ProviderDrainDto }) {
 
   const c = drain.itemCounts;
   const inFlight = c.pending + c.transferring + c.compensating;
-  const allDone = inFlight === 0 && c.blocked + c.failed + c.stuck === 0;
+  const orgItemsDone = inFlight === 0 && c.blocked + c.failed + c.stuck === 0;
+  const vaultsUnfinished = drain.vaults.filter(
+    (v) => v.status !== "done",
+  ).length;
+  const vaultsInFlight = drain.vaults.some(
+    (v) => v.status === "pending" || v.status === "transferring",
+  );
+  const allDone = orgItemsDone && vaultsUnfinished === 0;
   const estimate = drain.totals
     .map(
       (t) =>
@@ -238,6 +252,20 @@ function DrainActions({ drain }: { drain: ProviderDrainDto }) {
       {(drain.status === "sweeping" ||
         drain.status === "checked" ||
         drain.status === "paused") &&
+        orgItemsDone &&
+        !vaultsInFlight && (
+          <Button
+            variant={drain.vaults.length === 0 ? "default" : "outline"}
+            size="sm"
+            disabled={migrating}
+            onClick={() => setConfirming("migrate-vaults")}
+          >
+            {drain.vaults.length > 0 ? "Re-run vault migration" : "Migrate vaults"}
+          </Button>
+        )}
+      {(drain.status === "sweeping" ||
+        drain.status === "checked" ||
+        drain.status === "paused") &&
         allDone && (
           <Button size="sm" onClick={() => setConfirming("complete")}>
             Complete drain
@@ -254,6 +282,7 @@ function DrainActions({ drain }: { drain: ProviderDrainDto }) {
               {confirming === "freeze" && "Freeze intake at this provider?"}
               {confirming === "sweep" &&
                 (drain.status === "paused" ? "Resume the sweep?" : "Start the sweep?")}
+              {confirming === "migrate-vaults" && "Migrate the escrow pots?"}
               {confirming === "complete" && "Complete this drain?"}
             </AlertDialogTitle>
             <AlertDialogDescription>
@@ -261,24 +290,29 @@ function DrainActions({ drain }: { drain: ProviderDrainDto }) {
                 `Every routing rule offering ${formatProvider(drain.provider)} is disabled and new deposits are refused platform-wide. Payouts and the sweep keep working. Customers keep seeing their wallet until it is drained and retired.`}
               {confirming === "sweep" &&
                 `${drain.itemCounts.pending} item(s) will transfer to surviving wallets at ${drain.pacePerTick} per minute. The platform pays the fees${estimate ? ` — estimated ${estimate}` : ""} — and reimburses each org so it ends with exactly what it started with.`}
+              {confirming === "migrate-vaults" &&
+                `Escrows still holding money at ${formatProvider(drain.provider)} are re-stamped to a surviving custodian first, then each currency's platform pot moves in one transfer. The platform pays the transfer fees; a fee-margin residue becomes the next run.`}
               {confirming === "complete" &&
-                "Marks the drain finished. Every item is done and every touched org's wallet is retired; routing rules stay disabled."}
+                "Marks the drain finished. Every item is done, every touched org's wallet is retired, and the escrow pots are migrated; routing rules stay disabled."}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
-              disabled={freezing || sweeping || completing}
+              disabled={freezing || sweeping || migrating || completing}
               onClick={() => {
                 if (confirming === "freeze")
                   act(freeze, "Intake frozen; routing rules disabled");
                 if (confirming === "sweep") act(sweep, "Sweep running");
+                if (confirming === "migrate-vaults")
+                  act(migrateVaults, "Vault migration running");
                 if (confirming === "complete") act(complete, "Drain completed");
               }}
             >
               {confirming === "freeze" && "Freeze intake"}
               {confirming === "sweep" &&
                 (drain.status === "paused" ? "Resume" : "Start sweep")}
+              {confirming === "migrate-vaults" && "Migrate pots"}
               {confirming === "complete" && "Complete"}
             </AlertDialogAction>
           </AlertDialogFooter>
@@ -364,6 +398,168 @@ function CostPanel({ drain }: { drain: ProviderDrainDto }) {
         </TableBody>
       </Table>
     </div>
+  );
+}
+
+// ─── Escrow pots (vault migration) ───────────────────────────────────────────
+
+/**
+ * The platform's escrow pots at the dying provider, one move per currency per
+ * pass. Escrows are re-stamped to the survivor BEFORE each pot moves, so
+ * disbursements never wait on the transfer. Empty until Migrate vaults runs.
+ */
+function VaultsPanel({ drain }: { drain: ProviderDrainDto }) {
+  const { mutate: retryVault } = api.admin.providerDrain.retryVault.useMutation();
+  if (drain.vaults.length === 0) return null;
+
+  const retry = (vault: DrainVaultDto) =>
+    retryVault(
+      { path: { id: drain.id, vaultId: vault.id } },
+      {
+        onSuccess: () =>
+          toast.success(`${vault.currency} pot move queued again`),
+        onError: (err) => toast.error(errorMessage(err)),
+      },
+    );
+
+  return (
+    <div className="space-y-2">
+      <h3 className="text-sm font-medium">Escrow pots</h3>
+      <div className="overflow-hidden rounded-md border">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Currency</TableHead>
+              <TableHead>Moves to</TableHead>
+              <TableHead className="text-right">Pot</TableHead>
+              <TableHead className="text-right">Received</TableHead>
+              <TableHead className="text-right">Fee</TableHead>
+              <TableHead className="text-right">Residue</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead className="w-24" />
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {drain.vaults.map((vault) => (
+              <VaultRow key={vault.id} vault={vault} onRetry={retry} />
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+    </div>
+  );
+}
+
+function VaultRow({
+  vault,
+  onRetry,
+}: {
+  vault: DrainVaultDto;
+  onRetry: (vault: DrainVaultDto) => void;
+}) {
+  const status = ITEM_STATUS[vault.status];
+  const note =
+    vault.status === "blocked" && vault.gapReason
+      ? "No surviving custodian is routed for this currency."
+      : vault.lastError;
+  const money = (v: number | null | undefined) =>
+    formatCurrency(v, vault.currency, { maximumFractionDigits: 2 });
+
+  return (
+    <TableRow>
+      <TableCell className="font-medium">
+        {vault.currency}
+        {vault.pass > 1 && (
+          <span className="text-muted-foreground ml-1.5 text-xs">
+            pass {vault.pass}
+          </span>
+        )}
+        {(vault.escrowsRestamped ?? 0) > 0 && (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span className="text-muted-foreground ml-2 cursor-default text-xs">
+                {vault.escrowsRestamped} escrow(s) re-stamped
+              </span>
+            </TooltipTrigger>
+            <TooltipContent>
+              Open escrows now settle from the surviving custodian's pot —
+              re-stamped before the money moved.
+            </TooltipContent>
+          </Tooltip>
+        )}
+      </TableCell>
+      <TableCell>
+        {vault.targetProvider ? formatProvider(vault.targetProvider) : "-"}
+      </TableCell>
+      <TableCell className="text-right tabular-nums">
+        {money(vault.balanceMinor)}
+      </TableCell>
+      <TableCell className="text-right tabular-nums">
+        {vault.receivedMinor != null ? money(vault.receivedMinor) : "-"}
+      </TableCell>
+      <TableCell className="text-right tabular-nums">
+        {vault.feeMinor != null ? (
+          money(vault.feeMinor)
+        ) : vault.estimatedFeeMinor != null ? (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span className="text-muted-foreground cursor-default">
+                ≈ {money(vault.estimatedFeeMinor)}
+              </span>
+            </TooltipTrigger>
+            <TooltipContent>Estimated; actuals record on completion.</TooltipContent>
+          </Tooltip>
+        ) : (
+          "-"
+        )}
+      </TableCell>
+      <TableCell className="text-right tabular-nums">
+        {vault.residualMinor != null && vault.residualMinor > 0 ? (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span className="cursor-default">{money(vault.residualMinor)}</span>
+            </TooltipTrigger>
+            <TooltipContent>
+              Left behind by the fee margin — re-run Migrate vaults to sweep
+              it, or recover it at provider account closure.
+            </TooltipContent>
+          </Tooltip>
+        ) : (
+          "-"
+        )}
+      </TableCell>
+      <TableCell>
+        <div className="flex flex-col gap-0.5">
+          <Badge
+            variant="outline"
+            className={cn("w-fit font-medium", status.tint)}
+          >
+            {status.label}
+          </Badge>
+          {note && (
+            <span
+              className="text-muted-foreground max-w-64 truncate text-xs"
+              title={note}
+            >
+              {note}
+            </span>
+          )}
+        </div>
+      </TableCell>
+      <TableCell>
+        {(vault.status === "failed" || vault.status === "stuck") && (
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-1.5"
+            onClick={() => onRetry(vault)}
+          >
+            <RotateCcwIcon className="size-3.5" />
+            Retry
+          </Button>
+        )}
+      </TableCell>
+    </TableRow>
   );
 }
 

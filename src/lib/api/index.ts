@@ -77,6 +77,8 @@ import {
   adminProviderDrainControllerSweep,
   adminProviderDrainControllerPause,
   adminProviderDrainControllerRetryItem,
+  adminProviderDrainControllerMigrateVaults,
+  adminProviderDrainControllerRetryVault,
   adminProviderDrainControllerComplete,
   adminComplianceControllerReviewKyb,
   adminComplianceControllerReviewKyc,
@@ -624,6 +626,12 @@ export const api = {
         invalidates: () => [["admin", "provider-drain"]],
       }),
       retryItem: createMutation(adminProviderDrainControllerRetryItem, {
+        invalidates: () => [["admin", "provider-drain"]],
+      }),
+      migrateVaults: createMutation(adminProviderDrainControllerMigrateVaults, {
+        invalidates: () => [["admin", "provider-drain"]],
+      }),
+      retryVault: createMutation(adminProviderDrainControllerRetryVault, {
         invalidates: () => [["admin", "provider-drain"]],
       }),
       complete: createMutation(adminProviderDrainControllerComplete, {
