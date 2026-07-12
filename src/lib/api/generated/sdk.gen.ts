@@ -453,6 +453,10 @@ import type {
   OnboardingControllerSendPhoneOtpResponses,
   OnboardingControllerSubmitManualIdentityData,
   OnboardingControllerSubmitManualIdentityResponses,
+  OnboardingControllerUnlinkBeneficialOwnerData,
+  OnboardingControllerUnlinkBeneficialOwnerResponses,
+  OnboardingControllerUnlinkDirectorData,
+  OnboardingControllerUnlinkDirectorResponses,
   OnboardingControllerUpdateBeneficialOwnerData,
   OnboardingControllerUpdateBeneficialOwnerResponses,
   OnboardingControllerUpdateBusinessAddressData,
@@ -1432,6 +1436,20 @@ export const categoryGroupsControllerUpdate = <
   });
 
 /**
+ * List active commodity price benchmarks
+ */
+export const benchmarksControllerFindAll = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<BenchmarksControllerFindAllData, ThrowOnError>,
+) =>
+  (options?.client ?? client).get<
+    BenchmarksControllerFindAllResponses,
+    unknown,
+    ThrowOnError
+  >({ url: "/api/v1/benchmarks", ...options });
+
+/**
  * Get all active categories
  */
 export const categoriesControllerFindAll = <
@@ -1833,20 +1851,6 @@ export const escrowsControllerGetMySummary = <
     url: "/api/v1/escrows/summary",
     ...options,
   });
-
-/**
- * List active commodity price benchmarks
- */
-export const benchmarksControllerFindAll = <
-  ThrowOnError extends boolean = false,
->(
-  options?: Options<BenchmarksControllerFindAllData, ThrowOnError>,
-) =>
-  (options?.client ?? client).get<
-    BenchmarksControllerFindAllResponses,
-    unknown,
-    ThrowOnError
-  >({ url: "/api/v1/benchmarks", ...options });
 
 /**
  * Get the conversation for a transaction
@@ -3601,6 +3605,24 @@ export const onboardingControllerAdvanceDirectors = <
   });
 
 /**
+ * Unlink a director from their same-person beneficial-owner record (this is a different person with the same name)
+ */
+export const onboardingControllerUnlinkDirector = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<OnboardingControllerUnlinkDirectorData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    OnboardingControllerUnlinkDirectorResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/onboarding/directors/{personId}/unlink",
+    ...options,
+  });
+
+/**
  * Remove a manually added beneficial owner
  */
 export const onboardingControllerRemoveBeneficialOwner = <
@@ -3680,6 +3702,24 @@ export const onboardingControllerAdvanceBeneficialOwners = <
   >({
     security: [{ scheme: "bearer", type: "http" }],
     url: "/api/v1/onboarding/beneficial-owners/advance",
+    ...options,
+  });
+
+/**
+ * Unlink a beneficial owner from their same-person director record (this is a different person with the same name)
+ */
+export const onboardingControllerUnlinkBeneficialOwner = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<OnboardingControllerUnlinkBeneficialOwnerData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    OnboardingControllerUnlinkBeneficialOwnerResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/onboarding/beneficial-owners/{personId}/unlink",
     ...options,
   });
 

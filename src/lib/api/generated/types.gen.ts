@@ -454,6 +454,17 @@ export type ProductCategoryGroupDto = {
   allowsOrderQuantityLimits?: boolean;
   milestoneDelivery?: boolean;
   allowsInspection?: boolean;
+  /**
+   * Group forbids fixed pricing; listings must be differential.
+   */
+  requiresDifferentialPricing?: boolean;
+};
+
+export type DifferentialPriceResponseDto = {
+  benchmarkId: string;
+  differentialValue: number;
+  differentialCurrency: "NGN" | "KES" | "USD" | "EUR" | "USDT" | "USDC";
+  notes?: string;
 };
 
 export type ProductOrganizationDto = {
@@ -605,9 +616,14 @@ export type PopulatedProductResponseDto = {
   type?: "products" | "services";
   listingType?: "product" | "service" | "rental" | "charter";
   /**
-   * Price per unit in minor currency units (kobo/cents)
+   * How the price is expressed (flat or differential).
    */
-  pricePerUnit: number;
+  pricingBasis?: "flat" | "differential";
+  /**
+   * Flat price per unit in minor currency units (kobo/cents). Absent on differential listings.
+   */
+  pricePerUnit?: number;
+  differentialPrice?: DifferentialPriceResponseDto;
   currency?: "NGN" | "KES" | "USD" | "EUR" | "USDT" | "USDC";
   images?: Array<string>;
   features?: Array<string>;
@@ -712,9 +728,14 @@ export type ProductResponseDto = {
   type?: "products" | "services";
   listingType?: "product" | "service" | "rental" | "charter";
   /**
-   * Price per unit in minor currency units (kobo/cents)
+   * How the price is expressed (flat or differential).
    */
-  pricePerUnit: number;
+  pricingBasis?: "flat" | "differential";
+  /**
+   * Flat price per unit in minor currency units (kobo/cents). Absent on differential listings.
+   */
+  pricePerUnit?: number;
+  differentialPrice?: DifferentialPriceResponseDto;
   currency?: "NGN" | "KES" | "USD" | "EUR" | "USDT" | "USDC";
   images?: Array<string>;
   features?: Array<string>;
@@ -779,6 +800,25 @@ export type ProductResponseDto = {
   specifications?: SpecificationsResponseDto;
   deliveryTerms?: DeliveryTermsResponseDto;
   commercialTerms?: CommercialTermsResponseDto;
+};
+
+export type DifferentialPriceDto = {
+  /**
+   * Id of the referenced Benchmark
+   */
+  benchmarkId: string;
+  /**
+   * Signed differential in minor currency units, per unit of measure (e.g. +200 = +$2.00/bbl)
+   */
+  differentialValue: number;
+  /**
+   * Currency of the differential; must equal the deal / benchmark currency
+   */
+  differentialCurrency: "NGN" | "KES" | "USD" | "EUR" | "USDT" | "USDC";
+  /**
+   * Free-text clarification of the basis
+   */
+  notes?: string;
 };
 
 export type LocationDto = {
@@ -1077,7 +1117,7 @@ export type CommercialTermsDto = {
   refundPolicy?: string;
 };
 
-export type CreateProductDto = {
+export type UpsertMyProductDto = {
   title: string;
   description: string;
   specialtyId: string;
@@ -1086,9 +1126,17 @@ export type CreateProductDto = {
   type: "products" | "services";
   listingType: "product" | "service" | "rental" | "lease" | "charter" | "rfq";
   /**
-   * Price per unit in minor currency units (kobo/cents)
+   * How the price is expressed. Defaults to flat. Differential is only accepted on commodity groups and is forced on groups that require it.
    */
-  pricePerUnit: number;
+  pricingBasis?: "flat" | "differential";
+  /**
+   * Flat price per unit in minor currency units (kobo/cents). Required for flat pricing; omit for differential.
+   */
+  pricePerUnit?: number;
+  /**
+   * Commodity differential price. Required when pricingBasis is differential.
+   */
+  differentialPrice?: DifferentialPriceDto;
   currency?: "NGN" | "KES" | "USD" | "EUR" | "USDT" | "USDC";
   images?: Array<string>;
   documents?: Array<string>;
@@ -1155,18 +1203,13 @@ export type CreateProductDto = {
     | "NA"
   >;
   conditions?: Array<"New" | "Used - Good" | "Used - Fair" | "Refurbished">;
-  organization?: string;
   location?: LocationDto;
-  status?: "pending" | "approved" | "rejected" | "delisted";
-  delistReason?: string;
-  isActive?: boolean;
-  rejectionReason?: string;
   specifications?: SpecificationsDto;
   deliveryTerms?: DeliveryTermsDto;
   commercialTerms?: CommercialTermsDto;
 };
 
-export type UpdateProductDto = {
+export type UpdateMyProductDto = {
   title?: string;
   description?: string;
   specialtyId?: string;
@@ -1175,9 +1218,17 @@ export type UpdateProductDto = {
   type?: "products" | "services";
   listingType?: "product" | "service" | "rental" | "lease" | "charter" | "rfq";
   /**
-   * Price per unit in minor currency units (kobo/cents)
+   * How the price is expressed. Defaults to flat. Differential is only accepted on commodity groups and is forced on groups that require it.
+   */
+  pricingBasis?: "flat" | "differential";
+  /**
+   * Flat price per unit in minor currency units (kobo/cents). Required for flat pricing; omit for differential.
    */
   pricePerUnit?: number;
+  /**
+   * Commodity differential price. Required when pricingBasis is differential.
+   */
+  differentialPrice?: DifferentialPriceDto;
   currency?: "NGN" | "KES" | "USD" | "EUR" | "USDT" | "USDC";
   images?: Array<string>;
   documents?: Array<string>;
@@ -1244,12 +1295,7 @@ export type UpdateProductDto = {
     | "NA"
   >;
   conditions?: Array<"New" | "Used - Good" | "Used - Fair" | "Refurbished">;
-  organization?: string;
   location?: LocationDto;
-  status?: "pending" | "approved" | "rejected" | "delisted";
-  delistReason?: string;
-  isActive?: boolean;
-  rejectionReason?: string;
   specifications?: SpecificationsDto;
   deliveryTerms?: DeliveryTermsDto;
   commercialTerms?: CommercialTermsDto;
@@ -1415,6 +1461,54 @@ export type UpdateCategoryGroupDto = {
   defaultEscrowStructure?: "full" | "deposit" | "milestone" | "partial";
 };
 
+export type BenchmarkDto = {
+  _id: string;
+  code: string;
+  name: string;
+  benchmarkCurrency: "NGN" | "KES" | "USD" | "EUR" | "USDT" | "USDC";
+  defaultUnit:
+    | "bbl"
+    | "liter"
+    | "gallon"
+    | "m3"
+    | "mt"
+    | "kg"
+    | "ton"
+    | "lb"
+    | "m"
+    | "ft"
+    | "sqm"
+    | "sqft"
+    | "scf"
+    | "sm3"
+    | "nm3"
+    | "mmbtu"
+    | "kwh"
+    | "mwh"
+    | "kva"
+    | "kw"
+    | "mw"
+    | "unit"
+    | "set"
+    | "kit"
+    | "pair"
+    | "joint"
+    | "roll"
+    | "sheet"
+    | "box"
+    | "pack"
+    | "drum"
+    | "bag"
+    | "cylinder"
+    | "ream"
+    | "license"
+    | "skid"
+    | "package"
+    | "plate"
+    | "bar";
+  active: boolean;
+};
+
 export type CategoryDocumentTemplateDto = {
   type:
     | "INVOICE"
@@ -1560,13 +1654,6 @@ export type CreateTransactionDto = {
    * Ordered list of milestones. Providing milestones selects the MILESTONE workflow (progressive settlement); omitting them selects STANDARD (single settlement).
    */
   milestones?: Array<MilestoneInputDto>;
-};
-
-export type DifferentialPriceResponseDto = {
-  benchmarkId: string;
-  differentialValue: number;
-  differentialCurrency: "NGN" | "KES" | "USD" | "EUR" | "USDT" | "USDC";
-  notes?: string;
 };
 
 export type InFlightStageSummaryDto = {
@@ -2504,54 +2591,6 @@ export type EscrowSummaryResponseDto = {
   currency: "NGN" | "KES" | "USD" | "EUR" | "USDT" | "USDC";
 };
 
-export type BenchmarkDto = {
-  _id: string;
-  code: string;
-  name: string;
-  benchmarkCurrency: "NGN" | "KES" | "USD" | "EUR" | "USDT" | "USDC";
-  defaultUnit:
-    | "bbl"
-    | "liter"
-    | "gallon"
-    | "m3"
-    | "mt"
-    | "kg"
-    | "ton"
-    | "lb"
-    | "m"
-    | "ft"
-    | "sqm"
-    | "sqft"
-    | "scf"
-    | "sm3"
-    | "nm3"
-    | "mmbtu"
-    | "kwh"
-    | "mwh"
-    | "kva"
-    | "kw"
-    | "mw"
-    | "unit"
-    | "set"
-    | "kit"
-    | "pair"
-    | "joint"
-    | "roll"
-    | "sheet"
-    | "box"
-    | "pack"
-    | "drum"
-    | "bag"
-    | "cylinder"
-    | "ream"
-    | "license"
-    | "skid"
-    | "package"
-    | "plate"
-    | "bar";
-  active: boolean;
-};
-
 export type ConversationMessageResponseDto = {
   _id: string;
   text: string;
@@ -2829,25 +2868,6 @@ export type RecommendationFeedResponseDto = {
 export type SingleRecommendationFeedResponseDto = {
   message: string;
   data: RecommendationFeedItemDto;
-};
-
-export type DifferentialPriceDto = {
-  /**
-   * Id of the referenced Benchmark
-   */
-  benchmarkId: string;
-  /**
-   * Signed differential in minor currency units, per unit of measure (e.g. +200 = +$2.00/bbl)
-   */
-  differentialValue: number;
-  /**
-   * Currency of the differential; must equal the deal / benchmark currency
-   */
-  differentialCurrency: "NGN" | "KES" | "USD" | "EUR" | "USDT" | "USDC";
-  /**
-   * Free-text clarification of the basis
-   */
-  notes?: string;
 };
 
 export type CreateRequestDto = {
@@ -4922,6 +4942,39 @@ export type FulfillInformationRequestDto = {
   attachments?: Array<AttachmentDto>;
 };
 
+export type OnboardingPersonDto = {
+  _id: string;
+  name?: string;
+  firstName?: string;
+  lastName?: string;
+  occupation?: string;
+  nationalityCode?: string;
+  dateOfBirth?: string;
+  gender?: string;
+  shareholdings?: string;
+  shareholderType?: string;
+  ownsMoreThanFivePercent?: boolean;
+  percentageOwnership?: number;
+  isPep?: boolean;
+  email?: string;
+  phoneNumber?: string;
+  bvn?: string;
+  streetAddress?: string;
+  country?: string;
+  state?: string;
+  city?: string;
+  postalCode?: string;
+  idDocumentType?: string;
+  idDocumentNumber?: string;
+  idExpiryDate?: string;
+  idDocument?: FileMetadataResponseDto;
+  completed?: boolean;
+  /**
+   * Same-person link across the directors and beneficialOwners lists: records sharing a linkId are one individual, entered once.
+   */
+  linkId?: string;
+};
+
 export type OnboardingTransactionProfileDto = {
   purpose: string;
   monthlyValueBand:
@@ -4954,12 +5007,8 @@ export type OnboardingKybDto = {
   businessType?: "bn" | "co" | "it";
   companyType?: string;
   incorporationDate?: string;
-  directors?: Array<{
-    [key: string]: unknown;
-  }>;
-  beneficialOwners?: Array<{
-    [key: string]: unknown;
-  }>;
+  directors?: Array<OnboardingPersonDto>;
+  beneficialOwners?: Array<OnboardingPersonDto>;
   transactionProfile?: OnboardingTransactionProfileDto;
   kybRegistration?: {
     [key: string]: unknown;
@@ -5264,9 +5313,11 @@ export type UpdateFinancialSetupDto = {
    */
   statementOfAccount?: FileMetadataDto;
   /**
-   * Expected primary purpose of transactions (Busha KYB).
+   * Ignored. The purpose is always the fixed platform value ("international trade") and is no longer collected. Kept only so older clients that still send it are not rejected by request whitelisting.
+   *
+   * @deprecated
    */
-  transactionPurpose: string;
+  transactionPurpose?: string;
   /**
    * Expected monthly transaction value band (Busha KYB).
    */
@@ -5288,9 +5339,11 @@ export type UpdateFinancialSetupDto = {
 
 export type UpdateTransactionProfileDto = {
   /**
-   * Expected primary purpose of transactions (provider KYB).
+   * Ignored. The purpose is always the fixed platform value ("international trade") and is no longer collected. Kept only so older clients that still send it are not rejected by request whitelisting.
+   *
+   * @deprecated
    */
-  transactionPurpose: string;
+  transactionPurpose?: string;
   /**
    * Expected monthly transaction value band (provider KYB).
    */
@@ -5392,6 +5445,10 @@ export type CreatePersonDto = {
   idDocument?: FileMetadataDto;
   firstName: string;
   lastName: string;
+  /**
+   * Id of an existing person in the other role list (director when adding an owner, and vice versa) who is the SAME individual. Links the two records so shared details are entered once and kept in sync.
+   */
+  linkToPersonId?: string;
 };
 
 export type InviteItemDto = {
@@ -6158,6 +6215,200 @@ export type ReopenFundingWindowDto = {
    * Length of the fresh funding window in days
    */
   days?: number;
+};
+
+export type CreateProductDto = {
+  title: string;
+  description: string;
+  specialtyId: string;
+  categoryId: string;
+  groupId: string;
+  type: "products" | "services";
+  listingType: "product" | "service" | "rental" | "lease" | "charter" | "rfq";
+  /**
+   * How the price is expressed. Defaults to flat. Differential is only accepted on commodity groups and is forced on groups that require it.
+   */
+  pricingBasis?: "flat" | "differential";
+  /**
+   * Flat price per unit in minor currency units (kobo/cents). Required for flat pricing; omit for differential.
+   */
+  pricePerUnit?: number;
+  /**
+   * Commodity differential price. Required when pricingBasis is differential.
+   */
+  differentialPrice?: DifferentialPriceDto;
+  currency?: "NGN" | "KES" | "USD" | "EUR" | "USDT" | "USDC";
+  images?: Array<string>;
+  documents?: Array<string>;
+  features?: Array<string>;
+  availableQuantity?: number;
+  minimumOrderQuantity?: number;
+  maximumOrderQuantity?: number;
+  trackInventory?: boolean;
+  lowStockThreshold?: number;
+  showStockToBuyers?: boolean;
+  allowBackorders?: boolean;
+  unitOfMeasurement?:
+    | "bbl"
+    | "liter"
+    | "gallon"
+    | "m3"
+    | "mt"
+    | "kg"
+    | "ton"
+    | "lb"
+    | "m"
+    | "ft"
+    | "sqm"
+    | "sqft"
+    | "scf"
+    | "sm3"
+    | "nm3"
+    | "mmbtu"
+    | "kwh"
+    | "mwh"
+    | "kva"
+    | "kw"
+    | "mw"
+    | "unit"
+    | "set"
+    | "kit"
+    | "pair"
+    | "joint"
+    | "roll"
+    | "sheet"
+    | "box"
+    | "pack"
+    | "drum"
+    | "bag"
+    | "cylinder"
+    | "ream"
+    | "license"
+    | "skid"
+    | "package"
+    | "plate"
+    | "bar";
+  tradeTerms?: Array<
+    | "FOB"
+    | "CIF"
+    | "CFR"
+    | "EX_WORKS"
+    | "DELIVERED"
+    | "TTO"
+    | "TTT"
+    | "FOT"
+    | "FCA"
+    | "DAP"
+    | "DDP"
+    | "NA"
+  >;
+  conditions?: Array<"New" | "Used - Good" | "Used - Fair" | "Refurbished">;
+  location?: LocationDto;
+  specifications?: SpecificationsDto;
+  deliveryTerms?: DeliveryTermsDto;
+  commercialTerms?: CommercialTermsDto;
+  organization?: string;
+  status?: "pending" | "approved" | "rejected" | "delisted";
+  delistReason?: string;
+  isActive?: boolean;
+  rejectionReason?: string;
+};
+
+export type UpdateProductDto = {
+  title?: string;
+  description?: string;
+  specialtyId?: string;
+  categoryId?: string;
+  groupId?: string;
+  type?: "products" | "services";
+  listingType?: "product" | "service" | "rental" | "lease" | "charter" | "rfq";
+  /**
+   * How the price is expressed. Defaults to flat. Differential is only accepted on commodity groups and is forced on groups that require it.
+   */
+  pricingBasis?: "flat" | "differential";
+  /**
+   * Flat price per unit in minor currency units (kobo/cents). Required for flat pricing; omit for differential.
+   */
+  pricePerUnit?: number;
+  /**
+   * Commodity differential price. Required when pricingBasis is differential.
+   */
+  differentialPrice?: DifferentialPriceDto;
+  currency?: "NGN" | "KES" | "USD" | "EUR" | "USDT" | "USDC";
+  images?: Array<string>;
+  documents?: Array<string>;
+  features?: Array<string>;
+  availableQuantity?: number;
+  minimumOrderQuantity?: number;
+  maximumOrderQuantity?: number;
+  trackInventory?: boolean;
+  lowStockThreshold?: number;
+  showStockToBuyers?: boolean;
+  allowBackorders?: boolean;
+  unitOfMeasurement?:
+    | "bbl"
+    | "liter"
+    | "gallon"
+    | "m3"
+    | "mt"
+    | "kg"
+    | "ton"
+    | "lb"
+    | "m"
+    | "ft"
+    | "sqm"
+    | "sqft"
+    | "scf"
+    | "sm3"
+    | "nm3"
+    | "mmbtu"
+    | "kwh"
+    | "mwh"
+    | "kva"
+    | "kw"
+    | "mw"
+    | "unit"
+    | "set"
+    | "kit"
+    | "pair"
+    | "joint"
+    | "roll"
+    | "sheet"
+    | "box"
+    | "pack"
+    | "drum"
+    | "bag"
+    | "cylinder"
+    | "ream"
+    | "license"
+    | "skid"
+    | "package"
+    | "plate"
+    | "bar";
+  tradeTerms?: Array<
+    | "FOB"
+    | "CIF"
+    | "CFR"
+    | "EX_WORKS"
+    | "DELIVERED"
+    | "TTO"
+    | "TTT"
+    | "FOT"
+    | "FCA"
+    | "DAP"
+    | "DDP"
+    | "NA"
+  >;
+  conditions?: Array<"New" | "Used - Good" | "Used - Fair" | "Refurbished">;
+  location?: LocationDto;
+  specifications?: SpecificationsDto;
+  deliveryTerms?: DeliveryTermsDto;
+  commercialTerms?: CommercialTermsDto;
+  organization?: string;
+  status?: "pending" | "approved" | "rejected" | "delisted";
+  delistReason?: string;
+  isActive?: boolean;
+  rejectionReason?: string;
 };
 
 export type CategoryDocumentTemplateInput = {
@@ -7241,6 +7492,10 @@ export type BusinessPersonDto = {
   idExpiryDate?: string;
   idDocument?: ComplianceFileMetadataDto;
   completed?: boolean;
+  /**
+   * Same-person link: directors/beneficialOwners entries sharing a linkId are one individual (entered once by the customer; edits write through).
+   */
+  linkId?: string;
   /**
    * A BVN is stored for this person (the value is never exposed).
    */
@@ -9494,7 +9749,7 @@ export type MyProductsControllerFindAllResponse =
   MyProductsControllerFindAllResponses[keyof MyProductsControllerFindAllResponses];
 
 export type MyProductsControllerCreateData = {
-  body: CreateProductDto;
+  body: UpsertMyProductDto;
   path?: never;
   query?: never;
   url: "/api/v1/products/mine";
@@ -9537,7 +9792,7 @@ export type MyProductsControllerFindOneResponse =
   MyProductsControllerFindOneResponses[keyof MyProductsControllerFindOneResponses];
 
 export type MyProductsControllerUpdateData = {
-  body: UpdateProductDto;
+  body: UpdateMyProductDto;
   path: {
     id: string;
   };
@@ -9622,6 +9877,23 @@ export type CategoryGroupsControllerUpdateResponses = {
 
 export type CategoryGroupsControllerUpdateResponse =
   CategoryGroupsControllerUpdateResponses[keyof CategoryGroupsControllerUpdateResponses];
+
+export type BenchmarksControllerFindAllData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: "/api/v1/benchmarks";
+};
+
+export type BenchmarksControllerFindAllResponses = {
+  /**
+   * Active benchmarks for differential pricing
+   */
+  200: Array<BenchmarkDto>;
+};
+
+export type BenchmarksControllerFindAllResponse =
+  BenchmarksControllerFindAllResponses[keyof BenchmarksControllerFindAllResponses];
 
 export type CategoriesControllerFindAllData = {
   body?: never;
@@ -10018,23 +10290,6 @@ export type EscrowsControllerGetMySummaryResponses = {
 
 export type EscrowsControllerGetMySummaryResponse =
   EscrowsControllerGetMySummaryResponses[keyof EscrowsControllerGetMySummaryResponses];
-
-export type BenchmarksControllerFindAllData = {
-  body?: never;
-  path?: never;
-  query?: never;
-  url: "/api/v1/benchmarks";
-};
-
-export type BenchmarksControllerFindAllResponses = {
-  /**
-   * Active benchmarks for differential pricing
-   */
-  200: Array<BenchmarkDto>;
-};
-
-export type BenchmarksControllerFindAllResponse =
-  BenchmarksControllerFindAllResponses[keyof BenchmarksControllerFindAllResponses];
 
 export type TransactionConversationsControllerGetConversationData = {
   body?: never;
@@ -11652,6 +11907,22 @@ export type OnboardingControllerAdvanceDirectorsResponses = {
 export type OnboardingControllerAdvanceDirectorsResponse =
   OnboardingControllerAdvanceDirectorsResponses[keyof OnboardingControllerAdvanceDirectorsResponses];
 
+export type OnboardingControllerUnlinkDirectorData = {
+  body?: never;
+  path: {
+    personId: string;
+  };
+  query?: never;
+  url: "/api/v1/onboarding/directors/{personId}/unlink";
+};
+
+export type OnboardingControllerUnlinkDirectorResponses = {
+  201: OnboardingStatusResponseDto;
+};
+
+export type OnboardingControllerUnlinkDirectorResponse =
+  OnboardingControllerUnlinkDirectorResponses[keyof OnboardingControllerUnlinkDirectorResponses];
+
 export type OnboardingControllerRemoveBeneficialOwnerData = {
   body?: never;
   path: {
@@ -11711,6 +11982,22 @@ export type OnboardingControllerAdvanceBeneficialOwnersResponses = {
 
 export type OnboardingControllerAdvanceBeneficialOwnersResponse =
   OnboardingControllerAdvanceBeneficialOwnersResponses[keyof OnboardingControllerAdvanceBeneficialOwnersResponses];
+
+export type OnboardingControllerUnlinkBeneficialOwnerData = {
+  body?: never;
+  path: {
+    personId: string;
+  };
+  query?: never;
+  url: "/api/v1/onboarding/beneficial-owners/{personId}/unlink";
+};
+
+export type OnboardingControllerUnlinkBeneficialOwnerResponses = {
+  201: OnboardingStatusResponseDto;
+};
+
+export type OnboardingControllerUnlinkBeneficialOwnerResponse =
+  OnboardingControllerUnlinkBeneficialOwnerResponses[keyof OnboardingControllerUnlinkBeneficialOwnerResponses];
 
 export type OnboardingControllerInviteTeamData = {
   body: InviteTeamDto;
