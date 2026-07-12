@@ -68,6 +68,16 @@ import {
   adminRoutingControllerRemove,
   adminRoutingControllerResolve,
   adminRoutingControllerUpdate,
+  adminProviderDrainControllerList,
+  adminProviderDrainControllerCreate,
+  adminProviderDrainControllerDetail,
+  adminProviderDrainControllerItems,
+  adminProviderDrainControllerFreeze,
+  adminProviderDrainControllerScan,
+  adminProviderDrainControllerSweep,
+  adminProviderDrainControllerPause,
+  adminProviderDrainControllerRetryItem,
+  adminProviderDrainControllerComplete,
   adminComplianceControllerReviewKyb,
   adminComplianceControllerReviewKyc,
   adminComplianceControllerRequestChanges,
@@ -574,6 +584,50 @@ export const api = {
       }),
       reload: createMutation(adminRoutingControllerReload, {
         invalidates: () => [["admin", "routing", "rules"]],
+      }),
+    },
+    providerDrain: {
+      list: createQuery(adminProviderDrainControllerList, [
+        "admin",
+        "provider-drain",
+        "list",
+      ]),
+      detail: createQuery(adminProviderDrainControllerDetail, (args) => [
+        "admin",
+        "provider-drain",
+        args.path.id,
+      ]),
+      items: createQuery(adminProviderDrainControllerItems, (args) => [
+        "admin",
+        "provider-drain",
+        args.path.id,
+        "items",
+        args.query,
+      ]),
+      create: createMutation(adminProviderDrainControllerCreate, {
+        invalidates: () => [["admin", "provider-drain"]],
+      }),
+      freeze: createMutation(adminProviderDrainControllerFreeze, {
+        // Freeze also flips routing rules — refresh that console too.
+        invalidates: () => [
+          ["admin", "provider-drain"],
+          ["admin", "routing", "rules"],
+        ],
+      }),
+      scan: createMutation(adminProviderDrainControllerScan, {
+        invalidates: () => [["admin", "provider-drain"]],
+      }),
+      sweep: createMutation(adminProviderDrainControllerSweep, {
+        invalidates: () => [["admin", "provider-drain"]],
+      }),
+      pause: createMutation(adminProviderDrainControllerPause, {
+        invalidates: () => [["admin", "provider-drain"]],
+      }),
+      retryItem: createMutation(adminProviderDrainControllerRetryItem, {
+        invalidates: () => [["admin", "provider-drain"]],
+      }),
+      complete: createMutation(adminProviderDrainControllerComplete, {
+        invalidates: () => [["admin", "provider-drain"]],
       }),
     },
     compliance: {

@@ -16,6 +16,7 @@ import {
   Settings,
   Tags,
   TimerIcon,
+  Unplug,
   Waypoints,
 } from "lucide-react";
 import * as React from "react";
@@ -112,6 +113,11 @@ const navGroups: NavGroup[] = [
         title: "Payment Routing",
         url: "/routing",
         icon: Waypoints,
+      },
+      {
+        title: "Provider Drain",
+        url: "/provider-drain",
+        icon: Unplug,
       },
       {
         title: "Benchmarks",
