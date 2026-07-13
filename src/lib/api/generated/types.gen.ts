@@ -498,15 +498,10 @@ export type PopulatedProductLocationDto = {
 
 export type CommoditySpecsResponseDto = {
   grade?: string;
-  origin?: string;
   apiGravity?: number;
   sulphurContent?: number;
   density?: string;
-  loadingPort?: string;
-  dischargePort?: string;
-  terminal?: string;
   inspectionCompany?: string;
-  pricingBasis?: string;
 };
 
 export type EquipmentSpecsResponseDto = {
@@ -514,15 +509,12 @@ export type EquipmentSpecsResponseDto = {
   model?: string;
   serialNumber?: string;
   year?: number;
-  condition?: string;
   certifications?: Array<string>;
   warranty?: string;
-  datasheetUrl?: string;
 };
 
 export type ServiceSpecsResponseDto = {
   scopeOfWork?: string;
-  location?: string;
   startDate?: string;
   endDate?: string;
   mobilizationTimeline?: string;
@@ -536,18 +528,6 @@ export type RentalSpecsResponseDto = {
   assetType?: string;
   availabilityStart?: string;
   availabilityEnd?: string;
-  duration?: number;
-  durationUnit?:
-    | "hour"
-    | "day"
-    | "week"
-    | "month"
-    | "year"
-    | "project"
-    | "milestone"
-    | "contract";
-  rate?: number;
-  rateUnit?: string;
   operatorIncluded?: boolean;
   maintenanceIncluded?: boolean;
   mobilizationIncluded?: boolean;
@@ -557,23 +537,10 @@ export type RentalSpecsResponseDto = {
 export type CharterSpecsResponseDto = {
   vesselType?: string;
   charterType?: string;
-  duration?: number;
-  durationUnit?:
-    | "hour"
-    | "day"
-    | "week"
-    | "month"
-    | "year"
-    | "project"
-    | "milestone"
-    | "contract";
-  dayRate?: number;
-  lumpSumRate?: number;
   crewIncluded?: boolean;
   fuelIncluded?: boolean;
   mobilizationIncluded?: boolean;
   demobilizationIncluded?: boolean;
-  ports?: Array<string>;
   classCertificate?: string;
 };
 
@@ -583,15 +550,6 @@ export type SpecificationsResponseDto = {
   serviceSpecs?: ServiceSpecsResponseDto;
   rentalSpecs?: RentalSpecsResponseDto;
   charterSpecs?: CharterSpecsResponseDto;
-};
-
-export type DeliveryTermsResponseDto = {
-  origin?: string;
-  destination?: string;
-  loadingPort?: string;
-  dischargePort?: string;
-  terminal?: string;
-  logisticsResponsibility?: "buyer" | "seller" | "vesslr_partner";
 };
 
 export type CommercialTermsResponseDto = {
@@ -686,7 +644,6 @@ export type PopulatedProductResponseDto = {
   updatedAt?: string;
   documents?: Array<string>;
   specifications?: SpecificationsResponseDto;
-  deliveryTerms?: DeliveryTermsResponseDto;
   commercialTerms?: CommercialTermsResponseDto;
 };
 
@@ -798,7 +755,6 @@ export type ProductResponseDto = {
   updatedAt?: string;
   documents?: Array<string>;
   specifications?: SpecificationsResponseDto;
-  deliveryTerms?: DeliveryTermsResponseDto;
   commercialTerms?: CommercialTermsResponseDto;
 };
 
@@ -834,10 +790,6 @@ export type CommoditySpecsDto = {
    */
   grade?: string;
   /**
-   * Country/region of origin
-   */
-  origin?: string;
-  /**
    * API gravity value
    */
   apiGravity?: number;
@@ -850,25 +802,9 @@ export type CommoditySpecsDto = {
    */
   density?: string;
   /**
-   * Loading port name
-   */
-  loadingPort?: string;
-  /**
-   * Discharge port name
-   */
-  dischargePort?: string;
-  /**
-   * Terminal name
-   */
-  terminal?: string;
-  /**
    * Inspection company name
    */
   inspectionCompany?: string;
-  /**
-   * Pricing basis (e.g. Dated Brent +$2)
-   */
-  pricingBasis?: string;
 };
 
 export type EquipmentSpecsDto = {
@@ -889,10 +825,6 @@ export type EquipmentSpecsDto = {
    */
   year?: number;
   /**
-   * Equipment condition (e.g. New, Refurbished, Used)
-   */
-  condition?: string;
-  /**
    * List of certifications
    */
   certifications?: Array<string>;
@@ -911,10 +843,6 @@ export type ServiceSpecsDto = {
    * Scope of work description
    */
   scopeOfWork?: string;
-  /**
-   * Service location
-   */
-  location?: string;
   /**
    * Projected start date
    */
@@ -959,30 +887,6 @@ export type RentalSpecsDto = {
    */
   availabilityEnd?: string;
   /**
-   * Rental/lease duration
-   */
-  duration?: number;
-  /**
-   * Duration unit
-   */
-  durationUnit?:
-    | "hour"
-    | "day"
-    | "week"
-    | "month"
-    | "year"
-    | "project"
-    | "milestone"
-    | "contract";
-  /**
-   * Rental/lease rate amount
-   */
-  rate?: number;
-  /**
-   * Rate unit (e.g. per day, per month)
-   */
-  rateUnit?: string;
-  /**
    * Whether an operator is included
    */
   operatorIncluded?: boolean;
@@ -1010,30 +914,6 @@ export type CharterSpecsDto = {
    */
   charterType?: string;
   /**
-   * Charter duration
-   */
-  duration?: number;
-  /**
-   * Duration unit
-   */
-  durationUnit?:
-    | "hour"
-    | "day"
-    | "week"
-    | "month"
-    | "year"
-    | "project"
-    | "milestone"
-    | "contract";
-  /**
-   * Day rate amount
-   */
-  dayRate?: number;
-  /**
-   * Lump sum rate amount
-   */
-  lumpSumRate?: number;
-  /**
    * Whether crew is included
    */
   crewIncluded?: boolean;
@@ -1050,10 +930,6 @@ export type CharterSpecsDto = {
    */
   demobilizationIncluded?: boolean;
   /**
-   * List of ports
-   */
-  ports?: Array<string>;
-  /**
    * Class certificate
    */
   classCertificate?: string;
@@ -1065,33 +941,6 @@ export type SpecificationsDto = {
   serviceSpecs?: ServiceSpecsDto;
   rentalSpecs?: RentalSpecsDto;
   charterSpecs?: CharterSpecsDto;
-};
-
-export type DeliveryTermsDto = {
-  /**
-   * Origin location (city, depot, terminal)
-   */
-  origin?: string;
-  /**
-   * Destination location
-   */
-  destination?: string;
-  /**
-   * Loading port name
-   */
-  loadingPort?: string;
-  /**
-   * Discharge port name
-   */
-  dischargePort?: string;
-  /**
-   * Terminal name
-   */
-  terminal?: string;
-  /**
-   * Who is responsible for logistics
-   */
-  logisticsResponsibility?: "buyer" | "seller" | "vesslr_partner";
 };
 
 export type CommercialTermsDto = {
@@ -1205,7 +1054,6 @@ export type UpsertMyProductDto = {
   conditions?: Array<"New" | "Used - Good" | "Used - Fair" | "Refurbished">;
   location?: LocationDto;
   specifications?: SpecificationsDto;
-  deliveryTerms?: DeliveryTermsDto;
   commercialTerms?: CommercialTermsDto;
 };
 
@@ -1297,7 +1145,6 @@ export type UpdateMyProductDto = {
   conditions?: Array<"New" | "Used - Good" | "Used - Fair" | "Refurbished">;
   location?: LocationDto;
   specifications?: SpecificationsDto;
-  deliveryTerms?: DeliveryTermsDto;
   commercialTerms?: CommercialTermsDto;
 };
 
@@ -2027,7 +1874,6 @@ export type OrderResponseDto = {
   createdAt: string;
   updatedAt: string;
   specifications?: SpecificationsResponseDto;
-  deliveryTerms?: DeliveryTermsResponseDto;
   commercialTerms?: CommercialTermsResponseDto;
 };
 
@@ -2848,7 +2694,6 @@ export type RecommendationFeedItemDto = {
   listingType: "product" | "service" | "rental" | "lease" | "charter" | "rfq";
   tradeTerms?: Array<string>;
   specifications?: SpecificationsResponseDto;
-  deliveryTerms?: DeliveryTermsResponseDto;
   commercialTerms?: CommercialTermsResponseDto;
 };
 
@@ -3005,7 +2850,6 @@ export type CreateRequestDto = {
    */
   qqCompany?: string;
   specifications?: SpecificationsDto;
-  deliveryTerms?: DeliveryTermsDto;
   commercialTerms?: CommercialTermsDto;
 };
 
@@ -3128,7 +2972,6 @@ export type RequestResponseDto = {
    */
   qqCriteria?: Array<QqCriterionDto>;
   specifications?: SpecificationsResponseDto;
-  deliveryTerms?: DeliveryTermsResponseDto;
   commercialTerms?: CommercialTermsResponseDto;
 };
 
@@ -3267,7 +3110,6 @@ export type UpdateRequestDto = {
    */
   qqCompany?: string;
   specifications?: SpecificationsDto;
-  deliveryTerms?: DeliveryTermsDto;
   commercialTerms?: CommercialTermsDto;
   status?: "pending" | "in_review" | "matched" | "fulfilled" | "cancelled";
 };
@@ -3614,10 +3456,6 @@ export type NegotiationOrganizationDto = {
   isMine: boolean;
 };
 
-export type DeliveryTerms = {
-  [key: string]: unknown;
-};
-
 export type CommercialTerms = {
   [key: string]: unknown;
 };
@@ -3714,7 +3552,6 @@ export type NegotiationOffer = {
   paymentTerms?: string;
   deliveryDate?: string;
   notes?: string;
-  deliveryTerms?: DeliveryTerms;
   commercialTerms?: CommercialTerms;
 };
 
@@ -6305,7 +6142,6 @@ export type CreateProductDto = {
   conditions?: Array<"New" | "Used - Good" | "Used - Fair" | "Refurbished">;
   location?: LocationDto;
   specifications?: SpecificationsDto;
-  deliveryTerms?: DeliveryTermsDto;
   commercialTerms?: CommercialTermsDto;
   organization?: string;
   status?: "pending" | "approved" | "rejected" | "delisted";
@@ -6402,7 +6238,6 @@ export type UpdateProductDto = {
   conditions?: Array<"New" | "Used - Good" | "Used - Fair" | "Refurbished">;
   location?: LocationDto;
   specifications?: SpecificationsDto;
-  deliveryTerms?: DeliveryTermsDto;
   commercialTerms?: CommercialTermsDto;
   organization?: string;
   status?: "pending" | "approved" | "rejected" | "delisted";

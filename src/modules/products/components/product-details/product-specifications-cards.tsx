@@ -37,7 +37,6 @@ export function ProductSpecificationsCards({
           </CardHeader>
           <CardContent>
             <DetailRow label="Grade" value={commoditySpecs.grade} />
-            <DetailRow label="Origin" value={commoditySpecs.origin} />
             <DetailRow label="API Gravity" value={commoditySpecs.apiGravity} />
             <DetailRow
               label="Sulphur Content (%)"
@@ -45,20 +44,7 @@ export function ProductSpecificationsCards({
             />
             <DetailRow label="Density" value={commoditySpecs.density} />
             <DetailRow
-              label="Pricing Basis"
-              value={commoditySpecs.pricingBasis}
-            />
-            <DetailRow
-              label="Loading Port"
-              value={commoditySpecs.loadingPort}
-            />
-            <DetailRow
-              label="Discharge Port"
-              value={commoditySpecs.dischargePort}
-            />
-            <DetailRow label="Terminal" value={commoditySpecs.terminal} />
-            <DetailRow
-              label="Inspection Company"
+              label="Pre-inspected by"
               value={commoditySpecs.inspectionCompany}
             />
           </CardContent>
@@ -81,12 +67,7 @@ export function ProductSpecificationsCards({
               value={equipmentSpecs.serialNumber}
             />
             <DetailRow label="Year" value={equipmentSpecs.year} />
-            <DetailRow label="Condition" value={equipmentSpecs.condition} />
             <DetailRow label="Warranty" value={equipmentSpecs.warranty} />
-            <DetailRow
-              label="Datasheet URL"
-              value={equipmentSpecs.datasheetUrl}
-            />
             {equipmentSpecs.certifications?.length ? (
               <DetailRow
                 label="Certifications"
@@ -115,7 +96,6 @@ export function ProductSpecificationsCards({
               label="Scope of Work"
               value={serviceSpecs.scopeOfWork}
             />
-            <DetailRow label="Location" value={serviceSpecs.location} />
             <DetailRow label="Start Date" value={serviceSpecs.startDate} />
             <DetailRow label="End Date" value={serviceSpecs.endDate} />
             <DetailRow
@@ -145,13 +125,6 @@ export function ProductSpecificationsCards({
           </CardHeader>
           <CardContent>
             <DetailRow label="Asset Type" value={rentalSpecs.assetType} />
-            <DetailRow label="Rate" value={rentalSpecs.rate} />
-            <DetailRow label="Rate Unit" value={rentalSpecs.rateUnit} />
-            <DetailRow label="Duration" value={rentalSpecs.duration} />
-            <DetailRow
-              label="Duration Unit"
-              value={rentalSpecs.durationUnit}
-            />
             <DetailRow
               label="Available From"
               value={rentalSpecs.availabilityStart}
@@ -188,16 +161,6 @@ export function ProductSpecificationsCards({
           <CardContent>
             <DetailRow label="Vessel Type" value={charterSpecs.vesselType} />
             <DetailRow label="Charter Type" value={charterSpecs.charterType} />
-            <DetailRow label="Duration" value={charterSpecs.duration} />
-            <DetailRow
-              label="Duration Unit"
-              value={charterSpecs.durationUnit}
-            />
-            <DetailRow label="Day Rate" value={charterSpecs.dayRate} />
-            <DetailRow
-              label="Lump Sum Rate"
-              value={charterSpecs.lumpSumRate}
-            />
             <DetailRow
               label="Class Certificate"
               value={charterSpecs.classCertificate}
@@ -218,20 +181,6 @@ export function ProductSpecificationsCards({
               label="Demobilization Included"
               value={boolDisplay(charterSpecs.demobilizationIncluded)}
             />
-            {charterSpecs.ports?.length ? (
-              <DetailRow
-                label="Ports"
-                value={
-                  <div className="flex flex-wrap gap-1">
-                    {charterSpecs.ports.map((p, i) => (
-                      <Badge key={i} variant="outline">
-                        {p}
-                      </Badge>
-                    ))}
-                  </div>
-                }
-              />
-            ) : null}
           </CardContent>
         </Card>
       )}
