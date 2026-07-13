@@ -1479,6 +1479,8 @@ export type {
   SingleAdminDisputeResponseDto,
   SingleDisputeResponseDto,
   SingleRecommendationFeedResponseDto,
+  SpecDeclarationDto,
+  SpecDeclarationResponseDto,
   SpecificationsDto,
   SpecificationsResponseDto,
   StaleRequestActionsControllerRespondData,

@@ -37,12 +37,6 @@ export function ProductSpecificationsCards({
           </CardHeader>
           <CardContent>
             <DetailRow label="Grade" value={commoditySpecs.grade} />
-            <DetailRow label="API Gravity" value={commoditySpecs.apiGravity} />
-            <DetailRow
-              label="Sulphur Content (%)"
-              value={commoditySpecs.sulphurContent}
-            />
-            <DetailRow label="Density" value={commoditySpecs.density} />
             <DetailRow
               label="Pre-inspected by"
               value={commoditySpecs.inspectionCompany}

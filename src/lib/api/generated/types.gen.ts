@@ -498,9 +498,6 @@ export type PopulatedProductLocationDto = {
 
 export type CommoditySpecsResponseDto = {
   grade?: string;
-  apiGravity?: number;
-  sulphurContent?: number;
-  density?: string;
   inspectionCompany?: string;
 };
 
@@ -550,6 +547,17 @@ export type SpecificationsResponseDto = {
   serviceSpecs?: ServiceSpecsResponseDto;
   rentalSpecs?: RentalSpecsResponseDto;
   charterSpecs?: CharterSpecsResponseDto;
+};
+
+export type SpecDeclarationResponseDto = {
+  id: string;
+  key: string;
+  label: string;
+  value?: {
+    [key: string]: unknown;
+  };
+  unit?: string;
+  method?: string;
 };
 
 export type CommercialTermsResponseDto = {
@@ -657,6 +665,7 @@ export type PopulatedProductResponseDto = {
   updatedAt?: string;
   documents?: Array<string>;
   specifications?: SpecificationsResponseDto;
+  specDeclarations?: Array<SpecDeclarationResponseDto>;
   commercialTerms?: CommercialTermsResponseDto;
   milestones?: Array<RequestMilestoneDto>;
 };
@@ -769,6 +778,7 @@ export type ProductResponseDto = {
   updatedAt?: string;
   documents?: Array<string>;
   specifications?: SpecificationsResponseDto;
+  specDeclarations?: Array<SpecDeclarationResponseDto>;
   commercialTerms?: CommercialTermsResponseDto;
   milestones?: Array<RequestMilestoneDto>;
 };
@@ -804,18 +814,6 @@ export type CommoditySpecsDto = {
    * Commodity grade (e.g. Bonny Light)
    */
   grade?: string;
-  /**
-   * API gravity value
-   */
-  apiGravity?: number;
-  /**
-   * Sulphur content percentage
-   */
-  sulphurContent?: number;
-  /**
-   * Density description
-   */
-  density?: string;
   /**
    * Inspection company name
    */
@@ -958,6 +956,35 @@ export type SpecificationsDto = {
   charterSpecs?: CharterSpecsDto;
 };
 
+export type SpecDeclarationDto = {
+  /**
+   * Client-generated UUID / lookup key
+   */
+  id: string;
+  /**
+   * Catalog key (e.g. "sulfur") or custom string
+   */
+  key: string;
+  /**
+   * Human-readable label (e.g. "Sulfur Content")
+   */
+  label: string;
+  /**
+   * The declared measured value (a single number or string)
+   */
+  value?: {
+    [key: string]: unknown;
+  };
+  /**
+   * Unit (e.g. "ppm", "kg/m3")
+   */
+  unit?: string;
+  /**
+   * Test method reference (e.g. "ASTM D4294")
+   */
+  method?: string;
+};
+
 export type CommercialTermsDto = {
   /**
    * How long the offer/listing is valid
@@ -1069,6 +1096,7 @@ export type UpsertMyProductDto = {
   conditions?: Array<"New" | "Used - Good" | "Used - Fair" | "Refurbished">;
   location?: LocationDto;
   specifications?: SpecificationsDto;
+  specDeclarations?: Array<SpecDeclarationDto>;
   commercialTerms?: CommercialTermsDto;
   milestones?: Array<RequestMilestoneDto>;
 };
@@ -1161,6 +1189,7 @@ export type UpdateMyProductDto = {
   conditions?: Array<"New" | "Used - Good" | "Used - Fair" | "Refurbished">;
   location?: LocationDto;
   specifications?: SpecificationsDto;
+  specDeclarations?: Array<SpecDeclarationDto>;
   commercialTerms?: CommercialTermsDto;
   milestones?: Array<RequestMilestoneDto>;
 };
@@ -6146,6 +6175,7 @@ export type CreateProductDto = {
   conditions?: Array<"New" | "Used - Good" | "Used - Fair" | "Refurbished">;
   location?: LocationDto;
   specifications?: SpecificationsDto;
+  specDeclarations?: Array<SpecDeclarationDto>;
   commercialTerms?: CommercialTermsDto;
   milestones?: Array<RequestMilestoneDto>;
   organization?: string;
@@ -6243,6 +6273,7 @@ export type UpdateProductDto = {
   conditions?: Array<"New" | "Used - Good" | "Used - Fair" | "Refurbished">;
   location?: LocationDto;
   specifications?: SpecificationsDto;
+  specDeclarations?: Array<SpecDeclarationDto>;
   commercialTerms?: CommercialTermsDto;
   milestones?: Array<RequestMilestoneDto>;
   organization?: string;
