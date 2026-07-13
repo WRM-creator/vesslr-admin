@@ -560,6 +560,19 @@ export type CommercialTermsResponseDto = {
   refundPolicy?: string;
 };
 
+export type RequestMilestoneDto = {
+  name: string;
+  description?: string;
+  /**
+   * List of document names required for this milestone
+   */
+  requiredDocuments?: Array<string>;
+  /**
+   * Payment percentage for this milestone (1-100)
+   */
+  percentage: number;
+};
+
 export type PopulatedProductResponseDto = {
   _id: string;
   /**
@@ -645,6 +658,7 @@ export type PopulatedProductResponseDto = {
   documents?: Array<string>;
   specifications?: SpecificationsResponseDto;
   commercialTerms?: CommercialTermsResponseDto;
+  milestones?: Array<RequestMilestoneDto>;
 };
 
 export type ProductsPaginationDataDto = {
@@ -756,6 +770,7 @@ export type ProductResponseDto = {
   documents?: Array<string>;
   specifications?: SpecificationsResponseDto;
   commercialTerms?: CommercialTermsResponseDto;
+  milestones?: Array<RequestMilestoneDto>;
 };
 
 export type DifferentialPriceDto = {
@@ -1055,6 +1070,7 @@ export type UpsertMyProductDto = {
   location?: LocationDto;
   specifications?: SpecificationsDto;
   commercialTerms?: CommercialTermsDto;
+  milestones?: Array<RequestMilestoneDto>;
 };
 
 export type UpdateMyProductDto = {
@@ -1146,6 +1162,7 @@ export type UpdateMyProductDto = {
   location?: LocationDto;
   specifications?: SpecificationsDto;
   commercialTerms?: CommercialTermsDto;
+  milestones?: Array<RequestMilestoneDto>;
 };
 
 export type ServiceFeeConfigResponseDto = {
@@ -1663,19 +1680,6 @@ export type QqCriterionDto = {
    * When true, a missing measured value during inspection counts as FAIL
    */
   required?: boolean;
-};
-
-export type RequestMilestoneDto = {
-  name: string;
-  description?: string;
-  /**
-   * List of document names required for this milestone
-   */
-  requiredDocuments?: Array<string>;
-  /**
-   * Payment percentage for this milestone (1-100)
-   */
-  percentage: number;
 };
 
 export type OrderRequestDto = {
@@ -6143,6 +6147,7 @@ export type CreateProductDto = {
   location?: LocationDto;
   specifications?: SpecificationsDto;
   commercialTerms?: CommercialTermsDto;
+  milestones?: Array<RequestMilestoneDto>;
   organization?: string;
   status?: "pending" | "approved" | "rejected" | "delisted";
   delistReason?: string;
@@ -6239,6 +6244,7 @@ export type UpdateProductDto = {
   location?: LocationDto;
   specifications?: SpecificationsDto;
   commercialTerms?: CommercialTermsDto;
+  milestones?: Array<RequestMilestoneDto>;
   organization?: string;
   status?: "pending" | "approved" | "rejected" | "delisted";
   delistReason?: string;
