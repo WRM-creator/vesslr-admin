@@ -4847,6 +4847,9 @@ export type OnboardingPersonDto = {
 
 export type OnboardingTransactionProfileDto = {
   purpose: string;
+  /**
+   * Includes legacy low bands that are no longer selectable but may be stored on older profiles.
+   */
   monthlyValueBand:
     | "100_usd_or_less"
     | "100_usd_to_500_usd"
@@ -5191,11 +5194,7 @@ export type UpdateFinancialSetupDto = {
   /**
    * Expected monthly transaction value band (Busha KYB).
    */
-  monthlyTransactionValue:
-    | "100_usd_or_less"
-    | "100_usd_to_500_usd"
-    | "500_usd_to_1m_usd"
-    | "above_1m_usd";
+  monthlyTransactionValue: "500_usd_to_1m_usd" | "above_1m_usd";
   /**
    * Expected monthly transaction count band (Busha KYB).
    */
@@ -5217,11 +5216,7 @@ export type UpdateTransactionProfileDto = {
   /**
    * Expected monthly transaction value band (provider KYB).
    */
-  monthlyTransactionValue:
-    | "100_usd_or_less"
-    | "100_usd_to_500_usd"
-    | "500_usd_to_1m_usd"
-    | "above_1m_usd";
+  monthlyTransactionValue: "500_usd_to_1m_usd" | "above_1m_usd";
   /**
    * Expected monthly transaction count band (provider KYB).
    */
