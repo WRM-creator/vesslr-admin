@@ -28,25 +28,26 @@ interface OverviewStatusCardProps {
 
 type EscrowState = "awaiting" | "secured" | "released" | "refunded" | "cancelled";
 
-function getEscrowState(status: string): EscrowState {
-  if (["SETTLEMENT_RELEASED", "CLOSED"].includes(status)) return "released";
-  if (["REFUNDED", "PARTIALLY_REFUNDED"].includes(status)) return "refunded";
-  // A transaction cancelled before funding never had an escrow.
-  if (status === "CANCELLED") return "cancelled";
-  if (
-    [
-      "ESCROW_FUNDED",
-      "LOGISTICS_ASSIGNED",
-      "IN_TRANSIT",
-      "INSPECTION_PENDING",
-      "INSPECTION_UNDER_REVIEW",
-      "DELIVERY_CONFIRMED",
-      "MILESTONES_IN_PROGRESS",
-      "DISPUTED",
-    ].includes(status)
-  )
-    return "secured";
-  return "awaiting";
+function getEscrowState(
+  transaction: Pick<TransactionResponseDto, "status" | "escrow">,
+): EscrowState {
+  // The escrow document is the source of truth once it exists; deriving from
+  // transaction.status breaks on flow-specific statuses (rental, charter).
+  const escrow = transaction.escrow;
+  if (escrow) {
+    switch (escrow.status) {
+      case "RELEASED":
+        return "released";
+      case "REFUNDED":
+      case "PARTIALLY_REFUNDED":
+        return "refunded";
+      // FUNDED / RELEASE_PENDING / REFUND_PENDING — funds still in custody.
+      default:
+        return "secured";
+    }
+  }
+  // No escrow yet: cancelled before funding, or still awaiting it.
+  return transaction.status === "CANCELLED" ? "cancelled" : "awaiting";
 }
 
 const ESCROW_CONFIG: Record<
@@ -159,7 +160,7 @@ function activeStageMessage(
 export function OverviewStatusCard({
   transaction,
 }: OverviewStatusCardProps) {
-  const escrowState = getEscrowState(transaction.status);
+  const escrowState = getEscrowState(transaction);
   const escrowConfig = ESCROW_CONFIG[escrowState];
   const EscrowIcon = escrowConfig.icon;
 
