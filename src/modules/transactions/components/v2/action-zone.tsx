@@ -89,7 +89,21 @@ function deriveActionContext(tx: TransactionResponseDto): ActionContext {
     return { type: "inspection_awaiting_docs", stage: inspectionStage };
   }
 
-  // Settlement ready
+  // Settlement — the escrow document is the source of truth for release state.
+  // transaction.status alone is unreliable here: flows whose terminal CLOSED
+  // stage hasn't completed yet still report DELIVERY_CONFIRMED after release.
+  const escrowStatus = tx.escrow?.status;
+  if (escrowStatus === "RELEASED") {
+    return { type: "terminal", label: "Settlement Released" };
+  }
+  if (escrowStatus === "RELEASE_PENDING") {
+    return {
+      type: "waiting",
+      label: "Settlement transfer in progress",
+      description:
+        "Funds release has been initiated and is awaiting provider confirmation.",
+    };
+  }
   const settlementStage = stages.find(
     (s) => s.type === "SETTLEMENT" && s.status === "ACTIVE",
   );
