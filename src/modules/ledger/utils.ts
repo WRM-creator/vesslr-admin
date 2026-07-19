@@ -26,6 +26,12 @@ const entryTypeLabels: Record<string, string> = {
   INVOICE_PAYMENT: "Invoice Payment",
   REVERSAL: "Reversal",
   MANUAL_ADJUSTMENT: "Manual Adjustment",
+  ESCROW_DEPOSIT_HELD: "Escrow Deposit Held",
+  WALLET_TO_ESCROW_CLEARING: "Wallet → Deposit Pool",
+  ESCROW_DEPOSIT_CONFIRM: "Deposit Confirmed to Escrow",
+  ESCROW_EXCESS_SWEEP: "Excess Swept to Platform",
+  ESCROW_DEPOSIT_REFUND: "Deposit Refunded (Bank)",
+  ESCROW_DEPOSIT_REFUND_WALLET: "Deposit Refunded (Wallet)",
 };
 
 export function getEntryTypeLabel(type: EntryType | string): string {
