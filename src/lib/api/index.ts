@@ -106,10 +106,17 @@ import {
   adminRequestsControllerFindOne,
   adminRequestsControllerUpdateStatus,
   adminTransactionsControllerAddDocument,
+  adminTransactionsControllerConfirmDepositFunding,
+  adminTransactionsControllerConfirmDepositFundingWithWaiver,
   adminTransactionsControllerDeleteRequirement,
   adminTransactionsControllerFindAll,
   adminTransactionsControllerFindById,
+  adminTransactionsControllerGetFundingReview,
   adminTransactionsControllerGetLogs,
+  adminTransactionsControllerMarkDepositRefundedOffline,
+  adminTransactionsControllerQueryFundingProof,
+  adminTransactionsControllerRefundFundingDeposit,
+  adminTransactionsControllerReportFundingShortfall,
   adminTransactionsControllerReleaseSettlement,
   adminTransactionsControllerReviewDocument,
   adminTransactionsControllerReviewInspection,
@@ -307,6 +314,63 @@ export const api = {
       conversation: createQuery(
         adminTransactionsControllerGetConversation,
         (args) => ["admin", "transactions", "conversation", args.path.id],
+      ),
+      fundingReview: createQuery(
+        adminTransactionsControllerGetFundingReview,
+        (args) => ["admin", "transactions", "funding-review", args.path.id],
+      ),
+      confirmDepositFunding: createMutation(
+        adminTransactionsControllerConfirmDepositFunding,
+        {
+          invalidates: (args) => [
+            ["admin", "transactions", "detail", args.path.id],
+            ["admin", "transactions", "funding-review", args.path.id],
+          ],
+        },
+      ),
+      confirmDepositFundingWithWaiver: createMutation(
+        adminTransactionsControllerConfirmDepositFundingWithWaiver,
+        {
+          invalidates: (args) => [
+            ["admin", "transactions", "detail", args.path.id],
+            ["admin", "transactions", "funding-review", args.path.id],
+          ],
+        },
+      ),
+      reportFundingShortfall: createMutation(
+        adminTransactionsControllerReportFundingShortfall,
+        {
+          invalidates: (args) => [
+            ["admin", "transactions", "detail", args.path.id],
+            ["admin", "transactions", "funding-review", args.path.id],
+          ],
+        },
+      ),
+      queryFundingProof: createMutation(
+        adminTransactionsControllerQueryFundingProof,
+        {
+          invalidates: (args) => [
+            ["admin", "transactions", "detail", args.path.id],
+          ],
+        },
+      ),
+      refundFundingDeposit: createMutation(
+        adminTransactionsControllerRefundFundingDeposit,
+        {
+          invalidates: (args) => [
+            ["admin", "transactions", "detail", args.path.id],
+            ["admin", "transactions", "funding-review", args.path.id],
+          ],
+        },
+      ),
+      markDepositRefundedOffline: createMutation(
+        adminTransactionsControllerMarkDepositRefundedOffline,
+        {
+          invalidates: (args) => [
+            ["admin", "transactions", "detail", args.path.id],
+            ["admin", "transactions", "funding-review", args.path.id],
+          ],
+        },
       ),
     },
     products: {

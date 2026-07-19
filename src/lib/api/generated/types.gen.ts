@@ -4756,6 +4756,10 @@ export type WalletFundEscrowDto = {
    * Which numbered wallet funds the escrow. Required: the paying wallet is always chosen explicitly (the UI shows a picker).
    */
   walletIndex: number;
+  /**
+   * Deposit-led deals only: the amount to move from the wallet into the deposit pool (custody minor units). The buyer chooses it — there is no platform-computed total. Ignored (quote-driven) on quoted deals.
+   */
+  amount?: number;
 };
 
 export type WalletFundEscrowResponseDto = {
@@ -7128,6 +7132,161 @@ export type ReviewTransactionDocumentDto = {
    * Reason for rejection (required if decision is REJECTED)
    */
   rejectionReason?: string;
+};
+
+export type FundingReviewDepositDto = {
+  _id: string;
+  source: "BANK_TRANSFER" | "WALLET";
+  /**
+   * Custody minor units, provider-confirmed
+   */
+  amount: number;
+  currency: string;
+  provider: string;
+  providerRef: string;
+  status:
+    | "HELD"
+    | "CONFIRMED_INTO_ESCROW"
+    | "REFUND_PENDING"
+    | "REFUNDED"
+    | "SWEPT_TO_PLATFORM";
+  /**
+   * Originator snapshot from the provider webhook. ADMIN-ONLY: the only permissible bank refund destination.
+   */
+  senderDetails?: {
+    [key: string]: unknown;
+  };
+  sourceWallet?: {
+    orgId: string;
+    walletIndex: number;
+  };
+  receivedAt: string;
+};
+
+export type FundingReviewDto = {
+  transactionId: string;
+  state:
+    | "AWAITING_DEPOSIT"
+    | "DEPOSIT_RECEIVED"
+    | "SHORTFALL_REPORTED"
+    | "CONFIRMED";
+  /**
+   * Σ HELD deposits (custody minor units)
+   */
+  heldTotal: number;
+  deposits: Array<FundingReviewDepositDto>;
+  currency: string;
+  quantity: number;
+  unitOfMeasurement?: string;
+  /**
+   * Seller-basis differential value (minor units per unit)
+   */
+  sellerDifferentialValue?: number;
+  /**
+   * Hidden per-unit platform spread (minor units)
+   */
+  spreadPerUnit: number;
+  /**
+   * Buyer-facing differential value (seller + spread)
+   */
+  buyerDifferentialValue?: number;
+  outstandingAmount?: number;
+  /**
+   * Overpayment at or below this suggests sweeping to platform income
+   */
+  negligibleExcessThreshold: number;
+};
+
+export type ConfirmDepositFundingDto = {
+  /**
+   * Agreed BUYER unit price (custody minor units per unit, spread-inclusive)
+   */
+  buyerUnitPrice: number;
+  /**
+   * The reference/official price the admin judged against
+   */
+  referencePrice?: string;
+  /**
+   * Where the reference price came from (audit trail)
+   */
+  referenceSource: string;
+  /**
+   * What to do with an overpayment: sweep to platform income or keep it held (refundable). Server suggests via the per-currency threshold when omitted.
+   */
+  excessAction?: "SWEEP" | "HOLD";
+};
+
+export type ConfirmDepositFundingResultDto = {
+  escrowId: string;
+  escrowAmount: number;
+  sellerAmount: number;
+  serviceFeeAmount: number;
+  excess: number;
+  excessAction?: "SWEEP" | "HOLD";
+  waiverAmount: number;
+};
+
+export type ConfirmDepositFundingWithWaiverDto = {
+  /**
+   * Agreed BUYER unit price (custody minor units per unit, spread-inclusive)
+   */
+  buyerUnitPrice: number;
+  /**
+   * The reference/official price the admin judged against
+   */
+  referencePrice?: string;
+  /**
+   * Where the reference price came from (audit trail)
+   */
+  referenceSource: string;
+  /**
+   * What to do with an overpayment: sweep to platform income or keep it held (refundable). Server suggests via the per-currency threshold when omitted.
+   */
+  excessAction?: "SWEEP" | "HOLD";
+  /**
+   * Written reason for closing below the confirmed amount (audit trail). The platform absorbs the shortfall from its own spread.
+   */
+  waiverReason: string;
+  /**
+   * The exact shortfall being waived (minor units). Must match the server computation: forces the UI to show the true figure before re-confirming.
+   */
+  acknowledgedWaiverAmount: number;
+};
+
+export type ReportFundingShortfallDto = {
+  /**
+   * Outstanding amount the buyer still owes (custody minor units). Admin-computed: the platform does not verify prices.
+   */
+  outstandingAmount: number;
+};
+
+export type QueryFundingProofDto = {
+  /**
+   * Message to the buyer about their proof upload
+   */
+  message: string;
+};
+
+export type RefundFundingDepositDto = {
+  /**
+   * The exact deposit amount being refunded (minor units). Must match the record: forces the admin to confirm the figure.
+   */
+  confirmAmount: number;
+};
+
+export type MarkDepositRefundedOfflineDto = {
+  /**
+   * The exact deposit amount being refunded (minor units). Must match the record: forces the admin to confirm the figure.
+   */
+  confirmAmount: number;
+  /**
+   * Provider reference of the refund payout the admin executed outside the platform
+   */
+  providerReference: string;
+  /**
+   * Why/how the refund was executed (audit trail)
+   */
+  note: string;
 };
 
 export type AdminConversationMessageDto = {
@@ -13469,6 +13628,111 @@ export type AdminTransactionsControllerReviewDocumentResponses = {
 
 export type AdminTransactionsControllerReviewDocumentResponse =
   AdminTransactionsControllerReviewDocumentResponses[keyof AdminTransactionsControllerReviewDocumentResponses];
+
+export type AdminTransactionsControllerGetFundingReviewData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/admin/transactions/{id}/funding-review";
+};
+
+export type AdminTransactionsControllerGetFundingReviewResponses = {
+  200: FundingReviewDto;
+};
+
+export type AdminTransactionsControllerGetFundingReviewResponse =
+  AdminTransactionsControllerGetFundingReviewResponses[keyof AdminTransactionsControllerGetFundingReviewResponses];
+
+export type AdminTransactionsControllerConfirmDepositFundingData = {
+  body: ConfirmDepositFundingDto;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/admin/transactions/{id}/funding-review/confirm";
+};
+
+export type AdminTransactionsControllerConfirmDepositFundingResponses = {
+  200: ConfirmDepositFundingResultDto;
+  201: unknown;
+};
+
+export type AdminTransactionsControllerConfirmDepositFundingResponse =
+  AdminTransactionsControllerConfirmDepositFundingResponses[keyof AdminTransactionsControllerConfirmDepositFundingResponses];
+
+export type AdminTransactionsControllerConfirmDepositFundingWithWaiverData = {
+  body: ConfirmDepositFundingWithWaiverDto;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/admin/transactions/{id}/funding-review/confirm-with-waiver";
+};
+
+export type AdminTransactionsControllerConfirmDepositFundingWithWaiverResponses =
+  {
+    200: ConfirmDepositFundingResultDto;
+    201: unknown;
+  };
+
+export type AdminTransactionsControllerConfirmDepositFundingWithWaiverResponse =
+  AdminTransactionsControllerConfirmDepositFundingWithWaiverResponses[keyof AdminTransactionsControllerConfirmDepositFundingWithWaiverResponses];
+
+export type AdminTransactionsControllerReportFundingShortfallData = {
+  body: ReportFundingShortfallDto;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/admin/transactions/{id}/funding-review/report-shortfall";
+};
+
+export type AdminTransactionsControllerReportFundingShortfallResponses = {
+  201: unknown;
+};
+
+export type AdminTransactionsControllerQueryFundingProofData = {
+  body: QueryFundingProofDto;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/admin/transactions/{id}/funding-review/query-proof";
+};
+
+export type AdminTransactionsControllerQueryFundingProofResponses = {
+  201: unknown;
+};
+
+export type AdminTransactionsControllerRefundFundingDepositData = {
+  body: RefundFundingDepositDto;
+  path: {
+    id: string;
+    depositId: string;
+  };
+  query?: never;
+  url: "/api/v1/admin/transactions/{id}/funding-deposits/{depositId}/refund";
+};
+
+export type AdminTransactionsControllerRefundFundingDepositResponses = {
+  201: unknown;
+};
+
+export type AdminTransactionsControllerMarkDepositRefundedOfflineData = {
+  body: MarkDepositRefundedOfflineDto;
+  path: {
+    id: string;
+    depositId: string;
+  };
+  query?: never;
+  url: "/api/v1/admin/transactions/{id}/funding-deposits/{depositId}/mark-refunded-offline";
+};
+
+export type AdminTransactionsControllerMarkDepositRefundedOfflineResponses = {
+  201: unknown;
+};
 
 export type AdminTransactionsControllerReleaseSettlementData = {
   body?: never;

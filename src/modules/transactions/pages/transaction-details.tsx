@@ -11,6 +11,7 @@ import { AlertCircle, ArrowUpRight, RefreshCw } from "lucide-react";
 import { useParams } from "react-router-dom";
 import { ActionZone } from "../components/v2/action-zone";
 import { ContextSidebar } from "../components/v2/context-sidebar";
+import { FundingReviewCard } from "../components/v2/funding-review-card";
 import { OverviewStatusCard } from "../components/v2/overview-status-card";
 import { StageTimeline } from "../components/v2/stage-timeline";
 import { TransactionStatusBadge } from "../components/transaction-status-badge";
@@ -136,6 +137,9 @@ export default function TransactionDetailsPage() {
       {/* ── Overview + Action Zone ────────────────────────────── */}
       <OverviewStatusCard transaction={transaction} />
       <ActionZone transaction={transaction} />
+      {transaction.escrowFunding?.mode === "DEPOSIT_LED" && (
+        <FundingReviewCard transaction={transaction} />
+      )}
 
       {/* ── Main Content: Timeline + Sidebar ────────────────────── */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-5">

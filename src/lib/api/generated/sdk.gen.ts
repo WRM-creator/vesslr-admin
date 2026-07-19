@@ -263,6 +263,10 @@ import type {
   AdminTransactionsControllerAddDocumentResponses,
   AdminTransactionsControllerAddRequirementData,
   AdminTransactionsControllerAddRequirementResponses,
+  AdminTransactionsControllerConfirmDepositFundingData,
+  AdminTransactionsControllerConfirmDepositFundingResponses,
+  AdminTransactionsControllerConfirmDepositFundingWithWaiverData,
+  AdminTransactionsControllerConfirmDepositFundingWithWaiverResponses,
   AdminTransactionsControllerDeleteRequirementData,
   AdminTransactionsControllerDeleteRequirementResponses,
   AdminTransactionsControllerEndCharterPeriodData,
@@ -275,10 +279,20 @@ import type {
   AdminTransactionsControllerFindByIdResponses,
   AdminTransactionsControllerGetConversationData,
   AdminTransactionsControllerGetConversationResponses,
+  AdminTransactionsControllerGetFundingReviewData,
+  AdminTransactionsControllerGetFundingReviewResponses,
   AdminTransactionsControllerGetLogsData,
   AdminTransactionsControllerGetLogsResponses,
+  AdminTransactionsControllerMarkDepositRefundedOfflineData,
+  AdminTransactionsControllerMarkDepositRefundedOfflineResponses,
+  AdminTransactionsControllerQueryFundingProofData,
+  AdminTransactionsControllerQueryFundingProofResponses,
+  AdminTransactionsControllerRefundFundingDepositData,
+  AdminTransactionsControllerRefundFundingDepositResponses,
   AdminTransactionsControllerReleaseSettlementData,
   AdminTransactionsControllerReleaseSettlementResponses,
+  AdminTransactionsControllerReportFundingShortfallData,
+  AdminTransactionsControllerReportFundingShortfallResponses,
   AdminTransactionsControllerRetryMilestonePaymentData,
   AdminTransactionsControllerRetryMilestonePaymentResponses,
   AdminTransactionsControllerReviewDocumentData,
@@ -5203,6 +5217,177 @@ export const adminTransactionsControllerReviewDocument = <
   >({
     security: [{ scheme: "bearer", type: "http" }],
     url: "/api/v1/admin/transactions/{id}/requirements/{requirementId}/review",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Deposit-led funding review: itemized deposits (with originator snapshots), held total, and deal price terms
+ */
+export const adminTransactionsControllerGetFundingReview = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    AdminTransactionsControllerGetFundingReviewData,
+    ThrowOnError
+  >,
+) =>
+  (options.client ?? client).get<
+    AdminTransactionsControllerGetFundingReviewResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/transactions/{id}/funding-review",
+    ...options,
+  });
+
+/**
+ * Confirm deposit-led funding sufficiency: creates the escrow from the agreed unit price. 409 on ANY shortfall — this endpoint can never confirm short.
+ */
+export const adminTransactionsControllerConfirmDepositFunding = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    AdminTransactionsControllerConfirmDepositFundingData,
+    ThrowOnError
+  >,
+) =>
+  (options.client ?? client).post<
+    AdminTransactionsControllerConfirmDepositFundingResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/transactions/{id}/funding-review/confirm",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * ESCAPE HATCH: confirm despite a shortfall, absorbing it from the platform spread. Requires a written reason and the exact acknowledged figure; bounded by the spread total.
+ */
+export const adminTransactionsControllerConfirmDepositFundingWithWaiver = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    AdminTransactionsControllerConfirmDepositFundingWithWaiverData,
+    ThrowOnError
+  >,
+) =>
+  (options.client ?? client).post<
+    AdminTransactionsControllerConfirmDepositFundingWithWaiverResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/transactions/{id}/funding-review/confirm-with-waiver",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Report a funding shortfall: sends the buyer a system-generated deposit statement plus the outstanding amount
+ */
+export const adminTransactionsControllerReportFundingShortfall = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    AdminTransactionsControllerReportFundingShortfallData,
+    ThrowOnError
+  >,
+) =>
+  (options.client ?? client).post<
+    AdminTransactionsControllerReportFundingShortfallResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/transactions/{id}/funding-review/report-shortfall",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Ask the buyer to correct their proof of payment (no money state change)
+ */
+export const adminTransactionsControllerQueryFundingProof = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    AdminTransactionsControllerQueryFundingProofData,
+    ThrowOnError
+  >,
+) =>
+  (options.client ?? client).post<
+    AdminTransactionsControllerQueryFundingProofResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/transactions/{id}/funding-review/query-proof",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Refund a HELD wallet-sourced deposit to its source wallet. Guarded: exact-figure confirmation, and only after cancellation or post-confirmation excess.
+ */
+export const adminTransactionsControllerRefundFundingDeposit = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    AdminTransactionsControllerRefundFundingDepositData,
+    ThrowOnError
+  >,
+) =>
+  (options.client ?? client).post<
+    AdminTransactionsControllerRefundFundingDepositResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/transactions/{id}/funding-deposits/{depositId}/refund",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Record a bank-deposit refund executed outside the platform (originating account only). Requires the executed payout reference.
+ */
+export const adminTransactionsControllerMarkDepositRefundedOffline = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    AdminTransactionsControllerMarkDepositRefundedOfflineData,
+    ThrowOnError
+  >,
+) =>
+  (options.client ?? client).post<
+    AdminTransactionsControllerMarkDepositRefundedOfflineResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/transactions/{id}/funding-deposits/{depositId}/mark-refunded-offline",
     ...options,
     headers: {
       "Content-Type": "application/json",

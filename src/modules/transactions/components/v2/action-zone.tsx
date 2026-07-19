@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { api } from "@/lib/api";
 import type {
   TransactionDocumentSlotDto,
+  TransactionEscrowFundingDto,
   TransactionResponseDto,
   TransactionStageResponseDto,
 } from "@/lib/api/generated";
@@ -33,6 +34,7 @@ interface ActionZoneProps {
 
 type ActionContext =
   | { type: "documents_review"; docs: TransactionDocumentSlotDto[] }
+  | { type: "funding_review"; funding: TransactionEscrowFundingDto }
   | { type: "awaiting_funding"; amount: number; currency: string }
   | { type: "inspection_awaiting_docs"; stage: TransactionStageResponseDto }
   | { type: "inspection_review"; stage: TransactionStageResponseDto }
@@ -61,6 +63,19 @@ function deriveActionContext(tx: TransactionResponseDto): ActionContext {
   );
   if (docsAwaitingReview.length > 0 && ["DOCUMENTS_SUBMITTED", "INITIATED"].includes(status)) {
     return { type: "documents_review", docs: docsAwaitingReview };
+  }
+
+  // Deposit-led escrow funding awaiting admin review. This takes precedence
+  // over the read-only awaiting_funding context: the admin, not the buyer,
+  // holds the next move once deposits have landed.
+  const depositFunding = tx.escrowFunding;
+  if (
+    !tx.escrow &&
+    depositFunding?.mode === "DEPOSIT_LED" &&
+    (depositFunding.state === "DEPOSIT_RECEIVED" ||
+      depositFunding.state === "SHORTFALL_REPORTED")
+  ) {
+    return { type: "funding_review", funding: depositFunding };
   }
 
   // Awaiting escrow funding
@@ -234,6 +249,12 @@ const ZONE_STYLES = {
     icon: "text-amber-600 dark:text-amber-400",
     dot: "bg-amber-500",
   },
+  funding_review: {
+    border: "border-indigo-200 dark:border-indigo-800",
+    bg: "bg-indigo-50/80 dark:bg-indigo-950/20",
+    icon: "text-indigo-600 dark:text-indigo-400",
+    dot: "bg-indigo-500",
+  },
   awaiting_funding: {
     border: "border-blue-200 dark:border-blue-800",
     bg: "bg-blue-50/80 dark:bg-blue-950/20",
@@ -400,6 +421,52 @@ function ActionContent({
           />
         </>
       );
+
+    // ── Deposit-led funding awaiting admin review ──────────────────
+    case "funding_review": {
+      const currency = transaction.order?.currency || "USD";
+      const isShortfall = ctx.funding.state === "SHORTFALL_REPORTED";
+
+      return (
+        <div className="flex items-start justify-between gap-4">
+          <div className="flex items-start gap-3">
+            <div className={cn("mt-0.5 rounded-full p-1.5", styles.icon, "bg-indigo-100 dark:bg-indigo-900/40")}>
+              <Eye className="size-4" />
+            </div>
+            <div>
+              <p className="text-sm font-semibold">
+                {isShortfall
+                  ? "Shortfall reported, deposits still under review"
+                  : "Escrow deposits received, review required"}
+                {ctx.funding.depositedTotal != null && (
+                  <>
+                    {" "}
+                    ({formatCurrency(ctx.funding.depositedTotal, currency)} held)
+                  </>
+                )}
+              </p>
+              <p className="text-muted-foreground mt-0.5 text-xs">
+                {isShortfall
+                  ? "The buyer was asked for an additional deposit. Review the held total and confirm once it is sufficient."
+                  : "The buyer funds this deal by accumulated deposits. Verify the held total against the deal terms, then confirm to create the escrow."}
+              </p>
+            </div>
+          </div>
+          <Button
+            size="sm"
+            className="shrink-0 gap-1.5"
+            onClick={() =>
+              document
+                .getElementById("funding-review-card")
+                ?.scrollIntoView({ behavior: "smooth", block: "start" })
+            }
+          >
+            <Eye className="size-3.5" />
+            Review Escrow Funding
+          </Button>
+        </div>
+      );
+    }
 
     // ── Awaiting escrow funding ────────────────────────────────────
     case "awaiting_funding": {
