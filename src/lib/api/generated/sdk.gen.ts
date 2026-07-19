@@ -103,6 +103,8 @@ import type {
   AdminFundingWindowsControllerCloseResponses,
   AdminFundingWindowsControllerExtendData,
   AdminFundingWindowsControllerExtendResponses,
+  AdminFundingWindowsControllerNudgeData,
+  AdminFundingWindowsControllerNudgeResponses,
   AdminFundingWindowsControllerQueueData,
   AdminFundingWindowsControllerQueueResponses,
   AdminFundingWindowsControllerReopenData,
@@ -617,6 +619,8 @@ import type {
   TransactionsControllerFindByOrderIdResponses,
   TransactionsControllerFindInFlightData,
   TransactionsControllerFindInFlightResponses,
+  TransactionsControllerGetDepositFundingInstructionsData,
+  TransactionsControllerGetDepositFundingInstructionsResponses,
   TransactionsControllerGetFundingQuoteData,
   TransactionsControllerGetFundingQuoteResponses,
   TransactionsControllerGetLogsData,
@@ -1741,6 +1745,31 @@ export const transactionsControllerGetFundingQuote = <
     security: [{ scheme: "bearer", type: "http" }],
     url: "/api/v1/transactions/{id}/funding-quote",
     ...options,
+  });
+
+/**
+ * Deposit-led escrow funding instructions (buyer only). Returns a standing account for any amount, or mints a single-use destination for the declared amount on rails that need one. No platform-computed total.
+ */
+export const transactionsControllerGetDepositFundingInstructions = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    TransactionsControllerGetDepositFundingInstructionsData,
+    ThrowOnError
+  >,
+) =>
+  (options.client ?? client).post<
+    TransactionsControllerGetDepositFundingInstructionsResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/transactions/{id}/funding-instructions",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
   });
 
 /**
@@ -4635,6 +4664,24 @@ export const adminFundingWindowsControllerClose = <
   >({
     security: [{ scheme: "bearer", type: "http" }],
     url: "/api/v1/admin/funding-windows/{transactionId}/close",
+    ...options,
+  });
+
+/**
+ * Send the buyer an escrow funding reminder now (deposit-led deals get no automatic buyer reminders)
+ */
+export const adminFundingWindowsControllerNudge = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AdminFundingWindowsControllerNudgeData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    AdminFundingWindowsControllerNudgeResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/funding-windows/{transactionId}/nudge",
     ...options,
   });
 

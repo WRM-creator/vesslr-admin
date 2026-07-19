@@ -2097,7 +2097,7 @@ export type EscrowResponseDto = {
   refundHistory: Array<RefundHistoryEntryResponseDto>;
 };
 
-export type TransactionEscrowFundingDto = {
+export type TransactionWalletIntentDto = {
   /**
    * Lifecycle state of the wallet funding attempt
    */
@@ -2110,6 +2110,49 @@ export type TransactionEscrowFundingDto = {
    * Why the attempt failed (FAILED only). Nothing left the wallet.
    */
   failureReason?: string;
+};
+
+export type TransactionEscrowFundingDto = {
+  /**
+   * QUOTE-mode wallet funding: lifecycle state of the wallet funding attempt
+   */
+  status?: "INITIATING" | "IN_PROGRESS" | "SETTLED" | "FAILED" | "STUCK";
+  /**
+   * QUOTE-mode wallet funding: which numbered wallet paid
+   */
+  walletIndex?: number;
+  /**
+   * Why the attempt failed (FAILED only). Nothing left the wallet.
+   */
+  failureReason?: string;
+  /**
+   * Present when this deal funds by accumulated deposits under admin review
+   */
+  mode?: "DEPOSIT_LED";
+  /**
+   * Deposit-led review state
+   */
+  state?:
+    | "AWAITING_DEPOSIT"
+    | "DEPOSIT_RECEIVED"
+    | "SHORTFALL_REPORTED"
+    | "CONFIRMED";
+  /**
+   * Deposit-led, buyer/admin only: total held deposits (custody minor units)
+   */
+  depositedTotal?: number;
+  /**
+   * Deposit-led: when the last deposit landed
+   */
+  lastDepositAt?: string;
+  /**
+   * Deposit-led, buyer only: outstanding amount from the latest shortfall statement
+   */
+  outstandingAmount?: number;
+  /**
+   * Deposit-led: in-flight wallet deposit attempt, if any
+   */
+  walletIntent?: TransactionWalletIntentDto;
 };
 
 export type TransactionSettlementWalletDto = {
@@ -2370,6 +2413,38 @@ export type EscrowFundingQuoteDto = {
    * Service fee rate
    */
   serviceFeeRate: number;
+};
+
+export type RequestDepositFundingInstructionsDto = {
+  /**
+   * Amount the buyer intends to wire (custody minor units). Required on payment rails without standing accounts; ignored when a permanent destination exists.
+   */
+  amount?: number;
+};
+
+export type DepositFundingInstructionsDto = {
+  /**
+   * Bank account number to wire to
+   */
+  accountNumber?: string;
+  bankName?: string;
+  /**
+   * Crypto deposit address (crypto rails)
+   */
+  address?: string;
+  network?: string;
+  memo?: string;
+  /**
+   * True: a permanent destination accepting any amount, repeatedly. False: single-use for requestedAmount.
+   */
+  reusable: boolean;
+  /**
+   * Exact amount the single-use destination expects (minor units)
+   */
+  requestedAmount?: number;
+  currency: string;
+  expiresAt?: string;
+  narration: string;
 };
 
 export type VirtualAccountResponseDto = {
@@ -10268,6 +10343,22 @@ export type TransactionsControllerGetFundingQuoteResponses = {
 export type TransactionsControllerGetFundingQuoteResponse =
   TransactionsControllerGetFundingQuoteResponses[keyof TransactionsControllerGetFundingQuoteResponses];
 
+export type TransactionsControllerGetDepositFundingInstructionsData = {
+  body: RequestDepositFundingInstructionsDto;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/transactions/{id}/funding-instructions";
+};
+
+export type TransactionsControllerGetDepositFundingInstructionsResponses = {
+  200: DepositFundingInstructionsDto;
+};
+
+export type TransactionsControllerGetDepositFundingInstructionsResponse =
+  TransactionsControllerGetDepositFundingInstructionsResponses[keyof TransactionsControllerGetDepositFundingInstructionsResponses];
+
 export type TransactionsControllerGetVirtualAccountData = {
   body?: never;
   path: {
@@ -12875,6 +12966,22 @@ export type AdminFundingWindowsControllerCloseResponses = {
 
 export type AdminFundingWindowsControllerCloseResponse =
   AdminFundingWindowsControllerCloseResponses[keyof AdminFundingWindowsControllerCloseResponses];
+
+export type AdminFundingWindowsControllerNudgeData = {
+  body?: never;
+  path: {
+    transactionId: string;
+  };
+  query?: never;
+  url: "/api/v1/admin/funding-windows/{transactionId}/nudge";
+};
+
+export type AdminFundingWindowsControllerNudgeResponses = {
+  200: FundingWindowRowResponseDto;
+};
+
+export type AdminFundingWindowsControllerNudgeResponse =
+  AdminFundingWindowsControllerNudgeResponses[keyof AdminFundingWindowsControllerNudgeResponses];
 
 export type AdminFundingWindowsControllerReopenData = {
   body: ReopenFundingWindowDto;
