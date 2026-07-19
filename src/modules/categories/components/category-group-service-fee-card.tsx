@@ -31,6 +31,7 @@ const DEFAULT_CONFIG = {
   feeType: "percentage" as const,
   percentage: 0.03,
   fixedAmount: undefined as number | undefined,
+  perUnitAmount: undefined as number | undefined,
   refundable: false,
 };
 
@@ -47,6 +48,9 @@ export function CategoryGroupServiceFeeCard({
   const [fixedAmount, setFixedAmount] = useState<number>(
     config.fixedAmount ?? 0,
   );
+  const [perUnitAmount, setPerUnitAmount] = useState<number>(
+    config.perUnitAmount ?? 0,
+  );
   const [refundable, setRefundable] = useState(config.refundable ?? false);
 
   const { mutate: updateGroup, isPending } =
@@ -58,6 +62,7 @@ export function CategoryGroupServiceFeeCard({
       feeType,
       percentage: feeType === "percentage" ? percentage / 100 : undefined,
       fixedAmount: feeType === "fixed" ? fixedAmount : undefined,
+      perUnitAmount: feeType === "per_unit" ? perUnitAmount : undefined,
       refundable,
       ...overrides,
     };
@@ -65,6 +70,7 @@ export function CategoryGroupServiceFeeCard({
     // Clean undefined
     if (updated.percentage === undefined) delete updated.percentage;
     if (updated.fixedAmount === undefined) delete updated.fixedAmount;
+    if (updated.perUnitAmount === undefined) delete updated.perUnitAmount;
 
     updateGroup(
       {
@@ -131,11 +137,41 @@ export function CategoryGroupServiceFeeCard({
               <RadioGroupItem value="fixed" id="fee-fixed" />
               <Label htmlFor="fee-fixed">Fixed Amount</Label>
             </div>
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="per_unit" id="fee-per-unit" />
+              <Label htmlFor="fee-per-unit">Per Unit (spread)</Label>
+            </div>
           </RadioGroup>
         </div>
 
-        {/* Percentage / Fixed Amount */}
-        {feeType === "percentage" ? (
+        {/* Percentage / Fixed Amount / Per Unit */}
+        {feeType === "per_unit" ? (
+          <div className="space-y-2">
+            <Label htmlFor="fee-per-unit-input">
+              Spread per unit (minor units)
+            </Label>
+            <div className="flex items-center gap-2">
+              <Input
+                id="fee-per-unit-input"
+                type="number"
+                min={0}
+                value={perUnitAmount}
+                onChange={(e) => setPerUnitAmount(Number(e.target.value))}
+                onBlur={() => save()}
+                className="w-48"
+                disabled={isPending}
+              />
+              {isPending && (
+                <Loader2 className="text-muted-foreground h-4 w-4 animate-spin" />
+              )}
+            </div>
+            <p className="text-muted-foreground text-sm">
+              Differential listings only. Snapshotted onto each new listing and
+              taken invisibly: the buyer sees the seller differential plus this
+              amount, and neither party ever sees a fee line.
+            </p>
+          </div>
+        ) : feeType === "percentage" ? (
           <div className="space-y-2">
             <Label htmlFor="fee-percentage-input">Percentage (%)</Label>
             <div className="flex items-center gap-2">

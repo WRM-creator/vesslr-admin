@@ -15,6 +15,7 @@ import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
 import { ApproveProductDialog } from "../components/product-details/approve-product-dialog";
+import { ProductSpreadCard } from "../components/product-details/product-spread-card";
 import { DelistProductDialog } from "../components/product-details/delist-product-dialog";
 import { ProductOverviewTab } from "../components/product-details/product-overview-tab";
 import { RejectProductDialog } from "../components/product-details/reject-product-dialog";
@@ -253,6 +254,8 @@ export default function ProductDetailsPage() {
           </div>
         </CardContent>
       </Card>
+
+      <ProductSpreadCard product={product} />
 
       <ProductOverviewTab product={product} />
 

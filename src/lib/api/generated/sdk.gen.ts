@@ -331,6 +331,8 @@ import type {
   EscrowsControllerGetMySummaryResponses,
   FlutterwaveWebhooksControllerHandleWebhookData,
   FlutterwaveWebhooksControllerHandleWebhookResponses,
+  HealthControllerCheckData,
+  HealthControllerCheckResponses,
   InspectionControllerListInspectionsData,
   InspectionControllerListInspectionsResponses,
   InspectionControllerSubmitInspectionData,
@@ -503,6 +505,8 @@ import type {
   OrdersControllerUpdateResponses,
   OrganizationsControllerGetBankDetailsData,
   OrganizationsControllerGetBankDetailsResponses,
+  OrganizationsControllerGetSettlementBanksData,
+  OrganizationsControllerGetSettlementBanksResponses,
   OrganizationsControllerListMembersData,
   OrganizationsControllerListMembersResponses,
   OrganizationsControllerRemoveMemberData,
@@ -613,6 +617,8 @@ import type {
   TransactionsControllerFindByOrderIdResponses,
   TransactionsControllerFindInFlightData,
   TransactionsControllerFindInFlightResponses,
+  TransactionsControllerGetFundingQuoteData,
+  TransactionsControllerGetFundingQuoteResponses,
   TransactionsControllerGetLogsData,
   TransactionsControllerGetLogsResponses,
   TransactionsControllerGetVirtualAccountData,
@@ -668,6 +674,8 @@ import type {
   WalletControllerExecuteConversionResponses,
   WalletControllerFundEscrowData,
   WalletControllerFundEscrowResponses,
+  WalletControllerGetBanksData,
+  WalletControllerGetBanksResponses,
   WalletControllerGetConvertOptionsData,
   WalletControllerGetConvertOptionsResponses,
   WalletControllerGetFlowSummaryData,
@@ -696,6 +704,8 @@ import type {
   WalletControllerQuoteConversionResponses,
   WalletControllerQuoteDisbursementData,
   WalletControllerQuoteDisbursementResponses,
+  WalletControllerResolveAccountData,
+  WalletControllerResolveAccountResponses,
 } from "./types.gen";
 
 export type Options<
@@ -723,6 +733,18 @@ export const appControllerGetHello = <ThrowOnError extends boolean = false>(
     unknown,
     ThrowOnError
   >({ url: "/api/v1", ...options });
+
+/**
+ * Service + database health check
+ */
+export const healthControllerCheck = <ThrowOnError extends boolean = false>(
+  options?: Options<HealthControllerCheckData, ThrowOnError>,
+) =>
+  (options?.client ?? client).get<
+    HealthControllerCheckResponses,
+    unknown,
+    ThrowOnError
+  >({ url: "/api/v1/health", ...options });
 
 /**
  * Get all regions
@@ -1223,6 +1245,24 @@ export const organizationsControllerUpdateBankDetails = <
   });
 
 /**
+ * List settlement banks for the org's corridor (empty if manual)
+ */
+export const organizationsControllerGetSettlementBanks = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<OrganizationsControllerGetSettlementBanksData, ThrowOnError>,
+) =>
+  (options.client ?? client).get<
+    OrganizationsControllerGetSettlementBanksResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/organizations/{orgId}/banks",
+    ...options,
+  });
+
+/**
  * Verify a bank account and return the account name (before saving)
  */
 export const organizationsControllerResolveAccount = <
@@ -1683,6 +1723,24 @@ export const transactionsControllerAssignLogistics = <
       "Content-Type": "application/json",
       ...options.headers,
     },
+  });
+
+/**
+ * Get the escrow funding quote (buyer only) — amount, fee, and currency, independent of the funding method. Freezes a differential order price.
+ */
+export const transactionsControllerGetFundingQuote = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<TransactionsControllerGetFundingQuoteData, ThrowOnError>,
+) =>
+  (options.client ?? client).get<
+    TransactionsControllerGetFundingQuoteResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/transactions/{id}/funding-quote",
+    ...options,
   });
 
 /**
@@ -2780,6 +2838,44 @@ export const walletControllerDisburse = <ThrowOnError extends boolean = false>(
   });
 
 /**
+ * List payout banks for a wallet, from that wallet’s own provider
+ */
+export const walletControllerGetBanks = <ThrowOnError extends boolean = false>(
+  options: Options<WalletControllerGetBanksData, ThrowOnError>,
+) =>
+  (options.client ?? client).get<
+    WalletControllerGetBanksResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/wallet/banks",
+    ...options,
+  });
+
+/**
+ * Verify a destination bank account and return the account name
+ */
+export const walletControllerResolveAccount = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<WalletControllerResolveAccountData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    WalletControllerResolveAccountResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/wallet/resolve-account",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
  * List the org's saved withdrawal destinations
  */
 export const walletControllerListBeneficiaries = <
@@ -2896,7 +2992,7 @@ export const walletControllerGetTransfer = <
   });
 
 /**
- * Fund a transaction escrow from the wallet
+ * Fund a transaction escrow from the wallet. `outcome: funded` means the escrow exists; `pending` means the transfer is in flight and the transaction's funding state tracks it to completion.
  */
 export const walletControllerFundEscrow = <
   ThrowOnError extends boolean = false,

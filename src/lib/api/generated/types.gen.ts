@@ -423,6 +423,17 @@ export type UpdateRolesDto = {
   roles: Array<"admin" | "procurement" | "sales" | "finance">;
 };
 
+export type SettlementBankDto = {
+  /**
+   * Bank code in the directory provider's namespace
+   */
+  code: string;
+  /**
+   * Display name
+   */
+  name: string;
+};
+
 export type ResolveBankAccountDto = {
   accountNumber: string;
   bankCode: string;
@@ -1196,9 +1207,10 @@ export type UpdateMyProductDto = {
 
 export type ServiceFeeConfigResponseDto = {
   payer: "buyer" | "seller" | "split";
-  feeType: "percentage" | "fixed";
+  feeType: "percentage" | "fixed" | "per_unit";
   percentage?: number;
   fixedAmount?: number;
+  perUnitAmount?: number;
   refundable: boolean;
 };
 
@@ -1279,7 +1291,7 @@ export type ServiceFeeConfigDto = {
   /**
    * Fee calculation type
    */
-  feeType: "percentage" | "fixed";
+  feeType: "percentage" | "fixed" | "per_unit";
   /**
    * Fee percentage (e.g. 0.03 for 3%)
    */
@@ -1288,6 +1300,10 @@ export type ServiceFeeConfigDto = {
    * Fixed fee amount in minor currency units
    */
   fixedAmount?: number;
+  /**
+   * Per-unit spread in minor currency units (feeType per_unit only): the hidden gap between seller-basis and buyer-facing differentials on commodity deals
+   */
+  perUnitAmount?: number;
   /**
    * Whether the fee is refundable on cancellation
    */
@@ -1849,9 +1865,13 @@ export type OrderResponseDto = {
    */
   pricingBasis: "flat" | "differential";
   /**
-   * Benchmark ± differential formula (differential orders only).
+   * Benchmark ± differential formula (differential orders only). Presented in the viewer basis: the buyer sees the seller value shifted by the hidden platform spread; the seller sees the raw stored value.
    */
   differentialPrice?: DifferentialPriceResponseDto;
+  /**
+   * Hidden per-unit platform spread (minor units). ADMIN RESPONSES ONLY — stripped at serialization for both trading parties, whose differential views already embed it.
+   */
+  spreadPerUnit?: number;
   /**
    * Price per unit in minor currency units. Unset for a differential order until funding.
    */
@@ -2077,6 +2097,29 @@ export type EscrowResponseDto = {
   refundHistory: Array<RefundHistoryEntryResponseDto>;
 };
 
+export type TransactionEscrowFundingDto = {
+  /**
+   * Lifecycle state of the wallet funding attempt
+   */
+  status: "INITIATING" | "IN_PROGRESS" | "SETTLED" | "FAILED" | "STUCK";
+  /**
+   * Which numbered wallet the buyer paid from
+   */
+  walletIndex: number;
+  /**
+   * Why the attempt failed (FAILED only). Nothing left the wallet.
+   */
+  failureReason?: string;
+};
+
+export type TransactionSettlementWalletDto = {
+  /**
+   * 1-based index of the seller's receiving wallet
+   */
+  walletIndex: number;
+  currency: string;
+};
+
 export type TransactionStageResponseDto = {
   _id: string;
   order: number;
@@ -2186,6 +2229,14 @@ export type TransactionResponseDto = {
    */
   fundingReceipts?: Array<TransactionDocumentFileDto>;
   escrow?: EscrowResponseDto | null;
+  /**
+   * State of the buyer's latest wallet escrow-funding attempt. Buyer-only (and admin); null once the escrow exists or when funding never started.
+   */
+  escrowFunding?: TransactionEscrowFundingDto | null;
+  /**
+   * Which of the SELLER's numbered wallets escrow proceeds settle into. Known once the escrow is funded; null for bank-path/legacy escrows.
+   */
+  settlementWallet?: TransactionSettlementWalletDto | null;
   assignedLogistics?: {
     [key: string]: unknown;
   };
@@ -2296,6 +2347,29 @@ export type AssignLogisticsDto = {
    * Direct link to the carrier's shipment tracking page
    */
   trackingUrl: string;
+};
+
+export type EscrowFundingQuoteDto = {
+  /**
+   * Escrow custody currency
+   */
+  currency: string;
+  /**
+   * Amount the buyer funds (custody minor units, fee included)
+   */
+  amount: number;
+  /**
+   * Goods amount before service fee, minor units
+   */
+  subtotal: number;
+  /**
+   * Platform service fee, minor units
+   */
+  serviceFeeAmount: number;
+  /**
+   * Service fee rate
+   */
+  serviceFeeRate: number;
 };
 
 export type VirtualAccountResponseDto = {
@@ -4442,6 +4516,47 @@ export type WalletDisburseResponseDto = {
   status: string;
 };
 
+export type WalletBankDto = {
+  /**
+   * Bank code in the wallet provider's namespace
+   */
+  code: string;
+  /**
+   * Display name
+   */
+  name: string;
+};
+
+export type WalletResolveAccountDto = {
+  /**
+   * Wallet currency
+   */
+  currency: "NGN" | "KES" | "USD" | "EUR" | "USDT" | "USDC";
+  /**
+   * Which numbered wallet is being debited
+   */
+  walletIndex: number;
+  /**
+   * Destination account number
+   */
+  accountNumber: string;
+  /**
+   * Bank code from GET /wallet/banks for this wallet
+   */
+  bankCode: string;
+};
+
+export type WalletResolvedAccountDto = {
+  /**
+   * Name registered on the account
+   */
+  accountName: string;
+  /**
+   * Account number as confirmed
+   */
+  accountNumber: string;
+};
+
 export type WalletBeneficiaryResponseDto = {
   id: string;
   label: string;
@@ -4566,6 +4681,10 @@ export type WalletFundEscrowDto = {
    * Which numbered wallet funds the escrow. Required: the paying wallet is always chosen explicitly (the UI shows a picker).
    */
   walletIndex: number;
+};
+
+export type WalletFundEscrowResponseDto = {
+  outcome: "funded" | "pending";
 };
 
 export type CreateSupplierDto = {
@@ -6178,6 +6297,111 @@ export type CreateProductDto = {
   delistReason?: string;
   isActive?: boolean;
   rejectionReason?: string;
+  /**
+   * Hidden per-unit platform spread (minor units) on a differential listing. Editable during review only; rejected once the listing is approved (spread frozen).
+   */
+  spreadPerUnit?: number;
+};
+
+export type AdminProductResponseDto = {
+  _id: string;
+  /**
+   * Display ID
+   */
+  displayId: number;
+  title: string;
+  description?: string;
+  specialtyId?: string;
+  categoryId?: {
+    [key: string]: unknown;
+  };
+  groupId?: {
+    [key: string]: unknown;
+  };
+  type?: "products" | "services";
+  listingType?: "product" | "service" | "rental" | "charter";
+  /**
+   * How the price is expressed (flat or differential).
+   */
+  pricingBasis?: "flat" | "differential";
+  /**
+   * Flat price per unit in minor currency units (kobo/cents). Absent on differential listings.
+   */
+  pricePerUnit?: number;
+  differentialPrice?: DifferentialPriceResponseDto;
+  currency?: "NGN" | "KES" | "USD" | "EUR" | "USDT" | "USDC";
+  images?: Array<string>;
+  features?: Array<string>;
+  availableQuantity?: number;
+  minimumOrderQuantity?: number;
+  maximumOrderQuantity?: number;
+  trackInventory?: boolean;
+  lowStockThreshold?: number;
+  showStockToBuyers?: boolean;
+  allowBackorders?: boolean;
+  unitOfMeasurement?:
+    | "bbl"
+    | "liter"
+    | "gallon"
+    | "m3"
+    | "mt"
+    | "kg"
+    | "ton"
+    | "lb"
+    | "m"
+    | "ft"
+    | "sqm"
+    | "sqft"
+    | "scf"
+    | "sm3"
+    | "nm3"
+    | "mmbtu"
+    | "kwh"
+    | "mwh"
+    | "kva"
+    | "kw"
+    | "mw"
+    | "unit"
+    | "set"
+    | "kit"
+    | "pair"
+    | "joint"
+    | "roll"
+    | "sheet"
+    | "box"
+    | "pack"
+    | "drum"
+    | "bag"
+    | "cylinder"
+    | "ream"
+    | "license"
+    | "skid"
+    | "package"
+    | "plate"
+    | "bar";
+  conditions?: Array<"New" | "Used - Good" | "Used - Fair" | "Refurbished">;
+  organization?: ProductOrganizationDto;
+  location?: ProductLocationDto;
+  status?: "pending" | "approved" | "rejected" | "delisted";
+  rejectionReason?: string;
+  delistReason?: string;
+  resubmissionCount?: number;
+  isActive?: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+  documents?: Array<string>;
+  specifications?: SpecificationsResponseDto;
+  specDeclarations?: Array<SpecDeclarationResponseDto>;
+  commercialTerms?: CommercialTermsResponseDto;
+  milestones?: Array<RequestMilestoneDto>;
+  /**
+   * Hidden per-unit platform spread (minor units) on a differential listing. Buyers see differentialValue + spreadPerUnit; the stored value is seller-basis.
+   */
+  spreadPerUnit?: number;
+  /**
+   * When the spread froze (set at listing approval). A frozen spread can never be edited.
+   */
+  spreadFrozenAt?: string;
 };
 
 export type UpdateProductDto = {
@@ -6276,6 +6500,10 @@ export type UpdateProductDto = {
   delistReason?: string;
   isActive?: boolean;
   rejectionReason?: string;
+  /**
+   * Hidden per-unit platform spread (minor units) on a differential listing. Editable during review only; rejected once the listing is approved (spread frozen).
+   */
+  spreadPerUnit?: number;
 };
 
 export type CategoryDocumentTemplateInput = {
@@ -9052,6 +9280,17 @@ export type AppControllerGetHelloResponses = {
 export type AppControllerGetHelloResponse =
   AppControllerGetHelloResponses[keyof AppControllerGetHelloResponses];
 
+export type HealthControllerCheckData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: "/api/v1/health";
+};
+
+export type HealthControllerCheckResponses = {
+  200: unknown;
+};
+
 export type LocationsControllerGetRegionsData = {
   body?: never;
   path?: never;
@@ -9496,6 +9735,22 @@ export type OrganizationsControllerUpdateBankDetailsResponses = {
 
 export type OrganizationsControllerUpdateBankDetailsResponse =
   OrganizationsControllerUpdateBankDetailsResponses[keyof OrganizationsControllerUpdateBankDetailsResponses];
+
+export type OrganizationsControllerGetSettlementBanksData = {
+  body?: never;
+  path: {
+    orgId: string;
+  };
+  query?: never;
+  url: "/api/v1/organizations/{orgId}/banks";
+};
+
+export type OrganizationsControllerGetSettlementBanksResponses = {
+  200: Array<SettlementBankDto>;
+};
+
+export type OrganizationsControllerGetSettlementBanksResponse =
+  OrganizationsControllerGetSettlementBanksResponses[keyof OrganizationsControllerGetSettlementBanksResponses];
 
 export type OrganizationsControllerResolveAccountData = {
   body: ResolveBankAccountDto;
@@ -9993,6 +10248,25 @@ export type TransactionsControllerAssignLogisticsResponses = {
 
 export type TransactionsControllerAssignLogisticsResponse =
   TransactionsControllerAssignLogisticsResponses[keyof TransactionsControllerAssignLogisticsResponses];
+
+export type TransactionsControllerGetFundingQuoteData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/transactions/{id}/funding-quote";
+};
+
+export type TransactionsControllerGetFundingQuoteResponses = {
+  /**
+   * What the buyer must fund into escrow
+   */
+  200: EscrowFundingQuoteDto;
+};
+
+export type TransactionsControllerGetFundingQuoteResponse =
+  TransactionsControllerGetFundingQuoteResponses[keyof TransactionsControllerGetFundingQuoteResponses];
 
 export type TransactionsControllerGetVirtualAccountData = {
   body?: never;
@@ -11122,6 +11396,43 @@ export type WalletControllerDisburseResponses = {
 export type WalletControllerDisburseResponse =
   WalletControllerDisburseResponses[keyof WalletControllerDisburseResponses];
 
+export type WalletControllerGetBanksData = {
+  body?: never;
+  path?: never;
+  query: {
+    /**
+     * Which currency
+     */
+    currency: "NGN" | "KES" | "USD" | "EUR" | "USDT" | "USDC";
+    /**
+     * Which numbered wallet holds the currency. Required: money-scoped requests must name their wallet explicitly (the UI pre-selects the primary wallet); the backend never resolves a default silently.
+     */
+    walletIndex: number;
+  };
+  url: "/api/v1/wallet/banks";
+};
+
+export type WalletControllerGetBanksResponses = {
+  200: Array<WalletBankDto>;
+};
+
+export type WalletControllerGetBanksResponse =
+  WalletControllerGetBanksResponses[keyof WalletControllerGetBanksResponses];
+
+export type WalletControllerResolveAccountData = {
+  body: WalletResolveAccountDto;
+  path?: never;
+  query?: never;
+  url: "/api/v1/wallet/resolve-account";
+};
+
+export type WalletControllerResolveAccountResponses = {
+  200: WalletResolvedAccountDto;
+};
+
+export type WalletControllerResolveAccountResponse =
+  WalletControllerResolveAccountResponses[keyof WalletControllerResolveAccountResponses];
+
 export type WalletControllerListBeneficiariesData = {
   body?: never;
   path?: never;
@@ -11224,10 +11535,13 @@ export type WalletControllerFundEscrowData = {
 
 export type WalletControllerFundEscrowResponses = {
   /**
-   * The updated transaction with escrow created
+   * Whether the funding settled or is in flight
    */
-  200: unknown;
+  200: WalletFundEscrowResponseDto;
 };
+
+export type WalletControllerFundEscrowResponse =
+  WalletControllerFundEscrowResponses[keyof WalletControllerFundEscrowResponses];
 
 export type SuppliersControllerFindAllData = {
   body?: never;
@@ -12612,7 +12926,7 @@ export type AdminProductsControllerCreateData = {
 };
 
 export type AdminProductsControllerCreateResponses = {
-  201: ProductResponseDto;
+  201: AdminProductResponseDto;
 };
 
 export type AdminProductsControllerCreateResponse =
@@ -12641,7 +12955,7 @@ export type AdminProductsControllerFindOneData = {
 };
 
 export type AdminProductsControllerFindOneResponses = {
-  200: ProductResponseDto;
+  200: AdminProductResponseDto;
 };
 
 export type AdminProductsControllerFindOneResponse =
@@ -12657,7 +12971,7 @@ export type AdminProductsControllerUpdateData = {
 };
 
 export type AdminProductsControllerUpdateResponses = {
-  200: ProductResponseDto;
+  200: AdminProductResponseDto;
 };
 
 export type AdminProductsControllerUpdateResponse =
@@ -12673,7 +12987,7 @@ export type AdminProductsControllerApproveData = {
 };
 
 export type AdminProductsControllerApproveResponses = {
-  200: ProductResponseDto;
+  200: AdminProductResponseDto;
 };
 
 export type AdminProductsControllerApproveResponse =

@@ -60,8 +60,25 @@ export function TransactionFinancialsCard({
   const milestonePayouts = transaction.escrow?.milestonePayouts ?? [];
 
   // A differential order carries no figures until its benchmark resolves at
-  // escrow funding; the formula stands in until then.
+  // escrow funding; the formula stands in until then. Admin responses carry
+  // the raw seller-basis differential plus the hidden platform spread, so
+  // this card can show both sides' views of the same price.
   const { isDifferential, formula } = useDifferentialFormula(order);
+  const spreadPerUnit = order.spreadPerUnit ?? 0;
+  const buyerFacingFormula = useDifferentialFormula(
+    isDifferential && spreadPerUnit > 0 && order.differentialPrice
+      ? {
+          pricingBasis: order.pricingBasis,
+          currency: order.currency,
+          unitOfMeasurement: order.unitOfMeasurement,
+          differentialPrice: {
+            ...order.differentialPrice,
+            differentialValue:
+              order.differentialPrice.differentialValue + spreadPerUnit,
+          },
+        }
+      : null,
+  );
   const amountPending = isDifferential && order.totalAmount == null;
 
   return (
@@ -134,11 +151,33 @@ export function TransactionFinancialsCard({
               {amountPending ? (
                 <div className="space-y-3">
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">Price basis</span>
+                    <span className="text-muted-foreground">
+                      {spreadPerUnit > 0 ? "Seller quotes" : "Price basis"}
+                    </span>
                     <span className="font-medium">
                       {formula ?? "Benchmark differential"}
                     </span>
                   </div>
+                  {spreadPerUnit > 0 && (
+                    <>
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-muted-foreground">
+                          Platform spread (per unit)
+                        </span>
+                        <span className="font-medium text-blue-600">
+                          {formatCurrency(spreadPerUnit, currency)}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-muted-foreground">
+                          Buyer sees
+                        </span>
+                        <span className="font-medium">
+                          {buyerFacingFormula.formula ?? "…"}
+                        </span>
+                      </div>
+                    </>
+                  )}
                   <Separator />
                   <p className="text-muted-foreground text-xs">
                     This is a differential order. The figures are fixed against
@@ -155,7 +194,7 @@ export function TransactionFinancialsCard({
                   </div>
                   {serviceFeeAmount > 0 && (
                     <div className="flex items-center justify-between text-sm">
-                      <span className="text-muted-foreground">Service Fee (3%)</span>
+                      <span className="text-muted-foreground">Service Fee</span>
                       <span className="font-medium">
                         {formatCurrency(serviceFeeAmount, currency)}
                       </span>
