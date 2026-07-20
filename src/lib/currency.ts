@@ -20,7 +20,7 @@ const CURRENCY_DECIMALS: Record<string, number> = {
 
 const DEFAULT_DECIMALS = 2;
 
-function getCurrencyDecimals(currency: string): number {
+export function getCurrencyDecimals(currency: string): number {
   return CURRENCY_DECIMALS[currency] ?? DEFAULT_DECIMALS;
 }
 

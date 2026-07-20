@@ -58,8 +58,12 @@ export const useDifferentialFormula = (
   if (!benchmark?.name) return { isDifferential: true, formula: null };
 
   const unitLabel = UNITS[order.unitOfMeasurement]?.short ?? "unit";
-  const symbol = CURRENCY_SYMBOLS[order.currency ?? ""] ?? "";
-  const major = fromMinorUnit(diff.differentialValue, order.currency);
+  // The differential is quoted in the FORMULA currency (the benchmark's), which
+  // is not always where the deal settles. Legacy rows have them equal, so the
+  // fallback renders them identically.
+  const formulaCurrency = diff.differentialCurrency ?? order.currency;
+  const symbol = CURRENCY_SYMBOLS[formulaCurrency ?? ""] ?? "";
+  const major = fromMinorUnit(diff.differentialValue, formulaCurrency);
   const sign = major < 0 ? "−" : "+";
   const abs = Math.abs(major).toLocaleString("en-US", {
     minimumFractionDigits: 2,

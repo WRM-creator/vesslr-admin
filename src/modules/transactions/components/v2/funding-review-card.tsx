@@ -35,7 +35,12 @@ import type {
   FundingReviewDto,
   TransactionResponseDto,
 } from "@/lib/api/generated";
-import { formatCurrency, fromMinorUnit, toMinorUnit } from "@/lib/currency";
+import {
+  formatCurrency,
+  fromMinorUnit,
+  getCurrencyDecimals,
+  toMinorUnit,
+} from "@/lib/currency";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import {
@@ -195,6 +200,7 @@ function ConfirmFundingDialog({
   onWaive: (conflict: ShortfallConflict, body: ConfirmDepositFundingDto) => void;
 }) {
   const [unitPriceMajor, setUnitPriceMajor] = useState("");
+  const [fxRateInput, setFxRateInput] = useState("");
   const [referencePrice, setReferencePrice] = useState("");
   const [referenceSource, setReferenceSource] = useState("");
   const [excessAction, setExcessAction] = useState<"SWEEP" | "HOLD" | null>(
@@ -212,21 +218,45 @@ function ConfirmFundingDialog({
   const priceValid = Number.isFinite(parsedPrice) && parsedPrice > 0;
   const priceMinor = priceValid ? toMinorUnit(parsedPrice, currency) : 0;
 
-  const escrowTotal = priceValid ? Math.round(review.quantity * priceMinor) : 0;
-  const sellerAmount = priceValid
-    ? Math.round(review.quantity * (priceMinor - review.spreadPerUnit))
+  // The spread rides on the formula, so it is quoted in the benchmark's
+  // currency. When the deal settles elsewhere it crosses at the rate the
+  // parties agreed. This mirrors convertSpreadToSettlement on the server.
+  const parsedRate = Number(fxRateInput);
+  const rateValid = Number.isFinite(parsedRate) && parsedRate > 0;
+  const fxRateMicros = rateValid ? Math.round(parsedRate * 1_000_000) : 0;
+  const spreadSettlement = review.requiresFxRate
+    ? rateValid
+      ? Math.round(
+          (review.spreadPerUnit *
+            fxRateMicros *
+            10 **
+              (getCurrencyDecimals(currency) -
+                getCurrencyDecimals(review.formulaCurrency))) /
+            1_000_000,
+        )
+      : 0
+    : review.spreadPerUnit;
+
+  const derivable = priceValid && (!review.requiresFxRate || rateValid);
+  const escrowTotal = derivable ? Math.round(review.quantity * priceMinor) : 0;
+  const sellerAmount = derivable
+    ? Math.round(review.quantity * (priceMinor - spreadSettlement))
     : 0;
   const platformTake = escrowTotal - sellerAmount;
-  const projectedExcess = priceValid
+  const projectedExcess = derivable
     ? Math.max(0, review.heldTotal - escrowTotal)
     : 0;
 
-  const canSubmit = priceValid && referenceSource.trim().length > 0;
+  const canSubmit =
+    derivable &&
+    referenceSource.trim().length > 0 &&
+    priceMinor > spreadSettlement;
 
   const buildBody = (): ConfirmDepositFundingDto => ({
     buyerUnitPrice: priceMinor,
     referencePrice: referencePrice.trim() || undefined,
     referenceSource: referenceSource.trim(),
+    settlementFxRate: review.requiresFxRate ? fxRateMicros : undefined,
     excessAction: projectedExcess > 0 && excessAction ? excessAction : undefined,
   });
 
@@ -295,6 +325,32 @@ function ConfirmFundingDialog({
             </p>
           </div>
 
+          {review.requiresFxRate && (
+            <div className="space-y-1.5">
+              <Label htmlFor="settlement-fx-rate">
+                Agreed exchange rate ({currency} per 1 {review.formulaCurrency})
+              </Label>
+              <Input
+                id="settlement-fx-rate"
+                type="number"
+                min="0"
+                step="any"
+                placeholder="0.00"
+                value={fxRateInput}
+                onChange={(e) => {
+                  setFxRateInput(e.target.value);
+                  setConflict(null);
+                }}
+              />
+              <p className="text-muted-foreground text-[11px]">
+                This deal is quoted in {review.formulaCurrency} and settles in{" "}
+                {currency}. Enter the rate the parties agreed, from the
+                contract. It converts the platform spread only; the escrow
+                total comes from the buyer unit price above.
+              </p>
+            </div>
+          )}
+
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
               <Label htmlFor="reference-price">Reference price (optional)</Label>
@@ -330,21 +386,38 @@ function ConfirmFundingDialog({
                   )
                 </span>
                 <span className="font-medium">
-                  {priceValid ? formatCurrency(escrowTotal, currency) : "-"}
+                  {derivable ? formatCurrency(escrowTotal, currency) : "-"}
                 </span>
               </div>
+              {review.requiresFxRate && (
+                <div className="flex items-center justify-between">
+                  <span className="text-muted-foreground">
+                    Spread per {unit} (
+                    {formatCurrency(
+                      review.spreadPerUnit,
+                      review.formulaCurrency,
+                    )}{" "}
+                    converted)
+                  </span>
+                  <span className="font-medium">
+                    {derivable
+                      ? formatCurrency(spreadSettlement, currency)
+                      : "-"}
+                  </span>
+                </div>
+              )}
               <div className="flex items-center justify-between">
                 <span className="text-muted-foreground">
                   Seller amount (price minus spread)
                 </span>
                 <span className="font-medium">
-                  {priceValid ? formatCurrency(sellerAmount, currency) : "-"}
+                  {derivable ? formatCurrency(sellerAmount, currency) : "-"}
                 </span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-muted-foreground">Platform take</span>
                 <span className="font-medium">
-                  {priceValid ? formatCurrency(platformTake, currency) : "-"}
+                  {derivable ? formatCurrency(platformTake, currency) : "-"}
                 </span>
               </div>
               <Separator />
@@ -353,7 +426,7 @@ function ConfirmFundingDialog({
                 <span
                   className={cn(
                     "font-semibold",
-                    priceValid && review.heldTotal < escrowTotal
+                    derivable && review.heldTotal < escrowTotal
                       ? "text-amber-600 dark:text-amber-400"
                       : "text-green-600",
                   )}

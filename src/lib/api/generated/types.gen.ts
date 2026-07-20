@@ -7175,7 +7175,18 @@ export type FundingReviewDto = {
    */
   heldTotal: number;
   deposits: Array<FundingReviewDepositDto>;
+  /**
+   * Settlement currency: where money actually moves
+   */
   currency: string;
+  /**
+   * Formula currency: the benchmark currency the differential and the spread are quoted in. Equals the settlement currency unless the deal settles cross-currency.
+   */
+  formulaCurrency: string;
+  /**
+   * Whether confirmation requires an agreed exchange rate (the two currencies differ).
+   */
+  requiresFxRate: boolean;
   quantity: number;
   unitOfMeasurement?: string;
   /**
@@ -7211,6 +7222,10 @@ export type ConfirmDepositFundingDto = {
    */
   referenceSource: string;
   /**
+   * The exchange rate the parties agreed, scaled by 1e6 (1600.25 NGN per USD = 1600250000). Required when the deal settles in a currency other than the one its formula is quoted in, and rejected when they match. The platform never looks a rate up; it derives the settlement-currency spread from this one.
+   */
+  settlementFxRate?: number;
+  /**
    * What to do with an overpayment: sweep to platform income or keep it held (refundable). Server suggests via the per-currency threshold when omitted.
    */
   excessAction?: "SWEEP" | "HOLD";
@@ -7224,6 +7239,10 @@ export type ConfirmDepositFundingResultDto = {
   excess: number;
   excessAction?: "SWEEP" | "HOLD";
   waiverAmount: number;
+  /**
+   * The per-unit spread in settlement currency that the figures were derived with (equals the configured spread when no conversion applied).
+   */
+  spreadSettlement: number;
 };
 
 export type ConfirmDepositFundingWithWaiverDto = {
@@ -7239,6 +7258,10 @@ export type ConfirmDepositFundingWithWaiverDto = {
    * Where the reference price came from (audit trail)
    */
   referenceSource: string;
+  /**
+   * The exchange rate the parties agreed, scaled by 1e6 (1600.25 NGN per USD = 1600250000). Required when the deal settles in a currency other than the one its formula is quoted in, and rejected when they match. The platform never looks a rate up; it derives the settlement-currency spread from this one.
+   */
+  settlementFxRate?: number;
   /**
    * What to do with an overpayment: sweep to platform income or keep it held (refundable). Server suggests via the per-currency threshold when omitted.
    */

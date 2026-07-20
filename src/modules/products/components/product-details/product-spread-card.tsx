@@ -45,6 +45,12 @@ export function ProductSpreadCard({ product }: ProductSpreadCardProps) {
 
   const frozen = !!product.spreadFrozenAt || product.status === "approved";
   const currentSpread = product.spreadPerUnit ?? 0;
+  // The differential and the spread are quoted in the benchmark's currency;
+  // the listing may settle in another.
+  const formulaCurrency =
+    product.differentialPrice?.differentialCurrency ?? product.currency ?? "USD";
+  const settlesElsewhere =
+    !!product.currency && product.currency !== formulaCurrency;
   const [spreadInput, setSpreadInput] = useState<number>(currentSpread);
 
   const { mutate: updateProduct, isPending } =
@@ -101,7 +107,11 @@ export function ProductSpreadCard({ product }: ProductSpreadCardProps) {
             <CardTitle>Platform Spread</CardTitle>
             <CardDescription>
               Admin-only. The buyer is quoted the seller differential plus this
-              per-unit spread; neither party ever sees a fee line.
+              per-unit spread; neither party ever sees a fee line. Quoted in{" "}
+              {formulaCurrency}
+              {settlesElsewhere
+                ? `, converted to ${product.currency} at the rate agreed when funding is confirmed.`
+                : "."}
             </CardDescription>
           </div>
           {frozen && (
@@ -123,11 +133,11 @@ export function ProductSpreadCard({ product }: ProductSpreadCardProps) {
           <div className="space-y-0.5">
             <p className="text-muted-foreground text-xs">Spread per unit</p>
             <p className="text-sm font-medium">
-              {fromMinorUnit(currentSpread, product.currency).toLocaleString(
+              {fromMinorUnit(currentSpread, formulaCurrency).toLocaleString(
                 "en-US",
                 { minimumFractionDigits: 2, maximumFractionDigits: 2 },
               )}{" "}
-              {product.currency}
+              {formulaCurrency}
             </p>
           </div>
           <div className="space-y-0.5">
@@ -139,7 +149,7 @@ export function ProductSpreadCard({ product }: ProductSpreadCardProps) {
         {!frozen && (
           <div className="space-y-2 border-t pt-4">
             <Label htmlFor="spread-input">
-              Adjust spread (minor units per unit)
+              Adjust spread ({formulaCurrency} minor units per unit)
             </Label>
             <div className="flex items-center gap-2">
               <Input

@@ -170,6 +170,14 @@ export function CategoryGroupServiceFeeCard({
               taken invisibly: the buyer sees the seller differential plus this
               amount, and neither party ever sees a fee line.
             </p>
+            <p className="text-muted-foreground text-sm">
+              This amount is in the{" "}
+              <span className="font-medium">benchmark's currency</span>, not the
+              settlement currency, because it rides on the quoted formula. For a
+              USD-quoted benchmark, 100 means $1.00 per unit. When a deal settles
+              in another currency it is converted at the rate the parties agreed,
+              entered when funding is confirmed.
+            </p>
           </div>
         ) : feeType === "percentage" ? (
           <div className="space-y-2">
