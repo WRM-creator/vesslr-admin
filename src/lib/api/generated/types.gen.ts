@@ -478,6 +478,92 @@ export type DifferentialPriceResponseDto = {
   notes?: string;
 };
 
+export type SellerFeeDto = {
+  /**
+   * How the fee is computed (per_unit or percentage)
+   */
+  method: "percentage" | "fixed" | "per_unit" | "tiered";
+  /**
+   * Fee per unit in minor units of the formula currency (display-level; the exact figure is feeAmount)
+   */
+  feePerUnit: number;
+  /**
+   * Formula (benchmark) currency the fee is quoted in
+   */
+  currency?: "NGN" | "KES" | "USD" | "EUR" | "USDT" | "USDC";
+  /**
+   * Unit the per-unit rate is quoted per
+   */
+  unit?:
+    | "bbl"
+    | "liter"
+    | "gallon"
+    | "m3"
+    | "mt"
+    | "kg"
+    | "ton"
+    | "lb"
+    | "m"
+    | "ft"
+    | "sqm"
+    | "sqft"
+    | "scf"
+    | "sm3"
+    | "nm3"
+    | "mmbtu"
+    | "kwh"
+    | "mwh"
+    | "kva"
+    | "kw"
+    | "mw"
+    | "unit"
+    | "set"
+    | "kit"
+    | "pair"
+    | "joint"
+    | "roll"
+    | "sheet"
+    | "box"
+    | "pack"
+    | "drum"
+    | "bag"
+    | "cylinder"
+    | "ream"
+    | "license"
+    | "skid"
+    | "package"
+    | "plate"
+    | "bar";
+  /**
+   * Percentage rate (method percentage)
+   */
+  percentage?: number;
+  /**
+   * Lower clamp on the per-deal fee, minor units
+   */
+  minFee?: number;
+  /**
+   * Upper clamp on the per-deal fee, minor units
+   */
+  maxFee?: number;
+  /**
+   * True once funding confirmation froze the figures; false while they are estimates
+   */
+  frozen: boolean;
+  /**
+   * Fee amount in minor units of the formula currency: estimated pre-freeze (when computable), exact after
+   */
+  feeAmount?: number;
+  /**
+   * What the seller receives after the fee (gross − feeAmount), when the gross is known
+   */
+  netAmount?: number;
+  /**
+   * Frozen fee crossed into the settlement currency at the agreed rate (frozen only)
+   */
+  feeSettlementAmount?: number;
+};
+
 export type ProductOrganizationDto = {
   _id: string;
   name: string;
@@ -614,6 +700,10 @@ export type PopulatedProductResponseDto = {
    */
   pricePerUnit?: number;
   differentialPrice?: DifferentialPriceResponseDto;
+  /**
+   * Disclosed platform fee on a differential listing — owning seller only; resolved from the category/group fee config
+   */
+  sellerFee?: SellerFeeDto;
   currency?: "NGN" | "KES" | "USD" | "EUR" | "USDT" | "USDC";
   images?: Array<string>;
   features?: Array<string>;
@@ -727,6 +817,10 @@ export type ProductResponseDto = {
    */
   pricePerUnit?: number;
   differentialPrice?: DifferentialPriceResponseDto;
+  /**
+   * Disclosed platform fee on a differential listing — owning seller only; resolved from the category/group fee config
+   */
+  sellerFee?: SellerFeeDto;
   currency?: "NGN" | "KES" | "USD" | "EUR" | "USDT" | "USDC";
   images?: Array<string>;
   features?: Array<string>;
@@ -1655,92 +1749,6 @@ export type CategoryDto = {
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
-};
-
-export type SellerFeeDto = {
-  /**
-   * How the fee is computed (per_unit or percentage)
-   */
-  method: "percentage" | "fixed" | "per_unit" | "tiered";
-  /**
-   * Fee per unit in minor units of the formula currency (display-level; the exact figure is feeAmount)
-   */
-  feePerUnit: number;
-  /**
-   * Formula (benchmark) currency the fee is quoted in
-   */
-  currency?: "NGN" | "KES" | "USD" | "EUR" | "USDT" | "USDC";
-  /**
-   * Unit the per-unit rate is quoted per
-   */
-  unit?:
-    | "bbl"
-    | "liter"
-    | "gallon"
-    | "m3"
-    | "mt"
-    | "kg"
-    | "ton"
-    | "lb"
-    | "m"
-    | "ft"
-    | "sqm"
-    | "sqft"
-    | "scf"
-    | "sm3"
-    | "nm3"
-    | "mmbtu"
-    | "kwh"
-    | "mwh"
-    | "kva"
-    | "kw"
-    | "mw"
-    | "unit"
-    | "set"
-    | "kit"
-    | "pair"
-    | "joint"
-    | "roll"
-    | "sheet"
-    | "box"
-    | "pack"
-    | "drum"
-    | "bag"
-    | "cylinder"
-    | "ream"
-    | "license"
-    | "skid"
-    | "package"
-    | "plate"
-    | "bar";
-  /**
-   * Percentage rate (method percentage)
-   */
-  percentage?: number;
-  /**
-   * Lower clamp on the per-deal fee, minor units
-   */
-  minFee?: number;
-  /**
-   * Upper clamp on the per-deal fee, minor units
-   */
-  maxFee?: number;
-  /**
-   * True once funding confirmation froze the figures; false while they are estimates
-   */
-  frozen: boolean;
-  /**
-   * Fee amount in minor units of the formula currency: estimated pre-freeze (when computable), exact after
-   */
-  feeAmount?: number;
-  /**
-   * What the seller receives after the fee (gross − feeAmount), when the gross is known
-   */
-  netAmount?: number;
-  /**
-   * Frozen fee crossed into the settlement currency at the agreed rate (frozen only)
-   */
-  feeSettlementAmount?: number;
 };
 
 export type MilestoneInputDto = {
@@ -3067,6 +3075,10 @@ export type RecommendationFeedItemDto = {
    */
   targetPricePerUnit?: number;
   differentialPrice?: DifferentialPriceResponseDto;
+  /**
+   * Disclosed platform fee a responding seller would pay on this differential request (viewer is a prospective seller)
+   */
+  sellerFee?: SellerFeeDto;
   duration?: number;
   durationUnit?: string;
   currency: "NGN" | "KES" | "USD" | "EUR" | "USDT" | "USDC";
@@ -3318,6 +3330,10 @@ export type RequestResponseDto = {
    */
   targetPricePerUnit?: number;
   differentialPrice?: DifferentialPriceResponseDto;
+  /**
+   * Disclosed platform fee for a prospective seller on a differential request — non-owner viewers only
+   */
+  sellerFee?: SellerFeeDto;
   duration?: number;
   durationUnit?:
     | "hour"
@@ -6610,6 +6626,10 @@ export type AdminProductResponseDto = {
    */
   pricePerUnit?: number;
   differentialPrice?: DifferentialPriceResponseDto;
+  /**
+   * Disclosed platform fee on a differential listing — owning seller only; resolved from the category/group fee config
+   */
+  sellerFee?: SellerFeeDto;
   currency?: "NGN" | "KES" | "USD" | "EUR" | "USDT" | "USDC";
   images?: Array<string>;
   features?: Array<string>;
@@ -6675,10 +6695,6 @@ export type AdminProductResponseDto = {
   specDeclarations?: Array<SpecDeclarationResponseDto>;
   commercialTerms?: CommercialTermsResponseDto;
   milestones?: Array<RequestMilestoneDto>;
-  /**
-   * The seller fee currently resolved for this listing (differential listings only)
-   */
-  sellerFee?: SellerFeeDto;
 };
 
 export type UpdateProductDto = {
