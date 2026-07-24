@@ -1423,6 +1423,8 @@ export type CategoryGroupDto = {
   allowsRentalSpecs: boolean;
   allowsCharterSpecs: boolean;
   serviceFeeConfig?: ServiceFeeConfigResponseDto;
+  escrowFeeConfig?: ServiceFeeConfigResponseDto;
+  serviceChargeConfig?: ServiceFeeConfigResponseDto;
   allowedEscrowStructures: Array<"full" | "deposit" | "milestone" | "partial">;
   defaultEscrowStructure: "full" | "deposit" | "milestone" | "partial";
   /**
@@ -1579,6 +1581,14 @@ export type UpdateCategoryGroupDto = {
   allowsRentalSpecs?: boolean;
   allowsCharterSpecs?: boolean;
   serviceFeeConfig?: ServiceFeeConfigDto;
+  /**
+   * Escrow fee slot: buyer-paid percentage added on top (0 disables it).
+   */
+  escrowFeeConfig?: ServiceFeeConfigDto;
+  /**
+   * Service charge slot: seller-paid deduction (per-unit or percentage).
+   */
+  serviceChargeConfig?: ServiceFeeConfigDto;
   allowedEscrowStructures?: Array<"full" | "deposit" | "milestone" | "partial">;
   defaultEscrowStructure?: "full" | "deposit" | "milestone" | "partial";
 };
@@ -1746,6 +1756,8 @@ export type CategoryDto = {
   >;
   policyOverrides?: CategoryPolicyOverridesDto;
   serviceFeeOverride?: ServiceFeeConfigResponseDto;
+  escrowFeeOverride?: ServiceFeeConfigResponseDto;
+  serviceChargeOverride?: ServiceFeeConfigResponseDto;
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
@@ -6930,6 +6942,14 @@ export type CreateCategoryDto = {
    */
   serviceFeeOverride?: ServiceFeeConfigDto | null;
   /**
+   * Per-category escrow fee (buyer-paid percentage); overrides the group escrowFeeConfig. Pass null to clear.
+   */
+  escrowFeeOverride?: ServiceFeeConfigDto | null;
+  /**
+   * Per-category service charge (seller-paid deduction); overrides the group serviceChargeConfig. Pass null to clear.
+   */
+  serviceChargeOverride?: ServiceFeeConfigDto | null;
+  /**
    * Whether the category is active
    */
   isActive?: boolean;
@@ -7014,6 +7034,14 @@ export type UpdateCategoryDto = {
    * Per-category service fee config; overrides the group default when set. Pass null to clear the override (fall back to the group default).
    */
   serviceFeeOverride?: ServiceFeeConfigDto | null;
+  /**
+   * Per-category escrow fee (buyer-paid percentage); overrides the group escrowFeeConfig. Pass null to clear.
+   */
+  escrowFeeOverride?: ServiceFeeConfigDto | null;
+  /**
+   * Per-category service charge (seller-paid deduction); overrides the group serviceChargeConfig. Pass null to clear.
+   */
+  serviceChargeOverride?: ServiceFeeConfigDto | null;
   /**
    * Whether the category is active
    */

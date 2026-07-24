@@ -20,6 +20,12 @@ const UNSET = "__unset__";
 type Payer = ServiceFeeConfigDto["payer"];
 type FeeType = ServiceFeeConfigDto["feeType"];
 
+/**
+ * Two-fee-model slot. Each slot fixes the payer and constrains the fee
+ * shape; without one, the editor is the unconstrained legacy editor.
+ */
+export type FeeConfigSlot = "escrowFee" | "serviceCharge";
+
 interface ServiceFeeConfigEditorProps {
   /** The stored config to edit; undefined starts from the platform default. */
   value?: Partial<ServiceFeeConfigDto> | null;
@@ -27,6 +33,12 @@ interface ServiceFeeConfigEditorProps {
   onSave: (config: ServiceFeeConfigDto) => void;
   isPending: boolean;
   disabled?: boolean;
+  /**
+   * Constrains the editor to a slot's contract: escrowFee = buyer-paid
+   * percentage only (0% disables it); serviceCharge = seller-paid, per-unit
+   * or percentage. Mirrors the backend slot guard.
+   */
+  slot?: FeeConfigSlot;
 }
 
 /**
@@ -42,13 +54,24 @@ export function ServiceFeeConfigEditor({
   onSave,
   isPending,
   disabled = false,
+  slot,
 }: ServiceFeeConfigEditorProps) {
-  const [payer, setPayer] = useState<Payer>(value?.payer ?? "buyer");
+  const [payer, setPayer] = useState<Payer>(
+    slot === "escrowFee"
+      ? "buyer"
+      : slot === "serviceCharge"
+        ? "seller"
+        : (value?.payer ?? "buyer"),
+  );
   const [feeType, setFeeType] = useState<FeeType>(
-    value?.feeType ?? "percentage",
+    slot === "escrowFee"
+      ? "percentage"
+      : slot === "serviceCharge"
+        ? (value?.feeType === "percentage" ? "percentage" : "per_unit")
+        : (value?.feeType ?? "percentage"),
   );
   const [percentage, setPercentage] = useState<number>(
-    (value?.percentage ?? 0.03) * 100,
+    (value?.percentage ?? (slot === "escrowFee" ? 0.01 : 0.03)) * 100,
   );
   const [fixedAmount, setFixedAmount] = useState<number>(
     value?.fixedAmount ?? 0,
@@ -72,8 +95,15 @@ export function ServiceFeeConfigEditor({
     const parsedMin = minFee.trim() === "" ? undefined : Number(minFee);
     const parsedMax = maxFee.trim() === "" ? undefined : Number(maxFee);
     const config: ServiceFeeConfigDto = {
-      payer,
-      feeType,
+      // The slot fixes the payer regardless of local state, mirroring the
+      // backend guard.
+      payer:
+        slot === "escrowFee"
+          ? "buyer"
+          : slot === "serviceCharge"
+            ? "seller"
+            : payer,
+      feeType: slot === "escrowFee" ? "percentage" : feeType,
       trigger: "settlement",
       refundable,
       ...(feeType === "percentage" ? { percentage: percentage / 100 } : {}),
@@ -97,64 +127,93 @@ export function ServiceFeeConfigEditor({
       {/* Fee Payer */}
       <div className="space-y-2">
         <Label className="text-base">Fee Payer</Label>
-        <Select
-          value={payer}
-          onValueChange={(v) => {
-            setPayer(v as Payer);
-            save({ payer: v as Payer });
-          }}
-          disabled={locked}
-        >
-          <SelectTrigger className="w-56">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="buyer">Buyer (added on top)</SelectItem>
-            <SelectItem value="seller">Seller (deducted)</SelectItem>
-            <SelectItem value="split" disabled>
-              Split — not yet available
-            </SelectItem>
-          </SelectContent>
-        </Select>
-        {payer === "seller" && (
-          <p className="text-muted-foreground text-sm">
-            The disclosed commodity fee: the buyer pays exactly the listed
-            price, and this fee is deducted from the seller&apos;s proceeds at
-            settlement. Sellers see it at every money surface.
-          </p>
+        {slot ? (
+          <Input
+            value={
+              slot === "escrowFee"
+                ? "Buyer (added on top)"
+                : "Seller (deducted)"
+            }
+            readOnly
+            className="w-56"
+          />
+        ) : (
+          <Select
+            value={payer}
+            onValueChange={(v) => {
+              setPayer(v as Payer);
+              save({ payer: v as Payer });
+            }}
+            disabled={locked}
+          >
+            <SelectTrigger className="w-56">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="buyer">Buyer (added on top)</SelectItem>
+              <SelectItem value="seller">Seller (deducted)</SelectItem>
+              <SelectItem value="split" disabled>
+                Split — not yet available
+              </SelectItem>
+            </SelectContent>
+          </Select>
         )}
+        {slot === "serviceCharge" || (!slot && payer === "seller") ? (
+          <p className="text-muted-foreground text-sm">
+            The disclosed Vesslr fee on the seller side: deducted from the
+            seller&apos;s proceeds at settlement, never added to the buyer.
+            Sellers see it at every money surface.
+          </p>
+        ) : slot === "escrowFee" ? (
+          <p className="text-muted-foreground text-sm">
+            Added on top of the buyer&apos;s payment as a visible line item.
+            Set the percentage to 0 to disable it.
+          </p>
+        ) : null}
       </div>
 
-      {/* Fee Type */}
-      <div className="space-y-3">
-        <Label className="text-base">Fee Type</Label>
-        <RadioGroup
-          value={feeType}
-          onValueChange={(v) => {
-            setFeeType(v as FeeType);
-            save({ feeType: v as FeeType });
-          }}
-          disabled={locked}
-          className="flex flex-wrap gap-6"
-        >
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="percentage" id="fee-percentage" />
-            <Label htmlFor="fee-percentage">Percentage</Label>
-          </div>
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="fixed" id="fee-fixed" />
-            <Label htmlFor="fee-fixed">Fixed Amount</Label>
-          </div>
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="per_unit" id="fee-per-unit" />
-            <Label htmlFor="fee-per-unit">Per Unit</Label>
-          </div>
-          <div className="flex items-center space-x-2 opacity-50">
-            <RadioGroupItem value="tiered" id="fee-tiered" disabled />
-            <Label htmlFor="fee-tiered">Tiered — not yet available</Label>
-          </div>
-        </RadioGroup>
-      </div>
+      {/* Fee Type — the escrowFee slot is percentage-only, so no picker */}
+      {slot !== "escrowFee" && (
+        <div className="space-y-3">
+          <Label className="text-base">Fee Type</Label>
+          <RadioGroup
+            value={feeType}
+            onValueChange={(v) => {
+              setFeeType(v as FeeType);
+              save({ feeType: v as FeeType });
+            }}
+            disabled={locked}
+            className="flex flex-wrap gap-6"
+          >
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="percentage" id="fee-percentage" />
+              <Label htmlFor="fee-percentage">Percentage</Label>
+            </div>
+            <div
+              className={`flex items-center space-x-2 ${slot === "serviceCharge" ? "opacity-50" : ""}`}
+            >
+              <RadioGroupItem
+                value="fixed"
+                id="fee-fixed"
+                disabled={slot === "serviceCharge"}
+              />
+              <Label htmlFor="fee-fixed">
+                {slot === "serviceCharge"
+                  ? "Fixed Amount — not available for the service charge"
+                  : "Fixed Amount"}
+              </Label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="per_unit" id="fee-per-unit" />
+              <Label htmlFor="fee-per-unit">Per Unit</Label>
+            </div>
+            <div className="flex items-center space-x-2 opacity-50">
+              <RadioGroupItem value="tiered" id="fee-tiered" disabled />
+              <Label htmlFor="fee-tiered">Tiered — not yet available</Label>
+            </div>
+          </RadioGroup>
+        </div>
+      )}
 
       {/* Rate */}
       {feeType === "per_unit" ? (

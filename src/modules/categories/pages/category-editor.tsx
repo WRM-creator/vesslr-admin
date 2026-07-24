@@ -180,13 +180,20 @@ export default function CategoryEditorPage() {
         parentGroup={parentGroup}
       />
 
-      {/* Live-save card, separate from the form: fee changes take effect
-          immediately (new orders only), like the group-level fee card. */}
+      {/* Live-save cards, separate from the form: fee changes take effect
+          immediately (new orders only), like the group-level fee cards. */}
       {isEditing && category && (
-        <div className="mt-6">
+        <div className="mt-6 space-y-6">
           <CategoryServiceFeeOverrideCard
             categoryId={category._id}
-            override={category.serviceFeeOverride}
+            slot="escrowFee"
+            override={category.escrowFeeOverride}
+            parentGroup={parentGroup}
+          />
+          <CategoryServiceFeeOverrideCard
+            categoryId={category._id}
+            slot="serviceCharge"
+            override={category.serviceChargeOverride}
             parentGroup={parentGroup}
           />
         </div>
