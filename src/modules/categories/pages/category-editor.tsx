@@ -15,6 +15,7 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
 import { CategoryForm } from "../components/category-form";
 import type { CategoryFormSchema } from "../components/category-form/schema";
+import { CategoryServiceFeeOverrideCard } from "../components/category-service-fee-override-card";
 
 export default function CategoryEditorPage() {
   const { id, groupId } = useParams<{ id: string; groupId: string }>();
@@ -178,6 +179,18 @@ export default function CategoryEditorPage() {
         loadingLabel={isEditing ? "Saving..." : "Creating..."}
         parentGroup={parentGroup}
       />
+
+      {/* Live-save card, separate from the form: fee changes take effect
+          immediately (new orders only), like the group-level fee card. */}
+      {isEditing && category && (
+        <div className="mt-6">
+          <CategoryServiceFeeOverrideCard
+            categoryId={category._id}
+            override={category.serviceFeeOverride}
+            parentGroup={parentGroup}
+          />
+        </div>
+      )}
     </Page>
   );
 }

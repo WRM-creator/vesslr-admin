@@ -6926,9 +6926,9 @@ export type CreateCategoryDto = {
     | "contract";
   policyOverrides?: CategoryPolicyOverridesInput;
   /**
-   * Per-category service fee config; overrides the group default when set
+   * Per-category service fee config; overrides the group default when set. Pass null to clear the override (fall back to the group default).
    */
-  serviceFeeOverride?: ServiceFeeConfigDto;
+  serviceFeeOverride?: ServiceFeeConfigDto | null;
   /**
    * Whether the category is active
    */
@@ -7011,9 +7011,9 @@ export type UpdateCategoryDto = {
     | "contract";
   policyOverrides?: CategoryPolicyOverridesInput;
   /**
-   * Per-category service fee config; overrides the group default when set
+   * Per-category service fee config; overrides the group default when set. Pass null to clear the override (fall back to the group default).
    */
-  serviceFeeOverride?: ServiceFeeConfigDto;
+  serviceFeeOverride?: ServiceFeeConfigDto | null;
   /**
    * Whether the category is active
    */
