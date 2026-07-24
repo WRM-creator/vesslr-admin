@@ -7443,6 +7443,14 @@ export type FundingReviewDto = {
    * The disclosed seller fee for this deal: config-derived estimates before confirmation, frozen figures after
    */
   sellerFee?: SellerFeeDto;
+  /**
+   * Buyer-paid escrow fee rate for this deal, as a fraction (0.01 = 1%). Absent or 0 = no buyer-side fee, which is the case for crude oil.
+   */
+  escrowFeeRate?: number;
+  /**
+   * The frozen escrow fee in settlement minor units; set only after confirmation.
+   */
+  escrowFeeAmount?: number;
   outstandingAmount?: number;
   /**
    * Overpayment at or below this suggests sweeping to platform income
@@ -7475,7 +7483,18 @@ export type ConfirmDepositFundingDto = {
 
 export type ConfirmDepositFundingResultDto = {
   escrowId: string;
+  /**
+   * What the buyer paid into escrow: the goods amount plus the escrow fee.
+   */
   escrowAmount: number;
+  /**
+   * The listed price (quantity × unit price): the seller gross.
+   */
+  goodsAmount: number;
+  /**
+   * The buyer-paid escrow fee added on top of the goods amount.
+   */
+  escrowFeeAmount: number;
   sellerAmount: number;
   serviceFeeAmount: number;
   excess: number;

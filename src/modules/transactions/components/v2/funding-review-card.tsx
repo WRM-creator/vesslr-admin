@@ -247,8 +247,13 @@ function ConfirmFundingDialog({
     : feeFormulaTotal;
 
   const derivable = priceValid && (!review.requiresFxRate || rateValid);
-  const escrowTotal = derivable ? Math.round(review.quantity * priceMinor) : 0;
-  const sellerAmount = derivable ? escrowTotal - feeSettlementTotal : 0;
+  // The buyer pays the listed price PLUS the escrow fee, so the deposit has
+  // to cover both; the seller's charge comes out of the goods amount alone.
+  // Mirrors confirmDepositLedFunding exactly.
+  const goodsTotal = derivable ? Math.round(review.quantity * priceMinor) : 0;
+  const escrowFeeTotal = Math.round(goodsTotal * (review.escrowFeeRate ?? 0));
+  const escrowTotal = goodsTotal + escrowFeeTotal;
+  const sellerAmount = derivable ? goodsTotal - feeSettlementTotal : 0;
   const platformTake = escrowTotal - sellerAmount;
   const projectedExcess = derivable
     ? Math.max(0, review.heldTotal - escrowTotal)
@@ -257,7 +262,7 @@ function ConfirmFundingDialog({
   const canSubmit =
     derivable &&
     referenceSource.trim().length > 0 &&
-    feeSettlementTotal < escrowTotal;
+    feeSettlementTotal < goodsTotal;
 
   const buildBody = (): ConfirmDepositFundingDto => ({
     buyerUnitPrice: priceMinor,
@@ -384,7 +389,8 @@ function ConfirmFundingDialog({
             <div className="space-y-2 text-sm">
               <div className="flex items-center justify-between">
                 <span className="text-muted-foreground">
-                  Escrow total ({review.quantity.toLocaleString()} x{" "}
+                  {escrowFeeTotal > 0 ? "Goods" : "Escrow total"} (
+                  {review.quantity.toLocaleString()} x{" "}
                   {priceValid
                     ? formatCurrency(priceMinor, currency, {
                         maximumFractionDigits: 2,
@@ -393,9 +399,38 @@ function ConfirmFundingDialog({
                   )
                 </span>
                 <span className="font-medium">
-                  {derivable ? formatCurrency(escrowTotal, currency) : "-"}
+                  {derivable ? formatCurrency(goodsTotal, currency) : "-"}
                 </span>
               </div>
+              {/* The buyer's deposit has to cover the escrow fee too, so the
+                  admin must see the required total, not just the goods. */}
+              {escrowFeeTotal > 0 && (
+                <>
+                  <div className="flex items-center justify-between">
+                    <span className="text-muted-foreground">
+                      Escrow fee (
+                      {((review.escrowFeeRate ?? 0) * 100).toLocaleString(
+                        "en-US",
+                        { maximumFractionDigits: 2 },
+                      )}
+                      %, buyer)
+                    </span>
+                    <span className="font-medium">
+                      {derivable
+                        ? formatCurrency(escrowFeeTotal, currency)
+                        : "-"}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-muted-foreground">
+                      Escrow total (buyer must have paid)
+                    </span>
+                    <span className="font-semibold">
+                      {derivable ? formatCurrency(escrowTotal, currency) : "-"}
+                    </span>
+                  </div>
+                </>
+              )}
               {review.requiresFxRate && (
                 <div className="flex items-center justify-between">
                   <span className="text-muted-foreground">
@@ -412,7 +447,7 @@ function ConfirmFundingDialog({
               )}
               <div className="flex items-center justify-between">
                 <span className="text-muted-foreground">
-                  Seller amount (escrow minus fee)
+                  Seller amount (goods minus fee)
                 </span>
                 <span className="font-medium">
                   {derivable ? formatCurrency(sellerAmount, currency) : "-"}

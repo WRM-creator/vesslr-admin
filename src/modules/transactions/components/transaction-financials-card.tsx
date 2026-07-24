@@ -92,23 +92,26 @@ export function TransactionFinancialsCard({
   // the buyer-side fee is zero (the buyer pays exactly the listed price) and
   // the order's serviceFeeAmount IS the seller's charge, so the same
   // arithmetic covers both bases.
-  const frozenCharge = (
-    order as unknown as {
-      frozenSellerFee?: { feeSettlementAmount?: number };
-    }
-  ).frozenSellerFee?.feeSettlementAmount;
-  const chargeConfig = (
-    order as unknown as {
-      serviceChargeConfig?: { feeType?: string; percentage?: number };
-    }
-  ).serviceChargeConfig;
-  const serviceChargeAmount = isDifferential
-    ? serviceFeeAmount
-    : (frozenCharge ??
-      (chargeConfig?.feeType === "percentage" && chargeConfig.percentage
-        ? Math.round(goodsAmount * chargeConfig.percentage)
-        : 0));
-  const escrowFeeAmount = isDifferential ? 0 : serviceFeeAmount;
+  const orderFees = order as unknown as {
+    frozenSellerFee?: { feeSettlementAmount?: number };
+    frozenEscrowFee?: { feeAmount?: number };
+    serviceChargeConfig?: { feeType?: string; percentage?: number };
+  };
+  const frozenCharge = orderFees.frozenSellerFee?.feeSettlementAmount;
+  const chargeConfig = orderFees.serviceChargeConfig;
+  const serviceChargeAmount =
+    frozenCharge ??
+    (chargeConfig?.feeType === "percentage" && chargeConfig.percentage
+      ? Math.round(goodsAmount * chargeConfig.percentage)
+      : isDifferential
+        ? serviceFeeAmount
+        : 0);
+  // On a differential order frozen before the two-fee model, serviceFeeAmount
+  // was the SELLER's charge, so it must not be read as a buyer fee — the
+  // absence of frozenEscrowFee is what identifies that shape.
+  const escrowFeeAmount =
+    orderFees.frozenEscrowFee?.feeAmount ??
+    (isDifferential ? 0 : serviceFeeAmount);
   const sellerPayout = goodsAmount - serviceChargeAmount;
   const platformRevenue = escrowFeeAmount + serviceChargeAmount;
   const chargeIsEstimate = !isDifferential && frozenCharge == null;
