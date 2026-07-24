@@ -1205,12 +1205,68 @@ export type UpdateMyProductDto = {
   milestones?: Array<RequestMilestoneDto>;
 };
 
+export type FeeTierDto = {
+  /**
+   * Tier applies to quantity up to and including this bound; omit for the open-ended top tier
+   */
+  upToQuantity?: number;
+  /**
+   * Minor units per unit of measure within this tier
+   */
+  perUnitAmount: number;
+};
+
 export type ServiceFeeConfigResponseDto = {
   payer: "buyer" | "seller" | "split";
-  feeType: "percentage" | "fixed" | "per_unit";
+  feeType: "percentage" | "fixed" | "per_unit" | "tiered";
   percentage?: number;
   fixedAmount?: number;
   perUnitAmount?: number;
+  currency?: "NGN" | "KES" | "USD" | "EUR" | "USDT" | "USDC";
+  unit?:
+    | "bbl"
+    | "liter"
+    | "gallon"
+    | "m3"
+    | "mt"
+    | "kg"
+    | "ton"
+    | "lb"
+    | "m"
+    | "ft"
+    | "sqm"
+    | "sqft"
+    | "scf"
+    | "sm3"
+    | "nm3"
+    | "mmbtu"
+    | "kwh"
+    | "mwh"
+    | "kva"
+    | "kw"
+    | "mw"
+    | "unit"
+    | "set"
+    | "kit"
+    | "pair"
+    | "joint"
+    | "roll"
+    | "sheet"
+    | "box"
+    | "pack"
+    | "drum"
+    | "bag"
+    | "cylinder"
+    | "ream"
+    | "license"
+    | "skid"
+    | "package"
+    | "plate"
+    | "bar";
+  minFee?: number;
+  maxFee?: number;
+  trigger?: "settlement" | "funding" | "delivery";
+  tiers?: Array<FeeTierDto>;
   refundable: boolean;
 };
 
@@ -1291,7 +1347,7 @@ export type ServiceFeeConfigDto = {
   /**
    * Fee calculation type
    */
-  feeType: "percentage" | "fixed" | "per_unit";
+  feeType: "percentage" | "fixed" | "per_unit" | "tiered";
   /**
    * Fee percentage (e.g. 0.03 for 3%)
    */
@@ -1301,9 +1357,72 @@ export type ServiceFeeConfigDto = {
    */
   fixedAmount?: number;
   /**
-   * Per-unit spread in minor currency units (feeType per_unit only): the hidden gap between seller-basis and buyer-facing differentials on commodity deals
+   * Per-unit fee in minor currency units per unit of measure (feeType per_unit only)
    */
   perUnitAmount?: number;
+  /**
+   * Currency the rate and min/max fees are quoted in; must equal the deal formula currency for commodity deals
+   */
+  currency?: "NGN" | "KES" | "USD" | "EUR" | "USDT" | "USDC";
+  /**
+   * Unit the per-unit rate is quoted per (required for feeType per_unit); validated against the deal unit of measurement
+   */
+  unit?:
+    | "bbl"
+    | "liter"
+    | "gallon"
+    | "m3"
+    | "mt"
+    | "kg"
+    | "ton"
+    | "lb"
+    | "m"
+    | "ft"
+    | "sqm"
+    | "sqft"
+    | "scf"
+    | "sm3"
+    | "nm3"
+    | "mmbtu"
+    | "kwh"
+    | "mwh"
+    | "kva"
+    | "kw"
+    | "mw"
+    | "unit"
+    | "set"
+    | "kit"
+    | "pair"
+    | "joint"
+    | "roll"
+    | "sheet"
+    | "box"
+    | "pack"
+    | "drum"
+    | "bag"
+    | "cylinder"
+    | "ream"
+    | "license"
+    | "skid"
+    | "package"
+    | "plate"
+    | "bar";
+  /**
+   * Lower clamp on the computed per-deal fee, minor units of currency
+   */
+  minFee?: number;
+  /**
+   * Upper clamp on the computed per-deal fee, minor units of currency
+   */
+  maxFee?: number;
+  /**
+   * When the fee is earned; only settlement is implemented, other values are rejected
+   */
+  trigger?: "settlement" | "funding" | "delivery";
+  /**
+   * Tiered fee ladder (feeType tiered only; not yet implemented, rejected)
+   */
+  tiers?: Array<FeeTierDto>;
   /**
    * Whether the fee is refundable on cancellation
    */
@@ -1532,6 +1651,7 @@ export type CategoryDto = {
     | "contract"
   >;
   policyOverrides?: CategoryPolicyOverridesDto;
+  serviceFeeOverride?: ServiceFeeConfigResponseDto;
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
@@ -6716,6 +6836,10 @@ export type CreateCategoryDto = {
     | "contract";
   policyOverrides?: CategoryPolicyOverridesInput;
   /**
+   * Per-category service fee config; overrides the group default when set
+   */
+  serviceFeeOverride?: ServiceFeeConfigDto;
+  /**
    * Whether the category is active
    */
   isActive?: boolean;
@@ -6796,6 +6920,10 @@ export type UpdateCategoryDto = {
     | "milestone"
     | "contract";
   policyOverrides?: CategoryPolicyOverridesInput;
+  /**
+   * Per-category service fee config; overrides the group default when set
+   */
+  serviceFeeOverride?: ServiceFeeConfigDto;
   /**
    * Whether the category is active
    */

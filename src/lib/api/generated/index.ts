@@ -991,6 +991,7 @@ export type {
   EscrowsControllerGetMySummaryResponse,
   EscrowsControllerGetMySummaryResponses,
   ExtendFundingWindowDto,
+  FeeTierDto,
   FieldValidationDto,
   FileMetadataDto,
   FileMetadataInput,
