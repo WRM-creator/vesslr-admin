@@ -86,12 +86,32 @@ export function TransactionFinancialsCard({
       : null,
   );
   const amountPending = isDifferential && order.totalAmount == null;
-  // Flat orders: fee is buyer-added (buyer pays goods + fee, seller gets the
-  // goods amount). Differential orders: fee is a seller deduction (buyer pays
-  // the goods amount, seller gets goods − fee).
-  const sellerPayout = isDifferential
-    ? goodsAmount - serviceFeeAmount
-    : goodsAmount;
+
+  // Two-fee model. The buyer pays goods + escrow fee; the seller receives
+  // goods − service charge; the platform earns both. On a differential order
+  // the buyer-side fee is zero (the buyer pays exactly the listed price) and
+  // the order's serviceFeeAmount IS the seller's charge, so the same
+  // arithmetic covers both bases.
+  const frozenCharge = (
+    order as unknown as {
+      frozenSellerFee?: { feeSettlementAmount?: number };
+    }
+  ).frozenSellerFee?.feeSettlementAmount;
+  const chargeConfig = (
+    order as unknown as {
+      serviceChargeConfig?: { feeType?: string; percentage?: number };
+    }
+  ).serviceChargeConfig;
+  const serviceChargeAmount = isDifferential
+    ? serviceFeeAmount
+    : (frozenCharge ??
+      (chargeConfig?.feeType === "percentage" && chargeConfig.percentage
+        ? Math.round(goodsAmount * chargeConfig.percentage)
+        : 0));
+  const escrowFeeAmount = isDifferential ? 0 : serviceFeeAmount;
+  const sellerPayout = goodsAmount - serviceChargeAmount;
+  const platformRevenue = escrowFeeAmount + serviceChargeAmount;
+  const chargeIsEstimate = !isDifferential && frozenCharge == null;
 
   return (
     <Card className="h-full">
@@ -209,11 +229,13 @@ export function TransactionFinancialsCard({
                       {formatCurrency(goodsAmount, currency)}
                     </span>
                   </div>
-                  {serviceFeeAmount > 0 && (
+                  {escrowFeeAmount > 0 && (
                     <div className="flex items-center justify-between text-sm">
-                      <span className="text-muted-foreground">Service Fee</span>
+                      <span className="text-muted-foreground">
+                        Escrow Fee (buyer)
+                      </span>
                       <span className="font-medium">
-                        {formatCurrency(serviceFeeAmount, currency)}
+                        {formatCurrency(escrowFeeAmount, currency)}
                       </span>
                     </div>
                   )}
@@ -224,17 +246,28 @@ export function TransactionFinancialsCard({
                       {formatCurrency(totalWithFee, currency)}
                     </span>
                   </div>
+                  {serviceChargeAmount > 0 && (
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-muted-foreground">
+                        Service Charge (seller)
+                        {chargeIsEstimate ? " — est." : ""}
+                      </span>
+                      <span className="font-medium">
+                        − {formatCurrency(serviceChargeAmount, currency)}
+                      </span>
+                    </div>
+                  )}
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-muted-foreground">Seller Payout</span>
                     <span className="font-medium text-green-600">
                       {formatCurrency(sellerPayout, currency)}
                     </span>
                   </div>
-                  {serviceFeeAmount > 0 && (
+                  {platformRevenue > 0 && (
                     <div className="flex items-center justify-between text-sm">
                       <span className="text-muted-foreground">Platform Revenue</span>
                       <span className="font-medium text-blue-600">
-                        {formatCurrency(serviceFeeAmount, currency)}
+                        {formatCurrency(platformRevenue, currency)}
                       </span>
                     </div>
                   )}

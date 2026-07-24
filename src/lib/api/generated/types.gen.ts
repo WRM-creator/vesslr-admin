@@ -10560,6 +10560,10 @@ export type CategoriesControllerGetSellerFeeData = {
      * Deal quantity — enables the estimated fee amount
      */
     quantity?: string;
+    /**
+     * Gross deal amount in minor units — enables an exact estimate for a percentage fee
+     */
+    grossAmount?: string;
   };
   url: "/api/v1/categories/{id}/seller-fee";
 };
