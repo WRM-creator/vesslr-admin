@@ -218,16 +218,25 @@ function ConfirmFundingDialog({
   const priceValid = Number.isFinite(parsedPrice) && parsedPrice > 0;
   const priceMinor = priceValid ? toMinorUnit(parsedPrice, currency) : 0;
 
-  // The spread rides on the formula, so it is quoted in the benchmark's
-  // currency. When the deal settles elsewhere it crosses at the rate the
-  // parties agreed. This mirrors convertSpreadToSettlement on the server.
+  // The seller fee rides on the formula, so it is quoted in the benchmark's
+  // currency. When the deal settles elsewhere the clamped total crosses at
+  // the rate the parties agreed. Mirrors calculateSellerFee +
+  // convertFeeToSettlement on the server: clamp formula-side, convert once.
   const parsedRate = Number(fxRateInput);
   const rateValid = Number.isFinite(parsedRate) && parsedRate > 0;
   const fxRateMicros = rateValid ? Math.round(parsedRate * 1_000_000) : 0;
-  const spreadSettlement = review.requiresFxRate
+  const fee = review.sellerFee;
+  const feeFormulaTotal = (() => {
+    if (!fee) return 0;
+    let total = Math.round(fee.feePerUnit * review.quantity);
+    if (fee.minFee != null) total = Math.max(total, fee.minFee);
+    if (fee.maxFee != null) total = Math.min(total, fee.maxFee);
+    return total;
+  })();
+  const feeSettlementTotal = review.requiresFxRate
     ? rateValid
       ? Math.round(
-          (review.spreadPerUnit *
+          (feeFormulaTotal *
             fxRateMicros *
             10 **
               (getCurrencyDecimals(currency) -
@@ -235,13 +244,11 @@ function ConfirmFundingDialog({
             1_000_000,
         )
       : 0
-    : review.spreadPerUnit;
+    : feeFormulaTotal;
 
   const derivable = priceValid && (!review.requiresFxRate || rateValid);
   const escrowTotal = derivable ? Math.round(review.quantity * priceMinor) : 0;
-  const sellerAmount = derivable
-    ? Math.round(review.quantity * (priceMinor - spreadSettlement))
-    : 0;
+  const sellerAmount = derivable ? escrowTotal - feeSettlementTotal : 0;
   const platformTake = escrowTotal - sellerAmount;
   const projectedExcess = derivable
     ? Math.max(0, review.heldTotal - escrowTotal)
@@ -250,7 +257,7 @@ function ConfirmFundingDialog({
   const canSubmit =
     derivable &&
     referenceSource.trim().length > 0 &&
-    priceMinor > spreadSettlement;
+    feeSettlementTotal < escrowTotal;
 
   const buildBody = (): ConfirmDepositFundingDto => ({
     buyerUnitPrice: priceMinor,
@@ -392,23 +399,20 @@ function ConfirmFundingDialog({
               {review.requiresFxRate && (
                 <div className="flex items-center justify-between">
                   <span className="text-muted-foreground">
-                    Spread per {unit} (
-                    {formatCurrency(
-                      review.spreadPerUnit,
-                      review.formulaCurrency,
-                    )}{" "}
+                    Seller fee (
+                    {formatCurrency(feeFormulaTotal, review.formulaCurrency)}{" "}
                     converted)
                   </span>
                   <span className="font-medium">
                     {derivable
-                      ? formatCurrency(spreadSettlement, currency)
+                      ? formatCurrency(feeSettlementTotal, currency)
                       : "-"}
                   </span>
                 </div>
               )}
               <div className="flex items-center justify-between">
                 <span className="text-muted-foreground">
-                  Seller amount (price minus spread)
+                  Seller amount (escrow minus fee)
                 </span>
                 <span className="font-medium">
                   {derivable ? formatCurrency(sellerAmount, currency) : "-"}
@@ -1295,11 +1299,11 @@ export function FundingReviewCard({ transaction }: FundingReviewCardProps) {
           </div>
           <div>
             <p className="text-muted-foreground text-[11px] font-medium tracking-wider uppercase">
-              Seller differential
+              Differential (buyer pays)
             </p>
             <p className="text-sm font-medium">
-              {review.sellerDifferentialValue != null
-                ? `${formatCurrency(review.sellerDifferentialValue, currency, {
+              {review.differentialValue != null
+                ? `${formatCurrency(review.differentialValue, review.formulaCurrency, {
                     maximumFractionDigits: 2,
                   })} / ${review.unitOfMeasurement || "unit"}`
                 : "-"}
@@ -1307,24 +1311,32 @@ export function FundingReviewCard({ transaction }: FundingReviewCardProps) {
           </div>
           <div>
             <p className="text-muted-foreground text-[11px] font-medium tracking-wider uppercase">
-              Platform spread
+              Seller fee
             </p>
             <p className="text-sm font-medium">
-              {`${formatCurrency(review.spreadPerUnit, currency, {
-                maximumFractionDigits: 2,
-              })} / ${review.unitOfMeasurement || "unit"}`}
+              {review.sellerFee
+                ? `${formatCurrency(review.sellerFee.feePerUnit, review.sellerFee.currency ?? review.formulaCurrency, {
+                    maximumFractionDigits: 2,
+                  })} / ${review.sellerFee.unit ?? review.unitOfMeasurement ?? "unit"}`
+                : "None configured"}
             </p>
           </div>
           <div>
             <p className="text-muted-foreground text-[11px] font-medium tracking-wider uppercase">
-              Buyer differential
+              Seller receives
             </p>
             <p className="text-sm font-medium">
-              {review.buyerDifferentialValue != null
-                ? `${formatCurrency(review.buyerDifferentialValue, currency, {
+              {review.sellerFee?.netAmount != null
+                ? formatCurrency(review.sellerFee.netAmount, currency, {
                     maximumFractionDigits: 2,
-                  })} / ${review.unitOfMeasurement || "unit"}`
-                : "-"}
+                  })
+                : review.differentialValue != null && review.sellerFee
+                  ? `${formatCurrency(
+                      review.differentialValue - review.sellerFee.feePerUnit,
+                      review.formulaCurrency,
+                      { maximumFractionDigits: 2 },
+                    )} / ${review.unitOfMeasurement || "unit"}`
+                  : "-"}
             </p>
           </div>
         </div>

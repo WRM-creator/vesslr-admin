@@ -60,13 +60,19 @@ export function TransactionFinancialsCard({
   const milestonePayouts = transaction.escrow?.milestonePayouts ?? [];
 
   // A differential order carries no figures until its benchmark resolves at
-  // escrow funding; the formula stands in until then. Admin responses carry
-  // the raw seller-basis differential plus the hidden platform spread, so
-  // this card can show both sides' views of the same price.
+  // escrow funding; the formula stands in until then. The differential is
+  // list-basis shared truth (the price the buyer pays); the platform fee is
+  // a disclosed SELLER deduction taken from the order's fee snapshot.
   const { isDifferential, formula } = useDifferentialFormula(order);
-  const spreadPerUnit = order.spreadPerUnit ?? 0;
-  const buyerFacingFormula = useDifferentialFormula(
-    isDifferential && spreadPerUnit > 0 && order.differentialPrice
+  const feeConfig = order.serviceFeeConfig;
+  const sellerFeePerUnit =
+    isDifferential &&
+    feeConfig?.payer === "seller" &&
+    feeConfig.feeType === "per_unit"
+      ? (feeConfig.perUnitAmount ?? 0)
+      : 0;
+  const sellerNetFormula = useDifferentialFormula(
+    isDifferential && sellerFeePerUnit > 0 && order.differentialPrice
       ? {
           pricingBasis: order.pricingBasis,
           currency: order.currency,
@@ -74,12 +80,18 @@ export function TransactionFinancialsCard({
           differentialPrice: {
             ...order.differentialPrice,
             differentialValue:
-              order.differentialPrice.differentialValue + spreadPerUnit,
+              order.differentialPrice.differentialValue - sellerFeePerUnit,
           },
         }
       : null,
   );
   const amountPending = isDifferential && order.totalAmount == null;
+  // Flat orders: fee is buyer-added (buyer pays goods + fee, seller gets the
+  // goods amount). Differential orders: fee is a seller deduction (buyer pays
+  // the goods amount, seller gets goods − fee).
+  const sellerPayout = isDifferential
+    ? goodsAmount - serviceFeeAmount
+    : goodsAmount;
 
   return (
     <Card className="h-full">
@@ -152,28 +164,33 @@ export function TransactionFinancialsCard({
                 <div className="space-y-3">
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-muted-foreground">
-                      {spreadPerUnit > 0 ? "Seller quotes" : "Price basis"}
+                      {sellerFeePerUnit > 0
+                        ? "Listed price (buyer pays)"
+                        : "Price basis"}
                     </span>
                     <span className="font-medium">
                       {formula ?? "Benchmark differential"}
                     </span>
                   </div>
-                  {spreadPerUnit > 0 && (
+                  {sellerFeePerUnit > 0 && (
                     <>
                       <div className="flex items-center justify-between text-sm">
                         <span className="text-muted-foreground">
-                          Platform spread (per unit)
+                          Vesslr fee (per unit, seller-paid)
                         </span>
                         <span className="font-medium text-blue-600">
-                          {formatCurrency(spreadPerUnit, currency)}
+                          {formatCurrency(
+                            sellerFeePerUnit,
+                            feeConfig?.currency ?? currency,
+                          )}
                         </span>
                       </div>
                       <div className="flex items-center justify-between text-sm">
                         <span className="text-muted-foreground">
-                          Buyer sees
+                          Seller receives
                         </span>
                         <span className="font-medium">
-                          {buyerFacingFormula.formula ?? "…"}
+                          {sellerNetFormula.formula ?? "…"}
                         </span>
                       </div>
                     </>
@@ -210,7 +227,7 @@ export function TransactionFinancialsCard({
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-muted-foreground">Seller Payout</span>
                     <span className="font-medium text-green-600">
-                      {formatCurrency(goodsAmount, currency)}
+                      {formatCurrency(sellerPayout, currency)}
                     </span>
                   </div>
                   {serviceFeeAmount > 0 && (

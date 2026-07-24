@@ -1,4 +1,3 @@
-import { Badge } from "@/components/ui/badge";
 import {
   Card,
   CardContent,
@@ -6,17 +5,11 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { api } from "@/lib/api";
 import { fromMinorUnit } from "@/lib/currency";
-import { Loader2, Lock } from "lucide-react";
-import { useState } from "react";
-import { toast } from "sonner";
+import type { SellerFeeDto } from "@/lib/api/generated/types.gen";
 import { useDifferentialFormula } from "@/modules/transactions/components/differential-formula";
 
-interface ProductSpreadCardProps {
+interface ProductSellerFeeCardProps {
   product: {
     _id: string;
     status?: string;
@@ -28,35 +21,35 @@ interface ProductSpreadCardProps {
     } | null;
     currency?: string;
     unitOfMeasurement?: string;
-    spreadPerUnit?: number;
-    spreadFrozenAt?: string | Date | null;
+    sellerFee?: SellerFeeDto;
   };
 }
 
+const formatMinor = (amount: number, currency: string) =>
+  `${fromMinorUnit(amount, currency).toLocaleString("en-US", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })} ${currency}`;
+
 /**
- * Admin-only view and (pre-approval) editor of the hidden platform spread on
- * a differential listing. Storage is seller-basis; buyers see the seller
- * differential shifted up by the spread. Once the listing is approved the
- * spread is frozen: buyers have seen the quoted number.
+ * Read-only view of the disclosed platform fee resolved for a differential
+ * listing (category override ?? group default). The fee is a SELLER deduction
+ * from the listed price: the buyer pays exactly what is listed, and this card
+ * shows the same gross / fee / net picture the seller sees. The fee itself is
+ * configured on the category or category group, not per listing.
  */
-export function ProductSpreadCard({ product }: ProductSpreadCardProps) {
+export function ProductSpreadCard({ product }: ProductSellerFeeCardProps) {
   const isDifferential =
     product.pricingBasis === "differential" && !!product.differentialPrice;
 
-  const frozen = !!product.spreadFrozenAt || product.status === "approved";
-  const currentSpread = product.spreadPerUnit ?? 0;
-  // The differential and the spread are quoted in the benchmark's currency;
-  // the listing may settle in another.
+  const fee = product.sellerFee;
   const formulaCurrency =
-    product.differentialPrice?.differentialCurrency ?? product.currency ?? "USD";
-  const settlesElsewhere =
-    !!product.currency && product.currency !== formulaCurrency;
-  const [spreadInput, setSpreadInput] = useState<number>(currentSpread);
+    fee?.currency ??
+    product.differentialPrice?.differentialCurrency ??
+    product.currency ??
+    "USD";
 
-  const { mutate: updateProduct, isPending } =
-    api.admin.products.update.useMutation();
-
-  const sellerFormula = useDifferentialFormula(
+  const listedFormula = useDifferentialFormula(
     isDifferential
       ? {
           pricingBasis: "differential",
@@ -66,15 +59,15 @@ export function ProductSpreadCard({ product }: ProductSpreadCardProps) {
         }
       : null,
   );
-  const buyerFormula = useDifferentialFormula(
-    isDifferential
+  const netFormula = useDifferentialFormula(
+    isDifferential && fee
       ? {
           pricingBasis: "differential",
           differentialPrice: {
             ...(product.differentialPrice as object),
             differentialValue:
-              (product.differentialPrice?.differentialValue ?? 0) +
-              currentSpread,
+              (product.differentialPrice?.differentialValue ?? 0) -
+              fee.feePerUnit,
           } as never,
           currency: (product.currency ?? "USD") as never,
           unitOfMeasurement: (product.unitOfMeasurement ?? "") as never,
@@ -84,100 +77,53 @@ export function ProductSpreadCard({ product }: ProductSpreadCardProps) {
 
   if (!isDifferential) return null;
 
-  const saveSpread = () => {
-    updateProduct(
-      { path: { id: product._id }, body: { spreadPerUnit: spreadInput } },
-      {
-        onSuccess: () => toast.success("Platform spread updated"),
-        onError: (e: unknown) =>
-          toast.error(
-            e instanceof Error && e.message
-              ? e.message
-              : "Failed to update the spread",
-          ),
-      },
-    );
-  };
-
   return (
     <Card>
       <CardHeader>
-        <div className="flex items-center justify-between">
-          <div>
-            <CardTitle>Platform Spread</CardTitle>
-            <CardDescription>
-              Admin-only. The buyer is quoted the seller differential plus this
-              per-unit spread; neither party ever sees a fee line. Quoted in{" "}
-              {formulaCurrency}
-              {settlesElsewhere
-                ? `, converted to ${product.currency} at the rate agreed when funding is confirmed.`
-                : "."}
-            </CardDescription>
-          </div>
-          {frozen && (
-            <Badge variant="secondary" className="gap-1">
-              <Lock className="h-3 w-3" />
-              Frozen
-            </Badge>
-          )}
-        </div>
+        <CardTitle>Platform Fee</CardTitle>
+        <CardDescription>
+          Disclosed seller fee resolved from the category configuration. The
+          buyer pays exactly the listed price; the fee is deducted from the
+          seller&apos;s proceeds at settlement.
+        </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="grid gap-4 sm:grid-cols-3">
-          <div className="space-y-0.5">
-            <p className="text-muted-foreground text-xs">Seller quotes</p>
-            <p className="text-sm font-medium">
-              {sellerFormula.formula ?? "…"}
-            </p>
-          </div>
-          <div className="space-y-0.5">
-            <p className="text-muted-foreground text-xs">Spread per unit</p>
-            <p className="text-sm font-medium">
-              {fromMinorUnit(currentSpread, formulaCurrency).toLocaleString(
-                "en-US",
-                { minimumFractionDigits: 2, maximumFractionDigits: 2 },
-              )}{" "}
-              {formulaCurrency}
-            </p>
-          </div>
-          <div className="space-y-0.5">
-            <p className="text-muted-foreground text-xs">Buyer sees</p>
-            <p className="text-sm font-medium">{buyerFormula.formula ?? "…"}</p>
-          </div>
-        </div>
-
-        {!frozen && (
-          <div className="space-y-2 border-t pt-4">
-            <Label htmlFor="spread-input">
-              Adjust spread ({formulaCurrency} minor units per unit)
-            </Label>
-            <div className="flex items-center gap-2">
-              <Input
-                id="spread-input"
-                type="number"
-                min={0}
-                step={1}
-                value={spreadInput}
-                onChange={(e) => setSpreadInput(Number(e.target.value))}
-                className="w-48"
-                disabled={isPending}
-              />
-              <Button
-                size="sm"
-                onClick={saveSpread}
-                disabled={isPending || spreadInput === currentSpread}
-              >
-                {isPending && (
-                  <Loader2 className="mr-1 h-3.5 w-3.5 animate-spin" />
-                )}
-                Save
-              </Button>
+      <CardContent>
+        {fee ? (
+          <div className="grid gap-4 sm:grid-cols-3">
+            <div className="space-y-0.5">
+              <p className="text-muted-foreground text-xs">
+                Listed price (buyer pays)
+              </p>
+              <p className="text-sm font-medium">
+                {listedFormula.formula ?? "…"}
+              </p>
             </div>
-            <p className="text-muted-foreground text-sm">
-              Editable until the listing is approved. Approval freezes the
-              spread permanently.
-            </p>
+            <div className="space-y-0.5">
+              <p className="text-muted-foreground text-xs">Vesslr fee</p>
+              <p className="text-sm font-medium">
+                − {formatMinor(fee.feePerUnit, formulaCurrency)}
+                {fee.unit ? ` / ${fee.unit}` : ""}
+              </p>
+              {(fee.minFee != null || fee.maxFee != null) && (
+                <p className="text-muted-foreground text-xs">
+                  {fee.minFee != null &&
+                    `min ${formatMinor(fee.minFee, formulaCurrency)}`}
+                  {fee.minFee != null && fee.maxFee != null && " · "}
+                  {fee.maxFee != null &&
+                    `max ${formatMinor(fee.maxFee, formulaCurrency)}`}
+                </p>
+              )}
+            </div>
+            <div className="space-y-0.5">
+              <p className="text-muted-foreground text-xs">Seller receives</p>
+              <p className="text-sm font-medium">{netFormula.formula ?? "…"}</p>
+            </div>
           </div>
+        ) : (
+          <p className="text-muted-foreground text-sm">
+            No seller fee is configured for this listing&apos;s category — the
+            deal flows fee-free until one is set on the category or group.
+          </p>
         )}
       </CardContent>
     </Card>

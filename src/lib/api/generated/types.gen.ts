@@ -1657,6 +1657,92 @@ export type CategoryDto = {
   updatedAt: string;
 };
 
+export type SellerFeeDto = {
+  /**
+   * How the fee is computed (per_unit or percentage)
+   */
+  method: "percentage" | "fixed" | "per_unit" | "tiered";
+  /**
+   * Fee per unit in minor units of the formula currency (display-level; the exact figure is feeAmount)
+   */
+  feePerUnit: number;
+  /**
+   * Formula (benchmark) currency the fee is quoted in
+   */
+  currency?: "NGN" | "KES" | "USD" | "EUR" | "USDT" | "USDC";
+  /**
+   * Unit the per-unit rate is quoted per
+   */
+  unit?:
+    | "bbl"
+    | "liter"
+    | "gallon"
+    | "m3"
+    | "mt"
+    | "kg"
+    | "ton"
+    | "lb"
+    | "m"
+    | "ft"
+    | "sqm"
+    | "sqft"
+    | "scf"
+    | "sm3"
+    | "nm3"
+    | "mmbtu"
+    | "kwh"
+    | "mwh"
+    | "kva"
+    | "kw"
+    | "mw"
+    | "unit"
+    | "set"
+    | "kit"
+    | "pair"
+    | "joint"
+    | "roll"
+    | "sheet"
+    | "box"
+    | "pack"
+    | "drum"
+    | "bag"
+    | "cylinder"
+    | "ream"
+    | "license"
+    | "skid"
+    | "package"
+    | "plate"
+    | "bar";
+  /**
+   * Percentage rate (method percentage)
+   */
+  percentage?: number;
+  /**
+   * Lower clamp on the per-deal fee, minor units
+   */
+  minFee?: number;
+  /**
+   * Upper clamp on the per-deal fee, minor units
+   */
+  maxFee?: number;
+  /**
+   * True once funding confirmation froze the figures; false while they are estimates
+   */
+  frozen: boolean;
+  /**
+   * Fee amount in minor units of the formula currency: estimated pre-freeze (when computable), exact after
+   */
+  feeAmount?: number;
+  /**
+   * What the seller receives after the fee (gross − feeAmount), when the gross is known
+   */
+  netAmount?: number;
+  /**
+   * Frozen fee crossed into the settlement currency at the agreed rate (frozen only)
+   */
+  feeSettlementAmount?: number;
+};
+
 export type MilestoneInputDto = {
   name: string;
   description?: string;
@@ -1985,13 +2071,13 @@ export type OrderResponseDto = {
    */
   pricingBasis: "flat" | "differential";
   /**
-   * Benchmark ± differential formula (differential orders only). Presented in the viewer basis: the buyer sees the seller value shifted by the hidden platform spread; the seller sees the raw stored value.
+   * Benchmark ± differential formula (differential orders only). List-basis shared truth: every viewer sees the same number, the price the buyer pays.
    */
   differentialPrice?: DifferentialPriceResponseDto;
   /**
-   * Hidden per-unit platform spread (minor units). ADMIN RESPONSES ONLY — stripped at serialization for both trading parties, whose differential views already embed it.
+   * Disclosed platform fee on a differential order — seller viewer only. Estimates until funding freezes the figures.
    */
-  spreadPerUnit?: number;
+  sellerFee?: SellerFeeDto;
   /**
    * Price per unit in minor currency units. Unset for a differential order until funding.
    */
@@ -6496,10 +6582,6 @@ export type CreateProductDto = {
   delistReason?: string;
   isActive?: boolean;
   rejectionReason?: string;
-  /**
-   * Hidden per-unit platform spread (minor units) on a differential listing. Editable during review only; rejected once the listing is approved (spread frozen).
-   */
-  spreadPerUnit?: number;
 };
 
 export type AdminProductResponseDto = {
@@ -6594,13 +6676,9 @@ export type AdminProductResponseDto = {
   commercialTerms?: CommercialTermsResponseDto;
   milestones?: Array<RequestMilestoneDto>;
   /**
-   * Hidden per-unit platform spread (minor units) on a differential listing. Buyers see differentialValue + spreadPerUnit; the stored value is seller-basis.
+   * The seller fee currently resolved for this listing (differential listings only)
    */
-  spreadPerUnit?: number;
-  /**
-   * When the spread froze (set at listing approval). A frozen spread can never be edited.
-   */
-  spreadFrozenAt?: string;
+  sellerFee?: SellerFeeDto;
 };
 
 export type UpdateProductDto = {
@@ -6699,10 +6777,6 @@ export type UpdateProductDto = {
   delistReason?: string;
   isActive?: boolean;
   rejectionReason?: string;
-  /**
-   * Hidden per-unit platform spread (minor units) on a differential listing. Editable during review only; rejected once the listing is approved (spread frozen).
-   */
-  spreadPerUnit?: number;
 };
 
 export type CategoryDocumentTemplateInput = {
@@ -7318,17 +7392,13 @@ export type FundingReviewDto = {
   quantity: number;
   unitOfMeasurement?: string;
   /**
-   * Seller-basis differential value (minor units per unit)
+   * The deal differential (minor units per unit, formula currency). List-basis shared truth: the price the buyer pays against the benchmark.
    */
-  sellerDifferentialValue?: number;
+  differentialValue?: number;
   /**
-   * Hidden per-unit platform spread (minor units)
+   * The disclosed seller fee for this deal: config-derived estimates before confirmation, frozen figures after
    */
-  spreadPerUnit: number;
-  /**
-   * Buyer-facing differential value (seller + spread)
-   */
-  buyerDifferentialValue?: number;
+  sellerFee?: SellerFeeDto;
   outstandingAmount?: number;
   /**
    * Overpayment at or below this suggests sweeping to platform income
@@ -7368,9 +7438,9 @@ export type ConfirmDepositFundingResultDto = {
   excessAction?: "SWEEP" | "HOLD";
   waiverAmount: number;
   /**
-   * The per-unit spread in settlement currency that the figures were derived with (equals the configured spread when no conversion applied).
+   * The seller fee in settlement currency that the figures were derived with (equals the formula-currency fee when no conversion applied).
    */
-  spreadSettlement: number;
+  feeSettlementAmount: number;
 };
 
 export type ConfirmDepositFundingWithWaiverDto = {
@@ -10431,6 +10501,34 @@ export type CategoriesControllerFindOneResponses = {
 
 export type CategoriesControllerFindOneResponse =
   CategoriesControllerFindOneResponses[keyof CategoriesControllerFindOneResponses];
+
+export type CategoriesControllerGetSellerFeeData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: {
+    /**
+     * Deal unit of measurement, to sanity-check a per-unit rate
+     */
+    unit?: string;
+    /**
+     * Deal quantity — enables the estimated fee amount
+     */
+    quantity?: string;
+  };
+  url: "/api/v1/categories/{id}/seller-fee";
+};
+
+export type CategoriesControllerGetSellerFeeResponses = {
+  /**
+   * The resolved seller fee, or an empty body when no seller fee is configured
+   */
+  200: SellerFeeDto;
+};
+
+export type CategoriesControllerGetSellerFeeResponse =
+  CategoriesControllerGetSellerFeeResponses[keyof CategoriesControllerGetSellerFeeResponses];
 
 export type TransactionsControllerFindInFlightData = {
   body?: never;

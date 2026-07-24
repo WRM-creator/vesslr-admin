@@ -315,6 +315,8 @@ import type {
   CategoriesControllerFindAllResponses,
   CategoriesControllerFindOneData,
   CategoriesControllerFindOneResponses,
+  CategoriesControllerGetSellerFeeData,
+  CategoriesControllerGetSellerFeeResponses,
   CategoryGroupsControllerFindAllData,
   CategoryGroupsControllerFindAllResponses,
   CategoryGroupsControllerFindOneData,
@@ -1540,6 +1542,24 @@ export const categoriesControllerFindOne = <
   >({
     security: [{ scheme: "bearer", type: "http" }],
     url: "/api/v1/categories/{id}",
+    ...options,
+  });
+
+/**
+ * Quote the seller fee resolved for a category (category override ?? group default) — powers the listing form's netback preview before a listing exists
+ */
+export const categoriesControllerGetSellerFee = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<CategoriesControllerGetSellerFeeData, ThrowOnError>,
+) =>
+  (options.client ?? client).get<
+    CategoriesControllerGetSellerFeeResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/categories/{id}/seller-fee",
     ...options,
   });
 
