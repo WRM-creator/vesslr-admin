@@ -7,6 +7,11 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 import { Separator } from "@/components/ui/separator";
 import { Spinner } from "@/components/ui/spinner";
 import { api } from "@/lib/api";
@@ -16,7 +21,7 @@ import {
   deriveSettlementFees,
   ratePercentLabel,
 } from "@/modules/transactions/lib/settlement-fees";
-import { AlertCircle, CheckCircle2 } from "lucide-react";
+import { AlertCircle, CheckCircle2, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
 
 interface ReleaseSettlementDialogProps {
@@ -72,58 +77,69 @@ export function ReleaseSettlementDialog({
         </DialogHeader>
 
         <div className="bg-muted/40 rounded-md border p-4">
-          <div className="space-y-3">
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">Goods subtotal</span>
-              <span className="font-medium">
-                {formatCurrency(fees.goodsAmount, currency)}
-              </span>
-            </div>
-            {fees.escrowFeeAmount > 0 && (
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-muted-foreground">
-                  Escrow fee (buyer{ratePercentLabel(fees.escrowFeeRate)})
-                </span>
-                <span className="font-medium">
-                  +{formatCurrency(fees.escrowFeeAmount, currency)}
-                </span>
-              </div>
-            )}
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">
-                Escrow balance (buyer funded)
-              </span>
-              <span className="font-medium">
-                {formatCurrency(fees.escrowHeld, currency)}
-              </span>
-            </div>
-            {fees.serviceChargeAmount > 0 && (
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-muted-foreground">
-                  Service charge (seller
-                  {ratePercentLabel(fees.serviceChargeRate)})
-                </span>
-                <span className="font-medium">
-                  −{formatCurrency(fees.serviceChargeAmount, currency)}
-                </span>
-              </div>
-            )}
-            <Separator />
-            <div className="flex items-center justify-between text-base font-semibold">
-              <span>Amount to Release to Seller</span>
-              <span className="text-green-600">
+          {/* Anchor: the pool being distributed. */}
+          <div className="text-center">
+            <p className="text-muted-foreground text-xs">Held in escrow</p>
+            <p className="text-2xl font-semibold tracking-tight">
+              {formatCurrency(fees.escrowHeld, currency)}
+            </p>
+          </div>
+
+          <Separator className="my-3" />
+
+          {/* The split: seller payout dominant, platform fee muted. Together
+              they reconcile to the escrow balance above. */}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-medium">Release to seller</span>
+              <span className="text-lg font-semibold text-green-600">
                 {formatCurrency(fees.sellerPayout, currency)}
               </span>
             </div>
             {fees.platformRevenue > 0 && (
-              <div className="flex items-center justify-between text-xs">
-                <span className="text-muted-foreground">Vesslr total take</span>
-                <span className="text-muted-foreground">
+              <div className="flex items-center justify-between">
+                <span className="text-muted-foreground text-sm">Vesslr fee</span>
+                <span className="text-muted-foreground text-sm font-medium">
                   {formatCurrency(fees.platformRevenue, currency)}
                 </span>
               </div>
             )}
           </div>
+
+          {/* Progressive disclosure: the goods/fee derivation, collapsed. */}
+          {(fees.escrowFeeAmount > 0 || fees.serviceChargeAmount > 0) && (
+            <Collapsible className="mt-3">
+              <CollapsibleTrigger className="text-muted-foreground hover:text-foreground group flex w-full items-center gap-1 text-xs">
+                <ChevronRight className="size-3 transition-transform group-data-[state=open]:rotate-90" />
+                Breakdown
+              </CollapsibleTrigger>
+              <CollapsibleContent className="mt-2 space-y-1.5">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-muted-foreground">Goods subtotal</span>
+                  <span>{formatCurrency(fees.goodsAmount, currency)}</span>
+                </div>
+                {fees.escrowFeeAmount > 0 && (
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="text-muted-foreground">
+                      Escrow fee (buyer{ratePercentLabel(fees.escrowFeeRate)})
+                    </span>
+                    <span>+{formatCurrency(fees.escrowFeeAmount, currency)}</span>
+                  </div>
+                )}
+                {fees.serviceChargeAmount > 0 && (
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="text-muted-foreground">
+                      Service charge (seller
+                      {ratePercentLabel(fees.serviceChargeRate)})
+                    </span>
+                    <span>
+                      −{formatCurrency(fees.serviceChargeAmount, currency)}
+                    </span>
+                  </div>
+                )}
+              </CollapsibleContent>
+            </Collapsible>
+          )}
         </div>
 
         <div className="flex items-start gap-2 rounded-md bg-amber-50 p-3 text-xs text-amber-800 dark:bg-amber-950/20 dark:text-amber-400">
