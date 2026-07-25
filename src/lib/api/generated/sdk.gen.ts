@@ -1510,6 +1510,42 @@ export const benchmarksControllerFindAll = <
   >({ url: "/api/v1/benchmarks", ...options });
 
 /**
+ * Get all active category specialties
+ */
+export const categorySpecialtiesControllerFindAll = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<CategorySpecialtiesControllerFindAllData, ThrowOnError>,
+) =>
+  (options?.client ?? client).get<
+    CategorySpecialtiesControllerFindAllResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/category-specialties",
+    ...options,
+  });
+
+/**
+ * Get a category specialty by ID
+ */
+export const categorySpecialtiesControllerFindOne = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<CategorySpecialtiesControllerFindOneData, ThrowOnError>,
+) =>
+  (options.client ?? client).get<
+    CategorySpecialtiesControllerFindOneResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/category-specialties/{id}",
+    ...options,
+  });
+
+/**
  * Get all active categories
  */
 export const categoriesControllerFindAll = <
@@ -2279,42 +2315,6 @@ export const staleRequestActionsControllerRespond = <
     unknown,
     ThrowOnError
   >({ url: "/api/v1/requests/stale-actions/respond", ...options });
-
-/**
- * Get all active category specialties
- */
-export const categorySpecialtiesControllerFindAll = <
-  ThrowOnError extends boolean = false,
->(
-  options?: Options<CategorySpecialtiesControllerFindAllData, ThrowOnError>,
-) =>
-  (options?.client ?? client).get<
-    CategorySpecialtiesControllerFindAllResponses,
-    unknown,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/api/v1/category-specialties",
-    ...options,
-  });
-
-/**
- * Get a category specialty by ID
- */
-export const categorySpecialtiesControllerFindOne = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<CategorySpecialtiesControllerFindOneData, ThrowOnError>,
-) =>
-  (options.client ?? client).get<
-    CategorySpecialtiesControllerFindOneResponses,
-    unknown,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/api/v1/category-specialties/{id}",
-    ...options,
-  });
 
 /**
  * List negotiations for current user's organization

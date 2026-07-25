@@ -1114,7 +1114,12 @@ export type CommercialTermsDto = {
 };
 
 export type UpsertMyProductDto = {
-  title: string;
+  /**
+   * Ignored. The listing name is derived from the category leaf and equipment specs.
+   *
+   * @deprecated
+   */
+  title?: string;
   description: string;
   specialtyId: string;
   categoryId: string;
@@ -1207,6 +1212,11 @@ export type UpsertMyProductDto = {
 };
 
 export type UpdateMyProductDto = {
+  /**
+   * Ignored. The listing name is derived from the category leaf and equipment specs.
+   *
+   * @deprecated
+   */
   title?: string;
   description?: string;
   specialtyId?: string;
@@ -1639,6 +1649,161 @@ export type BenchmarkDto = {
     | "plate"
     | "bar";
   active: boolean;
+};
+
+export type CategorySpecialtyDto = {
+  _id: string;
+  name: string;
+  slug: string;
+  categoryId: string;
+  groupId: string;
+  allowedUnits?: Array<
+    | "bbl"
+    | "liter"
+    | "gallon"
+    | "m3"
+    | "mt"
+    | "kg"
+    | "ton"
+    | "lb"
+    | "m"
+    | "ft"
+    | "sqm"
+    | "sqft"
+    | "scf"
+    | "sm3"
+    | "nm3"
+    | "mmbtu"
+    | "kwh"
+    | "mwh"
+    | "kva"
+    | "kw"
+    | "mw"
+    | "unit"
+    | "set"
+    | "kit"
+    | "pair"
+    | "joint"
+    | "roll"
+    | "sheet"
+    | "box"
+    | "pack"
+    | "drum"
+    | "bag"
+    | "cylinder"
+    | "ream"
+    | "license"
+    | "skid"
+    | "package"
+    | "plate"
+    | "bar"
+    | "hour"
+    | "day"
+    | "week"
+    | "month"
+    | "year"
+    | "project"
+    | "milestone"
+    | "contract"
+  >;
+  allowedTradeTerms?: Array<
+    | "FOB"
+    | "CIF"
+    | "CFR"
+    | "EX_WORKS"
+    | "DELIVERED"
+    | "TTO"
+    | "TTT"
+    | "FOT"
+    | "FCA"
+    | "DAP"
+    | "DDP"
+    | "NA"
+  >;
+  /**
+   * Listing types allowed for this specialty (from parent group)
+   */
+  listingTypes: Array<
+    "product" | "service" | "rental" | "lease" | "charter" | "rfq"
+  >;
+  /**
+   * Resolved units: specialty override or inherited from parent category
+   */
+  resolvedUnits: Array<
+    | "bbl"
+    | "liter"
+    | "gallon"
+    | "m3"
+    | "mt"
+    | "kg"
+    | "ton"
+    | "lb"
+    | "m"
+    | "ft"
+    | "sqm"
+    | "sqft"
+    | "scf"
+    | "sm3"
+    | "nm3"
+    | "mmbtu"
+    | "kwh"
+    | "mwh"
+    | "kva"
+    | "kw"
+    | "mw"
+    | "unit"
+    | "set"
+    | "kit"
+    | "pair"
+    | "joint"
+    | "roll"
+    | "sheet"
+    | "box"
+    | "pack"
+    | "drum"
+    | "bag"
+    | "cylinder"
+    | "ream"
+    | "license"
+    | "skid"
+    | "package"
+    | "plate"
+    | "bar"
+    | "hour"
+    | "day"
+    | "week"
+    | "month"
+    | "year"
+    | "project"
+    | "milestone"
+    | "contract"
+  >;
+  /**
+   * Resolved trade terms: specialty override or inherited from parent group
+   */
+  resolvedTradeTerms: Array<
+    | "FOB"
+    | "CIF"
+    | "CFR"
+    | "EX_WORKS"
+    | "DELIVERED"
+    | "TTO"
+    | "TTT"
+    | "FOT"
+    | "FCA"
+    | "DAP"
+    | "DDP"
+    | "NA"
+  >;
+  isActive: boolean;
+  sortOrder: number;
+  image?: string;
+  /**
+   * Number of products listed under this specialty
+   */
+  productCount: number;
+  createdAt: string;
+  updatedAt: string;
 };
 
 export type CategoryDocumentTemplateDto = {
@@ -3140,7 +3305,12 @@ export type CreateRequestDto = {
    * What kind of listing this is
    */
   listingType: "product" | "service" | "rental" | "lease" | "charter" | "rfq";
-  name: string;
+  /**
+   * Ignored. The request name is derived from the category leaf and equipment specs.
+   *
+   * @deprecated
+   */
+  name?: string;
   quantity: number;
   region: Array<string>;
   country: Array<string>;
@@ -3404,6 +3574,11 @@ export type UpdateRequestDto = {
    * What kind of listing this is
    */
   listingType?: "product" | "service" | "rental" | "lease" | "charter" | "rfq";
+  /**
+   * Ignored. The request name is derived from the category leaf and equipment specs.
+   *
+   * @deprecated
+   */
   name?: string;
   quantity?: number;
   region?: Array<string>;
@@ -3528,161 +3703,6 @@ export type UpdateRequestDto = {
   specifications?: SpecificationsDto;
   commercialTerms?: CommercialTermsDto;
   status?: "pending" | "in_review" | "matched" | "fulfilled" | "cancelled";
-};
-
-export type CategorySpecialtyDto = {
-  _id: string;
-  name: string;
-  slug: string;
-  categoryId: string;
-  groupId: string;
-  allowedUnits?: Array<
-    | "bbl"
-    | "liter"
-    | "gallon"
-    | "m3"
-    | "mt"
-    | "kg"
-    | "ton"
-    | "lb"
-    | "m"
-    | "ft"
-    | "sqm"
-    | "sqft"
-    | "scf"
-    | "sm3"
-    | "nm3"
-    | "mmbtu"
-    | "kwh"
-    | "mwh"
-    | "kva"
-    | "kw"
-    | "mw"
-    | "unit"
-    | "set"
-    | "kit"
-    | "pair"
-    | "joint"
-    | "roll"
-    | "sheet"
-    | "box"
-    | "pack"
-    | "drum"
-    | "bag"
-    | "cylinder"
-    | "ream"
-    | "license"
-    | "skid"
-    | "package"
-    | "plate"
-    | "bar"
-    | "hour"
-    | "day"
-    | "week"
-    | "month"
-    | "year"
-    | "project"
-    | "milestone"
-    | "contract"
-  >;
-  allowedTradeTerms?: Array<
-    | "FOB"
-    | "CIF"
-    | "CFR"
-    | "EX_WORKS"
-    | "DELIVERED"
-    | "TTO"
-    | "TTT"
-    | "FOT"
-    | "FCA"
-    | "DAP"
-    | "DDP"
-    | "NA"
-  >;
-  /**
-   * Listing types allowed for this specialty (from parent group)
-   */
-  listingTypes: Array<
-    "product" | "service" | "rental" | "lease" | "charter" | "rfq"
-  >;
-  /**
-   * Resolved units: specialty override or inherited from parent category
-   */
-  resolvedUnits: Array<
-    | "bbl"
-    | "liter"
-    | "gallon"
-    | "m3"
-    | "mt"
-    | "kg"
-    | "ton"
-    | "lb"
-    | "m"
-    | "ft"
-    | "sqm"
-    | "sqft"
-    | "scf"
-    | "sm3"
-    | "nm3"
-    | "mmbtu"
-    | "kwh"
-    | "mwh"
-    | "kva"
-    | "kw"
-    | "mw"
-    | "unit"
-    | "set"
-    | "kit"
-    | "pair"
-    | "joint"
-    | "roll"
-    | "sheet"
-    | "box"
-    | "pack"
-    | "drum"
-    | "bag"
-    | "cylinder"
-    | "ream"
-    | "license"
-    | "skid"
-    | "package"
-    | "plate"
-    | "bar"
-    | "hour"
-    | "day"
-    | "week"
-    | "month"
-    | "year"
-    | "project"
-    | "milestone"
-    | "contract"
-  >;
-  /**
-   * Resolved trade terms: specialty override or inherited from parent group
-   */
-  resolvedTradeTerms: Array<
-    | "FOB"
-    | "CIF"
-    | "CFR"
-    | "EX_WORKS"
-    | "DELIVERED"
-    | "TTO"
-    | "TTT"
-    | "FOT"
-    | "FCA"
-    | "DAP"
-    | "DDP"
-    | "NA"
-  >;
-  isActive: boolean;
-  sortOrder: number;
-  image?: string;
-  /**
-   * Number of products listed under this specialty
-   */
-  productCount: number;
-  createdAt: string;
-  updatedAt: string;
 };
 
 export type CreateNegotiationDto = {
@@ -6515,7 +6535,12 @@ export type ReopenFundingWindowDto = {
 };
 
 export type CreateProductDto = {
-  title: string;
+  /**
+   * Ignored. The listing name is derived from the category leaf and equipment specs.
+   *
+   * @deprecated
+   */
+  title?: string;
   description: string;
   specialtyId: string;
   categoryId: string;
@@ -6710,6 +6735,11 @@ export type AdminProductResponseDto = {
 };
 
 export type UpdateProductDto = {
+  /**
+   * Ignored. The listing name is derived from the category leaf and equipment specs.
+   *
+   * @deprecated
+   */
   title?: string;
   description?: string;
   specialtyId?: string;
@@ -7426,7 +7456,7 @@ export type FundingReviewDto = {
    */
   currency: string;
   /**
-   * Formula currency: the benchmark currency the differential and the spread are quoted in. Equals the settlement currency unless the deal settles cross-currency.
+   * Formula currency: the benchmark currency the differential and the seller charge are quoted in. Equals the settlement currency unless the deal settles cross-currency.
    */
   formulaCurrency: string;
   /**
@@ -7460,7 +7490,7 @@ export type FundingReviewDto = {
 
 export type ConfirmDepositFundingDto = {
   /**
-   * Agreed BUYER unit price (custody minor units per unit, spread-inclusive)
+   * Agreed BUYER unit price (custody minor units per unit). The listed price: the buyer additionally pays any configured escrow fee on top.
    */
   buyerUnitPrice: number;
   /**
@@ -7472,7 +7502,7 @@ export type ConfirmDepositFundingDto = {
    */
   referenceSource: string;
   /**
-   * The exchange rate the parties agreed, scaled by 1e6 (1600.25 NGN per USD = 1600250000). Required when the deal settles in a currency other than the one its formula is quoted in, and rejected when they match. The platform never looks a rate up; it derives the settlement-currency spread from this one.
+   * The exchange rate the parties agreed, scaled by 1e6 (1600.25 NGN per USD = 1600250000). Required when the deal settles in a currency other than the one its formula is quoted in, and rejected when they match. The platform never looks a rate up; it derives the settlement-currency seller charge from this one.
    */
   settlementFxRate?: number;
   /**
@@ -7508,7 +7538,7 @@ export type ConfirmDepositFundingResultDto = {
 
 export type ConfirmDepositFundingWithWaiverDto = {
   /**
-   * Agreed BUYER unit price (custody minor units per unit, spread-inclusive)
+   * Agreed BUYER unit price (custody minor units per unit). The listed price: the buyer additionally pays any configured escrow fee on top.
    */
   buyerUnitPrice: number;
   /**
@@ -7520,7 +7550,7 @@ export type ConfirmDepositFundingWithWaiverDto = {
    */
   referenceSource: string;
   /**
-   * The exchange rate the parties agreed, scaled by 1e6 (1600.25 NGN per USD = 1600250000). Required when the deal settles in a currency other than the one its formula is quoted in, and rejected when they match. The platform never looks a rate up; it derives the settlement-currency spread from this one.
+   * The exchange rate the parties agreed, scaled by 1e6 (1600.25 NGN per USD = 1600250000). Required when the deal settles in a currency other than the one its formula is quoted in, and rejected when they match. The platform never looks a rate up; it derives the settlement-currency seller charge from this one.
    */
   settlementFxRate?: number;
   /**
@@ -7528,7 +7558,7 @@ export type ConfirmDepositFundingWithWaiverDto = {
    */
   excessAction?: "SWEEP" | "HOLD";
   /**
-   * Written reason for closing below the confirmed amount (audit trail). The platform absorbs the shortfall from its own spread.
+   * Written reason for closing below the confirmed amount (audit trail). The platform absorbs the shortfall from its own take (escrow fee plus seller charge).
    */
   waiverReason: string;
   /**
@@ -10535,6 +10565,45 @@ export type BenchmarksControllerFindAllResponses = {
 export type BenchmarksControllerFindAllResponse =
   BenchmarksControllerFindAllResponses[keyof BenchmarksControllerFindAllResponses];
 
+export type CategorySpecialtiesControllerFindAllData = {
+  body?: never;
+  path?: never;
+  query?: {
+    /**
+     * Filter by parent category ID
+     */
+    categoryId?: string;
+    /**
+     * Filter by category group ID
+     */
+    groupId?: string;
+  };
+  url: "/api/v1/category-specialties";
+};
+
+export type CategorySpecialtiesControllerFindAllResponses = {
+  200: Array<CategorySpecialtyDto>;
+};
+
+export type CategorySpecialtiesControllerFindAllResponse =
+  CategorySpecialtiesControllerFindAllResponses[keyof CategorySpecialtiesControllerFindAllResponses];
+
+export type CategorySpecialtiesControllerFindOneData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/category-specialties/{id}";
+};
+
+export type CategorySpecialtiesControllerFindOneResponses = {
+  200: CategorySpecialtyDto;
+};
+
+export type CategorySpecialtiesControllerFindOneResponse =
+  CategorySpecialtiesControllerFindOneResponses[keyof CategorySpecialtiesControllerFindOneResponses];
+
 export type CategoriesControllerFindAllData = {
   body?: never;
   path?: never;
@@ -11328,45 +11397,6 @@ export type StaleRequestActionsControllerRespondData = {
 export type StaleRequestActionsControllerRespondResponses = {
   200: unknown;
 };
-
-export type CategorySpecialtiesControllerFindAllData = {
-  body?: never;
-  path?: never;
-  query?: {
-    /**
-     * Filter by parent category ID
-     */
-    categoryId?: string;
-    /**
-     * Filter by category group ID
-     */
-    groupId?: string;
-  };
-  url: "/api/v1/category-specialties";
-};
-
-export type CategorySpecialtiesControllerFindAllResponses = {
-  200: Array<CategorySpecialtyDto>;
-};
-
-export type CategorySpecialtiesControllerFindAllResponse =
-  CategorySpecialtiesControllerFindAllResponses[keyof CategorySpecialtiesControllerFindAllResponses];
-
-export type CategorySpecialtiesControllerFindOneData = {
-  body?: never;
-  path: {
-    id: string;
-  };
-  query?: never;
-  url: "/api/v1/category-specialties/{id}";
-};
-
-export type CategorySpecialtiesControllerFindOneResponses = {
-  200: CategorySpecialtyDto;
-};
-
-export type CategorySpecialtiesControllerFindOneResponse =
-  CategorySpecialtiesControllerFindOneResponses[keyof CategorySpecialtiesControllerFindOneResponses];
 
 export type NegotiationsControllerFindAllData = {
   body?: never;
