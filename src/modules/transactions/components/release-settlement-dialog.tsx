@@ -12,6 +12,10 @@ import { Spinner } from "@/components/ui/spinner";
 import { api } from "@/lib/api";
 import type { TransactionResponseDto } from "@/lib/api/generated";
 import { formatCurrency } from "@/lib/currency";
+import {
+  deriveSettlementFees,
+  ratePercentLabel,
+} from "@/modules/transactions/lib/settlement-fees";
 import { AlertCircle, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -53,11 +57,8 @@ export function ReleaseSettlementDialog({
 
   if (!transaction) return null;
 
-  const currency = transaction.escrow?.currency || transaction.order.currency || "USD";
-  const escrowAmount = transaction.escrow?.amount || 0;
-  const sellerAmount =
-    transaction.escrow?.sellerAmount ?? transaction.order.totalAmount ?? 0;
-  const serviceFeeAmount = transaction.escrow?.serviceFeeAmount ?? 0;
+  const fees = deriveSettlementFees(transaction);
+  const { currency } = fees;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -73,18 +74,37 @@ export function ReleaseSettlementDialog({
         <div className="bg-muted/40 rounded-md border p-4">
           <div className="space-y-3">
             <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">Escrow Balance</span>
+              <span className="text-muted-foreground">Goods subtotal</span>
               <span className="font-medium">
-                {formatCurrency(escrowAmount, currency)}
+                {formatCurrency(fees.goodsAmount, currency)}
               </span>
             </div>
-            {serviceFeeAmount > 0 && (
+            {fees.escrowFeeAmount > 0 && (
               <div className="flex items-center justify-between text-sm">
                 <span className="text-muted-foreground">
-                  Platform Service Fee (3%)
+                  Escrow fee (buyer{ratePercentLabel(fees.escrowFeeRate)})
                 </span>
                 <span className="font-medium">
-                  −{formatCurrency(serviceFeeAmount, currency)}
+                  +{formatCurrency(fees.escrowFeeAmount, currency)}
+                </span>
+              </div>
+            )}
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-muted-foreground">
+                Escrow balance (buyer funded)
+              </span>
+              <span className="font-medium">
+                {formatCurrency(fees.escrowHeld, currency)}
+              </span>
+            </div>
+            {fees.serviceChargeAmount > 0 && (
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-muted-foreground">
+                  Service charge (seller
+                  {ratePercentLabel(fees.serviceChargeRate)})
+                </span>
+                <span className="font-medium">
+                  −{formatCurrency(fees.serviceChargeAmount, currency)}
                 </span>
               </div>
             )}
@@ -92,9 +112,17 @@ export function ReleaseSettlementDialog({
             <div className="flex items-center justify-between text-base font-semibold">
               <span>Amount to Release to Seller</span>
               <span className="text-green-600">
-                {formatCurrency(sellerAmount, currency)}
+                {formatCurrency(fees.sellerPayout, currency)}
               </span>
             </div>
+            {fees.platformRevenue > 0 && (
+              <div className="flex items-center justify-between text-xs">
+                <span className="text-muted-foreground">Vesslr total take</span>
+                <span className="text-muted-foreground">
+                  {formatCurrency(fees.platformRevenue, currency)}
+                </span>
+              </div>
+            )}
           </div>
         </div>
 

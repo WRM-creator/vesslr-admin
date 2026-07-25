@@ -5,6 +5,7 @@ import type {
 } from "@/lib/api/generated";
 import { formatCurrency } from "@/lib/currency";
 import { formatDateTime } from "@/lib/utils";
+import { ratePercentLabel } from "@/modules/transactions/lib/settlement-fees";
 
 interface StageEscrowContentProps {
   transaction: TransactionResponseDto;
@@ -21,6 +22,14 @@ export function StageEscrowContent({
   const goodsAmount = order?.totalAmount || 0;
   const serviceFeeAmount = order?.serviceFeeAmount ?? 0;
   const totalWithFee = order?.totalWithFee ?? goodsAmount + serviceFeeAmount;
+  // Buyer-funding view: the only fee the buyer pays is the escrow fee, added on
+  // top of goods. (Not the seller's service charge — that is deducted at
+  // settlement and never appears on the buyer's side.) Rate derived from the
+  // amount so it always matches what was charged.
+  const escrowFeeRate =
+    goodsAmount > 0 && serviceFeeAmount > 0
+      ? serviceFeeAmount / goodsAmount
+      : undefined;
   const isFunded = stage.status === "COMPLETED";
 
   const va = (transaction as any).virtualAccount as
@@ -42,7 +51,9 @@ export function StageEscrowContent({
         </div>
         {serviceFeeAmount > 0 && (
           <div className="flex items-center justify-between text-sm">
-            <span className="text-muted-foreground">Service Fee (3%)</span>
+            <span className="text-muted-foreground">
+              Escrow Fee{ratePercentLabel(escrowFeeRate)}
+            </span>
             <span className="font-medium">
               {formatCurrency(serviceFeeAmount, currency)}
             </span>

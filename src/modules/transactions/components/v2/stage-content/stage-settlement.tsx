@@ -5,6 +5,10 @@ import type {
 } from "@/lib/api/generated";
 import { formatCurrency } from "@/lib/currency";
 import { formatDateTime } from "@/lib/utils";
+import {
+  deriveSettlementFees,
+  ratePercentLabel,
+} from "@/modules/transactions/lib/settlement-fees";
 
 interface StageSettlementContentProps {
   transaction: TransactionResponseDto;
@@ -16,10 +20,8 @@ export function StageSettlementContent({
   stage,
 }: StageSettlementContentProps) {
   const escrow = transaction.escrow;
-  const currency = escrow?.currency || transaction.order?.currency || "USD";
-  const sellerAmount =
-    escrow?.sellerAmount ?? transaction.order?.totalAmount ?? 0;
-  const serviceFeeAmount = escrow?.serviceFeeAmount ?? 0;
+  const fees = deriveSettlementFees(transaction);
+  const { currency } = fees;
   const isReleased = stage.status === "COMPLETED";
 
   return (
@@ -28,14 +30,34 @@ export function StageSettlementContent({
         <div className="flex items-center justify-between text-sm">
           <span className="text-muted-foreground">Seller Payout</span>
           <span className="font-medium text-green-600">
-            {formatCurrency(sellerAmount, currency)}
+            {formatCurrency(fees.sellerPayout, currency)}
           </span>
         </div>
-        {serviceFeeAmount > 0 && (
+        {fees.escrowFeeAmount > 0 && (
           <div className="flex items-center justify-between text-sm">
-            <span className="text-muted-foreground">Platform Revenue</span>
+            <span className="text-muted-foreground">
+              Escrow fee (buyer{ratePercentLabel(fees.escrowFeeRate)})
+            </span>
+            <span className="font-medium">
+              {formatCurrency(fees.escrowFeeAmount, currency)}
+            </span>
+          </div>
+        )}
+        {fees.serviceChargeAmount > 0 && (
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-muted-foreground">
+              Service charge (seller{ratePercentLabel(fees.serviceChargeRate)})
+            </span>
+            <span className="font-medium">
+              {formatCurrency(fees.serviceChargeAmount, currency)}
+            </span>
+          </div>
+        )}
+        {fees.platformRevenue > 0 && (
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-muted-foreground">Vesslr total take</span>
             <span className="font-medium text-blue-600">
-              {formatCurrency(serviceFeeAmount, currency)}
+              {formatCurrency(fees.platformRevenue, currency)}
             </span>
           </div>
         )}

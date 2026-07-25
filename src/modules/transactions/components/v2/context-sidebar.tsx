@@ -9,6 +9,7 @@ import type {
   AdminTransactionConversation,
 } from "@/lib/api/transaction-conversations";
 import { formatCurrency } from "@/lib/currency";
+import { ratePercentLabel } from "@/modules/transactions/lib/settlement-fees";
 import { cn, formatDateTime } from "@/lib/utils";
 import {
   Banknote,
@@ -43,6 +44,12 @@ function FinancialSummary({
   const goodsAmount = order?.totalAmount || 0;
   const serviceFeeAmount = order?.serviceFeeAmount ?? 0;
   const totalWithFee = order?.totalWithFee ?? goodsAmount + serviceFeeAmount;
+  // Buyer-funding view: the buyer's only fee is the escrow fee added on top.
+  // Rate derived from the amount so it always matches what was charged.
+  const escrowFeeRate =
+    goodsAmount > 0 && serviceFeeAmount > 0
+      ? serviceFeeAmount / goodsAmount
+      : undefined;
 
   const isFunded = [
     "ESCROW_FUNDED",
@@ -93,7 +100,9 @@ function FinancialSummary({
           </div>
           {serviceFeeAmount > 0 && (
             <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">Fee (3%)</span>
+              <span className="text-muted-foreground">
+                Escrow Fee{ratePercentLabel(escrowFeeRate)}
+              </span>
               <span className="font-medium">
                 {formatCurrency(serviceFeeAmount, currency)}
               </span>
