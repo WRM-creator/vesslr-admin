@@ -13,6 +13,7 @@ import { Link, useLocation } from "react-router-dom";
 
 import { useBreadcrumb } from "@/contexts/breadcrumb-context";
 import { ModeToggle } from "@/components/mode-toggle";
+import { NotificationBell } from "@/modules/notifications/components/notification-bell";
 
 export function AppHeader() {
   const location = useLocation();
@@ -80,7 +81,10 @@ export function AppHeader() {
           </BreadcrumbList>
         </Breadcrumb>
       </div>
-      <ModeToggle />
+      <div className="flex items-center gap-2">
+        <NotificationBell />
+        <ModeToggle />
+      </div>
     </header>
   );
 }

@@ -90,6 +90,10 @@ import {
   adminDisputesControllerFindOne,
   adminDisputesControllerGetStats,
   adminDisputesControllerResolve,
+  adminNotificationsControllerFindAll,
+  adminNotificationsControllerGetUnreadCount,
+  adminNotificationsControllerMarkAsRead,
+  adminNotificationsControllerMarkAllAsRead,
   adminOrganizationsControllerListMembers,
   adminNegotiationsControllerFindAll,
   adminNegotiationsControllerFindOne,
@@ -164,6 +168,31 @@ export const api = {
   },
   benchmarks: {
     list: createQuery(benchmarksControllerFindAll, ["benchmarks", "list"]),
+  },
+  notifications: {
+    list: createQuery(adminNotificationsControllerFindAll, (args) => [
+      "admin",
+      "notifications",
+      "list",
+      args?.query,
+    ]),
+    unreadCount: createQuery(adminNotificationsControllerGetUnreadCount, [
+      "admin",
+      "notifications",
+      "unread-count",
+    ]),
+    markAsRead: createMutation(adminNotificationsControllerMarkAsRead, {
+      invalidates: () => [
+        ["admin", "notifications", "list"],
+        ["admin", "notifications", "unread-count"],
+      ],
+    }),
+    markAllAsRead: createMutation(adminNotificationsControllerMarkAllAsRead, {
+      invalidates: () => [
+        ["admin", "notifications", "list"],
+        ["admin", "notifications", "unread-count"],
+      ],
+    }),
   },
   admin: {
     dashboard: {

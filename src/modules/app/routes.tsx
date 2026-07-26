@@ -14,6 +14,7 @@ import { escrowsRoutes } from "../escrows/routes";
 import { fundingWindowsRoutes } from "../funding-windows/routes";
 import { ledgerRoutes } from "../ledger/routes";
 import { logisticsRoutes } from "../logistics/routes";
+import { notificationsRoutes } from "../notifications/routes";
 import { organizationsRoutes } from "../organizations/routes";
 import { supportRoutes } from "../support/routes";
 import { productsRoutes } from "../products/routes";
@@ -55,6 +56,7 @@ export const appRoutes: RouteObject[] = [
           ...analyticsRoutes,
           ...cmsRoutes,
           ...countriesRoutes,
+          ...notificationsRoutes,
           ...settingsRoutes,
           {
             path: "*",
