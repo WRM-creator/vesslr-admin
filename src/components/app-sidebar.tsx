@@ -1,6 +1,7 @@
 import { cn } from "@/lib/utils";
 import {
   ArrowRightLeft,
+  Bell,
   BookOpenIcon,
   Building2Icon,
   ClipboardCheck,
@@ -154,11 +155,11 @@ const navGroups: NavGroup[] = [
   {
     label: "System",
     items: [
-      // {
-      //   title: "Notifications",
-      //   url: "/notifications",
-      //   icon: Bell,
-      // },
+      {
+        title: "Notifications",
+        url: "/notifications",
+        icon: Bell,
+      },
       {
         title: "Countries",
         url: "/countries",
