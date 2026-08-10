@@ -7,7 +7,14 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
           }
         },
         "tags": [
@@ -226,6 +233,16 @@
         "responses": {
           "200": {
             "description": "Returns OTP challenge"
+          },
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
           }
         },
         "tags": [
@@ -254,6 +271,16 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/AuthTokenResponseDto"
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
                 }
               }
             }
@@ -355,6 +382,9 @@
           "200": {
             "description": "Phone number verified"
           },
+          "201": {
+            "description": ""
+          },
           "400": {
             "description": "Invalid verification code"
           }
@@ -382,6 +412,9 @@
         "responses": {
           "200": {
             "description": "Token valid, phone OTP sent"
+          },
+          "201": {
+            "description": ""
           },
           "400": {
             "description": "Token is invalid or has expired"
@@ -519,6 +552,9 @@
         "responses": {
           "200": {
             "description": "Password changed successfully"
+          },
+          "201": {
+            "description": ""
           }
         },
         "security": [
@@ -625,6 +661,19 @@
                 }
               }
             }
+          },
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PresignedUrlResponseDto"
+                  }
+                }
+              }
+            }
           }
         },
         "tags": [
@@ -657,7 +706,14 @@
         },
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -743,7 +799,14 @@
         },
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -809,7 +872,14 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -846,7 +916,14 @@
         },
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -924,7 +1001,14 @@
         },
         "responses": {
           "201": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -1675,6 +1759,16 @@
         "responses": {
           "200": {
             "description": "The created transaction"
+          },
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -1885,6 +1979,16 @@
                 }
               }
             }
+          },
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -1931,6 +2035,9 @@
                 }
               }
             }
+          },
+          "201": {
+            "description": ""
           }
         },
         "security": [
@@ -2042,6 +2149,16 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/TransactionResponseDto"
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
                 }
               }
             }
@@ -2200,6 +2317,16 @@
                 }
               }
             }
+          },
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -2311,6 +2438,16 @@
                 }
               }
             }
+          },
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -2365,6 +2502,16 @@
                 }
               }
             }
+          },
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -2416,6 +2563,16 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/TransactionResponseDto"
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
                 }
               }
             }
@@ -2558,6 +2715,16 @@
                 }
               }
             }
+          },
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TransactionConversationResponseDto"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -2592,6 +2759,16 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/OrderResponseDto"
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
                 }
               }
             }
@@ -2800,6 +2977,16 @@
                 }
               }
             }
+          },
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -2904,6 +3091,16 @@
                 }
               }
             }
+          },
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -2938,6 +3135,16 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/RequestResponseDto"
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
                 }
               }
             }
@@ -3255,6 +3462,16 @@
                 }
               }
             }
+          },
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NegotiationResponseDto"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -3434,6 +3651,16 @@
                 }
               }
             }
+          },
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NegotiationResponseDto"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -3480,6 +3707,16 @@
                 }
               }
             }
+          },
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NegotiationResponseDto"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -3508,6 +3745,16 @@
         ],
         "responses": {
           "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NegotiationResponseDto"
+                }
+              }
+            }
+          },
+          "201": {
             "description": "",
             "content": {
               "application/json": {
@@ -3552,6 +3799,16 @@
                 }
               }
             }
+          },
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NegotiationResponseDto"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -3588,6 +3845,16 @@
                 }
               }
             }
+          },
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NegotiationResponseDto"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -3616,6 +3883,16 @@
         ],
         "responses": {
           "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NegotiationResponseDto"
+                }
+              }
+            }
+          },
+          "201": {
             "description": "",
             "content": {
               "application/json": {
@@ -3682,6 +3959,8 @@
             "in": "query",
             "description": "Page size (1–100)",
             "schema": {
+              "minimum": 1,
+              "maximum": 100,
               "default": 25,
               "example": 25,
               "type": "number"
@@ -3692,6 +3971,7 @@
             "required": false,
             "in": "query",
             "schema": {
+              "minimum": 0,
               "default": 0,
               "example": 0,
               "type": "number"
@@ -4221,6 +4501,7 @@
             "in": "query",
             "description": "Which numbered wallet holds the currency. Required: money-scoped requests must name their wallet explicitly (the UI pre-selects the primary wallet); the backend never resolves a default silently.",
             "schema": {
+              "minimum": 1,
               "example": 1,
               "type": "number"
             }
@@ -4280,6 +4561,7 @@
             "in": "query",
             "description": "Which numbered wallet holds the currency. Required: money-scoped requests must name their wallet explicitly (the UI pre-selects the primary wallet); the backend never resolves a default silently.",
             "schema": {
+              "minimum": 1,
               "example": 1,
               "type": "number"
             }
@@ -4373,6 +4655,7 @@
             "in": "query",
             "description": "Which numbered wallet holds the currency. Required: money-scoped requests must name their wallet explicitly (the UI pre-selects the primary wallet); the backend never resolves a default silently.",
             "schema": {
+              "minimum": 1,
               "example": 1,
               "type": "number"
             }
@@ -4581,6 +4864,7 @@
             "in": "query",
             "description": "Limit history to one numbered wallet; omit for all wallets merged",
             "schema": {
+              "minimum": 1,
               "example": 1,
               "type": "number"
             }
@@ -4670,6 +4954,8 @@
             "in": "query",
             "description": "Page size (1–200)",
             "schema": {
+              "minimum": 1,
+              "maximum": 200,
               "default": 25,
               "example": 25,
               "type": "number"
@@ -4681,6 +4967,7 @@
             "in": "query",
             "description": "Rows to skip from the newest (page offset)",
             "schema": {
+              "minimum": 0,
               "default": 0,
               "example": 0,
               "type": "number"
@@ -4812,6 +5099,7 @@
             "in": "query",
             "description": "Which numbered wallet holds the currency. Required: money-scoped requests must name their wallet explicitly (the UI pre-selects the primary wallet); the backend never resolves a default silently.",
             "schema": {
+              "minimum": 1,
               "example": 1,
               "type": "number"
             }
@@ -4932,6 +5220,16 @@
                 }
               }
             }
+          },
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WalletBeneficiaryResponseDto"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -4990,6 +5288,16 @@
         },
         "responses": {
           "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WalletTransferResponseDto"
+                }
+              }
+            }
+          },
+          "201": {
             "description": "",
             "content": {
               "application/json": {
@@ -5338,6 +5646,16 @@
                 }
               }
             }
+          },
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Dispute"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -5420,6 +5738,16 @@
                 }
               }
             }
+          },
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Dispute"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -5466,6 +5794,9 @@
                 }
               }
             }
+          },
+          "201": {
+            "description": ""
           }
         },
         "security": [
@@ -6742,6 +7073,9 @@
                 }
               }
             }
+          },
+          "201": {
+            "description": ""
           }
         },
         "security": [
@@ -6836,7 +7170,14 @@
         },
         "responses": {
           "201": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -6985,7 +7326,14 @@
         },
         "responses": {
           "201": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -7109,7 +7457,14 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LicenseRequirementsResponseDto"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -7148,7 +7503,14 @@
         },
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -7185,7 +7547,17 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                }
+              }
+            }
           }
         },
         "security": [
@@ -7213,7 +7585,14 @@
         },
         "responses": {
           "201": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -7242,7 +7621,14 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -7279,7 +7665,14 @@
         },
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -7472,6 +7865,16 @@
         "responses": {
           "200": {
             "description": "Returns OTP challenge"
+          },
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
           }
         },
         "summary": "Login with email and password to receive OTP",
@@ -7497,6 +7900,16 @@
         "responses": {
           "200": {
             "description": "Returns access token and user info"
+          },
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
           }
         },
         "summary": "Verify OTP and get access token",
@@ -7521,7 +7934,14 @@
         },
         "responses": {
           "201": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -7570,7 +7990,14 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -8945,6 +9372,16 @@
                 }
               }
             }
+          },
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -8988,6 +9425,16 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/TransactionResponseDto"
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
                 }
               }
             }
@@ -9262,6 +9709,9 @@
                 }
               }
             }
+          },
+          "201": {
+            "description": ""
           }
         },
         "security": [
@@ -9308,6 +9758,9 @@
                 }
               }
             }
+          },
+          "201": {
+            "description": ""
           }
         },
         "security": [
@@ -9516,6 +9969,16 @@
                 }
               }
             }
+          },
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -9553,6 +10016,9 @@
         "responses": {
           "200": {
             "description": "The retry was initiated"
+          },
+          "201": {
+            "description": ""
           }
         },
         "security": [
@@ -9604,6 +10070,16 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/TransactionResponseDto"
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
                 }
               }
             }
@@ -9914,6 +10390,20 @@
             "in": "query",
             "schema": {
               "type": "string"
+            }
+          },
+          {
+            "name": "lifecycle",
+            "required": false,
+            "in": "query",
+            "description": "Owner lifecycle stage: 'active' (approved), 'onboarding' (registered, never submitted for review), 'in_review' (submitted / pending review / action required). Omit for all stages.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "active",
+                "onboarding",
+                "in_review"
+              ]
             }
           },
           {
@@ -10439,7 +10929,14 @@
         },
         "responses": {
           "201": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -11009,6 +11506,9 @@
                 }
               }
             }
+          },
+          "201": {
+            "description": ""
           }
         },
         "security": [
@@ -11055,6 +11555,9 @@
                 }
               }
             }
+          },
+          "201": {
+            "description": ""
           }
         },
         "security": [
@@ -11137,6 +11640,9 @@
                 }
               }
             }
+          },
+          "201": {
+            "description": ""
           }
         },
         "security": [
@@ -11390,6 +11896,9 @@
                 }
               }
             }
+          },
+          "201": {
+            "description": ""
           }
         },
         "security": [
@@ -11519,7 +12028,17 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                }
+              }
+            }
           }
         },
         "security": [
@@ -11572,7 +12091,17 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                }
+              }
+            }
           }
         },
         "security": [
@@ -11600,7 +12129,14 @@
         },
         "responses": {
           "201": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -11629,7 +12165,14 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -11668,7 +12211,14 @@
         },
         "responses": {
           "201": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -11714,7 +12264,17 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                }
+              }
+            }
           }
         },
         "security": [
@@ -11743,7 +12303,14 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -11763,7 +12330,14 @@
         "parameters": [],
         "responses": {
           "201": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -11783,7 +12357,14 @@
         "parameters": [],
         "responses": {
           "201": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -12751,7 +13332,14 @@
         },
         "responses": {
           "201": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
           }
         },
         "summary": "Dev: simulate an inbound deposit at the mock provider",
@@ -13285,7 +13873,14 @@
         },
         "responses": {
           "201": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -13372,7 +13967,14 @@
         },
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -13406,7 +14008,14 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -13425,7 +14034,17 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/QQFieldDef"
+                  }
+                }
+              }
+            }
           }
         },
         "security": [
@@ -13455,7 +14074,14 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QQFieldDef"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -13475,7 +14101,17 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/QQTemplate"
+                  }
+                }
+              }
+            }
           }
         },
         "security": [
@@ -13505,7 +14141,14 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QQTemplate"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -13525,7 +14168,17 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
           }
         },
         "security": [
@@ -13566,7 +14219,14 @@
         },
         "responses": {
           "201": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InspectionReport"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -13596,7 +14256,17 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/InspectionReport"
+                  }
+                }
+              }
+            }
           }
         },
         "security": [
@@ -13626,7 +14296,14 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InspectionReport"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -13665,7 +14342,17 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                }
+              }
+            }
           }
         },
         "security": [
@@ -13704,7 +14391,17 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                }
+              }
+            }
           }
         },
         "security": [
@@ -13790,6 +14487,9 @@
                 }
               }
             }
+          },
+          "201": {
+            "description": ""
           }
         },
         "security": [
@@ -13972,6 +14672,9 @@
                 }
               }
             }
+          },
+          "201": {
+            "description": ""
           }
         },
         "security": [
@@ -14009,6 +14712,9 @@
                 }
               }
             }
+          },
+          "201": {
+            "description": ""
           }
         },
         "security": [
@@ -14124,25 +14830,33 @@
         "type": "object",
         "properties": {
           "email": {
-            "type": "string"
+            "type": "string",
+            "description": "User's email address (used for login)",
+            "format": "email"
           },
           "password": {
-            "type": "string"
+            "type": "string",
+            "description": "Password (minimum 8 characters)",
+            "minLength": 8
           },
           "firstName": {
-            "type": "string"
+            "type": "string",
+            "description": "User's first name"
           },
           "lastName": {
-            "type": "string"
+            "type": "string",
+            "description": "User's last name"
           },
           "phone": {
             "type": "string",
+            "description": "User's phone number in E.164 international format (e.g. +1234567890)",
+            "pattern": "/^\\+[1-9]\\d{1,14}$/",
             "example": "+1234567890"
           },
           "country": {
             "type": "string",
-            "example": "NG",
-            "description": "ISO-3166-1 alpha-2 operating country"
+            "description": "ISO-3166-1 alpha-2 operating country",
+            "example": "NG"
           }
         },
         "required": [
@@ -14158,7 +14872,8 @@
         "type": "object",
         "properties": {
           "accessToken": {
-            "type": "string"
+            "type": "string",
+            "description": "JWT access token"
           },
           "user": {
             "type": "object"
@@ -14172,10 +14887,13 @@
         "type": "object",
         "properties": {
           "email": {
-            "type": "string"
+            "type": "string",
+            "description": "User's email address",
+            "format": "email"
           },
           "password": {
-            "type": "string"
+            "type": "string",
+            "description": "User's password"
           }
         },
         "required": [
@@ -14188,10 +14906,13 @@
         "properties": {
           "email": {
             "type": "string",
+            "format": "email",
             "example": "user@example.com"
           },
           "otp": {
             "type": "string",
+            "minLength": 6,
+            "maxLength": 6,
             "example": "123456",
             "description": "6-digit OTP code"
           }
@@ -14203,7 +14924,16 @@
       },
       "ForgotPasswordDto": {
         "type": "object",
-        "properties": {}
+        "properties": {
+          "email": {
+            "type": "string",
+            "description": "Email to send the password reset link to",
+            "format": "email"
+          }
+        },
+        "required": [
+          "email"
+        ]
       },
       "ResetPasswordDto": {
         "type": "object",
@@ -14214,11 +14944,13 @@
           },
           "password": {
             "type": "string",
-            "description": "New password",
-            "minLength": 8
+            "minLength": 8,
+            "description": "New password"
           },
           "phoneOtp": {
             "type": "string",
+            "minLength": 6,
+            "maxLength": 6,
             "example": "123456",
             "description": "6-digit phone verification code"
           }
@@ -14234,6 +14966,7 @@
         "properties": {
           "email": {
             "type": "string",
+            "format": "email",
             "example": "user@company.com"
           }
         },
@@ -14246,10 +14979,13 @@
         "properties": {
           "email": {
             "type": "string",
+            "format": "email",
             "example": "user@company.com"
           },
           "code": {
             "type": "string",
+            "minLength": 6,
+            "maxLength": 6,
             "example": "123456",
             "description": "6-digit SMS verification code"
           }
@@ -14691,7 +15427,8 @@
             "type": "string"
           },
           "newPassword": {
-            "type": "string"
+            "type": "string",
+            "minLength": 8
           }
         },
         "required": [
@@ -14910,13 +15647,59 @@
           "phoneVerificationRequired"
         ]
       },
+      "GeneratePresignedUrlDto": {
+        "type": "object",
+        "properties": {
+          "filename": {
+            "type": "string"
+          },
+          "contentType": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "filename",
+          "contentType"
+        ]
+      },
       "GeneratePresignedUrlsDto": {
         "type": "object",
-        "properties": {}
+        "properties": {
+          "files": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GeneratePresignedUrlDto"
+            }
+          }
+        },
+        "required": [
+          "files"
+        ]
       },
       "PresignedUrlResponseDto": {
         "type": "object",
-        "properties": {}
+        "properties": {
+          "key": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string",
+            "format": "uri"
+          },
+          "publicUrl": {
+            "type": "string",
+            "format": "uri"
+          },
+          "filename": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "key",
+          "url",
+          "publicUrl",
+          "filename"
+        ]
       },
       "UpdateOrganizationDto": {
         "type": "object",
@@ -15068,6 +15851,8 @@
         "properties": {
           "accountNumber": {
             "type": "string",
+            "minLength": 10,
+            "maxLength": 10,
             "example": "0122333334"
           },
           "bankCode": {
@@ -15085,6 +15870,8 @@
         "properties": {
           "accountNumber": {
             "type": "string",
+            "minLength": 10,
+            "maxLength": 10,
             "example": "0122333334",
             "description": "10-digit NUBAN account number"
           },
@@ -15169,7 +15956,6 @@
             "example": 200
           },
           "differentialCurrency": {
-            "type": "string",
             "enum": [
               "NGN",
               "KES",
@@ -15177,7 +15963,8 @@
               "EUR",
               "USDT",
               "USDC"
-            ]
+            ],
+            "type": "string"
           },
           "notes": {
             "type": "string"
@@ -15193,13 +15980,13 @@
         "type": "object",
         "properties": {
           "method": {
-            "type": "string",
             "enum": [
               "percentage",
               "fixed",
               "per_unit",
               "tiered"
             ],
+            "type": "string",
             "description": "How the fee is computed (per_unit or percentage)"
           },
           "feePerUnit": {
@@ -15207,7 +15994,6 @@
             "description": "Fee per unit in minor units of the formula currency (display-level; the exact figure is feeAmount)"
           },
           "currency": {
-            "type": "string",
             "enum": [
               "NGN",
               "KES",
@@ -15216,10 +16002,10 @@
               "USDT",
               "USDC"
             ],
+            "type": "string",
             "description": "Formula (benchmark) currency the fee is quoted in"
           },
           "unit": {
-            "type": "string",
             "enum": [
               "bbl",
               "liter",
@@ -15261,6 +16047,7 @@
               "plate",
               "bar"
             ],
+            "type": "string",
             "description": "Unit the per-unit rate is quoted per"
           },
           "percentage": {
@@ -15559,12 +16346,12 @@
             "type": "number"
           },
           "validityUnit": {
-            "type": "string",
             "enum": [
               "days",
               "weeks",
               "months"
-            ]
+            ],
+            "type": "string"
           },
           "paymentDeadline": {
             "type": "number"
@@ -15599,6 +16386,8 @@
           },
           "percentage": {
             "type": "number",
+            "minimum": 1,
+            "maximum": 100,
             "description": "Payment percentage for this milestone (1-100)",
             "example": 50
           }
@@ -15650,11 +16439,11 @@
             ]
           },
           "pricingBasis": {
-            "type": "string",
             "enum": [
               "flat",
               "differential"
             ],
+            "type": "string",
             "description": "How the price is expressed (flat or differential)."
           },
           "pricePerUnit": {
@@ -15673,7 +16462,6 @@
             ]
           },
           "currency": {
-            "type": "string",
             "enum": [
               "NGN",
               "KES",
@@ -15681,7 +16469,8 @@
               "EUR",
               "USDT",
               "USDC"
-            ]
+            ],
+            "type": "string"
           },
           "images": {
             "type": "array",
@@ -15717,7 +16506,6 @@
             "type": "boolean"
           },
           "unitOfMeasurement": {
-            "type": "string",
             "enum": [
               "bbl",
               "liter",
@@ -15758,7 +16546,8 @@
               "package",
               "plate",
               "bar"
-            ]
+            ],
+            "type": "string"
           },
           "conditions": {
             "type": "array",
@@ -15940,11 +16729,11 @@
             ]
           },
           "pricingBasis": {
-            "type": "string",
             "enum": [
               "flat",
               "differential"
             ],
+            "type": "string",
             "description": "How the price is expressed (flat or differential)."
           },
           "pricePerUnit": {
@@ -15963,7 +16752,6 @@
             ]
           },
           "currency": {
-            "type": "string",
             "enum": [
               "NGN",
               "KES",
@@ -15971,7 +16759,8 @@
               "EUR",
               "USDT",
               "USDC"
-            ]
+            ],
+            "type": "string"
           },
           "images": {
             "type": "array",
@@ -16007,7 +16796,6 @@
             "type": "boolean"
           },
           "unitOfMeasurement": {
-            "type": "string",
             "enum": [
               "bbl",
               "liter",
@@ -16048,7 +16836,8 @@
               "package",
               "plate",
               "bar"
-            ]
+            ],
+            "type": "string"
           },
           "conditions": {
             "type": "array",
@@ -16139,7 +16928,6 @@
             "example": 200
           },
           "differentialCurrency": {
-            "type": "string",
             "enum": [
               "NGN",
               "KES",
@@ -16148,6 +16936,7 @@
               "USDT",
               "USDC"
             ],
+            "type": "string",
             "description": "Currency of the differential; must equal the deal / benchmark currency"
           },
           "notes": {
@@ -16392,19 +17181,21 @@
         "properties": {
           "validityPeriod": {
             "type": "number",
+            "minimum": 1,
             "description": "How long the offer/listing is valid"
           },
           "validityUnit": {
-            "type": "string",
-            "description": "Unit for validity period",
             "enum": [
               "days",
               "weeks",
               "months"
-            ]
+            ],
+            "type": "string",
+            "description": "Unit for validity period"
           },
           "paymentDeadline": {
             "type": "number",
+            "minimum": 1,
             "description": "Payment deadline in days from order confirmation"
           },
           "cancellationPolicy": {
@@ -16445,7 +17236,6 @@
             ]
           },
           "listingType": {
-            "type": "string",
             "enum": [
               "product",
               "service",
@@ -16453,14 +17243,15 @@
               "lease",
               "charter",
               "rfq"
-            ]
+            ],
+            "type": "string"
           },
           "pricingBasis": {
-            "type": "string",
             "enum": [
               "flat",
               "differential"
             ],
+            "type": "string",
             "default": "flat",
             "description": "How the price is expressed. Defaults to flat. Differential is only accepted on commodity groups and is forced on groups that require it."
           },
@@ -16478,7 +17269,6 @@
             ]
           },
           "currency": {
-            "type": "string",
             "enum": [
               "NGN",
               "KES",
@@ -16486,7 +17276,8 @@
               "EUR",
               "USDT",
               "USDC"
-            ]
+            ],
+            "type": "string"
           },
           "images": {
             "type": "array",
@@ -16510,16 +17301,19 @@
             "type": "number"
           },
           "minimumOrderQuantity": {
-            "type": "number"
+            "type": "number",
+            "minimum": 1
           },
           "maximumOrderQuantity": {
-            "type": "number"
+            "type": "number",
+            "minimum": 1
           },
           "trackInventory": {
             "type": "boolean"
           },
           "lowStockThreshold": {
-            "type": "number"
+            "type": "number",
+            "minimum": 1
           },
           "showStockToBuyers": {
             "type": "boolean"
@@ -16528,7 +17322,6 @@
             "type": "boolean"
           },
           "unitOfMeasurement": {
-            "type": "string",
             "enum": [
               "bbl",
               "liter",
@@ -16569,7 +17362,8 @@
               "package",
               "plate",
               "bar"
-            ]
+            ],
+            "type": "string"
           },
           "tradeTerms": {
             "type": "array",
@@ -16631,11 +17425,7 @@
           "categoryId",
           "groupId",
           "type",
-          "listingType",
-          "images",
-          "documents",
-          "conditions",
-          "location"
+          "listingType"
         ]
       },
       "UpdateMyProductDto": {
@@ -16666,7 +17456,6 @@
             ]
           },
           "listingType": {
-            "type": "string",
             "enum": [
               "product",
               "service",
@@ -16674,14 +17463,15 @@
               "lease",
               "charter",
               "rfq"
-            ]
+            ],
+            "type": "string"
           },
           "pricingBasis": {
-            "type": "string",
             "enum": [
               "flat",
               "differential"
             ],
+            "type": "string",
             "default": "flat",
             "description": "How the price is expressed. Defaults to flat. Differential is only accepted on commodity groups and is forced on groups that require it."
           },
@@ -16699,7 +17489,6 @@
             ]
           },
           "currency": {
-            "type": "string",
             "enum": [
               "NGN",
               "KES",
@@ -16707,7 +17496,8 @@
               "EUR",
               "USDT",
               "USDC"
-            ]
+            ],
+            "type": "string"
           },
           "images": {
             "type": "array",
@@ -16731,16 +17521,19 @@
             "type": "number"
           },
           "minimumOrderQuantity": {
-            "type": "number"
+            "type": "number",
+            "minimum": 1
           },
           "maximumOrderQuantity": {
-            "type": "number"
+            "type": "number",
+            "minimum": 1
           },
           "trackInventory": {
             "type": "boolean"
           },
           "lowStockThreshold": {
-            "type": "number"
+            "type": "number",
+            "minimum": 1
           },
           "showStockToBuyers": {
             "type": "boolean"
@@ -16749,7 +17542,6 @@
             "type": "boolean"
           },
           "unitOfMeasurement": {
-            "type": "string",
             "enum": [
               "bbl",
               "liter",
@@ -16790,7 +17582,8 @@
               "package",
               "plate",
               "bar"
-            ]
+            ],
+            "type": "string"
           },
           "tradeTerms": {
             "type": "array",
@@ -16852,10 +17645,12 @@
         "properties": {
           "upToQuantity": {
             "type": "number",
+            "minimum": 0,
             "description": "Tier applies to quantity up to and including this bound; omit for the open-ended top tier"
           },
           "perUnitAmount": {
             "type": "number",
+            "minimum": 0,
             "description": "Minor units per unit of measure within this tier"
           }
         },
@@ -16867,21 +17662,21 @@
         "type": "object",
         "properties": {
           "payer": {
-            "type": "string",
             "enum": [
               "buyer",
               "seller",
               "split"
-            ]
+            ],
+            "type": "string"
           },
           "feeType": {
-            "type": "string",
             "enum": [
               "percentage",
               "fixed",
               "per_unit",
               "tiered"
-            ]
+            ],
+            "type": "string"
           },
           "percentage": {
             "type": "number"
@@ -16893,7 +17688,6 @@
             "type": "number"
           },
           "currency": {
-            "type": "string",
             "enum": [
               "NGN",
               "KES",
@@ -16901,10 +17695,10 @@
               "EUR",
               "USDT",
               "USDC"
-            ]
+            ],
+            "type": "string"
           },
           "unit": {
-            "type": "string",
             "enum": [
               "bbl",
               "liter",
@@ -16945,7 +17739,8 @@
               "package",
               "plate",
               "bar"
-            ]
+            ],
+            "type": "string"
           },
           "minFee": {
             "type": "number"
@@ -16954,12 +17749,12 @@
             "type": "number"
           },
           "trigger": {
-            "type": "string",
             "enum": [
               "settlement",
               "funding",
               "delivery"
-            ]
+            ],
+            "type": "string"
           },
           "tiers": {
             "type": "array",
@@ -17061,7 +17856,6 @@
           },
           "allowedTradeTerms": {
             "type": "array",
-            "description": "Allowed trade terms for listings in this group",
             "items": {
               "type": "string",
               "enum": [
@@ -17078,7 +17872,8 @@
                 "DDP",
                 "NA"
               ]
-            }
+            },
+            "description": "Allowed trade terms for listings in this group"
           },
           "allowedTransactionTypes": {
             "type": "array",
@@ -17138,13 +17933,13 @@
             }
           },
           "defaultEscrowStructure": {
-            "type": "string",
             "enum": [
               "full",
               "deposit",
               "milestone",
               "partial"
-            ]
+            ],
+            "type": "string"
           },
           "allowedMeasurementTypes": {
             "type": "array",
@@ -17194,42 +17989,43 @@
         "type": "object",
         "properties": {
           "payer": {
-            "type": "string",
-            "description": "Who pays the service fee",
             "enum": [
               "buyer",
               "seller",
               "split"
-            ]
+            ],
+            "type": "string",
+            "description": "Who pays the service fee"
           },
           "feeType": {
-            "type": "string",
-            "description": "Fee calculation type",
             "enum": [
               "percentage",
               "fixed",
               "per_unit",
               "tiered"
-            ]
+            ],
+            "type": "string",
+            "description": "Fee calculation type"
           },
           "percentage": {
             "type": "number",
+            "minimum": 0,
             "description": "Fee percentage (e.g. 0.03 for 3%)",
             "example": 0.03
           },
           "fixedAmount": {
             "type": "number",
+            "minimum": 0,
             "description": "Fixed fee amount in minor currency units",
             "example": 500000
           },
           "perUnitAmount": {
             "type": "number",
+            "minimum": 0,
             "description": "Per-unit fee in minor currency units per unit of measure (feeType per_unit only)",
             "example": 100
           },
           "currency": {
-            "type": "string",
-            "description": "Currency the rate and min/max fees are quoted in; must equal the deal formula currency for commodity deals",
             "enum": [
               "NGN",
               "KES",
@@ -17237,11 +18033,11 @@
               "EUR",
               "USDT",
               "USDC"
-            ]
+            ],
+            "type": "string",
+            "description": "Currency the rate and min/max fees are quoted in; must equal the deal formula currency for commodity deals"
           },
           "unit": {
-            "type": "string",
-            "description": "Unit the per-unit rate is quoted per (required for feeType per_unit); validated against the deal unit of measurement",
             "enum": [
               "bbl",
               "liter",
@@ -17282,24 +18078,28 @@
               "package",
               "plate",
               "bar"
-            ]
+            ],
+            "type": "string",
+            "description": "Unit the per-unit rate is quoted per (required for feeType per_unit); validated against the deal unit of measurement"
           },
           "minFee": {
             "type": "number",
+            "minimum": 0,
             "description": "Lower clamp on the computed per-deal fee, minor units of currency"
           },
           "maxFee": {
             "type": "number",
+            "minimum": 0,
             "description": "Upper clamp on the computed per-deal fee, minor units of currency"
           },
           "trigger": {
-            "type": "string",
-            "description": "When the fee is earned; only settlement is implemented, other values are rejected",
             "enum": [
               "settlement",
               "funding",
               "delivery"
             ],
+            "type": "string",
+            "description": "When the fee is earned; only settlement is implemented, other values are rejected",
             "default": "settlement"
           },
           "tiers": {
@@ -17385,6 +18185,12 @@
           },
           "allowedConditions": {
             "type": "array",
+            "enum": [
+              "New",
+              "Used - Good",
+              "Used - Fair",
+              "Refurbished"
+            ],
             "items": {
               "type": "string",
               "enum": [
@@ -17397,7 +18203,6 @@
           },
           "allowedTradeTerms": {
             "type": "array",
-            "description": "Allowed trade terms for listings in this group",
             "items": {
               "type": "string",
               "enum": [
@@ -17414,11 +18219,11 @@
                 "DDP",
                 "NA"
               ]
-            }
+            },
+            "description": "Allowed trade terms for listings in this group"
           },
           "allowedTransactionTypes": {
             "type": "array",
-            "description": "Allowed transaction types for this group",
             "items": {
               "type": "string",
               "enum": [
@@ -17432,7 +18237,8 @@
                 "service_contract",
                 "milestone_service"
               ]
-            }
+            },
+            "description": "Allowed transaction types for this group"
           },
           "allowsCommoditySpecs": {
             "type": "boolean"
@@ -17485,13 +18291,13 @@
             }
           },
           "defaultEscrowStructure": {
-            "type": "string",
             "enum": [
               "full",
               "deposit",
               "milestone",
               "partial"
-            ]
+            ],
+            "type": "string"
           }
         }
       },
@@ -17510,7 +18316,6 @@
             "example": "Dated Brent"
           },
           "benchmarkCurrency": {
-            "type": "string",
             "enum": [
               "NGN",
               "KES",
@@ -17518,10 +18323,10 @@
               "EUR",
               "USDT",
               "USDC"
-            ]
+            ],
+            "type": "string"
           },
           "defaultUnit": {
-            "type": "string",
             "enum": [
               "bbl",
               "liter",
@@ -17562,7 +18367,8 @@
               "package",
               "plate",
               "bar"
-            ]
+            ],
+            "type": "string"
           },
           "active": {
             "type": "boolean",
@@ -17805,7 +18611,6 @@
         "type": "object",
         "properties": {
           "type": {
-            "type": "string",
             "enum": [
               "INVOICE",
               "PACKING_LIST",
@@ -17815,23 +18620,23 @@
               "CONTRACT",
               "INSPECTION_CERTIFICATE",
               "OTHER"
-            ]
+            ],
+            "type": "string"
           },
           "name": {
             "type": "string"
           },
           "requiredFrom": {
-            "type": "string",
             "enum": [
               "BUYER",
               "SELLER"
-            ]
+            ],
+            "type": "string"
           },
           "isMandatory": {
             "type": "boolean"
           },
           "requiredAtStatus": {
-            "type": "string",
             "enum": [
               "INITIATED",
               "DOCUMENTS_SUBMITTED",
@@ -17858,7 +18663,8 @@
               "REFUNDED",
               "PARTIALLY_REFUNDED",
               "DISPUTED"
-            ]
+            ],
+            "type": "string"
           }
         },
         "required": [
@@ -17878,12 +18684,12 @@
             "type": "boolean"
           },
           "riskLevel": {
-            "type": "string",
             "enum": [
               "LOW",
               "MEDIUM",
               "HIGH"
-            ]
+            ],
+            "type": "string"
           }
         },
         "required": [
@@ -17917,13 +18723,13 @@
             }
           },
           "defaultEscrowStructure": {
-            "type": "string",
             "enum": [
               "full",
               "deposit",
               "milestone",
               "partial"
-            ]
+            ],
+            "type": "string"
           }
         }
       },
@@ -18073,6 +18879,8 @@
           },
           "percentage": {
             "type": "number",
+            "minimum": 1,
+            "maximum": 100,
             "description": "Payment percentage for this milestone (1-100). All milestone percentages must sum to 100.",
             "example": 30
           }
@@ -18091,11 +18899,11 @@
             "example": "60d0fe4f5311236168a109ca"
           },
           "productSource": {
-            "type": "string",
             "enum": [
               "ORDER",
               "REQUEST"
             ],
+            "type": "string",
             "description": "Tells the system whether to use the product from the order or the matching request to determine the category."
           },
           "milestones": {
@@ -18155,7 +18963,6 @@
             "type": "string"
           },
           "status": {
-            "type": "string",
             "enum": [
               "INITIATED",
               "DOCUMENTS_SUBMITTED",
@@ -18182,7 +18989,8 @@
               "REFUNDED",
               "PARTIALLY_REFUNDED",
               "DISPUTED"
-            ]
+            ],
+            "type": "string"
           },
           "role": {
             "type": "string",
@@ -18210,11 +19018,11 @@
             "type": "string"
           },
           "pricingBasis": {
-            "type": "string",
             "enum": [
               "flat",
               "differential"
             ],
+            "type": "string",
             "description": "How the order is priced"
           },
           "differentialPrice": {
@@ -18398,6 +19206,7 @@
         "properties": {
           "id": {
             "type": "string",
+            "format": "uuid",
             "description": "UUID generated client-side (idempotency key)"
           },
           "key": {
@@ -18411,7 +19220,6 @@
             "example": "Sulfur Content"
           },
           "comparator": {
-            "type": "string",
             "enum": [
               "=",
               "!=",
@@ -18426,6 +19234,7 @@
               "absent",
               "present"
             ],
+            "type": "string",
             "description": "Comparison operator — determines the expected shape of value"
           },
           "value": {
@@ -18462,12 +19271,12 @@
             "example": "ASTM D5453"
           },
           "severity": {
-            "type": "string",
             "enum": [
               "blocking",
               "informational",
               "price_adjust"
-            ]
+            ],
+            "type": "string"
           },
           "required": {
             "type": "boolean",
@@ -18524,7 +19333,6 @@
             "type": "number"
           },
           "unitOfMeasurement": {
-            "type": "string",
             "enum": [
               "bbl",
               "liter",
@@ -18565,7 +19373,8 @@
               "package",
               "plate",
               "bar"
-            ]
+            ],
+            "type": "string"
           },
           "requester": {
             "$ref": "#/components/schemas/OrderBuyerDto"
@@ -18677,7 +19486,6 @@
             "type": "number"
           },
           "unitOfMeasurement": {
-            "type": "string",
             "enum": [
               "bbl",
               "liter",
@@ -18718,14 +19526,15 @@
               "package",
               "plate",
               "bar"
-            ]
+            ],
+            "type": "string"
           },
           "pricingBasis": {
-            "type": "string",
             "enum": [
               "flat",
               "differential"
             ],
+            "type": "string",
             "default": "flat",
             "description": "How the order is priced. A differential order stays unpriced (pricePerUnit/totals unset) until the benchmark resolves at funding."
           },
@@ -18758,7 +19567,6 @@
             "description": "Price per unit in minor currency units. Unset for a differential order until funding."
           },
           "currency": {
-            "type": "string",
             "enum": [
               "NGN",
               "KES",
@@ -18766,7 +19574,8 @@
               "EUR",
               "USDT",
               "USDC"
-            ]
+            ],
+            "type": "string"
           },
           "totalAmount": {
             "type": "number",
@@ -18881,7 +19690,6 @@
             "type": "string"
           },
           "action": {
-            "type": "string",
             "enum": [
               "CREATED",
               "STATUS_CHANGE",
@@ -18908,7 +19716,8 @@
               "RENTAL_ENDED",
               "CHARTER_ENDED",
               "RETURN_INSPECTION_COMPLETED"
-            ]
+            ],
+            "type": "string"
           },
           "metadata": {
             "type": "object"
@@ -18949,7 +19758,6 @@
             "type": "string"
           },
           "type": {
-            "type": "string",
             "enum": [
               "INVOICE",
               "PACKING_LIST",
@@ -18959,7 +19767,8 @@
               "CONTRACT",
               "INSPECTION_CERTIFICATE",
               "OTHER"
-            ]
+            ],
+            "type": "string"
           },
           "name": {
             "type": "string"
@@ -18978,19 +19787,18 @@
             "$ref": "#/components/schemas/TransactionDocumentFileDto"
           },
           "status": {
-            "type": "string",
             "enum": [
               "PENDING",
               "SUBMITTED",
               "APPROVED",
               "REJECTED"
-            ]
+            ],
+            "type": "string"
           },
           "rejectionReason": {
             "type": "string"
           },
           "requiredAtStatus": {
-            "type": "string",
             "enum": [
               "INITIATED",
               "DOCUMENTS_SUBMITTED",
@@ -19017,7 +19825,8 @@
               "REFUNDED",
               "PARTIALLY_REFUNDED",
               "DISPUTED"
-            ]
+            ],
+            "type": "string"
           }
         },
         "required": [
@@ -19114,7 +19923,6 @@
             "type": "string"
           },
           "status": {
-            "type": "string",
             "enum": [
               "FUNDED",
               "RELEASE_PENDING",
@@ -19122,7 +19930,8 @@
               "REFUND_PENDING",
               "REFUNDED",
               "PARTIALLY_REFUNDED"
-            ]
+            ],
+            "type": "string"
           },
           "amount": {
             "type": "number",
@@ -19137,7 +19946,6 @@
             "description": "Platform service fee amount"
           },
           "currency": {
-            "type": "string",
             "enum": [
               "NGN",
               "KES",
@@ -19145,7 +19953,8 @@
               "EUR",
               "USDT",
               "USDC"
-            ]
+            ],
+            "type": "string"
           },
           "referenceId": {
             "type": "string",
@@ -19323,7 +20132,6 @@
             "type": "number"
           },
           "type": {
-            "type": "string",
             "enum": [
               "DOCUMENT_SUBMISSION",
               "COMPLIANCE_REVIEW",
@@ -19343,7 +20151,8 @@
               "MILESTONE_APPROVE",
               "SETTLEMENT",
               "CLOSED"
-            ]
+            ],
+            "type": "string"
           },
           "name": {
             "type": "string"
@@ -19367,30 +20176,33 @@
             ]
           },
           "status": {
-            "type": "string",
             "enum": [
               "PENDING",
               "ACTIVE",
               "COMPLETED",
               "DISPUTED"
-            ]
+            ],
+            "type": "string"
           },
           "visibility": {
-            "type": "string",
             "enum": [
               "SHARED",
               "PARTY_ONLY"
-            ]
+            ],
+            "type": "string"
           },
           "actionTarget": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "completedAt": {
             "format": "date-time",
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "completedBy": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "metadata": {
             "type": "object"
@@ -19486,7 +20298,6 @@
             "type": "number"
           },
           "status": {
-            "type": "string",
             "enum": [
               "INITIATED",
               "DOCUMENTS_SUBMITTED",
@@ -19513,10 +20324,10 @@
               "REFUNDED",
               "PARTIALLY_REFUNDED",
               "DISPUTED"
-            ]
+            ],
+            "type": "string"
           },
           "workflowType": {
-            "type": "string",
             "enum": [
               "COMMODITY",
               "EQUIPMENT",
@@ -19525,7 +20336,8 @@
               "RENTAL",
               "CHARTER",
               "SERVICE"
-            ]
+            ],
+            "type": "string"
           },
           "events": {
             "type": "array",
@@ -19602,11 +20414,11 @@
             "description": "Deadline for the buyer to fund escrow (7 days after compliance approval)."
           },
           "cancellationReason": {
-            "type": "string",
             "enum": [
               "funding_window_expired",
               "funding_window_closed_by_admin"
             ],
+            "type": "string",
             "description": "Why the platform cancelled this transaction, when it did."
           },
           "createdAt": {
@@ -19633,7 +20445,6 @@
         "type": "object",
         "properties": {
           "status": {
-            "type": "string",
             "enum": [
               "INITIATED",
               "DOCUMENTS_SUBMITTED",
@@ -19661,6 +20472,7 @@
               "PARTIALLY_REFUNDED",
               "DISPUTED"
             ],
+            "type": "string",
             "description": "The new status to transition to"
           },
           "reason": {
@@ -19676,7 +20488,6 @@
         "type": "object",
         "properties": {
           "type": {
-            "type": "string",
             "enum": [
               "INVOICE",
               "PACKING_LIST",
@@ -19687,6 +20498,7 @@
               "INSPECTION_CERTIFICATE",
               "OTHER"
             ],
+            "type": "string",
             "description": "The type of document being uploaded"
           },
           "name": {
@@ -19696,6 +20508,7 @@
           },
           "url": {
             "type": "string",
+            "format": "uri",
             "description": "URL of the uploaded document",
             "example": "https://s3.aws.com/bucket/file.pdf"
           },
@@ -19721,6 +20534,7 @@
           },
           "url": {
             "type": "string",
+            "format": "uri",
             "description": "URL of the uploaded receipt",
             "example": "https://s3.aws.com/bucket/receipt.pdf"
           }
@@ -19745,6 +20559,7 @@
           },
           "trackingUrl": {
             "type": "string",
+            "format": "uri",
             "description": "Direct link to the carrier's shipment tracking page",
             "example": "https://www.maersk.com/tracking/MAEU123456789"
           }
@@ -19794,6 +20609,7 @@
         "properties": {
           "amount": {
             "type": "number",
+            "minimum": 1,
             "description": "Amount the buyer intends to wire (custody minor units). Required on payment rails without standing accounts; ignored when a permanent destination exists."
           }
         }
@@ -19887,7 +20703,6 @@
             "description": "Exact amount to transfer in minor currency units"
           },
           "currency": {
-            "type": "string",
             "enum": [
               "NGN",
               "KES",
@@ -19896,10 +20711,10 @@
               "USDT",
               "USDC"
             ],
+            "type": "string",
             "description": "Funding currency"
           },
           "payerCurrency": {
-            "type": "string",
             "enum": [
               "NGN",
               "KES",
@@ -19908,6 +20723,7 @@
               "USDT",
               "USDC"
             ],
+            "type": "string",
             "description": "Currency of `amount` — what the payer actually sends. Differs from `currency` only for cross-currency deposits (e.g. a USD escrow funded by sending USDT); `subtotal`/`serviceFeeAmount` stay in `currency`."
           },
           "subtotal": {
@@ -20004,6 +20820,7 @@
         "type": "object",
         "properties": {
           "documents": {
+            "minItems": 1,
             "description": "One or more Q&Q certification documents uploaded by the buyer or admin.",
             "type": "array",
             "items": {
@@ -20022,7 +20839,6 @@
             "type": "string"
           },
           "status": {
-            "type": "string",
             "enum": [
               "FUNDED",
               "RELEASE_PENDING",
@@ -20030,7 +20846,8 @@
               "REFUND_PENDING",
               "REFUNDED",
               "PARTIALLY_REFUNDED"
-            ]
+            ],
+            "type": "string"
           },
           "amount": {
             "type": "number",
@@ -20045,7 +20862,6 @@
             "description": "Platform service fee amount"
           },
           "currency": {
-            "type": "string",
             "enum": [
               "NGN",
               "KES",
@@ -20053,7 +20869,8 @@
               "EUR",
               "USDT",
               "USDC"
-            ]
+            ],
+            "type": "string"
           },
           "referenceId": {
             "type": "string",
@@ -20162,7 +20979,6 @@
             "description": "Total refunded in minor currency units (kobo/cents)"
           },
           "currency": {
-            "type": "string",
             "enum": [
               "NGN",
               "KES",
@@ -20170,7 +20986,8 @@
               "EUR",
               "USDT",
               "USDC"
-            ]
+            ],
+            "type": "string"
           }
         },
         "required": [
@@ -20267,10 +21084,10 @@
           },
           "quantity": {
             "type": "number",
+            "minimum": 1,
             "description": "Quantity to purchase"
           },
           "unitOfMeasurement": {
-            "type": "string",
             "enum": [
               "bbl",
               "liter",
@@ -20312,6 +21129,7 @@
               "plate",
               "bar"
             ],
+            "type": "string",
             "description": "Unit of measurement"
           },
           "notes": {
@@ -20319,7 +21137,6 @@
             "description": "Optional buyer notes"
           },
           "transactionType": {
-            "type": "string",
             "enum": [
               "purchase",
               "lease",
@@ -20331,10 +21148,10 @@
               "service_contract",
               "milestone_service"
             ],
+            "type": "string",
             "description": "Selected transaction type"
           },
           "tradeTerm": {
-            "type": "string",
             "enum": [
               "FOB",
               "CIF",
@@ -20349,6 +21166,7 @@
               "DDP",
               "NA"
             ],
+            "type": "string",
             "description": "Selected trade term"
           },
           "condition": {
@@ -20395,7 +21213,6 @@
             "description": "Duration for lease/charter transactions"
           },
           "durationUnit": {
-            "type": "string",
             "enum": [
               "hour",
               "day",
@@ -20406,6 +21223,7 @@
               "milestone",
               "contract"
             ],
+            "type": "string",
             "description": "Duration unit for lease/charter (hour, day, month)"
           },
           "milestones": {
@@ -20501,6 +21319,8 @@
           },
           "percentage": {
             "type": "number",
+            "minimum": 1,
+            "maximum": 100,
             "description": "Payment percentage for this milestone (1-100)",
             "example": 50
           }
@@ -20654,11 +21474,11 @@
             "type": "string"
           },
           "pricingBasis": {
-            "type": "string",
             "enum": [
               "flat",
               "differential"
             ],
+            "type": "string",
             "description": "How the price is expressed: flat scalar or commodity differential"
           },
           "targetPricePerUnit": {
@@ -20683,7 +21503,6 @@
             "type": "string"
           },
           "currency": {
-            "type": "string",
             "enum": [
               "NGN",
               "KES",
@@ -20691,7 +21510,8 @@
               "EUR",
               "USDT",
               "USDC"
-            ]
+            ],
+            "type": "string"
           },
           "transactionType": {
             "type": "array",
@@ -20845,8 +21665,6 @@
             "description": "ID of the specialty (new taxonomy anchor)"
           },
           "listingType": {
-            "type": "string",
-            "description": "What kind of listing this is",
             "enum": [
               "product",
               "service",
@@ -20854,7 +21672,9 @@
               "lease",
               "charter",
               "rfq"
-            ]
+            ],
+            "type": "string",
+            "description": "What kind of listing this is"
           },
           "name": {
             "type": "string",
@@ -20862,7 +21682,8 @@
             "description": "Ignored. The request name is derived from the category leaf and equipment specs."
           },
           "quantity": {
-            "type": "number"
+            "type": "number",
+            "minimum": 1
           },
           "region": {
             "type": "array",
@@ -20883,7 +21704,6 @@
             }
           },
           "unitOfMeasurement": {
-            "type": "string",
             "enum": [
               "bbl",
               "liter",
@@ -20924,19 +21744,21 @@
               "package",
               "plate",
               "bar"
-            ]
+            ],
+            "type": "string"
           },
           "pricingBasis": {
-            "type": "string",
             "enum": [
               "flat",
               "differential"
             ],
+            "type": "string",
             "description": "How the price is expressed: flat scalar or commodity differential",
             "default": "flat"
           },
           "targetPricePerUnit": {
             "type": "number",
+            "minimum": 0,
             "description": "Target price per unit in minor currency units (kobo/cents). Required for flat pricing; omit for differential.",
             "example": 1000000
           },
@@ -20949,7 +21771,6 @@
             ]
           },
           "currency": {
-            "type": "string",
             "enum": [
               "NGN",
               "KES",
@@ -20957,11 +21778,11 @@
               "EUR",
               "USDT",
               "USDC"
-            ]
+            ],
+            "type": "string"
           },
           "transactionType": {
             "type": "array",
-            "description": "List of transaction types",
             "items": {
               "type": "string",
               "enum": [
@@ -20975,11 +21796,11 @@
                 "service_contract",
                 "milestone_service"
               ]
-            }
+            },
+            "description": "List of transaction types"
           },
           "tradeTerms": {
             "type": "array",
-            "description": "Trade terms the buyer is willing to accept",
             "items": {
               "type": "string",
               "enum": [
@@ -20996,11 +21817,11 @@
                 "DDP",
                 "NA"
               ]
-            }
+            },
+            "description": "Trade terms the buyer is willing to accept"
           },
           "condition": {
             "type": "array",
-            "description": "List of product conditions",
             "items": {
               "type": "string",
               "enum": [
@@ -21009,7 +21830,8 @@
                 "Used - Fair",
                 "Refurbished"
               ]
-            }
+            },
+            "description": "List of product conditions"
           },
           "description": {
             "type": "string"
@@ -21022,10 +21844,10 @@
           },
           "duration": {
             "type": "number",
+            "minimum": 1,
             "description": "Duration for lease/charter transactions"
           },
           "durationUnit": {
-            "type": "string",
             "enum": [
               "hour",
               "day",
@@ -21036,15 +21858,16 @@
               "milestone",
               "contract"
             ],
+            "type": "string",
             "description": "Duration unit for lease/charter (hour, day, month)"
           },
           "selectionMode": {
-            "type": "string",
             "enum": [
               "open",
               "jira-ai",
               "direct"
             ],
+            "type": "string",
             "default": "open"
           },
           "milestones": {
@@ -21079,8 +21902,7 @@
           "country",
           "state",
           "unitOfMeasurement",
-          "currency",
-          "selectionMode"
+          "currency"
         ]
       },
       "RequesterDto": {
@@ -21180,7 +22002,6 @@
             }
           },
           "unitOfMeasurement": {
-            "type": "string",
             "enum": [
               "bbl",
               "liter",
@@ -21221,14 +22042,15 @@
               "package",
               "plate",
               "bar"
-            ]
+            ],
+            "type": "string"
           },
           "pricingBasis": {
-            "type": "string",
             "enum": [
               "flat",
               "differential"
             ],
+            "type": "string",
             "description": "How the price is expressed: flat scalar or commodity differential"
           },
           "targetPricePerUnit": {
@@ -21250,7 +22072,6 @@
             "type": "number"
           },
           "durationUnit": {
-            "type": "string",
             "enum": [
               "hour",
               "day",
@@ -21260,10 +22081,10 @@
               "project",
               "milestone",
               "contract"
-            ]
+            ],
+            "type": "string"
           },
           "currency": {
-            "type": "string",
             "enum": [
               "NGN",
               "KES",
@@ -21271,7 +22092,8 @@
               "EUR",
               "USDT",
               "USDC"
-            ]
+            ],
+            "type": "string"
           },
           "listingType": {
             "type": "string",
@@ -21342,12 +22164,12 @@
             "type": "string"
           },
           "cancellationReason": {
-            "type": "string",
             "enum": [
               "user_cancelled",
               "stale_auto_closed",
               "order_cancelled"
-            ]
+            ],
+            "type": "string"
           },
           "isStale": {
             "type": "boolean"
@@ -21410,8 +22232,6 @@
             "description": "ID of the specialty (new taxonomy anchor)"
           },
           "listingType": {
-            "type": "string",
-            "description": "What kind of listing this is",
             "enum": [
               "product",
               "service",
@@ -21419,7 +22239,9 @@
               "lease",
               "charter",
               "rfq"
-            ]
+            ],
+            "type": "string",
+            "description": "What kind of listing this is"
           },
           "name": {
             "type": "string",
@@ -21427,7 +22249,8 @@
             "description": "Ignored. The request name is derived from the category leaf and equipment specs."
           },
           "quantity": {
-            "type": "number"
+            "type": "number",
+            "minimum": 1
           },
           "region": {
             "type": "array",
@@ -21448,7 +22271,6 @@
             }
           },
           "unitOfMeasurement": {
-            "type": "string",
             "enum": [
               "bbl",
               "liter",
@@ -21489,19 +22311,21 @@
               "package",
               "plate",
               "bar"
-            ]
+            ],
+            "type": "string"
           },
           "pricingBasis": {
-            "type": "string",
             "enum": [
               "flat",
               "differential"
             ],
+            "type": "string",
             "description": "How the price is expressed: flat scalar or commodity differential",
             "default": "flat"
           },
           "targetPricePerUnit": {
             "type": "number",
+            "minimum": 0,
             "description": "Target price per unit in minor currency units (kobo/cents). Required for flat pricing; omit for differential.",
             "example": 1000000
           },
@@ -21514,7 +22338,6 @@
             ]
           },
           "currency": {
-            "type": "string",
             "enum": [
               "NGN",
               "KES",
@@ -21522,11 +22345,11 @@
               "EUR",
               "USDT",
               "USDC"
-            ]
+            ],
+            "type": "string"
           },
           "transactionType": {
             "type": "array",
-            "description": "List of transaction types",
             "items": {
               "type": "string",
               "enum": [
@@ -21540,11 +22363,11 @@
                 "service_contract",
                 "milestone_service"
               ]
-            }
+            },
+            "description": "List of transaction types"
           },
           "tradeTerms": {
             "type": "array",
-            "description": "Trade terms the buyer is willing to accept",
             "items": {
               "type": "string",
               "enum": [
@@ -21561,11 +22384,11 @@
                 "DDP",
                 "NA"
               ]
-            }
+            },
+            "description": "Trade terms the buyer is willing to accept"
           },
           "condition": {
             "type": "array",
-            "description": "List of product conditions",
             "items": {
               "type": "string",
               "enum": [
@@ -21574,7 +22397,8 @@
                 "Used - Fair",
                 "Refurbished"
               ]
-            }
+            },
+            "description": "List of product conditions"
           },
           "description": {
             "type": "string"
@@ -21587,10 +22411,10 @@
           },
           "duration": {
             "type": "number",
+            "minimum": 1,
             "description": "Duration for lease/charter transactions"
           },
           "durationUnit": {
-            "type": "string",
             "enum": [
               "hour",
               "day",
@@ -21601,15 +22425,16 @@
               "milestone",
               "contract"
             ],
+            "type": "string",
             "description": "Duration unit for lease/charter (hour, day, month)"
           },
           "selectionMode": {
-            "type": "string",
             "enum": [
               "open",
               "jira-ai",
               "direct"
             ],
+            "type": "string",
             "default": "open"
           },
           "milestones": {
@@ -21636,14 +22461,14 @@
             "$ref": "#/components/schemas/CommercialTermsDto"
           },
           "status": {
-            "type": "string",
             "enum": [
               "pending",
               "in_review",
               "matched",
               "fulfilled",
               "cancelled"
-            ]
+            ],
+            "type": "string"
           }
         }
       },
@@ -21659,15 +22484,16 @@
             "description": "ID of the product being offered"
           },
           "pricingBasis": {
-            "type": "string",
-            "description": "How the offer is priced. Must match the request; omit to default to flat.",
             "enum": [
               "flat",
               "differential"
-            ]
+            ],
+            "type": "string",
+            "description": "How the offer is priced. Must match the request; omit to default to flat."
           },
           "pricePerUnit": {
             "type": "number",
+            "minimum": 0,
             "description": "Offered price per unit in minor units (required for a flat offer)"
           },
           "differentialPrice": {
@@ -21679,10 +22505,10 @@
             ]
           },
           "quantity": {
-            "type": "number"
+            "type": "number",
+            "minimum": 1
           },
           "currency": {
-            "type": "string",
             "enum": [
               "NGN",
               "KES",
@@ -21690,10 +22516,10 @@
               "EUR",
               "USDT",
               "USDC"
-            ]
+            ],
+            "type": "string"
           },
           "unitOfMeasurement": {
-            "type": "string",
             "enum": [
               "bbl",
               "liter",
@@ -21734,10 +22560,10 @@
               "package",
               "plate",
               "bar"
-            ]
+            ],
+            "type": "string"
           },
           "transactionType": {
-            "type": "string",
             "enum": [
               "purchase",
               "lease",
@@ -21748,19 +22574,19 @@
               "term_contract",
               "service_contract",
               "milestone_service"
-            ]
+            ],
+            "type": "string"
           },
           "condition": {
-            "type": "string",
             "enum": [
               "New",
               "Used - Good",
               "Used - Fair",
               "Refurbished"
-            ]
+            ],
+            "type": "string"
           },
           "tradeTerm": {
-            "type": "string",
             "enum": [
               "FOB",
               "CIF",
@@ -21774,14 +22600,15 @@
               "DAP",
               "DDP",
               "NA"
-            ]
+            ],
+            "type": "string"
           },
           "duration": {
             "type": "number",
+            "minimum": 1,
             "description": "Proposed duration for lease/charter/rental"
           },
           "durationUnit": {
-            "type": "string",
             "enum": [
               "hour",
               "day",
@@ -21791,7 +22618,8 @@
               "project",
               "milestone",
               "contract"
-            ]
+            ],
+            "type": "string"
           },
           "paymentTerms": {
             "type": "string"
@@ -21805,17 +22633,17 @@
           },
           "expirationHours": {
             "type": "number",
-            "description": "Hours until this offer expires (default: 24)",
             "minimum": 1,
             "maximum": 168,
+            "description": "Hours until this offer expires (default: 24)",
             "default": 24
           },
           "responseType": {
-            "type": "string",
             "enum": [
               "accept",
               "counter_offer"
             ],
+            "type": "string",
             "description": "Whether the seller is accepting all terms or counter-offering"
           }
         },
@@ -21850,11 +22678,11 @@
             "description": "Target price per unit in minor currency units (kobo/cents)"
           },
           "pricingBasis": {
-            "type": "string",
             "enum": [
               "flat",
               "differential"
             ],
+            "type": "string",
             "description": "How the request is priced: flat scalar or commodity differential"
           },
           "differentialPrice": {
@@ -21866,7 +22694,6 @@
             ]
           },
           "currency": {
-            "type": "string",
             "enum": [
               "NGN",
               "KES",
@@ -21874,10 +22701,10 @@
               "EUR",
               "USDT",
               "USDC"
-            ]
+            ],
+            "type": "string"
           },
           "unitOfMeasurement": {
-            "type": "string",
             "enum": [
               "bbl",
               "liter",
@@ -21918,7 +22745,8 @@
               "package",
               "plate",
               "bar"
-            ]
+            ],
+            "type": "string"
           },
           "transactionType": {
             "type": "array",
@@ -22291,15 +23119,16 @@
         "type": "object",
         "properties": {
           "pricingBasis": {
-            "type": "string",
-            "description": "How the counter is priced. Must match the request; omit to default to flat.",
             "enum": [
               "flat",
               "differential"
-            ]
+            ],
+            "type": "string",
+            "description": "How the counter is priced. Must match the request; omit to default to flat."
           },
           "pricePerUnit": {
             "type": "number",
+            "minimum": 0,
             "description": "Price per unit in minor currency units (kobo/cents); required for a flat counter",
             "example": 1000000
           },
@@ -22312,10 +23141,10 @@
             ]
           },
           "quantity": {
-            "type": "number"
+            "type": "number",
+            "minimum": 1
           },
           "currency": {
-            "type": "string",
             "enum": [
               "NGN",
               "KES",
@@ -22323,10 +23152,10 @@
               "EUR",
               "USDT",
               "USDC"
-            ]
+            ],
+            "type": "string"
           },
           "unitOfMeasurement": {
-            "type": "string",
             "enum": [
               "bbl",
               "liter",
@@ -22367,10 +23196,10 @@
               "package",
               "plate",
               "bar"
-            ]
+            ],
+            "type": "string"
           },
           "transactionType": {
-            "type": "string",
             "enum": [
               "purchase",
               "lease",
@@ -22381,19 +23210,19 @@
               "term_contract",
               "service_contract",
               "milestone_service"
-            ]
+            ],
+            "type": "string"
           },
           "condition": {
-            "type": "string",
             "enum": [
               "New",
               "Used - Good",
               "Used - Fair",
               "Refurbished"
-            ]
+            ],
+            "type": "string"
           },
           "tradeTerm": {
-            "type": "string",
             "enum": [
               "FOB",
               "CIF",
@@ -22407,14 +23236,15 @@
               "DAP",
               "DDP",
               "NA"
-            ]
+            ],
+            "type": "string"
           },
           "duration": {
             "type": "number",
+            "minimum": 1,
             "description": "Proposed duration for lease/charter/rental"
           },
           "durationUnit": {
-            "type": "string",
             "enum": [
               "hour",
               "day",
@@ -22424,7 +23254,8 @@
               "project",
               "milestone",
               "contract"
-            ]
+            ],
+            "type": "string"
           },
           "paymentTerms": {
             "type": "string"
@@ -22438,9 +23269,9 @@
           },
           "expirationHours": {
             "type": "number",
-            "description": "Hours until this offer expires (default: 24)",
             "minimum": 1,
             "maximum": 168,
+            "description": "Hours until this offer expires (default: 24)",
             "default": 24
           }
         },
@@ -22469,14 +23300,17 @@
             "type": "string"
           },
           "quantity": {
-            "type": "number"
+            "type": "number",
+            "minimum": 1
           },
           "price": {
             "type": "number",
+            "minimum": 0,
             "description": "Unit price in minor currency units (kobo/cents)"
           },
           "amount": {
             "type": "number",
+            "minimum": 0,
             "description": "Line total in minor currency units (kobo/cents)"
           }
         },
@@ -22494,13 +23328,13 @@
             "type": "string"
           },
           "customerEmail": {
-            "type": "string"
+            "type": "string",
+            "format": "email"
           },
           "title": {
             "type": "string"
           },
           "currency": {
-            "type": "string",
             "enum": [
               "NGN",
               "KES",
@@ -22508,38 +23342,42 @@
               "EUR",
               "USDT",
               "USDC"
-            ]
+            ],
+            "type": "string"
           },
           "dueDate": {
             "type": "string",
             "description": "ISO 8601 date string"
           },
           "items": {
+            "minItems": 1,
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/InvoiceItemDto"
             }
           },
           "taxType": {
-            "type": "string",
             "enum": [
               "fixed",
               "percentage"
-            ]
+            ],
+            "type": "string"
           },
           "taxValue": {
             "type": "number",
+            "minimum": 0,
             "description": "Tax value — in minor currency units (kobo/cents) if FIXED, or percentage if PERCENTAGE"
           },
           "discountType": {
-            "type": "string",
             "enum": [
               "fixed",
               "percentage"
-            ]
+            ],
+            "type": "string"
           },
           "discountValue": {
             "type": "number",
+            "minimum": 0,
             "description": "Discount value — in minor currency units (kobo/cents) if FIXED, or percentage if PERCENTAGE"
           },
           "notes": {
@@ -22593,7 +23431,6 @@
             "description": "User who acted; absent for system and customer actions"
           },
           "action": {
-            "type": "string",
             "enum": [
               "created",
               "sent",
@@ -22603,7 +23440,8 @@
               "paid_from_deposit",
               "overdue_notified",
               "settled_after_cancel"
-            ]
+            ],
+            "type": "string"
           },
           "metadata": {
             "type": "object"
@@ -22634,7 +23472,6 @@
             "type": "string"
           },
           "currency": {
-            "type": "string",
             "enum": [
               "NGN",
               "KES",
@@ -22642,20 +23479,21 @@
               "EUR",
               "USDT",
               "USDC"
-            ]
+            ],
+            "type": "string"
           },
           "dueDate": {
             "type": "string",
             "description": "ISO 8601"
           },
           "status": {
-            "type": "string",
             "enum": [
               "draft",
               "pending",
               "paid",
               "cancelled"
-            ]
+            ],
+            "type": "string"
           },
           "isOverdue": {
             "type": "boolean",
@@ -22668,22 +23506,22 @@
             }
           },
           "taxType": {
-            "type": "string",
             "enum": [
               "fixed",
               "percentage"
-            ]
+            ],
+            "type": "string"
           },
           "taxValue": {
             "type": "number",
             "description": "Minor units if FIXED, percentage if PERCENTAGE"
           },
           "discountType": {
-            "type": "string",
             "enum": [
               "fixed",
               "percentage"
-            ]
+            ],
+            "type": "string"
           },
           "discountValue": {
             "type": "number",
@@ -22856,13 +23694,13 @@
             "type": "string"
           },
           "customerEmail": {
-            "type": "string"
+            "type": "string",
+            "format": "email"
           },
           "title": {
             "type": "string"
           },
           "currency": {
-            "type": "string",
             "enum": [
               "NGN",
               "KES",
@@ -22870,38 +23708,42 @@
               "EUR",
               "USDT",
               "USDC"
-            ]
+            ],
+            "type": "string"
           },
           "dueDate": {
             "type": "string",
             "description": "ISO 8601 date string"
           },
           "items": {
+            "minItems": 1,
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/InvoiceItemDto"
             }
           },
           "taxType": {
-            "type": "string",
             "enum": [
               "fixed",
               "percentage"
-            ]
+            ],
+            "type": "string"
           },
           "taxValue": {
             "type": "number",
+            "minimum": 0,
             "description": "Tax value — in minor currency units (kobo/cents) if FIXED, or percentage if PERCENTAGE"
           },
           "discountType": {
-            "type": "string",
             "enum": [
               "fixed",
               "percentage"
-            ]
+            ],
+            "type": "string"
           },
           "discountValue": {
             "type": "number",
+            "minimum": 0,
             "description": "Discount value — in minor currency units (kobo/cents) if FIXED, or percentage if PERCENTAGE"
           },
           "notes": {
@@ -22914,6 +23756,7 @@
         "properties": {
           "customerEmail": {
             "type": "string",
+            "format": "email",
             "description": "Corrected customer email; replaces the stored address before resending (the recovery for a typo or a bounce)"
           }
         }
@@ -22960,7 +23803,6 @@
             "description": "User-facing, provider-neutral label"
           },
           "currency": {
-            "type": "string",
             "enum": [
               "NGN",
               "KES",
@@ -22969,6 +23811,7 @@
               "USDT",
               "USDC"
             ],
+            "type": "string",
             "example": "NGN"
           },
           "requiresAmount": {
@@ -23016,7 +23859,6 @@
             "description": "How this wallet is funded — a bank transfer or an on-chain deposit"
           },
           "currency": {
-            "type": "string",
             "enum": [
               "NGN",
               "KES",
@@ -23025,6 +23867,7 @@
               "USDT",
               "USDC"
             ],
+            "type": "string",
             "example": "NGN"
           },
           "accountNumber": {
@@ -23135,13 +23978,13 @@
             "type": "string"
           },
           "status": {
-            "type": "string",
             "enum": [
               "draft",
               "pending",
               "paid",
               "cancelled"
-            ]
+            ],
+            "type": "string"
           },
           "notes": {
             "type": "string"
@@ -23207,7 +24050,6 @@
             "description": "Which of the org's wallets this balance lives in (\"Wallet 1\", \"Wallet 2\", …)"
           },
           "currency": {
-            "type": "string",
             "enum": [
               "NGN",
               "KES",
@@ -23216,6 +24058,7 @@
               "USDT",
               "USDC"
             ],
+            "type": "string",
             "example": "NGN"
           },
           "balance": {
@@ -23293,7 +24136,6 @@
         "type": "object",
         "properties": {
           "currency": {
-            "type": "string",
             "enum": [
               "NGN",
               "KES",
@@ -23302,6 +24144,7 @@
               "USDT",
               "USDC"
             ],
+            "type": "string",
             "example": "USDT"
           },
           "balanceMinor": {
@@ -23325,7 +24168,6 @@
         "type": "object",
         "properties": {
           "reference": {
-            "type": "string",
             "enum": [
               "NGN",
               "KES",
@@ -23334,6 +24176,7 @@
               "USDT",
               "USDC"
             ],
+            "type": "string",
             "example": "NGN",
             "description": "Reference currency everything is valued in"
           },
@@ -23383,7 +24226,6 @@
         "type": "object",
         "properties": {
           "currency": {
-            "type": "string",
             "enum": [
               "NGN",
               "KES",
@@ -23392,16 +24234,19 @@
               "USDT",
               "USDC"
             ],
+            "type": "string",
             "example": "NGN",
             "description": "Currency to fund"
           },
           "walletIndex": {
             "type": "number",
+            "minimum": 1,
             "example": 1,
             "description": "Which numbered wallet to fund. Required: the destination wallet is always named explicitly."
           },
           "amount": {
             "type": "number",
+            "minimum": 1,
             "example": 100000,
             "description": "Amount to fund, minor currency units"
           },
@@ -23422,10 +24267,6 @@
         "properties": {
           "targets": {
             "type": "array",
-            "example": [
-              "USDT"
-            ],
-            "description": "Target currencies this wallet can convert into",
             "items": {
               "type": "string",
               "enum": [
@@ -23436,7 +24277,11 @@
                 "USDT",
                 "USDC"
               ]
-            }
+            },
+            "example": [
+              "USDT"
+            ],
+            "description": "Target currencies this wallet can convert into"
           }
         },
         "required": [
@@ -23447,7 +24292,6 @@
         "type": "object",
         "properties": {
           "source": {
-            "type": "string",
             "enum": [
               "NGN",
               "KES",
@@ -23456,16 +24300,17 @@
               "USDT",
               "USDC"
             ],
+            "type": "string",
             "example": "NGN",
             "description": "Currency to convert from"
           },
           "walletIndex": {
             "type": "number",
+            "minimum": 1,
             "example": 1,
             "description": "Which numbered wallet converts (a conversion never leaves its wallet). Required: the caller must name the wallet explicitly."
           },
           "target": {
-            "type": "string",
             "enum": [
               "NGN",
               "KES",
@@ -23474,16 +24319,19 @@
               "USDT",
               "USDC"
             ],
+            "type": "string",
             "example": "USDT",
             "description": "Wallet to convert into"
           },
           "sourceAmount": {
             "type": "number",
+            "minimum": 1,
             "example": 5000000,
             "description": "Spend exactly this much of the source, minor units (omit if targetAmount is set)"
           },
           "targetAmount": {
             "type": "number",
+            "minimum": 1,
             "example": 10000000,
             "description": "Receive exactly this much of the target, minor units (omit if sourceAmount is set)"
           }
@@ -23503,7 +24351,6 @@
             "description": "Quote id, to execute within the window"
           },
           "sourceCurrency": {
-            "type": "string",
             "enum": [
               "NGN",
               "KES",
@@ -23512,10 +24359,10 @@
               "USDT",
               "USDC"
             ],
+            "type": "string",
             "example": "NGN"
           },
           "targetCurrency": {
-            "type": "string",
             "enum": [
               "NGN",
               "KES",
@@ -23524,6 +24371,7 @@
               "USDT",
               "USDC"
             ],
+            "type": "string",
             "example": "USDT"
           },
           "sourceAmount": {
@@ -23571,7 +24419,6 @@
         "type": "object",
         "properties": {
           "source": {
-            "type": "string",
             "enum": [
               "NGN",
               "KES",
@@ -23580,11 +24427,13 @@
               "USDT",
               "USDC"
             ],
+            "type": "string",
             "example": "NGN",
             "description": "Source currency of the quote"
           },
           "walletIndex": {
             "type": "number",
+            "minimum": 1,
             "example": 1,
             "description": "Wallet the quote was issued for. Required, matching the quote call."
           },
@@ -23649,7 +24498,6 @@
             "description": "Month-to-date spend in minor currency units (kobo)"
           },
           "currency": {
-            "type": "string",
             "enum": [
               "NGN",
               "KES",
@@ -23658,6 +24506,7 @@
               "USDT",
               "USDC"
             ],
+            "type": "string",
             "example": "NGN"
           }
         },
@@ -23671,7 +24520,6 @@
         "type": "object",
         "properties": {
           "reference": {
-            "type": "string",
             "enum": [
               "NGN",
               "KES",
@@ -23680,6 +24528,7 @@
               "USDT",
               "USDC"
             ],
+            "type": "string",
             "example": "NGN",
             "description": "Reporting currency the summary is pinned to"
           },
@@ -23727,7 +24576,6 @@
             "example": "tx_123"
           },
           "currency": {
-            "type": "string",
             "enum": [
               "NGN",
               "KES",
@@ -23736,6 +24584,7 @@
               "USDT",
               "USDC"
             ],
+            "type": "string",
             "example": "NGN"
           },
           "amount": {
@@ -23880,7 +24729,6 @@
         "type": "object",
         "properties": {
           "currency": {
-            "type": "string",
             "enum": [
               "NGN",
               "KES",
@@ -23889,25 +24737,28 @@
               "USDT",
               "USDC"
             ],
+            "type": "string",
             "example": "NGN",
             "description": "Currency to disburse"
           },
           "walletIndex": {
             "type": "number",
+            "minimum": 1,
             "example": 1,
             "description": "Which numbered wallet to disburse from. Required: money never leaves a wallet the caller did not name explicitly."
           },
           "amount": {
             "type": "number",
+            "minimum": 1,
             "example": 500000,
             "description": "Amount in minor currency units"
           },
           "method": {
-            "type": "string",
             "enum": [
               "bank_account",
               "crypto_address"
             ],
+            "type": "string",
             "default": "bank_account",
             "description": "Destination type; defaults to bank_account when omitted"
           },
@@ -23961,7 +24812,6 @@
         "type": "object",
         "properties": {
           "currency": {
-            "type": "string",
             "enum": [
               "NGN",
               "KES",
@@ -23970,18 +24820,19 @@
               "USDT",
               "USDC"
             ],
+            "type": "string",
             "example": "NGN"
           },
           "feeMinor": {
             "type": "number",
-            "example": 21500,
             "nullable": true,
+            "example": 21500,
             "description": "Withdrawal fee in minor units; null when the provider can’t quote ahead of execution"
           },
           "totalDebitMinor": {
             "type": "number",
-            "example": 521500,
             "nullable": true,
+            "example": 521500,
             "description": "Total debited from the wallet (amount + fee) in minor units; null when unknown"
           }
         },
@@ -24031,7 +24882,6 @@
         "type": "object",
         "properties": {
           "currency": {
-            "type": "string",
             "enum": [
               "NGN",
               "KES",
@@ -24040,11 +24890,13 @@
               "USDT",
               "USDC"
             ],
+            "type": "string",
             "example": "NGN",
             "description": "Wallet currency"
           },
           "walletIndex": {
             "type": "number",
+            "minimum": 1,
             "example": 1,
             "description": "Which numbered wallet is being debited"
           },
@@ -24097,7 +24949,6 @@
             "example": "Payroll account"
           },
           "currency": {
-            "type": "string",
             "enum": [
               "NGN",
               "KES",
@@ -24106,6 +24957,7 @@
               "USDT",
               "USDC"
             ],
+            "type": "string",
             "example": "NGN"
           },
           "method": {
@@ -24173,7 +25025,6 @@
             "description": "User-friendly label"
           },
           "currency": {
-            "type": "string",
             "enum": [
               "NGN",
               "KES",
@@ -24182,14 +25033,15 @@
               "USDT",
               "USDC"
             ],
+            "type": "string",
             "example": "NGN"
           },
           "method": {
-            "type": "string",
             "enum": [
               "bank_account",
               "crypto_address"
             ],
+            "type": "string",
             "example": "bank_account",
             "description": "Destination type"
           },
@@ -24239,7 +25091,6 @@
         "type": "object",
         "properties": {
           "currency": {
-            "type": "string",
             "enum": [
               "NGN",
               "KES",
@@ -24248,20 +25099,24 @@
               "USDT",
               "USDC"
             ],
+            "type": "string",
             "example": "NGN"
           },
           "amount": {
             "type": "number",
+            "minimum": 1,
             "description": "Amount the TARGET wallet must receive, minor units. The source wallet is debited this plus fees.",
             "example": 500000
           },
           "sourceWalletIndex": {
             "type": "number",
+            "minimum": 1,
             "description": "Wallet to send from",
             "example": 1
           },
           "targetWalletIndex": {
             "type": "number",
+            "minimum": 1,
             "description": "Wallet to receive into",
             "example": 3
           }
@@ -24280,17 +25135,16 @@
             "type": "string"
           },
           "status": {
-            "type": "string",
             "enum": [
               "pending",
               "in_transit",
               "completed",
               "failed",
               "stuck"
-            ]
+            ],
+            "type": "string"
           },
           "currency": {
-            "type": "string",
             "enum": [
               "NGN",
               "KES",
@@ -24298,7 +25152,8 @@
               "EUR",
               "USDT",
               "USDC"
-            ]
+            ],
+            "type": "string"
           },
           "amount": {
             "type": "number",
@@ -24349,11 +25204,13 @@
           },
           "walletIndex": {
             "type": "number",
+            "minimum": 1,
             "example": 1,
             "description": "Which numbered wallet funds the escrow. Required: the paying wallet is always chosen explicitly (the UI shows a picker)."
           },
           "amount": {
             "type": "number",
+            "minimum": 1,
             "description": "Deposit-led deals only: the amount to move from the wallet into the deposit pool (custody minor units). The buyer chooses it — there is no platform-computed total. Ignored (quote-driven) on quoted deals."
           }
         },
@@ -24391,7 +25248,8 @@
             "type": "string"
           },
           "email": {
-            "type": "string"
+            "type": "string",
+            "format": "email"
           },
           "phoneNumber": {
             "type": "string"
@@ -24421,7 +25279,6 @@
             "type": "string"
           },
           "currency": {
-            "type": "string",
             "enum": [
               "NGN",
               "KES",
@@ -24429,7 +25286,8 @@
               "EUR",
               "USDT",
               "USDC"
-            ]
+            ],
+            "type": "string"
           }
         },
         "required": [
@@ -24555,7 +25413,6 @@
             "type": "string"
           },
           "currency": {
-            "type": "string",
             "enum": [
               "NGN",
               "KES",
@@ -24563,7 +25420,8 @@
               "EUR",
               "USDT",
               "USDC"
-            ]
+            ],
+            "type": "string"
           }
         },
         "required": [
@@ -24699,7 +25557,8 @@
             "type": "string"
           },
           "email": {
-            "type": "string"
+            "type": "string",
+            "format": "email"
           },
           "phoneNumber": {
             "type": "string"
@@ -24729,7 +25588,6 @@
             "type": "string"
           },
           "currency": {
-            "type": "string",
             "enum": [
               "NGN",
               "KES",
@@ -24737,7 +25595,8 @@
               "EUR",
               "USDT",
               "USDC"
-            ]
+            ],
+            "type": "string"
           }
         }
       },
@@ -24746,6 +25605,7 @@
         "properties": {
           "url": {
             "type": "string",
+            "format": "uri",
             "description": "Public URL of the uploaded file"
           },
           "name": {
@@ -24772,18 +25632,18 @@
             "example": "60d0fe4f5311236168a109cb"
           },
           "type": {
-            "type": "string",
             "enum": [
               "DELIVERY_DISPUTE",
               "MILESTONE_DISPUTE",
               "INSPECTION_DISPUTE"
             ],
+            "type": "string",
             "description": "Category of the dispute"
           },
           "reason": {
             "type": "string",
-            "description": "Reason for raising the dispute",
             "maxLength": 2000,
+            "description": "Reason for raising the dispute",
             "example": "The goods arrived damaged."
           },
           "attachments": {
@@ -24805,7 +25665,6 @@
         "type": "object",
         "properties": {
           "outcome": {
-            "type": "string",
             "enum": [
               "PROCEED",
               "CANCELLED",
@@ -24813,7 +25672,8 @@
               "RE_INSPECT",
               "MUTUAL_SETTLEMENT",
               "ESCALATED"
-            ]
+            ],
+            "type": "string"
           },
           "notes": {
             "type": "string"
@@ -24851,7 +25711,7 @@
             "type": "string"
           },
           "uploadedByRole": {
-            "type": "string"
+            "type": "object"
           }
         },
         "required": [
@@ -24874,12 +25734,12 @@
             "type": "string"
           },
           "type": {
-            "type": "string",
             "enum": [
               "DELIVERY_DISPUTE",
               "MILESTONE_DISPUTE",
               "INSPECTION_DISPUTE"
-            ]
+            ],
+            "type": "string"
           },
           "displayId": {
             "type": "number"
@@ -24895,14 +25755,14 @@
             "type": "string"
           },
           "status": {
-            "type": "string",
             "enum": [
               "OPEN",
               "UNDER_REVIEW",
               "RESOLVED",
               "ESCALATED",
               "WITHDRAWN"
-            ]
+            ],
+            "type": "string"
           },
           "resolution": {
             "nullable": true,
@@ -24941,6 +25801,10 @@
           "updatedAt"
         ]
       },
+      "Dispute": {
+        "type": "object",
+        "properties": {}
+      },
       "SingleDisputeResponseDto": {
         "type": "object",
         "properties": {
@@ -24961,6 +25825,7 @@
         "properties": {
           "url": {
             "type": "string",
+            "format": "uri",
             "description": "Public URL of the uploaded file"
           },
           "name": {
@@ -24978,6 +25843,7 @@
         "properties": {
           "url": {
             "type": "string",
+            "format": "uri",
             "description": "Public URL of the uploaded file"
           },
           "name": {
@@ -24995,8 +25861,8 @@
         "properties": {
           "reason": {
             "type": "string",
-            "description": "Reason for withdrawing the dispute",
-            "maxLength": 2000
+            "maxLength": 2000,
+            "description": "Reason for withdrawing the dispute"
           },
           "attachments": {
             "description": "Optional supporting documents",
@@ -25012,7 +25878,19 @@
       },
       "AttachmentDto": {
         "type": "object",
-        "properties": {}
+        "properties": {
+          "url": {
+            "type": "string",
+            "format": "uri"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "url",
+          "name"
+        ]
       },
       "FulfillInformationRequestDto": {
         "type": "object",
@@ -25573,8 +26451,8 @@
         "properties": {
           "country": {
             "type": "string",
-            "example": "KE",
-            "description": "ISO-3166-1 alpha-2 operating country"
+            "description": "ISO-3166-1 alpha-2 operating country",
+            "example": "KE"
           }
         },
         "required": [
@@ -25953,11 +26831,16 @@
           },
           "swiftBic": {
             "type": "string",
+            "minLength": 8,
+            "maxLength": 11,
             "example": "CHASUS33",
             "description": "SWIFT / BIC code, collected for manual (non-integrated) corridors to make an international wire actionable."
           },
           "accountNumber": {
             "type": "string",
+            "minLength": 5,
+            "maxLength": 34,
+            "pattern": "/^[A-Za-z0-9 ]+$/",
             "example": "0122333334",
             "description": "Account number or IBAN. NG uses a 10-digit NUBAN; other corridors vary (IBANs are alphanumeric), so the exact format is validated per-country on the client. The server only enforces a broad alphanumeric shape."
           },
@@ -26087,6 +26970,8 @@
           },
           "nationalityCode": {
             "type": "string",
+            "minLength": 2,
+            "maxLength": 2,
             "description": "Nationality as an ISO-3166-1 alpha-2 country code (e.g. \"NG\").",
             "example": "NG"
           },
@@ -26129,9 +27014,9 @@
           },
           "percentageOwnership": {
             "type": "number",
-            "description": "Numeric ownership stake (0–100).",
             "minimum": 0,
-            "maximum": 100
+            "maximum": 100,
+            "description": "Numeric ownership stake (0–100)."
           },
           "isPep": {
             "type": "boolean",
@@ -26148,6 +27033,8 @@
           },
           "nationalityCode": {
             "type": "string",
+            "minLength": 2,
+            "maxLength": 2,
             "description": "Nationality as an ISO-3166-1 alpha-2 country code (e.g. \"NG\").",
             "example": "NG"
           },
@@ -26206,9 +27093,9 @@
           },
           "percentageOwnership": {
             "type": "number",
-            "description": "Numeric ownership stake (0–100).",
             "minimum": 0,
-            "maximum": 100
+            "maximum": 100,
+            "description": "Numeric ownership stake (0–100)."
           },
           "isPep": {
             "type": "boolean",
@@ -26225,6 +27112,8 @@
           },
           "nationalityCode": {
             "type": "string",
+            "minLength": 2,
+            "maxLength": 2,
             "description": "Nationality as an ISO-3166-1 alpha-2 country code (e.g. \"NG\").",
             "example": "NG"
           },
@@ -26292,6 +27181,7 @@
         "properties": {
           "email": {
             "type": "string",
+            "format": "email",
             "example": "colleague@example.com"
           },
           "roles": {
@@ -26320,6 +27210,7 @@
         "type": "object",
         "properties": {
           "invites": {
+            "maxItems": 20,
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/InviteItemDto"
@@ -26370,7 +27261,8 @@
             "type": "string"
           },
           "password": {
-            "type": "string"
+            "type": "string",
+            "minLength": 8
           }
         },
         "required": [
@@ -26385,6 +27277,7 @@
         "properties": {
           "email": {
             "type": "string",
+            "format": "email",
             "example": "colleague@example.com"
           },
           "roles": {
@@ -26599,11 +27492,11 @@
         "type": "object",
         "properties": {
           "status": {
-            "type": "string",
             "enum": [
               "approved",
               "rejected"
-            ]
+            ],
+            "type": "string"
           },
           "rejectionReason": {
             "type": "string",
@@ -26712,7 +27605,6 @@
             "type": "string"
           },
           "benchmarkCurrency": {
-            "type": "string",
             "enum": [
               "NGN",
               "KES",
@@ -26720,10 +27612,10 @@
               "EUR",
               "USDT",
               "USDC"
-            ]
+            ],
+            "type": "string"
           },
           "defaultUnit": {
-            "type": "string",
             "enum": [
               "bbl",
               "liter",
@@ -26764,7 +27656,8 @@
               "package",
               "plate",
               "bar"
-            ]
+            ],
+            "type": "string"
           },
           "active": {
             "type": "boolean"
@@ -26817,15 +27710,19 @@
         "properties": {
           "code": {
             "type": "string",
+            "minLength": 2,
+            "maxLength": 40,
+            "pattern": "/^[A-Za-z0-9_]+$/",
             "example": "DATED_BRENT",
             "description": "Stable machine code (A-Z, 0-9, underscores). Referenced by the mock price map and immutable once the benchmark is in use."
           },
           "name": {
             "type": "string",
+            "minLength": 2,
+            "maxLength": 80,
             "example": "Dated Brent"
           },
           "benchmarkCurrency": {
-            "type": "string",
             "enum": [
               "NGN",
               "KES",
@@ -26833,10 +27730,10 @@
               "EUR",
               "USDT",
               "USDC"
-            ]
+            ],
+            "type": "string"
           },
           "defaultUnit": {
-            "type": "string",
             "enum": [
               "bbl",
               "liter",
@@ -26877,7 +27774,8 @@
               "package",
               "plate",
               "bar"
-            ]
+            ],
+            "type": "string"
           },
           "active": {
             "type": "boolean",
@@ -26911,13 +27809,17 @@
         "properties": {
           "code": {
             "type": "string",
+            "minLength": 2,
+            "maxLength": 40,
+            "pattern": "/^[A-Za-z0-9_]+$/",
             "description": "Changeable only while the benchmark is unreferenced"
           },
           "name": {
-            "type": "string"
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 80
           },
           "benchmarkCurrency": {
-            "type": "string",
             "enum": [
               "NGN",
               "KES",
@@ -26926,10 +27828,10 @@
               "USDT",
               "USDC"
             ],
+            "type": "string",
             "description": "Changeable only while the benchmark is unreferenced"
           },
           "defaultUnit": {
-            "type": "string",
             "enum": [
               "bbl",
               "liter",
@@ -26971,6 +27873,7 @@
               "plate",
               "bar"
             ],
+            "type": "string",
             "description": "Changeable only while the benchmark is unreferenced"
           },
           "active": {
@@ -26981,18 +27884,46 @@
       },
       "AdminLoginDto": {
         "type": "object",
-        "properties": {}
+        "properties": {
+          "email": {
+            "type": "string",
+            "description": "Admin's email address",
+            "format": "email"
+          },
+          "password": {
+            "type": "string",
+            "description": "Admin's password",
+            "minLength": 6
+          }
+        },
+        "required": [
+          "email",
+          "password"
+        ]
       },
       "AdminVerifyOtpDto": {
         "type": "object",
-        "properties": {}
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "otp": {
+            "type": "string",
+            "minLength": 6,
+            "maxLength": 6
+          }
+        },
+        "required": [
+          "email",
+          "otp"
+        ]
       },
       "PermissionOverridesDto": {
         "type": "object",
         "properties": {
           "granted": {
             "type": "array",
-            "description": "Additional permissions granted beyond the role defaults",
             "items": {
               "type": "string",
               "enum": [
@@ -27045,11 +27976,11 @@
                 "cms:view",
                 "cms:manage"
               ]
-            }
+            },
+            "description": "Additional permissions granted beyond the role defaults"
           },
           "revoked": {
             "type": "array",
-            "description": "Permissions revoked from the role defaults",
             "items": {
               "type": "string",
               "enum": [
@@ -27102,7 +28033,8 @@
                 "cms:view",
                 "cms:manage"
               ]
-            }
+            },
+            "description": "Permissions revoked from the role defaults"
           }
         }
       },
@@ -27111,19 +28043,19 @@
         "properties": {
           "email": {
             "type": "string",
+            "format": "email",
             "description": "Admin's email address"
           },
           "password": {
             "type": "string",
-            "description": "Initial password (admin should change this later)",
-            "minLength": 8
+            "minLength": 8,
+            "description": "Initial password (admin should change this later)"
           },
           "name": {
             "type": "string",
             "description": "Full name of the admin"
           },
           "role": {
-            "type": "string",
             "enum": [
               "super_admin",
               "operations",
@@ -27132,6 +28064,7 @@
               "catalog",
               "finance"
             ],
+            "type": "string",
             "description": "Role assigned to the admin"
           },
           "department": {
@@ -27161,7 +28094,21 @@
       },
       "AdminChangePasswordDto": {
         "type": "object",
-        "properties": {}
+        "properties": {
+          "currentPassword": {
+            "type": "string",
+            "description": "Current password for verification"
+          },
+          "newPassword": {
+            "type": "string",
+            "description": "New password (min 8 chars)",
+            "minLength": 8
+          }
+        },
+        "required": [
+          "currentPassword",
+          "newPassword"
+        ]
       },
       "PermissionOverridesResponseDto": {
         "type": "object",
@@ -27297,7 +28244,6 @@
             "type": "string"
           },
           "role": {
-            "type": "string",
             "enum": [
               "super_admin",
               "operations",
@@ -27305,7 +28251,8 @@
               "support",
               "catalog",
               "finance"
-            ]
+            ],
+            "type": "string"
           },
           "department": {
             "type": "string"
@@ -27318,7 +28265,6 @@
           },
           "effectivePermissions": {
             "type": "array",
-            "description": "Effective resolved permissions",
             "items": {
               "type": "string",
               "enum": [
@@ -27371,7 +28317,8 @@
                 "cms:view",
                 "cms:manage"
               ]
-            }
+            },
+            "description": "Effective resolved permissions"
           },
           "createdAt": {
             "format": "date-time",
@@ -27441,7 +28388,6 @@
             "type": "string"
           },
           "role": {
-            "type": "string",
             "enum": [
               "super_admin",
               "operations",
@@ -27449,7 +28395,8 @@
               "support",
               "catalog",
               "finance"
-            ]
+            ],
+            "type": "string"
           },
           "department": {
             "type": "string"
@@ -27470,7 +28417,6 @@
             "description": "Full name of the admin"
           },
           "role": {
-            "type": "string",
             "enum": [
               "super_admin",
               "operations",
@@ -27479,6 +28425,7 @@
               "catalog",
               "finance"
             ],
+            "type": "string",
             "description": "Role assigned to the admin"
           },
           "department": {
@@ -27632,9 +28579,9 @@
         "properties": {
           "days": {
             "type": "number",
-            "description": "Days to add, counted from the later of now and the current deadline",
             "minimum": 1,
             "maximum": 30,
+            "description": "Days to add, counted from the later of now and the current deadline",
             "example": 7
           }
         },
@@ -27662,9 +28609,9 @@
         "properties": {
           "days": {
             "type": "number",
-            "description": "Length of the fresh funding window in days",
             "minimum": 1,
             "maximum": 30,
+            "description": "Length of the fresh funding window in days",
             "default": 7
           }
         }
@@ -27697,7 +28644,6 @@
             ]
           },
           "listingType": {
-            "type": "string",
             "enum": [
               "product",
               "service",
@@ -27705,14 +28651,15 @@
               "lease",
               "charter",
               "rfq"
-            ]
+            ],
+            "type": "string"
           },
           "pricingBasis": {
-            "type": "string",
             "enum": [
               "flat",
               "differential"
             ],
+            "type": "string",
             "default": "flat",
             "description": "How the price is expressed. Defaults to flat. Differential is only accepted on commodity groups and is forced on groups that require it."
           },
@@ -27730,7 +28677,6 @@
             ]
           },
           "currency": {
-            "type": "string",
             "enum": [
               "NGN",
               "KES",
@@ -27738,7 +28684,8 @@
               "EUR",
               "USDT",
               "USDC"
-            ]
+            ],
+            "type": "string"
           },
           "images": {
             "type": "array",
@@ -27762,16 +28709,19 @@
             "type": "number"
           },
           "minimumOrderQuantity": {
-            "type": "number"
+            "type": "number",
+            "minimum": 1
           },
           "maximumOrderQuantity": {
-            "type": "number"
+            "type": "number",
+            "minimum": 1
           },
           "trackInventory": {
             "type": "boolean"
           },
           "lowStockThreshold": {
-            "type": "number"
+            "type": "number",
+            "minimum": 1
           },
           "showStockToBuyers": {
             "type": "boolean"
@@ -27780,7 +28730,6 @@
             "type": "boolean"
           },
           "unitOfMeasurement": {
-            "type": "string",
             "enum": [
               "bbl",
               "liter",
@@ -27821,7 +28770,8 @@
               "package",
               "plate",
               "bar"
-            ]
+            ],
+            "type": "string"
           },
           "tradeTerms": {
             "type": "array",
@@ -27904,11 +28854,7 @@
           "categoryId",
           "groupId",
           "type",
-          "listingType",
-          "images",
-          "documents",
-          "conditions",
-          "location"
+          "listingType"
         ]
       },
       "AdminProductResponseDto": {
@@ -27953,11 +28899,11 @@
             ]
           },
           "pricingBasis": {
-            "type": "string",
             "enum": [
               "flat",
               "differential"
             ],
+            "type": "string",
             "description": "How the price is expressed (flat or differential)."
           },
           "pricePerUnit": {
@@ -27976,7 +28922,6 @@
             ]
           },
           "currency": {
-            "type": "string",
             "enum": [
               "NGN",
               "KES",
@@ -27984,7 +28929,8 @@
               "EUR",
               "USDT",
               "USDC"
-            ]
+            ],
+            "type": "string"
           },
           "images": {
             "type": "array",
@@ -28020,7 +28966,6 @@
             "type": "boolean"
           },
           "unitOfMeasurement": {
-            "type": "string",
             "enum": [
               "bbl",
               "liter",
@@ -28061,7 +29006,8 @@
               "package",
               "plate",
               "bar"
-            ]
+            ],
+            "type": "string"
           },
           "conditions": {
             "type": "array",
@@ -28167,7 +29113,6 @@
             ]
           },
           "listingType": {
-            "type": "string",
             "enum": [
               "product",
               "service",
@@ -28175,14 +29120,15 @@
               "lease",
               "charter",
               "rfq"
-            ]
+            ],
+            "type": "string"
           },
           "pricingBasis": {
-            "type": "string",
             "enum": [
               "flat",
               "differential"
             ],
+            "type": "string",
             "default": "flat",
             "description": "How the price is expressed. Defaults to flat. Differential is only accepted on commodity groups and is forced on groups that require it."
           },
@@ -28200,7 +29146,6 @@
             ]
           },
           "currency": {
-            "type": "string",
             "enum": [
               "NGN",
               "KES",
@@ -28208,7 +29153,8 @@
               "EUR",
               "USDT",
               "USDC"
-            ]
+            ],
+            "type": "string"
           },
           "images": {
             "type": "array",
@@ -28232,16 +29178,19 @@
             "type": "number"
           },
           "minimumOrderQuantity": {
-            "type": "number"
+            "type": "number",
+            "minimum": 1
           },
           "maximumOrderQuantity": {
-            "type": "number"
+            "type": "number",
+            "minimum": 1
           },
           "trackInventory": {
             "type": "boolean"
           },
           "lowStockThreshold": {
-            "type": "number"
+            "type": "number",
+            "minimum": 1
           },
           "showStockToBuyers": {
             "type": "boolean"
@@ -28250,7 +29199,6 @@
             "type": "boolean"
           },
           "unitOfMeasurement": {
-            "type": "string",
             "enum": [
               "bbl",
               "liter",
@@ -28291,7 +29239,8 @@
               "package",
               "plate",
               "bar"
-            ]
+            ],
+            "type": "string"
           },
           "tradeTerms": {
             "type": "array",
@@ -28373,7 +29322,6 @@
         "type": "object",
         "properties": {
           "type": {
-            "type": "string",
             "enum": [
               "INVOICE",
               "PACKING_LIST",
@@ -28383,23 +29331,23 @@
               "CONTRACT",
               "INSPECTION_CERTIFICATE",
               "OTHER"
-            ]
+            ],
+            "type": "string"
           },
           "name": {
             "type": "string"
           },
           "requiredFrom": {
-            "type": "string",
             "enum": [
               "BUYER",
               "SELLER"
-            ]
+            ],
+            "type": "string"
           },
           "isMandatory": {
             "type": "boolean"
           },
           "requiredAtStatus": {
-            "type": "string",
             "enum": [
               "INITIATED",
               "DOCUMENTS_SUBMITTED",
@@ -28426,7 +29374,8 @@
               "REFUNDED",
               "PARTIALLY_REFUNDED",
               "DISPUTED"
-            ]
+            ],
+            "type": "string"
           }
         },
         "required": [
@@ -28445,12 +29394,12 @@
             "type": "boolean"
           },
           "riskLevel": {
-            "type": "string",
             "enum": [
               "LOW",
               "MEDIUM",
               "HIGH"
-            ]
+            ],
+            "type": "string"
           }
         }
       },
@@ -28479,13 +29428,13 @@
             }
           },
           "defaultEscrowStructure": {
-            "type": "string",
             "enum": [
               "full",
               "deposit",
               "milestone",
               "partial"
-            ]
+            ],
+            "type": "string"
           }
         }
       },
@@ -28526,6 +29475,55 @@
           },
           "allowedUnits": {
             "type": "array",
+            "enum": [
+              "bbl",
+              "liter",
+              "gallon",
+              "m3",
+              "mt",
+              "kg",
+              "ton",
+              "lb",
+              "m",
+              "ft",
+              "sqm",
+              "sqft",
+              "scf",
+              "sm3",
+              "nm3",
+              "mmbtu",
+              "kwh",
+              "mwh",
+              "kva",
+              "kw",
+              "mw",
+              "unit",
+              "set",
+              "kit",
+              "pair",
+              "joint",
+              "roll",
+              "sheet",
+              "box",
+              "pack",
+              "drum",
+              "bag",
+              "cylinder",
+              "ream",
+              "license",
+              "skid",
+              "package",
+              "plate",
+              "bar",
+              "hour",
+              "day",
+              "week",
+              "month",
+              "year",
+              "project",
+              "milestone",
+              "contract"
+            ],
             "description": "Specific units allowed for listings in this category",
             "items": {
               "type": "string",
@@ -28619,8 +29617,7 @@
         },
         "required": [
           "name",
-          "groupId",
-          "isActive"
+          "groupId"
         ]
       },
       "UpdateCategoryDto": {
@@ -28660,6 +29657,55 @@
           },
           "allowedUnits": {
             "type": "array",
+            "enum": [
+              "bbl",
+              "liter",
+              "gallon",
+              "m3",
+              "mt",
+              "kg",
+              "ton",
+              "lb",
+              "m",
+              "ft",
+              "sqm",
+              "sqft",
+              "scf",
+              "sm3",
+              "nm3",
+              "mmbtu",
+              "kwh",
+              "mwh",
+              "kva",
+              "kw",
+              "mw",
+              "unit",
+              "set",
+              "kit",
+              "pair",
+              "joint",
+              "roll",
+              "sheet",
+              "box",
+              "pack",
+              "drum",
+              "bag",
+              "cylinder",
+              "ream",
+              "license",
+              "skid",
+              "package",
+              "plate",
+              "bar",
+              "hour",
+              "day",
+              "week",
+              "month",
+              "year",
+              "project",
+              "milestone",
+              "contract"
+            ],
             "description": "Specific units allowed for listings in this category",
             "items": {
               "type": "string",
@@ -28782,6 +29828,55 @@
           },
           "allowedUnits": {
             "type": "array",
+            "enum": [
+              "bbl",
+              "liter",
+              "gallon",
+              "m3",
+              "mt",
+              "kg",
+              "ton",
+              "lb",
+              "m",
+              "ft",
+              "sqm",
+              "sqft",
+              "scf",
+              "sm3",
+              "nm3",
+              "mmbtu",
+              "kwh",
+              "mwh",
+              "kva",
+              "kw",
+              "mw",
+              "unit",
+              "set",
+              "kit",
+              "pair",
+              "joint",
+              "roll",
+              "sheet",
+              "box",
+              "pack",
+              "drum",
+              "bag",
+              "cylinder",
+              "ream",
+              "license",
+              "skid",
+              "package",
+              "plate",
+              "bar",
+              "hour",
+              "day",
+              "week",
+              "month",
+              "year",
+              "project",
+              "milestone",
+              "contract"
+            ],
             "description": "Override the parent category’s allowed units. Omit to inherit from category.",
             "items": {
               "type": "string",
@@ -28838,6 +29933,20 @@
           },
           "allowedTradeTerms": {
             "type": "array",
+            "enum": [
+              "FOB",
+              "CIF",
+              "CFR",
+              "EX_WORKS",
+              "DELIVERED",
+              "TTO",
+              "TTT",
+              "FOT",
+              "FCA",
+              "DAP",
+              "DDP",
+              "NA"
+            ],
             "description": "Override the parent group’s allowed trade terms. Omit to inherit from the group.",
             "items": {
               "type": "string",
@@ -28903,6 +30012,55 @@
           },
           "allowedUnits": {
             "type": "array",
+            "enum": [
+              "bbl",
+              "liter",
+              "gallon",
+              "m3",
+              "mt",
+              "kg",
+              "ton",
+              "lb",
+              "m",
+              "ft",
+              "sqm",
+              "sqft",
+              "scf",
+              "sm3",
+              "nm3",
+              "mmbtu",
+              "kwh",
+              "mwh",
+              "kva",
+              "kw",
+              "mw",
+              "unit",
+              "set",
+              "kit",
+              "pair",
+              "joint",
+              "roll",
+              "sheet",
+              "box",
+              "pack",
+              "drum",
+              "bag",
+              "cylinder",
+              "ream",
+              "license",
+              "skid",
+              "package",
+              "plate",
+              "bar",
+              "hour",
+              "day",
+              "week",
+              "month",
+              "year",
+              "project",
+              "milestone",
+              "contract"
+            ],
             "description": "Override the parent category’s allowed units. Omit to inherit from category.",
             "items": {
               "type": "string",
@@ -28959,6 +30117,20 @@
           },
           "allowedTradeTerms": {
             "type": "array",
+            "enum": [
+              "FOB",
+              "CIF",
+              "CFR",
+              "EX_WORKS",
+              "DELIVERED",
+              "TTO",
+              "TTT",
+              "FOT",
+              "FCA",
+              "DAP",
+              "DDP",
+              "NA"
+            ],
             "description": "Override the parent group’s allowed trade terms. Omit to inherit from the group.",
             "items": {
               "type": "string",
@@ -29039,7 +30211,6 @@
         "type": "object",
         "properties": {
           "type": {
-            "type": "string",
             "enum": [
               "INVOICE",
               "PACKING_LIST",
@@ -29050,6 +30221,7 @@
               "INSPECTION_CERTIFICATE",
               "OTHER"
             ],
+            "type": "string",
             "description": "The type of document required"
           },
           "name": {
@@ -29072,8 +30244,6 @@
             "example": true
           },
           "requiredAtStatus": {
-            "type": "string",
-            "description": "The transaction status at which this document becomes required",
             "enum": [
               "INITIATED",
               "DOCUMENTS_SUBMITTED",
@@ -29101,6 +30271,8 @@
               "PARTIALLY_REFUNDED",
               "DISPUTED"
             ],
+            "type": "string",
+            "description": "The transaction status at which this document becomes required",
             "example": "INITIATED"
           }
         },
@@ -29115,7 +30287,6 @@
         "type": "object",
         "properties": {
           "type": {
-            "type": "string",
             "enum": [
               "INVOICE",
               "PACKING_LIST",
@@ -29126,6 +30297,7 @@
               "INSPECTION_CERTIFICATE",
               "OTHER"
             ],
+            "type": "string",
             "description": "The type of document required"
           },
           "name": {
@@ -29148,8 +30320,6 @@
             "example": true
           },
           "requiredAtStatus": {
-            "type": "string",
-            "description": "The transaction status at which this document becomes required",
             "enum": [
               "INITIATED",
               "DOCUMENTS_SUBMITTED",
@@ -29177,6 +30347,8 @@
               "PARTIALLY_REFUNDED",
               "DISPUTED"
             ],
+            "type": "string",
+            "description": "The transaction status at which this document becomes required",
             "example": "INITIATED"
           }
         }
@@ -29242,7 +30414,19 @@
             "description": "Originator snapshot from the provider webhook. ADMIN-ONLY: the only permissible bank refund destination."
           },
           "sourceWallet": {
-            "type": "object"
+            "type": "object",
+            "properties": {
+              "orgId": {
+                "type": "string"
+              },
+              "walletIndex": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "orgId",
+              "walletIndex"
+            ]
           },
           "receivedAt": {
             "format": "date-time",
@@ -29348,6 +30532,7 @@
         "properties": {
           "buyerUnitPrice": {
             "type": "number",
+            "minimum": 1,
             "description": "Agreed BUYER unit price (custody minor units per unit). The listed price: the buyer additionally pays any configured escrow fee on top."
           },
           "referencePrice": {
@@ -29356,10 +30541,12 @@
           },
           "referenceSource": {
             "type": "string",
+            "minLength": 3,
             "description": "Where the reference price came from (audit trail)"
           },
           "settlementFxRate": {
             "type": "number",
+            "minimum": 1,
             "description": "The exchange rate the parties agreed, scaled by 1e6 (1600.25 NGN per USD = 1600250000). Required when the deal settles in a currency other than the one its formula is quoted in, and rejected when they match. The platform never looks a rate up; it derives the settlement-currency seller charge from this one."
           },
           "excessAction": {
@@ -29435,6 +30622,7 @@
         "properties": {
           "buyerUnitPrice": {
             "type": "number",
+            "minimum": 1,
             "description": "Agreed BUYER unit price (custody minor units per unit). The listed price: the buyer additionally pays any configured escrow fee on top."
           },
           "referencePrice": {
@@ -29443,10 +30631,12 @@
           },
           "referenceSource": {
             "type": "string",
+            "minLength": 3,
             "description": "Where the reference price came from (audit trail)"
           },
           "settlementFxRate": {
             "type": "number",
+            "minimum": 1,
             "description": "The exchange rate the parties agreed, scaled by 1e6 (1600.25 NGN per USD = 1600250000). Required when the deal settles in a currency other than the one its formula is quoted in, and rejected when they match. The platform never looks a rate up; it derives the settlement-currency seller charge from this one."
           },
           "excessAction": {
@@ -29459,10 +30649,12 @@
           },
           "waiverReason": {
             "type": "string",
+            "minLength": 10,
             "description": "Written reason for closing below the confirmed amount (audit trail). The platform absorbs the shortfall from its own take (escrow fee plus seller charge)."
           },
           "acknowledgedWaiverAmount": {
             "type": "number",
+            "minimum": 1,
             "description": "The exact shortfall being waived (minor units). Must match the server computation: forces the UI to show the true figure before re-confirming."
           }
         },
@@ -29478,6 +30670,7 @@
         "properties": {
           "outstandingAmount": {
             "type": "number",
+            "minimum": 1,
             "description": "Outstanding amount the buyer still owes (custody minor units). Admin-computed: the platform does not verify prices."
           }
         },
@@ -29490,6 +30683,7 @@
         "properties": {
           "message": {
             "type": "string",
+            "minLength": 5,
             "description": "Message to the buyer about their proof upload"
           }
         },
@@ -29502,6 +30696,7 @@
         "properties": {
           "confirmAmount": {
             "type": "number",
+            "minimum": 1,
             "description": "The exact deposit amount being refunded (minor units). Must match the record: forces the admin to confirm the figure."
           }
         },
@@ -29514,14 +30709,17 @@
         "properties": {
           "confirmAmount": {
             "type": "number",
+            "minimum": 1,
             "description": "The exact deposit amount being refunded (minor units). Must match the record: forces the admin to confirm the figure."
           },
           "providerReference": {
             "type": "string",
+            "minLength": 4,
             "description": "Provider reference of the refund payout the admin executed outside the platform"
           },
           "note": {
             "type": "string",
+            "minLength": 5,
             "description": "Why/how the refund was executed (audit trail)"
           }
         },
@@ -29586,11 +30784,11 @@
         "type": "object",
         "properties": {
           "decision": {
-            "type": "string",
             "enum": [
               "APPROVED",
               "REJECTED"
             ],
+            "type": "string",
             "description": "APPROVED advances the workflow to the next stage. REJECTED resets the stage to INSPECTION_PENDING so the buyer can re-upload."
           },
           "rejectionReason": {
@@ -30136,7 +31334,6 @@
         "type": "object",
         "properties": {
           "outcome": {
-            "type": "string",
             "enum": [
               "PROCEED",
               "CANCELLED",
@@ -30145,6 +31342,7 @@
               "MUTUAL_SETTLEMENT",
               "ESCALATED"
             ],
+            "type": "string",
             "description": "The outcome of the dispute"
           },
           "notes": {
@@ -30209,7 +31407,6 @@
             "description": "Matched product ID"
           },
           "transactionType": {
-            "type": "string",
             "enum": [
               "purchase",
               "lease",
@@ -30220,13 +31417,14 @@
               "term_contract",
               "service_contract",
               "milestone_service"
-            ]
+            ],
+            "type": "string"
           },
           "quantity": {
-            "type": "number"
+            "type": "number",
+            "minimum": 1
           },
           "unitOfMeasurement": {
-            "type": "string",
             "enum": [
               "bbl",
               "liter",
@@ -30267,13 +31465,14 @@
               "package",
               "plate",
               "bar"
-            ]
+            ],
+            "type": "string"
           },
           "pricePerUnit": {
-            "type": "number"
+            "type": "number",
+            "minimum": 0
           },
           "currency": {
-            "type": "string",
             "enum": [
               "NGN",
               "KES",
@@ -30281,16 +31480,17 @@
               "EUR",
               "USDT",
               "USDC"
-            ]
+            ],
+            "type": "string"
           },
           "condition": {
-            "type": "string",
             "enum": [
               "New",
               "Used - Good",
               "Used - Fair",
               "Refurbished"
-            ]
+            ],
+            "type": "string"
           },
           "notes": {
             "type": "string"
@@ -31705,7 +32905,8 @@
             "type": "string"
           },
           "actorName": {
-            "type": "string"
+            "type": "string",
+            "description": "Display name of the admin actor, resolved from actorId at read time."
           },
           "fromStatus": {
             "type": "string"
@@ -32004,6 +33205,7 @@
         "type": "object",
         "properties": {
           "documents": {
+            "minItems": 1,
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/RequestedDocumentDto"
@@ -32046,6 +33248,7 @@
         "properties": {
           "message": {
             "type": "string",
+            "maxLength": 1000,
             "description": "Optional note shown to the customer with the request (white-labeled — must not name a provider). A default message is used when omitted."
           },
           "revokeVerification": {
@@ -32170,7 +33373,12 @@
             }
           },
           "amlCheck": {
-            "$ref": "#/components/schemas/PersonAmlCheckSummaryDto"
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PersonAmlCheckSummaryDto"
+              }
+            ]
           }
         },
         "required": [
@@ -32223,10 +33431,16 @@
             }
           },
           "amlCheck": {
-            "$ref": "#/components/schemas/PersonAmlCheckSummaryDto"
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PersonAmlCheckSummaryDto"
+              }
+            ]
           },
           "check": {
             "type": "object",
+            "nullable": true,
             "description": "Full stored check including the raw provider payload (match candidates) and adjudications"
           }
         },
@@ -32253,6 +33467,7 @@
           },
           "note": {
             "type": "string",
+            "maxLength": 2000,
             "description": "Why the candidate is / is not the screened person"
           }
         },
@@ -32325,7 +33540,8 @@
             "type": "string"
           },
           "entityId": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "description": {
             "type": "string"
@@ -32342,11 +33558,13 @@
           },
           "internalReconciledUpTo": {
             "format": "date-time",
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "externalReconciledUpTo": {
             "format": "date-time",
-            "type": "string"
+            "type": "string",
+            "nullable": true
           }
         },
         "required": [
@@ -32499,33 +33717,33 @@
           },
           "lastReconStatus": {
             "type": "string",
+            "nullable": true,
             "description": "Status of last reconciliation run",
             "enum": [
               "CLEAN",
               "DISCREPANCIES_FOUND",
               "DISCREPANCIES_BACKFILLED"
-            ],
-            "nullable": true
+            ]
           },
           "lastReconScope": {
             "type": "string",
+            "nullable": true,
             "description": "Scope of last reconciliation run",
             "enum": [
               "INTERNAL",
               "EXTERNAL"
-            ],
-            "nullable": true
+            ]
           },
           "lastReconAt": {
             "format": "date-time",
             "type": "string",
-            "description": "Timestamp of last reconciliation run",
-            "nullable": true
+            "nullable": true,
+            "description": "Timestamp of last reconciliation run"
           },
           "lastReconDiscrepancies": {
             "type": "number",
-            "description": "Number of discrepancies in last reconciliation run",
-            "nullable": true
+            "nullable": true,
+            "description": "Number of discrepancies in last reconciliation run"
           }
         },
         "required": [
@@ -32651,7 +33869,6 @@
         "type": "object",
         "properties": {
           "status": {
-            "type": "string",
             "enum": [
               "open",
               "in_progress",
@@ -32659,16 +33876,17 @@
               "awaiting_admin",
               "resolved",
               "closed"
-            ]
+            ],
+            "type": "string"
           },
           "priority": {
-            "type": "string",
             "enum": [
               "low",
               "medium",
               "high",
               "urgent"
-            ]
+            ],
+            "type": "string"
           },
           "assignedTo": {
             "type": "string",
@@ -32732,8 +33950,8 @@
         "properties": {
           "note": {
             "type": "string",
-            "description": "Resolution note (visible to the user)",
-            "maxLength": 5000
+            "maxLength": 5000,
+            "description": "Resolution note (visible to the user)"
           }
         },
         "required": [
@@ -32769,6 +33987,7 @@
           },
           "order": {
             "type": "number",
+            "minimum": 0,
             "description": "Display order of this block within the page"
           },
           "data": {
@@ -32787,6 +34006,7 @@
         "properties": {
           "slug": {
             "type": "string",
+            "pattern": "/^[a-z0-9]+(?:-[a-z0-9]+)*$/",
             "description": "URL-friendly page identifier (lowercase, hyphens allowed)"
           },
           "title": {
@@ -32877,7 +34097,34 @@
             "type": "string"
           },
           "data": {
-            "type": "object"
+            "type": "object",
+            "properties": {
+              "docs": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/PageResponseDto"
+                }
+              },
+              "totalDocs": {
+                "type": "number"
+              },
+              "page": {
+                "type": "number"
+              },
+              "limit": {
+                "type": "number"
+              },
+              "totalPages": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "docs",
+              "totalDocs",
+              "page",
+              "limit",
+              "totalPages"
+            ]
           }
         },
         "required": [
@@ -32890,6 +34137,7 @@
         "properties": {
           "slug": {
             "type": "string",
+            "pattern": "/^[a-z0-9]+(?:-[a-z0-9]+)*$/",
             "description": "URL-friendly page identifier (lowercase, hyphens allowed)"
           },
           "title": {
@@ -32969,21 +34217,21 @@
             "description": "ISO2 corridor country at provisioning time"
           },
           "onboardingStatus": {
-            "type": "string",
             "enum": [
               "none",
               "pending",
               "in_review",
               "active",
               "rejected"
-            ]
+            ],
+            "type": "string"
           },
           "status": {
-            "type": "string",
             "enum": [
               "active",
               "disabled"
-            ]
+            ],
+            "type": "string"
           },
           "principalId": {
             "type": "string",
@@ -33304,11 +34552,11 @@
           },
           "verificationStanding": {
             "type": "string",
+            "nullable": true,
             "enum": [
               "verified",
               "revoked"
             ],
-            "nullable": true,
             "description": "Durable verification verdict (access gates on this). kybStatus above is the conversational case state and cycles freely post-approval. Null = never approved."
           },
           "providerReviewPending": {
@@ -33498,35 +34746,35 @@
             "type": "string"
           },
           "custodian": {
-            "type": "string",
             "enum": [
               "flutterwave",
               "busha",
               "mock",
               "mock_b"
-            ]
+            ],
+            "type": "string"
           },
           "rank": {
             "type": "number",
             "description": "Order among same-corridor rules; 1 = default custodian"
           },
           "bankDirectoryProvider": {
-            "type": "string",
             "enum": [
               "flutterwave",
               "busha",
               "mock",
               "mock_b"
-            ]
+            ],
+            "type": "string"
           },
           "accountResolutionProvider": {
-            "type": "string",
             "enum": [
               "flutterwave",
               "busha",
               "mock",
               "mock_b"
-            ]
+            ],
+            "type": "string"
           },
           "enabled": {
             "type": "boolean"
@@ -33577,49 +34825,53 @@
         "properties": {
           "matchCurrency": {
             "type": "string",
+            "maxLength": 10,
             "description": "Currency this rule matches (e.g. NGN, USDT); omit for any"
           },
           "matchCountry": {
             "type": "string",
+            "maxLength": 2,
             "description": "ISO-3166-1 alpha-2 country (e.g. NG); omit for any"
           },
           "matchRegion": {
             "type": "string",
+            "maxLength": 64,
             "description": "Region/state; omit for any"
           },
           "custodian": {
-            "type": "string",
             "enum": [
               "flutterwave",
               "busha",
               "mock",
               "mock_b"
             ],
+            "type": "string",
             "description": "Custodian provider for this corridor"
           },
           "rank": {
             "type": "number",
+            "minimum": 1,
             "default": 1,
             "description": "Order among same-corridor rules: rank 1 is the default custodian, higher ranks are additional offered wallets"
           },
           "bankDirectoryProvider": {
-            "type": "string",
             "enum": [
               "flutterwave",
               "busha",
               "mock",
               "mock_b"
             ],
+            "type": "string",
             "description": "Override provider for BANK_DIRECTORY lookups"
           },
           "accountResolutionProvider": {
-            "type": "string",
             "enum": [
               "flutterwave",
               "busha",
               "mock",
               "mock_b"
             ],
+            "type": "string",
             "description": "Override provider for ACCOUNT_RESOLUTION lookups"
           },
           "enabled": {
@@ -33651,27 +34903,31 @@
         "properties": {
           "matchCurrency": {
             "type": "string",
+            "maxLength": 10,
             "description": "Currency match; empty string clears the dimension"
           },
           "matchCountry": {
             "type": "string",
+            "maxLength": 2,
             "description": "Country match; empty string clears the dimension"
           },
           "matchRegion": {
             "type": "string",
+            "maxLength": 64,
             "description": "Region match; empty string clears the dimension"
           },
           "custodian": {
-            "type": "string",
             "enum": [
               "flutterwave",
               "busha",
               "mock",
               "mock_b"
-            ]
+            ],
+            "type": "string"
           },
           "rank": {
             "type": "number",
+            "minimum": 1,
             "description": "Order among same-corridor rules; 1 = default custodian"
           },
           "bankDirectoryProvider": {
@@ -33736,40 +34992,40 @@
             "description": "Whether any rule matched the corridor"
           },
           "custodian": {
-            "type": "string",
+            "nullable": true,
             "enum": [
               "flutterwave",
               "busha",
               "mock",
               "mock_b"
             ],
-            "nullable": true
+            "type": "string"
           },
           "bankDirectoryProvider": {
-            "type": "string",
+            "nullable": true,
             "enum": [
               "flutterwave",
               "busha",
               "mock",
               "mock_b"
             ],
-            "description": "Provider that will serve BANK_DIRECTORY lookups",
-            "nullable": true
+            "type": "string",
+            "description": "Provider that will serve BANK_DIRECTORY lookups"
           },
           "accountResolutionProvider": {
-            "type": "string",
+            "nullable": true,
             "enum": [
               "flutterwave",
               "busha",
               "mock",
               "mock_b"
             ],
-            "description": "Provider that will serve ACCOUNT_RESOLUTION lookups",
-            "nullable": true
+            "type": "string",
+            "description": "Provider that will serve ACCOUNT_RESOLUTION lookups"
           },
           "rule": {
-            "description": "The winning (default) rule, when routed",
             "nullable": true,
+            "description": "The winning (default) rule, when routed",
             "allOf": [
               {
                 "$ref": "#/components/schemas/RoutingRuleDto"
@@ -33777,9 +35033,8 @@
             ]
           },
           "offeredCustodians": {
-            "type": "array",
-            "description": "Every custodian offered for this corridor, default first — one org wallet per entry",
             "nullable": true,
+            "type": "array",
             "items": {
               "type": "string",
               "enum": [
@@ -33788,7 +35043,8 @@
                 "mock",
                 "mock_b"
               ]
-            }
+            },
+            "description": "Every custodian offered for this corridor, default first — one org wallet per entry"
           }
         },
         "required": [
@@ -33822,7 +35078,6 @@
             "description": "Org to credit (standing-deposit mode)"
           },
           "currency": {
-            "type": "string",
             "enum": [
               "NGN",
               "KES",
@@ -33831,10 +35086,12 @@
               "USDT",
               "USDC"
             ],
+            "type": "string",
             "example": "NGN"
           },
           "amount": {
             "type": "number",
+            "minimum": 1,
             "example": 500000,
             "description": "Amount in minor units"
           }
@@ -33912,7 +35169,6 @@
             "description": "Migration pass (residue re-runs increment it)"
           },
           "status": {
-            "type": "string",
             "enum": [
               "blocked",
               "pending",
@@ -33921,16 +35177,17 @@
               "done",
               "failed",
               "stuck"
-            ]
+            ],
+            "type": "string"
           },
           "gapReason": {
-            "type": "string",
             "enum": [
               "source_inactive",
               "no_payout_rail",
               "no_target_wallet",
               "balance_unavailable"
-            ]
+            ],
+            "type": "string"
           },
           "targetProvider": {
             "type": "string",
@@ -33942,8 +35199,8 @@
           },
           "estimatedFeeMinor": {
             "type": "number",
-            "description": "Pre-quoted pot-move fee; null = not quotable up front",
-            "nullable": true
+            "nullable": true,
+            "description": "Pre-quoted pot-move fee; null = not quotable up front"
           },
           "amountMinor": {
             "type": "number",
@@ -34051,16 +35308,15 @@
             "type": "string"
           },
           "provider": {
-            "type": "string",
             "enum": [
               "flutterwave",
               "busha",
               "mock",
               "mock_b"
-            ]
+            ],
+            "type": "string"
           },
           "status": {
-            "type": "string",
             "enum": [
               "draft",
               "frozen",
@@ -34069,7 +35325,8 @@
               "sweeping",
               "paused",
               "completed"
-            ]
+            ],
+            "type": "string"
           },
           "pacePerTick": {
             "type": "number"
@@ -34153,19 +35410,19 @@
         "type": "object",
         "properties": {
           "provider": {
-            "type": "string",
             "enum": [
               "flutterwave",
               "busha",
               "mock",
               "mock_b"
-            ]
+            ],
+            "type": "string"
           },
           "pacePerTick": {
             "type": "number",
-            "description": "Items the sweep starts per minute tick (default 10)",
             "minimum": 1,
-            "maximum": 100
+            "maximum": 100,
+            "description": "Items the sweep starts per minute tick (default 10)"
           }
         },
         "required": [
@@ -34207,7 +35464,6 @@
             "description": "Sweep pass (residue re-sweeps increment it)"
           },
           "status": {
-            "type": "string",
             "enum": [
               "blocked",
               "pending",
@@ -34216,16 +35472,17 @@
               "done",
               "failed",
               "stuck"
-            ]
+            ],
+            "type": "string"
           },
           "gapReason": {
-            "type": "string",
             "enum": [
               "source_inactive",
               "no_payout_rail",
               "no_target_wallet",
               "balance_unavailable"
-            ]
+            ],
+            "type": "string"
           },
           "sourceWalletIndex": {
             "type": "number"
@@ -34239,8 +35496,8 @@
           },
           "estimatedFeeMinor": {
             "type": "number",
-            "description": "Pre-quoted source payout fee; null = not quotable up front",
-            "nullable": true
+            "nullable": true,
+            "description": "Pre-quoted source payout fee; null = not quotable up front"
           },
           "amountMinor": {
             "type": "number",
@@ -34334,6 +35591,14 @@
           "data"
         ]
       },
+      "QQFieldDef": {
+        "type": "object",
+        "properties": {}
+      },
+      "QQTemplate": {
+        "type": "object",
+        "properties": {}
+      },
       "CriterionResultDto": {
         "type": "object",
         "properties": {
@@ -34379,10 +35644,12 @@
           },
           "reportFileUrl": {
             "type": "string",
+            "format": "uri",
             "description": "URL to the uploaded inspection report (PDF/image)"
           },
           "reportFileHash": {
             "type": "string",
+            "pattern": "/^[a-fA-F0-9]{64}$/",
             "description": "SHA256 hex digest of the report file for tamper detection (64 hex chars)",
             "example": "a3f1..."
           },
@@ -34402,6 +35669,10 @@
           "inspectedAt",
           "criteriaResults"
         ]
+      },
+      "InspectionReport": {
+        "type": "object",
+        "properties": {}
       },
       "RelatedResourceDto": {
         "type": "object",
@@ -34428,7 +35699,6 @@
             "maxLength": 200
           },
           "category": {
-            "type": "string",
             "enum": [
               "account",
               "onboarding",
@@ -34438,7 +35708,8 @@
               "technical",
               "feature_request",
               "other"
-            ]
+            ],
+            "type": "string"
           },
           "body": {
             "type": "string",
@@ -34479,7 +35750,7 @@
           "attachments": {
             "type": "array",
             "items": {
-              "type": "string"
+              "type": "object"
             }
           },
           "createdAt": {
@@ -34509,7 +35780,6 @@
             "type": "string"
           },
           "category": {
-            "type": "string",
             "enum": [
               "account",
               "onboarding",
@@ -34519,19 +35789,19 @@
               "technical",
               "feature_request",
               "other"
-            ]
+            ],
+            "type": "string"
           },
           "priority": {
-            "type": "string",
             "enum": [
               "low",
               "medium",
               "high",
               "urgent"
-            ]
+            ],
+            "type": "string"
           },
           "status": {
-            "type": "string",
             "enum": [
               "open",
               "in_progress",
@@ -34539,7 +35809,8 @@
               "awaiting_admin",
               "resolved",
               "closed"
-            ]
+            ],
+            "type": "string"
           },
           "createdBy": {
             "type": "object"

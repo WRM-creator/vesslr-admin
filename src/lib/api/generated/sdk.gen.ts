@@ -371,6 +371,8 @@ import type {
   InvitationsControllerRevokeInvitationResponses,
   InvoicesControllerCancelData,
   InvoicesControllerCancelResponses,
+  InvoicesControllerCollectableCurrenciesData,
+  InvoicesControllerCollectableCurrenciesResponses,
   InvoicesControllerCreateData,
   InvoicesControllerCreateResponses,
   InvoicesControllerDeleteData,
@@ -2530,6 +2532,24 @@ export const invoicesControllerCreate = <ThrowOnError extends boolean = false>(
       "Content-Type": "application/json",
       ...options.headers,
     },
+  });
+
+/**
+ * Currencies the org can collect invoice payments in right now (drives the create form select)
+ */
+export const invoicesControllerCollectableCurrencies = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<InvoicesControllerCollectableCurrenciesData, ThrowOnError>,
+) =>
+  (options?.client ?? client).get<
+    InvoicesControllerCollectableCurrenciesResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/invoices/collectable-currencies",
+    ...options,
   });
 
 /**
