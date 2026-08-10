@@ -17,6 +17,7 @@ import {
   Eye,
   FileText,
   Loader2,
+  Search,
   Send,
   Upload,
   XCircle,
@@ -27,6 +28,7 @@ import { DocumentReviewDialog } from "../document-review-dialog";
 import { ReleaseSettlementDialog } from "../release-settlement-dialog";
 import { RejectInspectionDialog } from "../reject-inspection-dialog";
 import { UploadInspectionDialog } from "../upload-inspection-dialog";
+import { CompleteReturnInspectionDialog } from "../complete-return-inspection-dialog";
 
 interface ActionZoneProps {
   transaction: TransactionResponseDto;
@@ -39,6 +41,7 @@ type ActionContext =
   | { type: "inspection_awaiting_docs"; stage: TransactionStageResponseDto }
   | { type: "inspection_review"; stage: TransactionStageResponseDto }
   | { type: "inspection_rejected"; stage: TransactionStageResponseDto; reason: string }
+  | { type: "return_inspection"; stage: TransactionStageResponseDto }
   | { type: "settlement_ready" }
   | { type: "disputed" }
   | { type: "terminal"; label: string }
@@ -200,6 +203,12 @@ function deriveActionContext(tx: TransactionResponseDto): ActionContext {
     };
   }
   if (status === "RETURN_INSPECTION_PENDING") {
+    const returnStage = stages.find(
+      (s) => s.type === "RETURN_INSPECTION" && s.status === "ACTIVE",
+    );
+    if (returnStage) {
+      return { type: "return_inspection", stage: returnStage };
+    }
     return {
       type: "waiting",
       label: "Return inspection required",
@@ -279,6 +288,12 @@ const ZONE_STYLES = {
     icon: "text-red-600 dark:text-red-400",
     dot: "bg-red-500",
   },
+  return_inspection: {
+    border: "border-amber-200 dark:border-amber-800",
+    bg: "bg-amber-50/80 dark:bg-amber-950/20",
+    icon: "text-amber-600 dark:text-amber-400",
+    dot: "bg-amber-500",
+  },
   settlement_ready: {
     border: "border-green-200 dark:border-green-800",
     bg: "bg-green-50/80 dark:bg-green-950/20",
@@ -330,6 +345,7 @@ function ActionContent({
   const [isSettlementOpen, setIsSettlementOpen] = useState(false);
   const [isUploadOpen, setIsUploadOpen] = useState(false);
   const [isRejectOpen, setIsRejectOpen] = useState(false);
+  const [isReturnInspectionOpen, setIsReturnInspectionOpen] = useState(false);
 
   const { mutate: reviewInspection, isPending: isApproving } =
     api.admin.transactions.reviewInspection.useMutation();
@@ -661,6 +677,47 @@ function ActionContent({
             <UploadInspectionDialog
               open={isUploadOpen}
               onOpenChange={setIsUploadOpen}
+              transactionId={transaction._id}
+              stageId={ctx.stage._id}
+            />
+          )}
+        </>
+      );
+
+    // ── Return inspection (rental) ─────────────────────────────────
+    case "return_inspection":
+      return (
+        <>
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex items-start gap-3">
+              <div className={cn("mt-0.5 rounded-full p-1.5", styles.icon, "bg-amber-100 dark:bg-amber-900/40")}>
+                <Search className="size-4" />
+              </div>
+              <div>
+                <p className="text-sm font-semibold">
+                  Return inspection required
+                </p>
+                <p className="text-muted-foreground mt-0.5 text-xs">
+                  The buyer has submitted the off-hire report. Inspect the
+                  returned asset, then complete this stage to release the
+                  transaction for settlement.
+                </p>
+              </div>
+            </div>
+            <Button
+              size="sm"
+              className="shrink-0 gap-1.5"
+              onClick={() => setIsReturnInspectionOpen(true)}
+            >
+              <Search className="size-3.5" />
+              Complete Return Inspection
+            </Button>
+          </div>
+
+          {transaction._id && ctx.stage._id && (
+            <CompleteReturnInspectionDialog
+              open={isReturnInspectionOpen}
+              onOpenChange={setIsReturnInspectionOpen}
               transactionId={transaction._id}
               stageId={ctx.stage._id}
             />
