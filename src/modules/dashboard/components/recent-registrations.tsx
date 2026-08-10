@@ -13,7 +13,7 @@ import { formatDateTime } from "@/lib/utils";
 import type { ColumnDef } from "@tanstack/react-table";
 import { ArrowUpRight } from "lucide-react";
 import { useMemo } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 interface RegistrationRow {
   _id: string;
@@ -28,6 +28,7 @@ const COMPLIANCE_STYLES: Record<string, string> = {
   action_required: TINT.red,
   approved: TINT.green,
   submitted: TINT.blue,
+  draft: TINT.gray,
 };
 
 const COMPLIANCE_LABELS: Record<string, string> = {
@@ -35,6 +36,7 @@ const COMPLIANCE_LABELS: Record<string, string> = {
   action_required: "Action Required",
   approved: "Approved",
   submitted: "Submitted",
+  draft: "Onboarding",
 };
 
 const columns: ColumnDef<RegistrationRow>[] = [
@@ -82,6 +84,7 @@ const columns: ColumnDef<RegistrationRow>[] = [
 ];
 
 export function RecentRegistrations() {
+  const navigate = useNavigate();
   const { data, isLoading } = api.admin.organizations.list.useQuery({
     query: { page: "1", limit: "5" },
   });
@@ -94,7 +97,8 @@ export function RecentRegistrations() {
     if (!Array.isArray(docs)) return [];
     return docs.map((org) => ({
       _id: (org._id as string) ?? "",
-      name: (org.name as string) ?? "Unnamed",
+      // Orgs mid-onboarding have no name yet; the signup email is the identity.
+      name: (org.name as string) || (org.email as string) || "Unnamed",
       type: (org.type as string) ?? "buyer_seller",
       createdAt: (org.createdAt as string) ?? "",
       complianceStatus: (org.complianceStatus as string) ?? "draft",
@@ -119,6 +123,7 @@ export function RecentRegistrations() {
           isLoading={isLoading}
           loadingRowCount={5}
           emptyContent="No registrations yet."
+          onRowClick={(row) => navigate(`/organizations/${row.original._id}`)}
         />
       </CardContent>
     </Card>

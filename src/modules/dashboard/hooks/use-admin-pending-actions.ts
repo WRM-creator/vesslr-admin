@@ -85,9 +85,9 @@ export function useAdminPendingActions(): UseAdminPendingActionsResult {
         icon: Building2,
         title: `${stats.pendingRegistrations} organization${stats.pendingRegistrations === 1 ? "" : "s"} still onboarding`,
         description:
-          "These organizations have started registration but haven't completed all onboarding steps.",
-        ctaLabel: "View registrations",
-        route: "/registrations",
+          "These organizations have started registration but haven't submitted for review yet.",
+        ctaLabel: "View organizations",
+        route: "/organizations?lifecycle=onboarding",
       });
     }
 
