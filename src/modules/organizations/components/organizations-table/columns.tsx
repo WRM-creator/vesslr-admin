@@ -2,8 +2,10 @@
 
 import { TruncatedList } from "@/components/shared/truncated-list";
 import { Badge } from "@/components/ui/badge";
+import { TINT } from "@/lib/tint";
 import type { ColumnDef } from "@tanstack/react-table";
-import { format } from "date-fns";
+import { format, formatDistanceToNow } from "date-fns";
+import { onboardingStageLabel } from "../../lib/onboarding-stage";
 
 export interface OrganizationTableItem {
   _id: string;
@@ -14,6 +16,8 @@ export interface OrganizationTableItem {
   verificationStatus: "unverified" | "pending" | "verified" | "rejected";
   providerReviewPending: boolean;
   createdAt: string;
+  onboardingStep?: string;
+  lastActivityAt?: string;
 }
 
 const statusStyles: Record<
@@ -26,29 +30,56 @@ const statusStyles: Record<
   rejected: "destructive",
 };
 
-export const columns: ColumnDef<OrganizationTableItem>[] = [
-  {
-    accessorKey: "name",
-    header: "Organization",
-    cell: ({ row }) => (
+/**
+ * Identity cell. Orgs mid-onboarding have no name yet; the owner's email is
+ * the identity at that stage, so it promotes to the primary line rather than
+ * leaving a blank cell.
+ */
+const identityColumn: ColumnDef<OrganizationTableItem> = {
+  accessorKey: "name",
+  header: "Organization",
+  cell: ({ row }) =>
+    row.original.name ? (
       <div className="flex flex-col">
         <span className="font-medium">{row.original.name}</span>
         <span className="text-muted-foreground text-xs">
           {row.original.email}
         </span>
       </div>
+    ) : (
+      <div className="flex flex-col">
+        <span className="font-medium">{row.original.email}</span>
+        <span className="text-muted-foreground text-xs">
+          No company name yet
+        </span>
+      </div>
     ),
-  },
-  {
-    accessorKey: "location",
-    header: "Location",
-    cell: ({ row }) =>
-      row.original.location ? (
-        <span className="text-sm">{row.original.location}</span>
-      ) : (
-        <span className="text-muted-foreground text-xs">-</span>
-      ),
-  },
+};
+
+const locationColumn: ColumnDef<OrganizationTableItem> = {
+  accessorKey: "location",
+  header: "Location",
+  cell: ({ row }) =>
+    row.original.location ? (
+      <span className="text-sm">{row.original.location}</span>
+    ) : (
+      <span className="text-muted-foreground text-xs">-</span>
+    ),
+};
+
+const joinedColumn: ColumnDef<OrganizationTableItem> = {
+  accessorKey: "createdAt",
+  header: "Joined",
+  cell: ({ row }) => (
+    <span className="text-muted-foreground text-sm">
+      {format(new Date(row.original.createdAt), "MMM d, yyyy")}
+    </span>
+  ),
+};
+
+export const columns: ColumnDef<OrganizationTableItem>[] = [
+  identityColumn,
+  locationColumn,
   {
     accessorKey: "categories",
     header: "Categories",
@@ -78,13 +109,39 @@ export const columns: ColumnDef<OrganizationTableItem>[] = [
       );
     },
   },
+  joinedColumn,
+];
+
+/**
+ * Column set for the Onboarding lifecycle tab. Categories and verification
+ * status carry no signal pre-submission; the stalled stage and staleness are
+ * what an operator acts on.
+ */
+export const onboardingColumns: ColumnDef<OrganizationTableItem>[] = [
+  identityColumn,
+  locationColumn,
   {
-    accessorKey: "createdAt",
-    header: "Joined",
+    accessorKey: "onboardingStep",
+    header: "Stage",
     cell: ({ row }) => (
-      <span className="text-muted-foreground text-sm">
-        {format(new Date(row.original.createdAt), "MMM d, yyyy")}
-      </span>
+      <Badge variant="outline" className={`text-xs ${TINT.gray}`}>
+        {onboardingStageLabel(row.original.onboardingStep)}
+      </Badge>
     ),
   },
+  {
+    accessorKey: "lastActivityAt",
+    header: "Last activity",
+    cell: ({ row }) =>
+      row.original.lastActivityAt ? (
+        <span className="text-muted-foreground text-sm">
+          {formatDistanceToNow(new Date(row.original.lastActivityAt), {
+            addSuffix: true,
+          })}
+        </span>
+      ) : (
+        <span className="text-muted-foreground text-xs">-</span>
+      ),
+  },
+  joinedColumn,
 ];

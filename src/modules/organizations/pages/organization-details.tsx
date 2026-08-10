@@ -7,8 +7,10 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAppBreadcrumbLabel } from "@/contexts/breadcrumb-context";
 import { api } from "@/lib/api";
+import { formatDistanceToNow } from "date-fns";
 import { Loader2 } from "lucide-react";
 import { Link, Outlet, useLocation, useParams } from "react-router-dom";
+import { onboardingStageLabel } from "../lib/onboarding-stage";
 
 export default function OrganizationDetailsPage() {
   const { id } = useParams<{ id: string }>();
@@ -44,7 +46,17 @@ export default function OrganizationDetailsPage() {
     );
 
   const organization = (organizationData as any)?.data;
-  useAppBreadcrumbLabel(id!, organization?.name);
+  const owner = organization?.owner as
+    | {
+        email?: string;
+        complianceStatus?: string;
+        onboardingStep?: string;
+        lastActivityAt?: string;
+      }
+    | undefined;
+  // Never submitted for review: the org is mid-onboarding, likely nameless.
+  const isPreOnboarding = owner?.complianceStatus === "draft";
+  useAppBreadcrumbLabel(id!, organization?.name || organization?.email);
 
   if (isLoading) {
     return (
@@ -88,15 +100,21 @@ export default function OrganizationDetailsPage() {
       <PageHeader
         title={
           <div className="flex items-center gap-3">
-            {organization.name}
-            {organization.verificationStatus && (
-              <Badge
-                variant={getVerificationBadgeVariant(
-                  organization.verificationStatus,
-                )}
-              >
-                {organization.verificationStatus}
+            {organization.name || organization.email}
+            {isPreOnboarding ? (
+              <Badge variant="secondary">
+                Onboarding: {onboardingStageLabel(owner?.onboardingStep)}
               </Badge>
+            ) : (
+              organization.verificationStatus && (
+                <Badge
+                  variant={getVerificationBadgeVariant(
+                    organization.verificationStatus,
+                  )}
+                >
+                  {organization.verificationStatus}
+                </Badge>
+              )
             )}
           </div>
         }
@@ -109,6 +127,14 @@ export default function OrganizationDetailsPage() {
               label="Organization ID"
               className="size-3"
             />
+            {isPreOnboarding && owner?.lastActivityAt && (
+              <span className="text-muted-foreground">
+                Last activity{" "}
+                {formatDistanceToNow(new Date(owner.lastActivityAt), {
+                  addSuffix: true,
+                })}
+              </span>
+            )}
           </div>
         }
       />

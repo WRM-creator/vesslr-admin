@@ -7,9 +7,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import type { ColumnDef } from "@tanstack/react-table";
 import { SearchIcon } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { columns, type OrganizationTableItem } from "./columns";
+import { columns as defaultColumns, type OrganizationTableItem } from "./columns";
 
 interface TabItem {
   label: string;
@@ -26,6 +27,7 @@ interface OrganizationsTableProps {
   tabs?: TabItem[];
   activeTab?: string;
   onTabChange?: (value: string) => void;
+  columns?: ColumnDef<OrganizationTableItem>[];
 }
 
 export function OrganizationsTable({
@@ -38,6 +40,7 @@ export function OrganizationsTable({
   tabs,
   activeTab,
   onTabChange,
+  columns = defaultColumns,
 }: OrganizationsTableProps) {
   const navigate = useNavigate();
 
