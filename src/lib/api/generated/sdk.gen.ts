@@ -263,6 +263,8 @@ import type {
   AdminTransactionsControllerAddDocumentResponses,
   AdminTransactionsControllerAddRequirementData,
   AdminTransactionsControllerAddRequirementResponses,
+  AdminTransactionsControllerCompleteReturnInspectionData,
+  AdminTransactionsControllerCompleteReturnInspectionResponses,
   AdminTransactionsControllerConfirmDepositFundingData,
   AdminTransactionsControllerConfirmDepositFundingResponses,
   AdminTransactionsControllerConfirmDepositFundingWithWaiverData,
@@ -367,6 +369,8 @@ import type {
   InvitationsControllerListInvitationsResponses,
   InvitationsControllerRevokeInvitationData,
   InvitationsControllerRevokeInvitationResponses,
+  InvoicesControllerCancelData,
+  InvoicesControllerCancelResponses,
   InvoicesControllerCreateData,
   InvoicesControllerCreateResponses,
   InvoicesControllerDeleteData,
@@ -377,6 +381,8 @@ import type {
   InvoicesControllerFindOneResponses,
   InvoicesControllerMarkPaidData,
   InvoicesControllerMarkPaidResponses,
+  InvoicesControllerResendData,
+  InvoicesControllerResendResponses,
   InvoicesControllerSendData,
   InvoicesControllerSendResponses,
   InvoicesControllerUpdateData,
@@ -2491,7 +2497,7 @@ export const negotiationsControllerWithdraw = <
   });
 
 /**
- * List invoices for the current organization
+ * Page of the org invoices with per-tab counts (counts respect search but not the status facet)
  */
 export const invoicesControllerFindAll = <ThrowOnError extends boolean = false>(
   options?: Options<InvoicesControllerFindAllData, ThrowOnError>,
@@ -2507,7 +2513,7 @@ export const invoicesControllerFindAll = <ThrowOnError extends boolean = false>(
   });
 
 /**
- * Create a new invoice (saved as draft)
+ * Create a new invoice, saved as a draft
  */
 export const invoicesControllerCreate = <ThrowOnError extends boolean = false>(
   options: Options<InvoicesControllerCreateData, ThrowOnError>,
@@ -2543,7 +2549,7 @@ export const invoicesControllerDelete = <ThrowOnError extends boolean = false>(
   });
 
 /**
- * Get a single invoice by ID
+ * A single invoice, scoped to the caller organization
  */
 export const invoicesControllerFindOne = <ThrowOnError extends boolean = false>(
   options: Options<InvoicesControllerFindOneData, ThrowOnError>,
@@ -2559,7 +2565,7 @@ export const invoicesControllerFindOne = <ThrowOnError extends boolean = false>(
   });
 
 /**
- * Update a draft invoice
+ * Update a draft invoice; totals are recomputed server-side
  */
 export const invoicesControllerUpdate = <ThrowOnError extends boolean = false>(
   options: Options<InvoicesControllerUpdateData, ThrowOnError>,
@@ -2579,7 +2585,7 @@ export const invoicesControllerUpdate = <ThrowOnError extends boolean = false>(
   });
 
 /**
- * Send invoice to customer (generates payment link, sends email)
+ * Publish the invoice on its public pay page and email the customer the link. No payment destination is created until the customer picks a method.
  */
 export const invoicesControllerSend = <ThrowOnError extends boolean = false>(
   options: Options<InvoicesControllerSendData, ThrowOnError>,
@@ -2595,7 +2601,43 @@ export const invoicesControllerSend = <ThrowOnError extends boolean = false>(
   });
 
 /**
- * Manually mark an invoice as paid
+ * Resend a pending invoice email (same pay link), optionally to a corrected address
+ */
+export const invoicesControllerResend = <ThrowOnError extends boolean = false>(
+  options: Options<InvoicesControllerResendData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    InvoicesControllerResendResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/invoices/{id}/resend",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Cancel a sent invoice (its pay page stops accepting payment)
+ */
+export const invoicesControllerCancel = <ThrowOnError extends boolean = false>(
+  options: Options<InvoicesControllerCancelData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    InvoicesControllerCancelResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/invoices/{id}/cancel",
+    ...options,
+  });
+
+/**
+ * Record an off-platform payment: status only, nothing is posted to the wallet ledger
  */
 export const invoicesControllerMarkPaid = <
   ThrowOnError extends boolean = false,
@@ -5574,6 +5616,33 @@ export const adminTransactionsControllerEndCharterPeriod = <
     security: [{ scheme: "bearer", type: "http" }],
     url: "/api/v1/admin/transactions/{id}/stages/{stageId}/end-charter",
     ...options,
+  });
+
+/**
+ * Complete the return inspection (completes RETURN_INSPECTION stage)
+ *
+ * Records the outcome of inspecting the returned asset and advances the workflow to SETTLEMENT. Damage or discrepancies should be raised as a dispute instead of completing this stage.
+ */
+export const adminTransactionsControllerCompleteReturnInspection = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    AdminTransactionsControllerCompleteReturnInspectionData,
+    ThrowOnError
+  >,
+) =>
+  (options.client ?? client).patch<
+    AdminTransactionsControllerCompleteReturnInspectionResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/transactions/{id}/stages/{stageId}/complete-return-inspection",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
   });
 
 /**
