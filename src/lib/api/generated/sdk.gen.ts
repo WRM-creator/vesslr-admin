@@ -79,6 +79,8 @@ import type {
   AdminComplianceControllerScreenAllResponses,
   AdminComplianceControllerScreenPersonData,
   AdminComplianceControllerScreenPersonResponses,
+  AdminComplianceControllerSetDocumentIssueDatesData,
+  AdminComplianceControllerSetDocumentIssueDatesResponses,
   AdminDashboardControllerGetStatsData,
   AdminDashboardControllerGetStatsResponses,
   AdminDashboardControllerGetTrendsData,
@@ -657,6 +659,8 @@ import type {
   TransactionsControllerSubmitMilestoneResponses,
   TransactionsControllerUpdateStatusData,
   TransactionsControllerUpdateStatusResponses,
+  TransfiWebhooksControllerHandleWebhookData,
+  TransfiWebhooksControllerHandleWebhookResponses,
   UsersAuthControllerChangePasswordData,
   UsersAuthControllerChangePasswordResponses,
   UsersAuthControllerForgotPasswordData,
@@ -6260,6 +6264,33 @@ export const adminComplianceControllerRequestDocuments = <
   });
 
 /**
+ * Record the dates printed on an organization’s KYB documents
+ *
+ * The reviewer reads each date off the document itself. Separate from the approve/reject verdict so it can also be applied to an already-approved organization. Providers that recency-check documents reject without these.
+ */
+export const adminComplianceControllerSetDocumentIssueDates = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    AdminComplianceControllerSetDocumentIssueDatesData,
+    ThrowOnError
+  >,
+) =>
+  (options.client ?? client).patch<
+    AdminComplianceControllerSetDocumentIssueDatesResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/compliance/kyb/{organizationId}/documents/issue-dates",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
  * Request changes: flag issues and/or request documents in one decision
  */
 export const adminComplianceControllerRequestChanges = <
@@ -7645,6 +7676,20 @@ export const bushaWebhooksControllerHandleWebhook = <
     unknown,
     ThrowOnError
   >({ url: "/api/v1/busha/webhooks", ...options });
+
+/**
+ * Handle TransFi webhook events (public)
+ */
+export const transfiWebhooksControllerHandleWebhook = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<TransfiWebhooksControllerHandleWebhookData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    TransfiWebhooksControllerHandleWebhookResponses,
+    unknown,
+    ThrowOnError
+  >({ url: "/api/v1/transfi/webhooks", ...options });
 
 /**
  * List support tickets for your organization

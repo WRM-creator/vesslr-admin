@@ -27,6 +27,17 @@ export function formatAccountType(value?: string): string | null {
   return spaced.charAt(0).toUpperCase() + spaced.slice(1);
 }
 
+/**
+ * A calendar day as `YYYY-MM-DD`, taken from the picker's LOCAL date parts.
+ * `toISOString()` would convert to UTC first and can shift the day backwards
+ * for anyone west of Greenwich — a document dated the 1st must not be sent as
+ * the 31st.
+ */
+export function toDateOnly(date: Date): string {
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+}
+
 export function toViewableItem(
   file: FileMetadataDto,
   label: string,
@@ -283,6 +294,8 @@ export function toComplianceCase(raw: ComplianceCaseDetailDto): ComplianceCase {
           item.status === "accepted" || item.status === "rejected"
             ? item.status
             : undefined,
+        issuedAt: item.issuedAt,
+        docType: item.code,
       });
     } else {
       documents.push({
@@ -312,6 +325,8 @@ export function toComplianceCase(raw: ComplianceCaseDetailDto): ComplianceCase {
         other.status === "accepted" || other.status === "rejected"
           ? other.status
           : undefined,
+      issuedAt: other.issuedAt,
+      docType: other.type,
     });
   }
 

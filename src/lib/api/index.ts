@@ -36,6 +36,7 @@ import {
   adminComplianceControllerListCases,
   adminComplianceControllerListScreenings,
   adminComplianceControllerOnboard,
+  adminComplianceControllerSetDocumentIssueDates,
   adminComplianceControllerScreenAll,
   adminComplianceControllerScreenPerson,
   adminEscrowsControllerFindAll,
@@ -770,6 +771,14 @@ export const api = {
           ["admin", "compliance", "case", args.path.organizationId],
         ],
       }),
+      setDocumentIssueDates: createMutation(
+        adminComplianceControllerSetDocumentIssueDates,
+        {
+          invalidates: (args) => [
+            ["admin", "compliance", "case", args.path.organizationId],
+          ],
+        },
+      ),
       adoptRegistryPeople: createMutation(
         adminComplianceControllerAdoptRegistryPeople,
         {

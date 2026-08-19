@@ -47,4 +47,16 @@ export interface ViewableItem {
    * express these ad-hoc types).
    */
   requestDoc?: { type: string; label: string };
+  /**
+   * The date printed ON the document (ISO), recorded by the reviewer while
+   * reading it. Payment providers recency-check certain documents and reject
+   * KYB outright without it. Never inferred from `uploadedAt` — when a document
+   * was uploaded says nothing about when it was issued.
+   */
+  issuedAt?: string;
+  /**
+   * The stored document-type code, needed to write an issue date back. Present
+   * for documents that came from the KYB checklist or the other-documents list.
+   */
+  docType?: string;
 }

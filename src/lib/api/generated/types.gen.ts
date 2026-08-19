@@ -8366,6 +8366,10 @@ export type DocumentChecklistItemDto = {
    * When the provided file was last reviewed.
    */
   reviewedAt?: string;
+  /**
+   * The date printed on the document, recorded by the reviewer. Required by providers that recency-check documents; absent until someone sets it.
+   */
+  issuedAt?: string;
 };
 
 export type OutstandingDocumentDto = {
@@ -8386,6 +8390,10 @@ export type OtherDocumentDto = {
    * When the current file was (last) provided.
    */
   uploadedAt?: string;
+  /**
+   * The date printed on the document, recorded by the reviewer.
+   */
+  issuedAt?: string;
 };
 
 export type BusinessRegistrationPrefillDto = {
@@ -8630,6 +8638,21 @@ export type RequestDocumentsDto = {
    * Free-text message shown to the customer (white-labeled — must not name any payment provider).
    */
   message?: string;
+};
+
+export type DocumentIssueDateDto = {
+  /**
+   * Document-type code the date belongs to.
+   */
+  type: string;
+  /**
+   * The date printed ON the document (YYYY-MM-DD), read from the document itself. Omit or send null to clear it. This is NOT the upload date — an upload date says nothing about a document’s recency.
+   */
+  issuedAt?: string | null;
+};
+
+export type SetDocumentIssueDatesDto = {
+  documents: Array<DocumentIssueDateDto>;
 };
 
 export type RequestChangesDto = {
@@ -9375,13 +9398,23 @@ export type RoutingRuleDto = {
   matchCurrency?: string;
   matchCountry?: string;
   matchRegion?: string;
-  custodian: "flutterwave" | "busha" | "mock" | "mock_b";
+  custodian: "flutterwave" | "busha" | "transfi" | "mock" | "mock_b";
   /**
    * Order among same-corridor rules; 1 = default custodian
    */
   rank: number;
-  bankDirectoryProvider?: "flutterwave" | "busha" | "mock" | "mock_b";
-  accountResolutionProvider?: "flutterwave" | "busha" | "mock" | "mock_b";
+  bankDirectoryProvider?:
+    | "flutterwave"
+    | "busha"
+    | "transfi"
+    | "mock"
+    | "mock_b";
+  accountResolutionProvider?:
+    | "flutterwave"
+    | "busha"
+    | "transfi"
+    | "mock"
+    | "mock_b";
   enabled: boolean;
   /**
    * Number of constrained match dimensions; most specific rule wins
@@ -9412,7 +9445,7 @@ export type CreateRoutingRuleDto = {
   /**
    * Custodian provider for this corridor
    */
-  custodian: "flutterwave" | "busha" | "mock" | "mock_b";
+  custodian: "flutterwave" | "busha" | "transfi" | "mock" | "mock_b";
   /**
    * Order among same-corridor rules: rank 1 is the default custodian, higher ranks are additional offered wallets
    */
@@ -9420,11 +9453,21 @@ export type CreateRoutingRuleDto = {
   /**
    * Override provider for BANK_DIRECTORY lookups
    */
-  bankDirectoryProvider?: "flutterwave" | "busha" | "mock" | "mock_b";
+  bankDirectoryProvider?:
+    | "flutterwave"
+    | "busha"
+    | "transfi"
+    | "mock"
+    | "mock_b";
   /**
    * Override provider for ACCOUNT_RESOLUTION lookups
    */
-  accountResolutionProvider?: "flutterwave" | "busha" | "mock" | "mock_b";
+  accountResolutionProvider?:
+    | "flutterwave"
+    | "busha"
+    | "transfi"
+    | "mock"
+    | "mock_b";
   enabled?: boolean;
 };
 
@@ -9446,7 +9489,7 @@ export type UpdateRoutingRuleDto = {
    * Region match; empty string clears the dimension
    */
   matchRegion?: string;
-  custodian?: "flutterwave" | "busha" | "mock" | "mock_b";
+  custodian?: "flutterwave" | "busha" | "transfi" | "mock" | "mock_b";
   /**
    * Order among same-corridor rules; 1 = default custodian
    */
@@ -9454,11 +9497,23 @@ export type UpdateRoutingRuleDto = {
   /**
    * BANK_DIRECTORY override; empty string clears it
    */
-  bankDirectoryProvider?: "flutterwave" | "busha" | "mock" | "mock_b" | "";
+  bankDirectoryProvider?:
+    | "flutterwave"
+    | "busha"
+    | "transfi"
+    | "mock"
+    | "mock_b"
+    | "";
   /**
    * ACCOUNT_RESOLUTION override; empty string clears it
    */
-  accountResolutionProvider?: "flutterwave" | "busha" | "mock" | "mock_b" | "";
+  accountResolutionProvider?:
+    | "flutterwave"
+    | "busha"
+    | "transfi"
+    | "mock"
+    | "mock_b"
+    | "";
   enabled?: boolean;
 };
 
@@ -9479,15 +9534,25 @@ export type RoutingResolveResultDto = {
    * Whether any rule matched the corridor
    */
   routed: boolean;
-  custodian?: "flutterwave" | "busha" | "mock" | "mock_b";
+  custodian?: "flutterwave" | "busha" | "transfi" | "mock" | "mock_b";
   /**
    * Provider that will serve BANK_DIRECTORY lookups
    */
-  bankDirectoryProvider?: "flutterwave" | "busha" | "mock" | "mock_b";
+  bankDirectoryProvider?:
+    | "flutterwave"
+    | "busha"
+    | "transfi"
+    | "mock"
+    | "mock_b";
   /**
    * Provider that will serve ACCOUNT_RESOLUTION lookups
    */
-  accountResolutionProvider?: "flutterwave" | "busha" | "mock" | "mock_b";
+  accountResolutionProvider?:
+    | "flutterwave"
+    | "busha"
+    | "transfi"
+    | "mock"
+    | "mock_b";
   /**
    * The winning (default) rule, when routed
    */
@@ -9495,7 +9560,9 @@ export type RoutingResolveResultDto = {
   /**
    * Every custodian offered for this corridor, default first — one org wallet per entry
    */
-  offeredCustodians?: Array<"flutterwave" | "busha" | "mock" | "mock_b"> | null;
+  offeredCustodians?: Array<
+    "flutterwave" | "busha" | "transfi" | "mock" | "mock_b"
+  > | null;
 };
 
 export type RoutingResolveResponseDto = {
@@ -9626,7 +9693,7 @@ export type DrainEventDto = {
 
 export type ProviderDrainDto = {
   id: string;
-  provider: "flutterwave" | "busha" | "mock" | "mock_b";
+  provider: "flutterwave" | "busha" | "transfi" | "mock" | "mock_b";
   status:
     | "draft"
     | "frozen"
@@ -9657,7 +9724,7 @@ export type ProviderDrainListResponseDto = {
 };
 
 export type CreateProviderDrainDto = {
-  provider: "flutterwave" | "busha" | "mock" | "mock_b";
+  provider: "flutterwave" | "busha" | "transfi" | "mock" | "mock_b";
   /**
    * Items the sweep starts per minute tick (default 10)
    */
@@ -14863,6 +14930,19 @@ export type AdminComplianceControllerRequestDocumentsResponses = {
 export type AdminComplianceControllerRequestDocumentsResponse =
   AdminComplianceControllerRequestDocumentsResponses[keyof AdminComplianceControllerRequestDocumentsResponses];
 
+export type AdminComplianceControllerSetDocumentIssueDatesData = {
+  body: SetDocumentIssueDatesDto;
+  path: {
+    organizationId: string;
+  };
+  query?: never;
+  url: "/api/v1/admin/compliance/kyb/{organizationId}/documents/issue-dates";
+};
+
+export type AdminComplianceControllerSetDocumentIssueDatesResponses = {
+  200: unknown;
+};
+
 export type AdminComplianceControllerRequestChangesData = {
   body: RequestChangesDto;
   path: {
@@ -16145,6 +16225,20 @@ export type BushaWebhooksControllerHandleWebhookData = {
 };
 
 export type BushaWebhooksControllerHandleWebhookResponses = {
+  200: unknown;
+};
+
+export type TransfiWebhooksControllerHandleWebhookData = {
+  body?: never;
+  headers: {
+    "x-transfi-hmac-hash": string;
+  };
+  path?: never;
+  query?: never;
+  url: "/api/v1/transfi/webhooks";
+};
+
+export type TransfiWebhooksControllerHandleWebhookResponses = {
   200: unknown;
 };
 

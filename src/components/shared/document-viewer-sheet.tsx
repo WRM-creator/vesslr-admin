@@ -9,6 +9,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { ChevronLeftIcon, ChevronRightIcon, FileTextIcon } from "lucide-react";
 import { useState } from "react";
 import type { ViewableItem } from "./viewable-item";
+import { DateInput } from "./date-input";
 
 interface DocumentViewerSheetProps {
   open: boolean;
@@ -16,6 +17,14 @@ interface DocumentViewerSheetProps {
   items: ViewableItem[];
   currentIndex: number;
   onNavigate: (index: number) => void;
+  /**
+   * Record the date printed on the document currently open. Providers
+   * recency-check some documents and reject KYB without it, and the reviewer
+   * reading the document is the only person who can see that date. Omit to
+   * render the sheet read-only (its other callers).
+   */
+  onSetIssuedAt?: (docType: string, issuedAt: Date) => void;
+  isSavingIssuedAt?: boolean;
 }
 
 function DocumentViewer({ item }: { item: ViewableItem }) {
@@ -65,8 +74,15 @@ export function DocumentViewerSheet({
   items,
   currentIndex,
   onNavigate,
+  onSetIssuedAt,
+  isSavingIssuedAt,
 }: DocumentViewerSheetProps) {
   const current = items[currentIndex];
+  // Only a document that is actually present and carries its stored type can be
+  // dated — a missing/requested placeholder has nothing to attach a date to.
+  const canSetIssuedAt =
+    !!onSetIssuedAt && !!current?.docType && current.slotStatus !== "missing" &&
+    current.slotStatus !== "requested";
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -103,6 +119,26 @@ export function DocumentViewerSheet({
             </div>
           )}
         </div>
+
+        {canSetIssuedAt && (
+          <div className="flex flex-wrap items-center gap-3 border-t px-6 py-3">
+            <div className="min-w-0">
+              <p className="text-sm font-medium">Issue date</p>
+              <p className="text-muted-foreground text-xs">
+                The date printed on this document, not the upload date.
+              </p>
+            </div>
+            <div className="ml-auto flex items-center gap-2">
+              <DateInput
+                value={current?.issuedAt ? new Date(current.issuedAt) : undefined}
+                onChange={(date) => onSetIssuedAt?.(current!.docType!, date)}
+              />
+              {isSavingIssuedAt && (
+                <span className="text-muted-foreground text-xs">Saving…</span>
+              )}
+            </div>
+          </div>
+        )}
 
         {items.length > 1 && (
           <div className="flex items-center justify-between border-t px-6 py-3">

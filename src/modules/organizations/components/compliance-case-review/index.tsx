@@ -14,7 +14,11 @@ import { ApproveDialog, type ApproveResult } from "./approve-dialog";
 import { CaseHeader } from "./case-header";
 import { CompanyDetails } from "./company-details";
 import { CompletenessPanel } from "./completeness-panel";
-import { REGISTRY_SOURCE, toComplianceCase } from "./compliance-utils";
+import {
+  REGISTRY_SOURCE,
+  toComplianceCase,
+  toDateOnly,
+} from "./compliance-utils";
 import { DecisionBar } from "./decision-bar";
 import { DecisionHistory } from "./decision-history";
 import { DeclarationsPanel } from "./declarations-panel";
@@ -121,6 +125,8 @@ export function ComplianceCaseReview({
     api.admin.compliance.onboard.useMutation();
   const { mutate: adoptRegistryPeople, isPending: isAdopting } =
     api.admin.compliance.adoptRegistryPeople.useMutation();
+  const { mutate: setDocumentIssueDates, isPending: isSavingIssuedAt } =
+    api.admin.compliance.setDocumentIssueDates.useMutation();
 
   const flags = useCaseFlags();
   const docRequests = useDocRequests();
@@ -424,6 +430,34 @@ export function ComplianceCaseReview({
         items={viewerItems}
         currentIndex={viewerIndex}
         onNavigate={setViewerIndex}
+        isSavingIssuedAt={isSavingIssuedAt}
+        onSetIssuedAt={(docType, date) =>
+          setDocumentIssueDates(
+            {
+              path: { organizationId },
+              body: {
+                // Date-only: the day printed on the document, with no timezone
+                // shifting it across a boundary.
+                documents: [
+                  { type: docType, issuedAt: toDateOnly(date) },
+                ],
+              },
+            },
+            {
+              onSuccess: () => {
+                // Keep the open sheet in step with what was just saved; the
+                // case query refetch replaces `viewerItems` only on reopen.
+                setViewerItems((items) =>
+                  items.map((i) =>
+                    i.docType === docType
+                      ? { ...i, issuedAt: toDateOnly(date) }
+                      : i,
+                  ),
+                );
+              },
+            },
+          )
+        }
       />
 
       <ApproveDialog
