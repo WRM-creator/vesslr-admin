@@ -33250,6 +33250,11 @@
           "lastError": {
             "type": "string"
           },
+          "nextPollAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "When the reconciler next polls this in-flight principal (backs off 30 min to 6 h while nothing changes). Absent when not in flight or due now."
+          },
           "blockedBy": {
             "type": "string",
             "enum": [

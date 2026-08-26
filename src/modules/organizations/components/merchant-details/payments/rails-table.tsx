@@ -50,7 +50,11 @@ const OUTCOME_LABELS: Record<string, string> = {
   webhook_update: "Updated by provider",
   incomplete: "Deferred, data missing",
   error: "Failed",
+  poll_error: "Status check failed",
 };
+
+/** In-flight statuses the reconciler keeps checking on a backoff. */
+const POLLED_STATUSES = new Set(["pending", "in_review"]);
 
 interface RailsTableProps {
   bindings: AdminProviderBindingDto[];
@@ -139,6 +143,13 @@ export function RailsTable({ bindings }: RailsTableProps) {
                         "dd MMM yyyy, HH:mm",
                       )}
                     </p>
+                    {binding.nextPollAt &&
+                      POLLED_STATUSES.has(binding.onboardingStatus) && (
+                        <p className="text-muted-foreground">
+                          Next check{" "}
+                          {format(new Date(binding.nextPollAt), "dd MMM, HH:mm")}
+                        </p>
+                      )}
                   </div>
                 ) : (
                   <span className="text-muted-foreground text-xs">

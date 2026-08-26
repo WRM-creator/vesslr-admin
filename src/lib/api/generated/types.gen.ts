@@ -9203,6 +9203,10 @@ export type AdminProviderBindingDto = {
   lastOutcome?: string;
   lastError?: string;
   /**
+   * When the reconciler next polls this in-flight principal (backs off 30 min to 6 h while nothing changes). Absent when not in flight or due now.
+   */
+  nextPollAt?: string;
+  /**
    * Why the binding is not active, bucketed by whose move it is: transient (retry helps), data_actionable (org must correct data via request-changes), provider_blocked (waiting on the provider; retrying is futile). Null when healthy or normally in progress.
    */
   blockedBy: "transient" | "data_actionable" | "provider_blocked";
