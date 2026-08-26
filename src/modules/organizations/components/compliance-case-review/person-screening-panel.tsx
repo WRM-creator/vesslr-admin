@@ -60,6 +60,38 @@ function roleLine(roles: string[]): string {
   return roles.map((r) => ROLE_LABEL[r] ?? r.replace(/_/g, " ")).join(" · ");
 }
 
+/**
+ * The person's BVN-to-name verification, rendered beside the AML state. A
+ * failed check is the reason a payment provider would reject this org
+ * (Busha's `bvn_verification`); "transposed" is called out because the fix is
+ * a name swap, not a new BVN.
+ */
+function bvnBadge(
+  check: PersonScreeningSubjectDto["bvnCheck"],
+): { tint: string; label: string; title: string } | null {
+  if (!check?.status) return null;
+  const when = check.checkedAt
+    ? ` · checked ${format(new Date(check.checkedAt), "dd MMM yyyy")}`
+    : "";
+  if (check.status === "passed") {
+    return { tint: TINT.green, label: "BVN matches", title: `Names: ${check.namesMatch ?? "match"}${when}` };
+  }
+  if (check.status === "failed") {
+    const label =
+      check.outcome === "transposed"
+        ? "BVN: names swapped"
+        : check.outcome === "not_found"
+          ? "BVN not found"
+          : "BVN mismatch";
+    return { tint: TINT.red, label, title: `Names: ${check.namesMatch ?? "no match"}${when}` };
+  }
+  return {
+    tint: TINT.amber,
+    label: check.outcome === "partial" ? "BVN partial match" : "BVN check pending",
+    title: check.errorMessage ?? `Names: ${check.namesMatch ?? "-"}${when}`,
+  };
+}
+
 /** Outcome toast mirroring the returned check; the row is the durable record. */
 function outcomeToast(subject: PersonScreeningSubjectDto) {
   const state = rowState(subject.amlCheck);
@@ -89,6 +121,7 @@ function SubjectRow({
   const state = rowState(check);
   const badge = STATE_BADGE[state];
   const resolved = check ? check.matchCount - check.unresolvedMatches : 0;
+  const bvn = bvnBadge(subject.bvnCheck);
 
   return (
     <div className="flex items-center justify-between gap-3 py-2.5">
@@ -121,6 +154,15 @@ function SubjectRow({
       </div>
 
       <div className="flex shrink-0 items-center gap-2">
+        {bvn && (
+          <Badge
+            variant="outline"
+            className={cn("font-medium", bvn.tint)}
+            title={bvn.title}
+          >
+            {bvn.label}
+          </Badge>
+        )}
         {isScreening ? (
           <Badge variant="outline" className={cn("font-medium", TINT.gray)}>
             <Spinner className="mr-1 size-3" />
