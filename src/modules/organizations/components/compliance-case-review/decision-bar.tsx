@@ -25,7 +25,7 @@ function contextLabel(pendingKyb: boolean, pendingKyc: boolean): string {
   if (pendingKyb && pendingKyc) return "Deciding identity + business";
   if (pendingKyb) return "Deciding Business (KYB). Identity already passed.";
   if (pendingKyc) return "Deciding Identity (KYC). Business already approved.";
-  return "This case is fully approved.";
+  return "This case is fully approved. You can still request changes.";
 }
 
 /**
@@ -34,6 +34,14 @@ function contextLabel(pendingKyb: boolean, pendingKyc: boolean): string {
  * acts on. Approve and Request changes are live; Reject is a deferred placeholder
  * (needs its own terminal-decline lifecycle) shown disabled so the full decision
  * set reads at a glance.
+ *
+ * Approve and Reject disappear once the case is fully approved (there is nothing
+ * left to decide), but Request changes stays. It is the ONLY sanctioned way to
+ * reopen a customer's own data after approval: the customer's onboarding form
+ * locks on 'approved', and the admin has no person-edit endpoint, so asking is
+ * the only path to a corrected BVN, director name or document. The backend
+ * moves the case to action_required without touching verificationStanding, so
+ * the org keeps its platform access for the whole conversation.
  */
 export function DecisionBar({
   data,
@@ -63,8 +71,8 @@ export function DecisionBar({
         </p>
       </div>
 
-      {!fullyApproved && (
-        <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2">
+        {!fullyApproved && (
           <Tooltip>
             <TooltipTrigger asChild>
               {/* Wrapper span so the tooltip still fires on a disabled button. */}
@@ -80,23 +88,25 @@ export function DecisionBar({
               built.
             </TooltipContent>
           </Tooltip>
+        )}
 
-          <Button
-            variant="outline"
-            size="sm"
-            className="gap-1.5"
-            onClick={onRequestChanges}
-            disabled={isSubmitting}
-          >
-            <Undo2Icon className="size-4" />
-            Request changes
-            {flagCount > 0 && (
-              <span className="bg-muted ml-0.5 rounded-full px-1.5 text-[11px] tabular-nums">
-                {flagCount}
-              </span>
-            )}
-          </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          className="gap-1.5"
+          onClick={onRequestChanges}
+          disabled={isSubmitting}
+        >
+          <Undo2Icon className="size-4" />
+          Request changes
+          {flagCount > 0 && (
+            <span className="bg-muted ml-0.5 rounded-full px-1.5 text-[11px] tabular-nums">
+              {flagCount}
+            </span>
+          )}
+        </Button>
 
+        {!fullyApproved && (
           <Button
             size="sm"
             className="gap-1.5"
@@ -114,8 +124,8 @@ export function DecisionBar({
                 ? "Approve business"
                 : "Approve identity"}
           </Button>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }
