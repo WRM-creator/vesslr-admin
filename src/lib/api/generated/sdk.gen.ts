@@ -561,12 +561,18 @@ import type {
   PlacesControllerAutocompleteResponses,
   PlacesControllerGetDetailsData,
   PlacesControllerGetDetailsResponses,
+  ProductsControllerCountsData,
+  ProductsControllerCountsResponses,
+  ProductsControllerFacetsData,
+  ProductsControllerFacetsResponses,
   ProductsControllerFindAllData,
   ProductsControllerFindAllResponses,
   ProductsControllerFindOneData,
   ProductsControllerFindOneResponses,
   ProductsControllerFindRecommendedData,
   ProductsControllerFindRecommendedResponses,
+  ProductsControllerTaxonomyCountsData,
+  ProductsControllerTaxonomyCountsResponses,
   QqCatalogControllerFindAllCompaniesData,
   QqCatalogControllerFindAllCompaniesResponses,
   QqCatalogControllerFindAllFieldsData,
@@ -577,6 +583,8 @@ import type {
   QqCatalogControllerFindFieldResponses,
   QqCatalogControllerFindTemplateData,
   QqCatalogControllerFindTemplateResponses,
+  QqCatalogControllerMatchTemplatesData,
+  QqCatalogControllerMatchTemplatesResponses,
   RequestsControllerCreateData,
   RequestsControllerCreateResponses,
   RequestsControllerFindAllData,
@@ -619,6 +627,8 @@ import type {
   SupportControllerFindOneResponses,
   SupportControllerGetAwaitingCountData,
   SupportControllerGetAwaitingCountResponses,
+  TerminalsControllerFindAllData,
+  TerminalsControllerFindAllResponses,
   TransactionConversationsControllerGetConversationData,
   TransactionConversationsControllerGetConversationResponses,
   TransactionConversationsControllerSendMessageData,
@@ -1316,50 +1326,6 @@ export const organizationsControllerResolveAccount = <
     },
   });
 
-export const productsControllerFindAll = <ThrowOnError extends boolean = false>(
-  options?: Options<ProductsControllerFindAllData, ThrowOnError>,
-) =>
-  (options?.client ?? client).get<
-    ProductsControllerFindAllResponses,
-    unknown,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/api/v1/products",
-    ...options,
-  });
-
-/**
- * Get recommended products based on buying categories
- */
-export const productsControllerFindRecommended = <
-  ThrowOnError extends boolean = false,
->(
-  options?: Options<ProductsControllerFindRecommendedData, ThrowOnError>,
-) =>
-  (options?.client ?? client).get<
-    ProductsControllerFindRecommendedResponses,
-    unknown,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/api/v1/products/recommended",
-    ...options,
-  });
-
-export const productsControllerFindOne = <ThrowOnError extends boolean = false>(
-  options: Options<ProductsControllerFindOneData, ThrowOnError>,
-) =>
-  (options.client ?? client).get<
-    ProductsControllerFindOneResponses,
-    unknown,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/api/v1/products/{id}",
-    ...options,
-  });
-
 export const myProductsControllerFindAll = <
   ThrowOnError extends boolean = false,
 >(
@@ -1455,6 +1421,100 @@ export const myProductsControllerResubmit = <
   >({
     security: [{ scheme: "bearer", type: "http" }],
     url: "/api/v1/products/mine/{id}/resubmit",
+    ...options,
+  });
+
+export const productsControllerFindAll = <ThrowOnError extends boolean = false>(
+  options?: Options<ProductsControllerFindAllData, ThrowOnError>,
+) =>
+  (options?.client ?? client).get<
+    ProductsControllerFindAllResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/products",
+    ...options,
+  });
+
+/**
+ * Get recommended products based on buying categories
+ */
+export const productsControllerFindRecommended = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<ProductsControllerFindRecommendedData, ThrowOnError>,
+) =>
+  (options?.client ?? client).get<
+    ProductsControllerFindRecommendedResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/products/recommended",
+    ...options,
+  });
+
+/**
+ * Approved listing counts per marketplace family (buyer tabs)
+ */
+export const productsControllerCounts = <ThrowOnError extends boolean = false>(
+  options?: Options<ProductsControllerCountsData, ThrowOnError>,
+) =>
+  (options?.client ?? client).get<
+    ProductsControllerCountsResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/products/counts",
+    ...options,
+  });
+
+/**
+ * Filter options with counts for one marketplace family, optionally narrowed to a group or category
+ */
+export const productsControllerFacets = <ThrowOnError extends boolean = false>(
+  options: Options<ProductsControllerFacetsData, ThrowOnError>,
+) =>
+  (options.client ?? client).get<
+    ProductsControllerFacetsResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/products/facets",
+    ...options,
+  });
+
+/**
+ * Approved listing and product type counts per group and category of one marketplace family
+ */
+export const productsControllerTaxonomyCounts = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<ProductsControllerTaxonomyCountsData, ThrowOnError>,
+) =>
+  (options.client ?? client).get<
+    ProductsControllerTaxonomyCountsResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/products/taxonomy-counts",
+    ...options,
+  });
+
+export const productsControllerFindOne = <ThrowOnError extends boolean = false>(
+  options: Options<ProductsControllerFindOneData, ThrowOnError>,
+) =>
+  (options.client ?? client).get<
+    ProductsControllerFindOneResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/products/{id}",
     ...options,
   });
 
@@ -1554,6 +1614,24 @@ export const categorySpecialtiesControllerFindOne = <
   >({
     security: [{ scheme: "bearer", type: "http" }],
     url: "/api/v1/category-specialties/{id}",
+    ...options,
+  });
+
+/**
+ * Active loading ports and terminals, by name
+ */
+export const terminalsControllerFindAll = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<TerminalsControllerFindAllData, ThrowOnError>,
+) =>
+  (options?.client ?? client).get<
+    TerminalsControllerFindAllResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/terminals",
     ...options,
   });
 
@@ -7511,6 +7589,24 @@ export const qqCatalogControllerFindAllTemplates = <
   >({
     security: [{ scheme: "bearer", type: "http" }],
     url: "/api/v1/qq-catalog/templates",
+    ...options,
+  });
+
+/**
+ * Q&Q templates linked to product types, most specific first (pass the specialty slug before the category slug)
+ */
+export const qqCatalogControllerMatchTemplates = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<QqCatalogControllerMatchTemplatesData, ThrowOnError>,
+) =>
+  (options.client ?? client).get<
+    QqCatalogControllerMatchTemplatesResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/qq-catalog/templates/match",
     ...options,
   });
 

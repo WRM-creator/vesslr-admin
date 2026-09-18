@@ -938,190 +938,6 @@
         ]
       }
     },
-    "/api/v1/products": {
-      "get": {
-        "operationId": "ProductsController_findAll",
-        "parameters": [
-          {
-            "name": "page",
-            "required": false,
-            "in": "query",
-            "description": "Page number",
-            "schema": {
-              "default": "1",
-              "type": "string"
-            }
-          },
-          {
-            "name": "limit",
-            "required": false,
-            "in": "query",
-            "description": "Items per page",
-            "schema": {
-              "default": "12",
-              "type": "string"
-            }
-          },
-          {
-            "name": "category",
-            "required": false,
-            "in": "query",
-            "description": "Filter by category ID",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "categoryGroup",
-            "required": false,
-            "in": "query",
-            "description": "Filter by category group ID",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "specialtyId",
-            "required": false,
-            "in": "query",
-            "description": "Filter by specialty ID",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/PaginatedProductsResponseDto"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
-        "tags": [
-          "Products"
-        ]
-      }
-    },
-    "/api/v1/products/recommended": {
-      "get": {
-        "operationId": "ProductsController_findRecommended",
-        "parameters": [
-          {
-            "name": "page",
-            "required": false,
-            "in": "query",
-            "description": "Page number",
-            "schema": {
-              "default": "1",
-              "type": "string"
-            }
-          },
-          {
-            "name": "limit",
-            "required": false,
-            "in": "query",
-            "description": "Items per page",
-            "schema": {
-              "default": "12",
-              "type": "string"
-            }
-          },
-          {
-            "name": "category",
-            "required": false,
-            "in": "query",
-            "description": "Filter by category ID",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "categoryGroup",
-            "required": false,
-            "in": "query",
-            "description": "Filter by category group ID",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "specialtyId",
-            "required": false,
-            "in": "query",
-            "description": "Filter by specialty ID",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/PaginatedProductsResponseDto"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
-        "summary": "Get recommended products based on buying categories",
-        "tags": [
-          "Products"
-        ]
-      }
-    },
-    "/api/v1/products/{id}": {
-      "get": {
-        "operationId": "ProductsController_findOne",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProductResponseDto"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
-        "tags": [
-          "Products"
-        ]
-      }
-    },
     "/api/v1/products/mine": {
       "get": {
         "operationId": "MyProductsController_findAll",
@@ -1324,19 +1140,674 @@
         ]
       }
     },
-    "/api/v1/category-groups": {
+    "/api/v1/products": {
       "get": {
-        "operationId": "CategoryGroupsController_findAll",
+        "operationId": "ProductsController_findAll",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "description": "Page number",
+            "schema": {
+              "default": "1",
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Items per page",
+            "schema": {
+              "default": "12",
+              "type": "string"
+            }
+          },
+          {
+            "name": "category",
+            "required": false,
+            "in": "query",
+            "description": "Filter by category ID",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "categoryGroup",
+            "required": false,
+            "in": "query",
+            "description": "Filter by category group ID",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "specialtyId",
+            "required": false,
+            "in": "query",
+            "description": "Filter by specialty ID",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "family",
+            "required": false,
+            "in": "query",
+            "description": "Only listings in category groups of these marketplace families; CSV or repeated param",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "energy_commodities",
+                  "equipment",
+                  "industrial_materials",
+                  "services"
+                ]
+              }
+            }
+          },
+          {
+            "name": "q",
+            "required": false,
+            "in": "query",
+            "description": "Case-insensitive search on the listing title",
+            "schema": {
+              "maxLength": 100,
+              "type": "string"
+            }
+          },
+          {
+            "name": "specialtyIds",
+            "required": false,
+            "in": "query",
+            "description": "Any of these specialties (grades); CSV or repeated param",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "name": "country",
+            "required": false,
+            "in": "query",
+            "description": "Listing location country ID (origin)",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "state",
+            "required": false,
+            "in": "query",
+            "description": "Listing location state ID",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "conditions",
+            "required": false,
+            "in": "query",
+            "description": "Listings offered in any of these conditions; CSV or repeated param",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "New",
+                  "Used - Good",
+                  "Used - Fair",
+                  "Refurbished"
+                ]
+              }
+            }
+          },
+          {
+            "name": "unit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "bbl",
+                "liter",
+                "gallon",
+                "m3",
+                "mt",
+                "kg",
+                "ton",
+                "lb",
+                "m",
+                "ft",
+                "sqm",
+                "sqft",
+                "scf",
+                "sm3",
+                "nm3",
+                "mmbtu",
+                "kwh",
+                "mwh",
+                "kva",
+                "kw",
+                "mw",
+                "unit",
+                "set",
+                "kit",
+                "pair",
+                "joint",
+                "roll",
+                "sheet",
+                "box",
+                "pack",
+                "drum",
+                "bag",
+                "cylinder",
+                "ream",
+                "license",
+                "skid",
+                "package",
+                "plate",
+                "bar"
+              ]
+            }
+          },
+          {
+            "name": "tradeTerms",
+            "required": false,
+            "in": "query",
+            "description": "Listings offering any of these trade terms; CSV or repeated param",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "FOB",
+                  "CIF",
+                  "CFR",
+                  "EX_WORKS",
+                  "DELIVERED",
+                  "TTO",
+                  "TTT",
+                  "FOT",
+                  "FCA",
+                  "DAP",
+                  "DDP",
+                  "NA"
+                ]
+              }
+            }
+          },
+          {
+            "name": "pricingBasis",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "flat",
+                "differential"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedProductsResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Products"
+        ]
+      }
+    },
+    "/api/v1/products/recommended": {
+      "get": {
+        "operationId": "ProductsController_findRecommended",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "description": "Page number",
+            "schema": {
+              "default": "1",
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Items per page",
+            "schema": {
+              "default": "12",
+              "type": "string"
+            }
+          },
+          {
+            "name": "category",
+            "required": false,
+            "in": "query",
+            "description": "Filter by category ID",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "categoryGroup",
+            "required": false,
+            "in": "query",
+            "description": "Filter by category group ID",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "specialtyId",
+            "required": false,
+            "in": "query",
+            "description": "Filter by specialty ID",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "family",
+            "required": false,
+            "in": "query",
+            "description": "Only listings in category groups of these marketplace families; CSV or repeated param",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "energy_commodities",
+                  "equipment",
+                  "industrial_materials",
+                  "services"
+                ]
+              }
+            }
+          },
+          {
+            "name": "q",
+            "required": false,
+            "in": "query",
+            "description": "Case-insensitive search on the listing title",
+            "schema": {
+              "maxLength": 100,
+              "type": "string"
+            }
+          },
+          {
+            "name": "specialtyIds",
+            "required": false,
+            "in": "query",
+            "description": "Any of these specialties (grades); CSV or repeated param",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "name": "country",
+            "required": false,
+            "in": "query",
+            "description": "Listing location country ID (origin)",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "state",
+            "required": false,
+            "in": "query",
+            "description": "Listing location state ID",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "conditions",
+            "required": false,
+            "in": "query",
+            "description": "Listings offered in any of these conditions; CSV or repeated param",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "New",
+                  "Used - Good",
+                  "Used - Fair",
+                  "Refurbished"
+                ]
+              }
+            }
+          },
+          {
+            "name": "unit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "bbl",
+                "liter",
+                "gallon",
+                "m3",
+                "mt",
+                "kg",
+                "ton",
+                "lb",
+                "m",
+                "ft",
+                "sqm",
+                "sqft",
+                "scf",
+                "sm3",
+                "nm3",
+                "mmbtu",
+                "kwh",
+                "mwh",
+                "kva",
+                "kw",
+                "mw",
+                "unit",
+                "set",
+                "kit",
+                "pair",
+                "joint",
+                "roll",
+                "sheet",
+                "box",
+                "pack",
+                "drum",
+                "bag",
+                "cylinder",
+                "ream",
+                "license",
+                "skid",
+                "package",
+                "plate",
+                "bar"
+              ]
+            }
+          },
+          {
+            "name": "tradeTerms",
+            "required": false,
+            "in": "query",
+            "description": "Listings offering any of these trade terms; CSV or repeated param",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "FOB",
+                  "CIF",
+                  "CFR",
+                  "EX_WORKS",
+                  "DELIVERED",
+                  "TTO",
+                  "TTT",
+                  "FOT",
+                  "FCA",
+                  "DAP",
+                  "DDP",
+                  "NA"
+                ]
+              }
+            }
+          },
+          {
+            "name": "pricingBasis",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "flat",
+                "differential"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedProductsResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get recommended products based on buying categories",
+        "tags": [
+          "Products"
+        ]
+      }
+    },
+    "/api/v1/products/counts": {
+      "get": {
+        "operationId": "ProductsController_counts",
         "parameters": [],
         "responses": {
           "200": {
-            "description": "List of category groups",
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MarketplaceCountsDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Approved listing counts per marketplace family (buyer tabs)",
+        "tags": [
+          "Products"
+        ]
+      }
+    },
+    "/api/v1/products/facets": {
+      "get": {
+        "operationId": "ProductsController_facets",
+        "parameters": [
+          {
+            "name": "family",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "energy_commodities",
+                "equipment",
+                "industrial_materials",
+                "services"
+              ]
+            }
+          },
+          {
+            "name": "groupId",
+            "required": false,
+            "in": "query",
+            "description": "Narrow the options to one category group of the family",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "categoryId",
+            "required": false,
+            "in": "query",
+            "description": "Narrow the options to one category (wins over groupId)",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MarketplaceFacetsDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Filter options with counts for one marketplace family, optionally narrowed to a group or category",
+        "tags": [
+          "Products"
+        ]
+      }
+    },
+    "/api/v1/products/taxonomy-counts": {
+      "get": {
+        "operationId": "ProductsController_taxonomyCounts",
+        "parameters": [
+          {
+            "name": "family",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "energy_commodities",
+                "equipment",
+                "industrial_materials",
+                "services"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MarketplaceTaxonomyCountsDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Approved listing and product type counts per group and category of one marketplace family",
+        "tags": [
+          "Products"
+        ]
+      }
+    },
+    "/api/v1/products/{id}": {
+      "get": {
+        "operationId": "ProductsController_findOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Products"
+        ]
+      }
+    },
+    "/api/v1/category-groups": {
+      "get": {
+        "operationId": "CategoryGroupsController_findAll",
+        "parameters": [
+          {
+            "name": "family",
+            "required": false,
+            "in": "query",
+            "description": "Only return groups in this marketplace family",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "energy_commodities",
+                "equipment",
+                "industrial_materials",
+                "services"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of category groups with their marketplace family",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/CategoryGroupDto"
+                    "$ref": "#/components/schemas/CategoryGroupWithFamilyDto"
                   }
                 }
               }
@@ -1526,6 +1997,46 @@
         "summary": "Get a category specialty by ID",
         "tags": [
           "Category Specialties"
+        ]
+      }
+    },
+    "/api/v1/terminals": {
+      "get": {
+        "operationId": "TerminalsController_findAll",
+        "parameters": [
+          {
+            "name": "country",
+            "required": false,
+            "in": "query",
+            "description": "Only terminals in this country (Country ID)",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TerminalDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Active loading ports and terminals, by name",
+        "tags": [
+          "Terminals"
         ]
       }
     },
@@ -13543,6 +14054,39 @@
         ]
       }
     },
+    "/api/v1/qq-catalog/templates/match": {
+      "get": {
+        "operationId": "QQCatalogController_matchTemplates",
+        "parameters": [
+          {
+            "name": "productType",
+            "required": true,
+            "in": "query",
+            "description": "Category or specialty slugs, in order of preference; CSV or repeated",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Q&Q templates linked to product types, most specific first (pass the specialty slug before the category slug)",
+        "tags": [
+          "Q&Q Catalog"
+        ]
+      }
+    },
     "/api/v1/qq-catalog/templates/{slug}": {
       "get": {
         "operationId": "QQCatalogController_findTemplate",
@@ -15226,6 +15770,20 @@
           "allowsInspection": {
             "type": "boolean"
           },
+          "allowsCommoditySpecs": {
+            "type": "boolean",
+            "description": "Whether the group is an energy commodity group (the buyer tab and the seller wizard both branch on it)."
+          },
+          "family": {
+            "type": "string",
+            "enum": [
+              "energy_commodities",
+              "equipment",
+              "industrial_materials",
+              "services"
+            ],
+            "description": "Marketplace family the listing belongs to, resolved from the group so no client re-derives it."
+          },
           "requiresDifferentialPricing": {
             "type": "boolean",
             "description": "Group forbids fixed pricing; listings must be differential."
@@ -15686,6 +16244,58 @@
           "percentage"
         ]
       },
+      "LoadingTerminalResponseDto": {
+        "type": "object",
+        "properties": {
+          "terminalId": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name"
+        ]
+      },
+      "LaycanResponseDto": {
+        "type": "object",
+        "properties": {
+          "start": {
+            "type": "string"
+          },
+          "end": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "start",
+          "end"
+        ]
+      },
+      "TradeDocumentResponseDto": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "available",
+              "to_be_advised"
+            ]
+          }
+        },
+        "required": [
+          "key",
+          "name",
+          "status"
+        ]
+      },
       "PopulatedProductResponseDto": {
         "type": "object",
         "properties": {
@@ -15850,8 +16460,38 @@
               ]
             }
           },
+          "tradeTerms": {
+            "type": "array",
+            "description": "Trade terms (Incoterms / delivery procedures) the listing is offered on",
+            "items": {
+              "type": "string",
+              "enum": [
+                "FOB",
+                "CIF",
+                "CFR",
+                "EX_WORKS",
+                "DELIVERED",
+                "TTO",
+                "TTT",
+                "FOT",
+                "FCA",
+                "DAP",
+                "DDP",
+                "NA"
+              ]
+            }
+          },
           "organization": {
-            "$ref": "#/components/schemas/ProductOrganizationDto"
+            "description": "Present only when the viewer owns the listing.",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ProductOrganizationDto"
+              }
+            ]
+          },
+          "isOwner": {
+            "type": "boolean",
+            "description": "Whether the viewer's organization owns this listing."
           },
           "location": {
             "$ref": "#/components/schemas/PopulatedProductLocationDto"
@@ -15906,295 +16546,64 @@
             "items": {
               "$ref": "#/components/schemas/RequestMilestoneDto"
             }
-          }
-        },
-        "required": [
-          "_id",
-          "displayId",
-          "title"
-        ]
-      },
-      "ProductsPaginationDataDto": {
-        "type": "object",
-        "properties": {
-          "docs": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/PopulatedProductResponseDto"
-            }
           },
-          "totalDocs": {
-            "type": "number"
-          },
-          "page": {
-            "type": "number"
-          },
-          "limit": {
-            "type": "number"
-          },
-          "totalPages": {
-            "type": "number"
-          }
-        },
-        "required": [
-          "docs",
-          "totalDocs",
-          "page",
-          "limit",
-          "totalPages"
-        ]
-      },
-      "PaginatedProductsResponseDto": {
-        "type": "object",
-        "properties": {
-          "message": {
-            "type": "string"
-          },
-          "data": {
-            "$ref": "#/components/schemas/ProductsPaginationDataDto"
-          }
-        },
-        "required": [
-          "message",
-          "data"
-        ]
-      },
-      "ProductLocationDto": {
-        "type": "object",
-        "properties": {
-          "state": {
-            "$ref": "#/components/schemas/ProductStateDto"
-          },
-          "region": {
-            "$ref": "#/components/schemas/ProductRegionDto"
-          },
-          "country": {
-            "$ref": "#/components/schemas/CountryDto"
-          },
-          "address": {
-            "type": "string"
-          }
-        }
-      },
-      "ProductResponseDto": {
-        "type": "object",
-        "properties": {
-          "_id": {
-            "type": "string"
-          },
-          "displayId": {
-            "type": "number",
-            "description": "Display ID"
-          },
-          "title": {
-            "type": "string"
-          },
-          "description": {
-            "type": "string"
-          },
-          "specialtyId": {
-            "type": "string"
-          },
-          "categoryId": {
-            "type": "object"
-          },
-          "groupId": {
-            "type": "object"
-          },
-          "type": {
+          "contractStyle": {
             "type": "string",
             "enum": [
-              "products",
-              "services"
+              "spot",
+              "term"
             ]
           },
-          "listingType": {
+          "availability": {
             "type": "string",
             "enum": [
-              "product",
-              "service",
-              "rental",
-              "charter"
-            ]
-          },
-          "pricingBasis": {
-            "type": "string",
-            "enum": [
-              "flat",
-              "differential"
+              "available",
+              "indicative",
+              "request_only"
             ],
-            "description": "How the price is expressed (flat or differential)."
+            "description": "Unset reads as available. Only available listings can be ordered directly."
           },
-          "pricePerUnit": {
+          "availabilityNote": {
+            "type": "string"
+          },
+          "paymentTerms": {
+            "type": "string",
+            "enum": [
+              "first_tranche_balance_on_title_transfer"
+            ]
+          },
+          "tolerancePercent": {
             "type": "number",
-            "description": "Flat price per unit in minor currency units (kobo/cents). Absent on differential listings."
+            "description": "Contractual tolerance, +/- percent"
           },
-          "differentialPrice": {
-            "$ref": "#/components/schemas/DifferentialPriceResponseDto"
-          },
-          "sellerFee": {
-            "description": "Disclosed platform fee on a differential listing — owning seller only; resolved from the category/group fee config",
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/SellerFeeDto"
-              }
-            ]
-          },
-          "currency": {
-            "type": "string",
-            "enum": [
-              "NGN",
-              "KES",
-              "USD",
-              "EUR",
-              "USDT",
-              "USDC"
-            ]
-          },
-          "images": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          "features": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          "availableQuantity": {
-            "type": "number"
-          },
-          "minimumOrderQuantity": {
-            "type": "number"
-          },
-          "maximumOrderQuantity": {
-            "type": "number"
-          },
-          "trackInventory": {
-            "type": "boolean"
-          },
-          "lowStockThreshold": {
-            "type": "number"
-          },
-          "showStockToBuyers": {
-            "type": "boolean"
-          },
-          "allowBackorders": {
-            "type": "boolean"
-          },
-          "unitOfMeasurement": {
-            "type": "string",
-            "enum": [
-              "bbl",
-              "liter",
-              "gallon",
-              "m3",
-              "mt",
-              "kg",
-              "ton",
-              "lb",
-              "m",
-              "ft",
-              "sqm",
-              "sqft",
-              "scf",
-              "sm3",
-              "nm3",
-              "mmbtu",
-              "kwh",
-              "mwh",
-              "kva",
-              "kw",
-              "mw",
-              "unit",
-              "set",
-              "kit",
-              "pair",
-              "joint",
-              "roll",
-              "sheet",
-              "box",
-              "pack",
-              "drum",
-              "bag",
-              "cylinder",
-              "ream",
-              "license",
-              "skid",
-              "package",
-              "plate",
-              "bar"
-            ]
-          },
-          "conditions": {
+          "shippingRegions": {
             "type": "array",
             "items": {
               "type": "string",
               "enum": [
-                "New",
-                "Used - Good",
-                "Used - Fair",
-                "Refurbished"
+                "west_africa",
+                "northwest_europe",
+                "mediterranean",
+                "us_gulf",
+                "asia_pacific",
+                "middle_east"
               ]
             }
           },
-          "organization": {
-            "$ref": "#/components/schemas/ProductOrganizationDto"
+          "loadingTerminal": {
+            "$ref": "#/components/schemas/LoadingTerminalResponseDto"
           },
-          "location": {
-            "$ref": "#/components/schemas/ProductLocationDto"
+          "laycan": {
+            "$ref": "#/components/schemas/LaycanResponseDto"
           },
-          "status": {
+          "listingExpiresAt": {
             "type": "string",
-            "enum": [
-              "pending",
-              "approved",
-              "rejected",
-              "delisted"
-            ]
+            "description": "When the listing leaves the marketplace"
           },
-          "rejectionReason": {
-            "type": "string"
-          },
-          "delistReason": {
-            "type": "string"
-          },
-          "resubmissionCount": {
-            "type": "number"
-          },
-          "isActive": {
-            "type": "boolean"
-          },
-          "createdAt": {
-            "type": "string"
-          },
-          "updatedAt": {
-            "type": "string"
-          },
-          "documents": {
+          "tradeDocuments": {
             "type": "array",
             "items": {
-              "type": "string"
-            }
-          },
-          "specifications": {
-            "$ref": "#/components/schemas/SpecificationsResponseDto"
-          },
-          "specDeclarations": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/SpecDeclarationResponseDto"
-            }
-          },
-          "commercialTerms": {
-            "$ref": "#/components/schemas/CommercialTermsResponseDto"
-          },
-          "milestones": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/RequestMilestoneDto"
+              "$ref": "#/components/schemas/TradeDocumentResponseDto"
             }
           }
         },
@@ -16495,6 +16904,63 @@
           }
         }
       },
+      "LoadingTerminalDto": {
+        "type": "object",
+        "properties": {
+          "terminalId": {
+            "type": "string",
+            "description": "Seeded terminal ID; omit when the seller types a terminal that is not listed"
+          },
+          "name": {
+            "type": "string",
+            "description": "Terminal or port name, as buyers see it"
+          }
+        },
+        "required": [
+          "name"
+        ]
+      },
+      "LaycanDto": {
+        "type": "object",
+        "properties": {
+          "start": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "end": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "start",
+          "end"
+        ]
+      },
+      "TradeDocumentDto": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string",
+            "description": "Stable key (e.g. certificate_of_origin); custom documents use custom_<slug>"
+          },
+          "name": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "available",
+              "to_be_advised"
+            ]
+          }
+        },
+        "required": [
+          "key",
+          "name",
+          "status"
+        ]
+      },
       "UpsertMyProductDto": {
         "type": "object",
         "properties": {
@@ -16701,6 +17167,69 @@
             "items": {
               "$ref": "#/components/schemas/RequestMilestoneDto"
             }
+          },
+          "contractStyle": {
+            "type": "string",
+            "enum": [
+              "spot",
+              "term"
+            ]
+          },
+          "availability": {
+            "type": "string",
+            "enum": [
+              "available",
+              "indicative",
+              "request_only"
+            ],
+            "description": "Only available listings can be ordered directly"
+          },
+          "availabilityNote": {
+            "type": "string",
+            "maxLength": 140
+          },
+          "paymentTerms": {
+            "type": "string",
+            "enum": [
+              "first_tranche_balance_on_title_transfer"
+            ]
+          },
+          "tolerancePercent": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 20,
+            "description": "Contractual tolerance, +/- percent"
+          },
+          "shippingRegions": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "west_africa",
+                "northwest_europe",
+                "mediterranean",
+                "us_gulf",
+                "asia_pacific",
+                "middle_east"
+              ]
+            }
+          },
+          "loadingTerminal": {
+            "$ref": "#/components/schemas/LoadingTerminalDto"
+          },
+          "laycan": {
+            "$ref": "#/components/schemas/LaycanDto"
+          },
+          "listingExpiresAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the listing leaves the marketplace (not cargo validity)"
+          },
+          "tradeDocuments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TradeDocumentDto"
+            }
           }
         },
         "required": [
@@ -16714,6 +17243,340 @@
           "documents",
           "conditions",
           "location"
+        ]
+      },
+      "ProductLocationDto": {
+        "type": "object",
+        "properties": {
+          "state": {
+            "$ref": "#/components/schemas/ProductStateDto"
+          },
+          "region": {
+            "$ref": "#/components/schemas/ProductRegionDto"
+          },
+          "country": {
+            "$ref": "#/components/schemas/CountryDto"
+          },
+          "address": {
+            "type": "string"
+          }
+        }
+      },
+      "ProductResponseDto": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string"
+          },
+          "displayId": {
+            "type": "number",
+            "description": "Display ID"
+          },
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "specialtyId": {
+            "type": "string"
+          },
+          "categoryId": {
+            "type": "object"
+          },
+          "groupId": {
+            "type": "object"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "products",
+              "services"
+            ]
+          },
+          "listingType": {
+            "type": "string",
+            "enum": [
+              "product",
+              "service",
+              "rental",
+              "charter"
+            ]
+          },
+          "pricingBasis": {
+            "type": "string",
+            "enum": [
+              "flat",
+              "differential"
+            ],
+            "description": "How the price is expressed (flat or differential)."
+          },
+          "pricePerUnit": {
+            "type": "number",
+            "description": "Flat price per unit in minor currency units (kobo/cents). Absent on differential listings."
+          },
+          "differentialPrice": {
+            "$ref": "#/components/schemas/DifferentialPriceResponseDto"
+          },
+          "sellerFee": {
+            "description": "Disclosed platform fee on a differential listing — owning seller only; resolved from the category/group fee config",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/SellerFeeDto"
+              }
+            ]
+          },
+          "currency": {
+            "type": "string",
+            "enum": [
+              "NGN",
+              "KES",
+              "USD",
+              "EUR",
+              "USDT",
+              "USDC"
+            ]
+          },
+          "images": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "features": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "availableQuantity": {
+            "type": "number"
+          },
+          "minimumOrderQuantity": {
+            "type": "number"
+          },
+          "maximumOrderQuantity": {
+            "type": "number"
+          },
+          "trackInventory": {
+            "type": "boolean"
+          },
+          "lowStockThreshold": {
+            "type": "number"
+          },
+          "showStockToBuyers": {
+            "type": "boolean"
+          },
+          "allowBackorders": {
+            "type": "boolean"
+          },
+          "unitOfMeasurement": {
+            "type": "string",
+            "enum": [
+              "bbl",
+              "liter",
+              "gallon",
+              "m3",
+              "mt",
+              "kg",
+              "ton",
+              "lb",
+              "m",
+              "ft",
+              "sqm",
+              "sqft",
+              "scf",
+              "sm3",
+              "nm3",
+              "mmbtu",
+              "kwh",
+              "mwh",
+              "kva",
+              "kw",
+              "mw",
+              "unit",
+              "set",
+              "kit",
+              "pair",
+              "joint",
+              "roll",
+              "sheet",
+              "box",
+              "pack",
+              "drum",
+              "bag",
+              "cylinder",
+              "ream",
+              "license",
+              "skid",
+              "package",
+              "plate",
+              "bar"
+            ]
+          },
+          "conditions": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "New",
+                "Used - Good",
+                "Used - Fair",
+                "Refurbished"
+              ]
+            }
+          },
+          "tradeTerms": {
+            "type": "array",
+            "description": "Trade terms (Incoterms / delivery procedures) the listing is offered on",
+            "items": {
+              "type": "string",
+              "enum": [
+                "FOB",
+                "CIF",
+                "CFR",
+                "EX_WORKS",
+                "DELIVERED",
+                "TTO",
+                "TTT",
+                "FOT",
+                "FCA",
+                "DAP",
+                "DDP",
+                "NA"
+              ]
+            }
+          },
+          "organization": {
+            "description": "Owning organization. Present only when the viewer owns the listing; never sent to other organizations (counterparty anonymity).",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ProductOrganizationDto"
+              }
+            ]
+          },
+          "isOwner": {
+            "type": "boolean",
+            "description": "Whether the viewer's organization owns this listing."
+          },
+          "location": {
+            "$ref": "#/components/schemas/ProductLocationDto"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "approved",
+              "rejected",
+              "delisted"
+            ]
+          },
+          "rejectionReason": {
+            "type": "string"
+          },
+          "delistReason": {
+            "type": "string"
+          },
+          "resubmissionCount": {
+            "type": "number"
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string"
+          },
+          "documents": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "specifications": {
+            "$ref": "#/components/schemas/SpecificationsResponseDto"
+          },
+          "specDeclarations": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SpecDeclarationResponseDto"
+            }
+          },
+          "commercialTerms": {
+            "$ref": "#/components/schemas/CommercialTermsResponseDto"
+          },
+          "milestones": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RequestMilestoneDto"
+            }
+          },
+          "contractStyle": {
+            "type": "string",
+            "enum": [
+              "spot",
+              "term"
+            ]
+          },
+          "availability": {
+            "type": "string",
+            "enum": [
+              "available",
+              "indicative",
+              "request_only"
+            ],
+            "description": "Unset reads as available. Only available listings can be ordered directly."
+          },
+          "availabilityNote": {
+            "type": "string"
+          },
+          "paymentTerms": {
+            "type": "string",
+            "enum": [
+              "first_tranche_balance_on_title_transfer"
+            ]
+          },
+          "tolerancePercent": {
+            "type": "number",
+            "description": "Contractual tolerance, +/- percent"
+          },
+          "shippingRegions": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "west_africa",
+                "northwest_europe",
+                "mediterranean",
+                "us_gulf",
+                "asia_pacific",
+                "middle_east"
+              ]
+            }
+          },
+          "loadingTerminal": {
+            "$ref": "#/components/schemas/LoadingTerminalResponseDto"
+          },
+          "laycan": {
+            "$ref": "#/components/schemas/LaycanResponseDto"
+          },
+          "listingExpiresAt": {
+            "type": "string",
+            "description": "When the listing leaves the marketplace"
+          },
+          "tradeDocuments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TradeDocumentResponseDto"
+            }
+          }
+        },
+        "required": [
+          "_id",
+          "displayId",
+          "title"
         ]
       },
       "UpdateMyProductDto": {
@@ -16922,8 +17785,470 @@
             "items": {
               "$ref": "#/components/schemas/RequestMilestoneDto"
             }
+          },
+          "contractStyle": {
+            "type": "string",
+            "enum": [
+              "spot",
+              "term"
+            ]
+          },
+          "availability": {
+            "type": "string",
+            "enum": [
+              "available",
+              "indicative",
+              "request_only"
+            ],
+            "description": "Only available listings can be ordered directly"
+          },
+          "availabilityNote": {
+            "type": "string",
+            "maxLength": 140
+          },
+          "paymentTerms": {
+            "type": "string",
+            "enum": [
+              "first_tranche_balance_on_title_transfer"
+            ]
+          },
+          "tolerancePercent": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 20,
+            "description": "Contractual tolerance, +/- percent"
+          },
+          "shippingRegions": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "west_africa",
+                "northwest_europe",
+                "mediterranean",
+                "us_gulf",
+                "asia_pacific",
+                "middle_east"
+              ]
+            }
+          },
+          "loadingTerminal": {
+            "$ref": "#/components/schemas/LoadingTerminalDto"
+          },
+          "laycan": {
+            "$ref": "#/components/schemas/LaycanDto"
+          },
+          "listingExpiresAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the listing leaves the marketplace (not cargo validity)"
+          },
+          "tradeDocuments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TradeDocumentDto"
+            }
           }
         }
+      },
+      "ProductsPaginationDataDto": {
+        "type": "object",
+        "properties": {
+          "docs": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PopulatedProductResponseDto"
+            }
+          },
+          "totalDocs": {
+            "type": "number"
+          },
+          "page": {
+            "type": "number"
+          },
+          "limit": {
+            "type": "number"
+          },
+          "totalPages": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "docs",
+          "totalDocs",
+          "page",
+          "limit",
+          "totalPages"
+        ]
+      },
+      "PaginatedProductsResponseDto": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/ProductsPaginationDataDto"
+          }
+        },
+        "required": [
+          "message",
+          "data"
+        ]
+      },
+      "MarketplaceCountsDto": {
+        "type": "object",
+        "properties": {
+          "all": {
+            "type": "number",
+            "description": "All product-family listings (energy commodities + equipment + industrial materials); services are excluded"
+          },
+          "energy_commodities": {
+            "type": "number"
+          },
+          "equipment": {
+            "type": "number"
+          },
+          "industrial_materials": {
+            "type": "number"
+          },
+          "services": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "all",
+          "energy_commodities",
+          "equipment",
+          "industrial_materials",
+          "services"
+        ]
+      },
+      "MarketplaceGradeOptionDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Specialty ID"
+          },
+          "name": {
+            "type": "string",
+            "description": "Specialty (grade / product type) name"
+          },
+          "categoryId": {
+            "type": "string",
+            "description": "Parent category ID"
+          },
+          "categoryName": {
+            "type": "string",
+            "description": "Parent category name (e.g. Crude Oil)"
+          },
+          "count": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "categoryId",
+          "count"
+        ]
+      },
+      "MarketplaceCountryOptionDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Country ID"
+          },
+          "name": {
+            "type": "string"
+          },
+          "count": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "count"
+        ]
+      },
+      "MarketplaceStateOptionDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "State ID"
+          },
+          "name": {
+            "type": "string"
+          },
+          "countryId": {
+            "type": "string",
+            "description": "Country ID the state belongs to"
+          },
+          "count": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "countryId",
+          "count"
+        ]
+      },
+      "MarketplaceUnitOptionDto": {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "string",
+            "enum": [
+              "bbl",
+              "liter",
+              "gallon",
+              "m3",
+              "mt",
+              "kg",
+              "ton",
+              "lb",
+              "m",
+              "ft",
+              "sqm",
+              "sqft",
+              "scf",
+              "sm3",
+              "nm3",
+              "mmbtu",
+              "kwh",
+              "mwh",
+              "kva",
+              "kw",
+              "mw",
+              "unit",
+              "set",
+              "kit",
+              "pair",
+              "joint",
+              "roll",
+              "sheet",
+              "box",
+              "pack",
+              "drum",
+              "bag",
+              "cylinder",
+              "ream",
+              "license",
+              "skid",
+              "package",
+              "plate",
+              "bar"
+            ]
+          },
+          "count": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "value",
+          "count"
+        ]
+      },
+      "MarketplaceConditionOptionDto": {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "string",
+            "enum": [
+              "New",
+              "Used - Good",
+              "Used - Fair",
+              "Refurbished"
+            ]
+          },
+          "count": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "value",
+          "count"
+        ]
+      },
+      "MarketplaceTradeTermOptionDto": {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "string",
+            "enum": [
+              "FOB",
+              "CIF",
+              "CFR",
+              "EX_WORKS",
+              "DELIVERED",
+              "TTO",
+              "TTT",
+              "FOT",
+              "FCA",
+              "DAP",
+              "DDP",
+              "NA"
+            ]
+          },
+          "count": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "value",
+          "count"
+        ]
+      },
+      "MarketplacePricingBasisOptionDto": {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "string",
+            "enum": [
+              "flat",
+              "differential"
+            ]
+          },
+          "count": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "value",
+          "count"
+        ]
+      },
+      "MarketplaceFacetsDto": {
+        "type": "object",
+        "properties": {
+          "grades": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MarketplaceGradeOptionDto"
+            }
+          },
+          "countries": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MarketplaceCountryOptionDto"
+            }
+          },
+          "states": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MarketplaceStateOptionDto"
+            }
+          },
+          "units": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MarketplaceUnitOptionDto"
+            }
+          },
+          "conditions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MarketplaceConditionOptionDto"
+            }
+          },
+          "tradeTerms": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MarketplaceTradeTermOptionDto"
+            }
+          },
+          "pricingBases": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MarketplacePricingBasisOptionDto"
+            }
+          }
+        },
+        "required": [
+          "grades",
+          "countries",
+          "states",
+          "units",
+          "conditions",
+          "tradeTerms",
+          "pricingBases"
+        ]
+      },
+      "MarketplaceGroupCountDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Category group ID"
+          },
+          "listingCount": {
+            "type": "number",
+            "description": "Approved listings in the group"
+          },
+          "categoryCount": {
+            "type": "number",
+            "description": "Active categories in the group"
+          }
+        },
+        "required": [
+          "id",
+          "listingCount",
+          "categoryCount"
+        ]
+      },
+      "MarketplaceCategoryCountDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Category ID"
+          },
+          "groupId": {
+            "type": "string",
+            "description": "Parent category group ID"
+          },
+          "listingCount": {
+            "type": "number",
+            "description": "Approved listings in the category"
+          },
+          "specialtyCount": {
+            "type": "number",
+            "description": "Active specialties (product types) in the category"
+          }
+        },
+        "required": [
+          "id",
+          "groupId",
+          "listingCount",
+          "specialtyCount"
+        ]
+      },
+      "MarketplaceTaxonomyCountsDto": {
+        "type": "object",
+        "properties": {
+          "groups": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MarketplaceGroupCountDto"
+            }
+          },
+          "categories": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MarketplaceCategoryCountDto"
+            }
+          }
+        },
+        "required": [
+          "groups",
+          "categories"
+        ]
       },
       "FeeTierDto": {
         "type": "object",
@@ -17053,6 +18378,230 @@
           "payer",
           "feeType",
           "refundable"
+        ]
+      },
+      "CategoryGroupWithFamilyDto": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "image": {
+            "type": "string"
+          },
+          "requiresLogistics": {
+            "type": "boolean"
+          },
+          "allowsInspection": {
+            "type": "boolean"
+          },
+          "milestoneDelivery": {
+            "type": "boolean"
+          },
+          "requiresEscrow": {
+            "type": "boolean"
+          },
+          "requiresCompliance": {
+            "type": "boolean"
+          },
+          "allowsOrderQuantityLimits": {
+            "type": "boolean"
+          },
+          "allowsInventoryTracking": {
+            "type": "boolean"
+          },
+          "allowedCurrencies": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "NGN",
+                "KES",
+                "USD",
+                "EUR",
+                "USDT",
+                "USDC"
+              ]
+            }
+          },
+          "allowedListingTypes": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "product",
+                "service",
+                "rental",
+                "lease",
+                "charter",
+                "rfq"
+              ]
+            }
+          },
+          "allowedConditions": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "New",
+                "Used - Good",
+                "Used - Fair",
+                "Refurbished"
+              ]
+            }
+          },
+          "allowedTradeTerms": {
+            "type": "array",
+            "description": "Allowed trade terms for listings in this group",
+            "items": {
+              "type": "string",
+              "enum": [
+                "FOB",
+                "CIF",
+                "CFR",
+                "EX_WORKS",
+                "DELIVERED",
+                "TTO",
+                "TTT",
+                "FOT",
+                "FCA",
+                "DAP",
+                "DDP",
+                "NA"
+              ]
+            }
+          },
+          "allowedTransactionTypes": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "purchase",
+                "lease",
+                "charter",
+                "bulk_supply",
+                "spot_trade",
+                "rental",
+                "term_contract",
+                "service_contract",
+                "milestone_service"
+              ]
+            }
+          },
+          "allowsCommoditySpecs": {
+            "type": "boolean"
+          },
+          "requiresDifferentialPricing": {
+            "type": "boolean",
+            "description": "Whether listings in this group must be priced as a benchmark differential (no fixed price)"
+          },
+          "allowsEquipmentSpecs": {
+            "type": "boolean"
+          },
+          "allowsServiceSpecs": {
+            "type": "boolean"
+          },
+          "allowsRentalSpecs": {
+            "type": "boolean"
+          },
+          "allowsCharterSpecs": {
+            "type": "boolean"
+          },
+          "serviceFeeConfig": {
+            "$ref": "#/components/schemas/ServiceFeeConfigResponseDto"
+          },
+          "escrowFeeConfig": {
+            "$ref": "#/components/schemas/ServiceFeeConfigResponseDto"
+          },
+          "serviceChargeConfig": {
+            "$ref": "#/components/schemas/ServiceFeeConfigResponseDto"
+          },
+          "allowedEscrowStructures": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "full",
+                "deposit",
+                "milestone",
+                "partial"
+              ]
+            }
+          },
+          "defaultEscrowStructure": {
+            "type": "string",
+            "enum": [
+              "full",
+              "deposit",
+              "milestone",
+              "partial"
+            ]
+          },
+          "allowedMeasurementTypes": {
+            "type": "array",
+            "deprecated": true,
+            "description": "Deprecated: measurement types are now configured per category.",
+            "items": {
+              "type": "string",
+              "enum": [
+                "count",
+                "volume",
+                "mass",
+                "time"
+              ]
+            }
+          },
+          "family": {
+            "type": "string",
+            "enum": [
+              "energy_commodities",
+              "equipment",
+              "industrial_materials",
+              "services"
+            ],
+            "description": "Marketplace family (buyer tab) derived from the group type and spec flags."
+          }
+        },
+        "required": [
+          "_id",
+          "name",
+          "slug",
+          "type",
+          "isActive",
+          "requiresLogistics",
+          "allowsInspection",
+          "milestoneDelivery",
+          "requiresEscrow",
+          "requiresCompliance",
+          "allowsOrderQuantityLimits",
+          "allowsInventoryTracking",
+          "allowedCurrencies",
+          "allowedListingTypes",
+          "allowedConditions",
+          "allowedTradeTerms",
+          "allowedTransactionTypes",
+          "allowsCommoditySpecs",
+          "requiresDifferentialPricing",
+          "allowsEquipmentSpecs",
+          "allowsServiceSpecs",
+          "allowsRentalSpecs",
+          "allowsCharterSpecs",
+          "allowedEscrowStructures",
+          "defaultEscrowStructure",
+          "allowedMeasurementTypes",
+          "family"
         ]
       },
       "CategoryGroupDto": {
@@ -17877,6 +19426,29 @@
           "productCount",
           "createdAt",
           "updatedAt"
+        ]
+      },
+      "TerminalDto": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "country": {
+            "type": "string",
+            "description": "Country ID"
+          },
+          "kind": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "_id",
+          "name",
+          "country"
         ]
       },
       "CategoryDocumentTemplateDto": {
@@ -28026,6 +29598,69 @@
               "$ref": "#/components/schemas/RequestMilestoneDto"
             }
           },
+          "contractStyle": {
+            "type": "string",
+            "enum": [
+              "spot",
+              "term"
+            ]
+          },
+          "availability": {
+            "type": "string",
+            "enum": [
+              "available",
+              "indicative",
+              "request_only"
+            ],
+            "description": "Only available listings can be ordered directly"
+          },
+          "availabilityNote": {
+            "type": "string",
+            "maxLength": 140
+          },
+          "paymentTerms": {
+            "type": "string",
+            "enum": [
+              "first_tranche_balance_on_title_transfer"
+            ]
+          },
+          "tolerancePercent": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 20,
+            "description": "Contractual tolerance, +/- percent"
+          },
+          "shippingRegions": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "west_africa",
+                "northwest_europe",
+                "mediterranean",
+                "us_gulf",
+                "asia_pacific",
+                "middle_east"
+              ]
+            }
+          },
+          "loadingTerminal": {
+            "$ref": "#/components/schemas/LoadingTerminalDto"
+          },
+          "laycan": {
+            "$ref": "#/components/schemas/LaycanDto"
+          },
+          "listingExpiresAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the listing leaves the marketplace (not cargo validity)"
+          },
+          "tradeDocuments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TradeDocumentDto"
+            }
+          },
           "organization": {
             "type": "string"
           },
@@ -28225,8 +29860,38 @@
               ]
             }
           },
+          "tradeTerms": {
+            "type": "array",
+            "description": "Trade terms (Incoterms / delivery procedures) the listing is offered on",
+            "items": {
+              "type": "string",
+              "enum": [
+                "FOB",
+                "CIF",
+                "CFR",
+                "EX_WORKS",
+                "DELIVERED",
+                "TTO",
+                "TTT",
+                "FOT",
+                "FCA",
+                "DAP",
+                "DDP",
+                "NA"
+              ]
+            }
+          },
           "organization": {
-            "$ref": "#/components/schemas/ProductOrganizationDto"
+            "description": "Owning organization. Present only when the viewer owns the listing; never sent to other organizations (counterparty anonymity).",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ProductOrganizationDto"
+              }
+            ]
+          },
+          "isOwner": {
+            "type": "boolean",
+            "description": "Whether the viewer's organization owns this listing."
           },
           "location": {
             "$ref": "#/components/schemas/ProductLocationDto"
@@ -28280,6 +29945,65 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/RequestMilestoneDto"
+            }
+          },
+          "contractStyle": {
+            "type": "string",
+            "enum": [
+              "spot",
+              "term"
+            ]
+          },
+          "availability": {
+            "type": "string",
+            "enum": [
+              "available",
+              "indicative",
+              "request_only"
+            ],
+            "description": "Unset reads as available. Only available listings can be ordered directly."
+          },
+          "availabilityNote": {
+            "type": "string"
+          },
+          "paymentTerms": {
+            "type": "string",
+            "enum": [
+              "first_tranche_balance_on_title_transfer"
+            ]
+          },
+          "tolerancePercent": {
+            "type": "number",
+            "description": "Contractual tolerance, +/- percent"
+          },
+          "shippingRegions": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "west_africa",
+                "northwest_europe",
+                "mediterranean",
+                "us_gulf",
+                "asia_pacific",
+                "middle_east"
+              ]
+            }
+          },
+          "loadingTerminal": {
+            "$ref": "#/components/schemas/LoadingTerminalResponseDto"
+          },
+          "laycan": {
+            "$ref": "#/components/schemas/LaycanResponseDto"
+          },
+          "listingExpiresAt": {
+            "type": "string",
+            "description": "When the listing leaves the marketplace"
+          },
+          "tradeDocuments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TradeDocumentResponseDto"
             }
           }
         },
@@ -28494,6 +30218,69 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/RequestMilestoneDto"
+            }
+          },
+          "contractStyle": {
+            "type": "string",
+            "enum": [
+              "spot",
+              "term"
+            ]
+          },
+          "availability": {
+            "type": "string",
+            "enum": [
+              "available",
+              "indicative",
+              "request_only"
+            ],
+            "description": "Only available listings can be ordered directly"
+          },
+          "availabilityNote": {
+            "type": "string",
+            "maxLength": 140
+          },
+          "paymentTerms": {
+            "type": "string",
+            "enum": [
+              "first_tranche_balance_on_title_transfer"
+            ]
+          },
+          "tolerancePercent": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 20,
+            "description": "Contractual tolerance, +/- percent"
+          },
+          "shippingRegions": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "west_africa",
+                "northwest_europe",
+                "mediterranean",
+                "us_gulf",
+                "asia_pacific",
+                "middle_east"
+              ]
+            }
+          },
+          "loadingTerminal": {
+            "$ref": "#/components/schemas/LoadingTerminalDto"
+          },
+          "laycan": {
+            "$ref": "#/components/schemas/LaycanDto"
+          },
+          "listingExpiresAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the listing leaves the marketplace (not cargo validity)"
+          },
+          "tradeDocuments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TradeDocumentDto"
             }
           },
           "organization": {

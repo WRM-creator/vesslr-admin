@@ -431,6 +431,18 @@ export type ProductCategoryGroupDto = {
   milestoneDelivery?: boolean;
   allowsInspection?: boolean;
   /**
+   * Whether the group is an energy commodity group (the buyer tab and the seller wizard both branch on it).
+   */
+  allowsCommoditySpecs?: boolean;
+  /**
+   * Marketplace family the listing belongs to, resolved from the group so no client re-derives it.
+   */
+  family?:
+    | "energy_commodities"
+    | "equipment"
+    | "industrial_materials"
+    | "services";
+  /**
    * Group forbids fixed pricing; listings must be differential.
    */
   requiresDifferentialPricing?: boolean;
@@ -643,6 +655,22 @@ export type RequestMilestoneDto = {
   percentage: number;
 };
 
+export type LoadingTerminalResponseDto = {
+  terminalId?: string;
+  name: string;
+};
+
+export type LaycanResponseDto = {
+  start: string;
+  end: string;
+};
+
+export type TradeDocumentResponseDto = {
+  key: string;
+  name: string;
+  status: "available" | "to_be_advised";
+};
+
 export type PopulatedProductResponseDto = {
   _id: string;
   /**
@@ -720,7 +748,31 @@ export type PopulatedProductResponseDto = {
     | "plate"
     | "bar";
   conditions?: Array<"New" | "Used - Good" | "Used - Fair" | "Refurbished">;
+  /**
+   * Trade terms (Incoterms / delivery procedures) the listing is offered on
+   */
+  tradeTerms?: Array<
+    | "FOB"
+    | "CIF"
+    | "CFR"
+    | "EX_WORKS"
+    | "DELIVERED"
+    | "TTO"
+    | "TTT"
+    | "FOT"
+    | "FCA"
+    | "DAP"
+    | "DDP"
+    | "NA"
+  >;
+  /**
+   * Present only when the viewer owns the listing.
+   */
   organization?: ProductOrganizationDto;
+  /**
+   * Whether the viewer's organization owns this listing.
+   */
+  isOwner?: boolean;
   location?: PopulatedProductLocationDto;
   status?: "pending" | "approved" | "rejected" | "delisted";
   rejectionReason?: string;
@@ -734,123 +786,32 @@ export type PopulatedProductResponseDto = {
   specDeclarations?: Array<SpecDeclarationResponseDto>;
   commercialTerms?: CommercialTermsResponseDto;
   milestones?: Array<RequestMilestoneDto>;
-};
-
-export type ProductsPaginationDataDto = {
-  docs: Array<PopulatedProductResponseDto>;
-  totalDocs: number;
-  page: number;
-  limit: number;
-  totalPages: number;
-};
-
-export type PaginatedProductsResponseDto = {
-  message: string;
-  data: ProductsPaginationDataDto;
-};
-
-export type ProductLocationDto = {
-  state?: ProductStateDto;
-  region?: ProductRegionDto;
-  country?: CountryDto;
-  address?: string;
-};
-
-export type ProductResponseDto = {
-  _id: string;
+  contractStyle?: "spot" | "term";
   /**
-   * Display ID
+   * Unset reads as available. Only available listings can be ordered directly.
    */
-  displayId: number;
-  title: string;
-  description?: string;
-  specialtyId?: string;
-  categoryId?: {
-    [key: string]: unknown;
-  };
-  groupId?: {
-    [key: string]: unknown;
-  };
-  type?: "products" | "services";
-  listingType?: "product" | "service" | "rental" | "charter";
+  availability?: "available" | "indicative" | "request_only";
+  availabilityNote?: string;
+  paymentTerms?: "first_tranche_balance_on_title_transfer";
   /**
-   * How the price is expressed (flat or differential).
+   * Contractual tolerance, +/- percent
    */
-  pricingBasis?: "flat" | "differential";
+  tolerancePercent?: number;
+  shippingRegions?: Array<
+    | "west_africa"
+    | "northwest_europe"
+    | "mediterranean"
+    | "us_gulf"
+    | "asia_pacific"
+    | "middle_east"
+  >;
+  loadingTerminal?: LoadingTerminalResponseDto;
+  laycan?: LaycanResponseDto;
   /**
-   * Flat price per unit in minor currency units (kobo/cents). Absent on differential listings.
+   * When the listing leaves the marketplace
    */
-  pricePerUnit?: number;
-  differentialPrice?: DifferentialPriceResponseDto;
-  /**
-   * Disclosed platform fee on a differential listing — owning seller only; resolved from the category/group fee config
-   */
-  sellerFee?: SellerFeeDto;
-  currency?: "NGN" | "KES" | "USD" | "EUR" | "USDT" | "USDC";
-  images?: Array<string>;
-  features?: Array<string>;
-  availableQuantity?: number;
-  minimumOrderQuantity?: number;
-  maximumOrderQuantity?: number;
-  trackInventory?: boolean;
-  lowStockThreshold?: number;
-  showStockToBuyers?: boolean;
-  allowBackorders?: boolean;
-  unitOfMeasurement?:
-    | "bbl"
-    | "liter"
-    | "gallon"
-    | "m3"
-    | "mt"
-    | "kg"
-    | "ton"
-    | "lb"
-    | "m"
-    | "ft"
-    | "sqm"
-    | "sqft"
-    | "scf"
-    | "sm3"
-    | "nm3"
-    | "mmbtu"
-    | "kwh"
-    | "mwh"
-    | "kva"
-    | "kw"
-    | "mw"
-    | "unit"
-    | "set"
-    | "kit"
-    | "pair"
-    | "joint"
-    | "roll"
-    | "sheet"
-    | "box"
-    | "pack"
-    | "drum"
-    | "bag"
-    | "cylinder"
-    | "ream"
-    | "license"
-    | "skid"
-    | "package"
-    | "plate"
-    | "bar";
-  conditions?: Array<"New" | "Used - Good" | "Used - Fair" | "Refurbished">;
-  organization?: ProductOrganizationDto;
-  location?: ProductLocationDto;
-  status?: "pending" | "approved" | "rejected" | "delisted";
-  rejectionReason?: string;
-  delistReason?: string;
-  resubmissionCount?: number;
-  isActive?: boolean;
-  createdAt?: string;
-  updatedAt?: string;
-  documents?: Array<string>;
-  specifications?: SpecificationsResponseDto;
-  specDeclarations?: Array<SpecDeclarationResponseDto>;
-  commercialTerms?: CommercialTermsResponseDto;
-  milestones?: Array<RequestMilestoneDto>;
+  listingExpiresAt?: string;
+  tradeDocuments?: Array<TradeDocumentResponseDto>;
 };
 
 export type DifferentialPriceDto = {
@@ -1078,6 +1039,31 @@ export type CommercialTermsDto = {
   refundPolicy?: string;
 };
 
+export type LoadingTerminalDto = {
+  /**
+   * Seeded terminal ID; omit when the seller types a terminal that is not listed
+   */
+  terminalId?: string;
+  /**
+   * Terminal or port name, as buyers see it
+   */
+  name: string;
+};
+
+export type LaycanDto = {
+  start: string;
+  end: string;
+};
+
+export type TradeDocumentDto = {
+  /**
+   * Stable key (e.g. certificate_of_origin); custom documents use custom_<slug>
+   */
+  key: string;
+  name: string;
+  status: "available" | "to_be_advised";
+};
+
 export type UpsertMyProductDto = {
   /**
    * Ignored. The listing name is derived from the category leaf and equipment specs.
@@ -1174,6 +1160,186 @@ export type UpsertMyProductDto = {
   specDeclarations?: Array<SpecDeclarationDto>;
   commercialTerms?: CommercialTermsDto;
   milestones?: Array<RequestMilestoneDto>;
+  contractStyle?: "spot" | "term";
+  /**
+   * Only available listings can be ordered directly
+   */
+  availability?: "available" | "indicative" | "request_only";
+  availabilityNote?: string;
+  paymentTerms?: "first_tranche_balance_on_title_transfer";
+  /**
+   * Contractual tolerance, +/- percent
+   */
+  tolerancePercent?: number;
+  shippingRegions?: Array<
+    | "west_africa"
+    | "northwest_europe"
+    | "mediterranean"
+    | "us_gulf"
+    | "asia_pacific"
+    | "middle_east"
+  >;
+  loadingTerminal?: LoadingTerminalDto;
+  laycan?: LaycanDto;
+  /**
+   * When the listing leaves the marketplace (not cargo validity)
+   */
+  listingExpiresAt?: string;
+  tradeDocuments?: Array<TradeDocumentDto>;
+};
+
+export type ProductLocationDto = {
+  state?: ProductStateDto;
+  region?: ProductRegionDto;
+  country?: CountryDto;
+  address?: string;
+};
+
+export type ProductResponseDto = {
+  _id: string;
+  /**
+   * Display ID
+   */
+  displayId: number;
+  title: string;
+  description?: string;
+  specialtyId?: string;
+  categoryId?: {
+    [key: string]: unknown;
+  };
+  groupId?: {
+    [key: string]: unknown;
+  };
+  type?: "products" | "services";
+  listingType?: "product" | "service" | "rental" | "charter";
+  /**
+   * How the price is expressed (flat or differential).
+   */
+  pricingBasis?: "flat" | "differential";
+  /**
+   * Flat price per unit in minor currency units (kobo/cents). Absent on differential listings.
+   */
+  pricePerUnit?: number;
+  differentialPrice?: DifferentialPriceResponseDto;
+  /**
+   * Disclosed platform fee on a differential listing — owning seller only; resolved from the category/group fee config
+   */
+  sellerFee?: SellerFeeDto;
+  currency?: "NGN" | "KES" | "USD" | "EUR" | "USDT" | "USDC";
+  images?: Array<string>;
+  features?: Array<string>;
+  availableQuantity?: number;
+  minimumOrderQuantity?: number;
+  maximumOrderQuantity?: number;
+  trackInventory?: boolean;
+  lowStockThreshold?: number;
+  showStockToBuyers?: boolean;
+  allowBackorders?: boolean;
+  unitOfMeasurement?:
+    | "bbl"
+    | "liter"
+    | "gallon"
+    | "m3"
+    | "mt"
+    | "kg"
+    | "ton"
+    | "lb"
+    | "m"
+    | "ft"
+    | "sqm"
+    | "sqft"
+    | "scf"
+    | "sm3"
+    | "nm3"
+    | "mmbtu"
+    | "kwh"
+    | "mwh"
+    | "kva"
+    | "kw"
+    | "mw"
+    | "unit"
+    | "set"
+    | "kit"
+    | "pair"
+    | "joint"
+    | "roll"
+    | "sheet"
+    | "box"
+    | "pack"
+    | "drum"
+    | "bag"
+    | "cylinder"
+    | "ream"
+    | "license"
+    | "skid"
+    | "package"
+    | "plate"
+    | "bar";
+  conditions?: Array<"New" | "Used - Good" | "Used - Fair" | "Refurbished">;
+  /**
+   * Trade terms (Incoterms / delivery procedures) the listing is offered on
+   */
+  tradeTerms?: Array<
+    | "FOB"
+    | "CIF"
+    | "CFR"
+    | "EX_WORKS"
+    | "DELIVERED"
+    | "TTO"
+    | "TTT"
+    | "FOT"
+    | "FCA"
+    | "DAP"
+    | "DDP"
+    | "NA"
+  >;
+  /**
+   * Owning organization. Present only when the viewer owns the listing; never sent to other organizations (counterparty anonymity).
+   */
+  organization?: ProductOrganizationDto;
+  /**
+   * Whether the viewer's organization owns this listing.
+   */
+  isOwner?: boolean;
+  location?: ProductLocationDto;
+  status?: "pending" | "approved" | "rejected" | "delisted";
+  rejectionReason?: string;
+  delistReason?: string;
+  resubmissionCount?: number;
+  isActive?: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+  documents?: Array<string>;
+  specifications?: SpecificationsResponseDto;
+  specDeclarations?: Array<SpecDeclarationResponseDto>;
+  commercialTerms?: CommercialTermsResponseDto;
+  milestones?: Array<RequestMilestoneDto>;
+  contractStyle?: "spot" | "term";
+  /**
+   * Unset reads as available. Only available listings can be ordered directly.
+   */
+  availability?: "available" | "indicative" | "request_only";
+  availabilityNote?: string;
+  paymentTerms?: "first_tranche_balance_on_title_transfer";
+  /**
+   * Contractual tolerance, +/- percent
+   */
+  tolerancePercent?: number;
+  shippingRegions?: Array<
+    | "west_africa"
+    | "northwest_europe"
+    | "mediterranean"
+    | "us_gulf"
+    | "asia_pacific"
+    | "middle_east"
+  >;
+  loadingTerminal?: LoadingTerminalResponseDto;
+  laycan?: LaycanResponseDto;
+  /**
+   * When the listing leaves the marketplace
+   */
+  listingExpiresAt?: string;
+  tradeDocuments?: Array<TradeDocumentResponseDto>;
 };
 
 export type UpdateMyProductDto = {
@@ -1272,6 +1438,218 @@ export type UpdateMyProductDto = {
   specDeclarations?: Array<SpecDeclarationDto>;
   commercialTerms?: CommercialTermsDto;
   milestones?: Array<RequestMilestoneDto>;
+  contractStyle?: "spot" | "term";
+  /**
+   * Only available listings can be ordered directly
+   */
+  availability?: "available" | "indicative" | "request_only";
+  availabilityNote?: string;
+  paymentTerms?: "first_tranche_balance_on_title_transfer";
+  /**
+   * Contractual tolerance, +/- percent
+   */
+  tolerancePercent?: number;
+  shippingRegions?: Array<
+    | "west_africa"
+    | "northwest_europe"
+    | "mediterranean"
+    | "us_gulf"
+    | "asia_pacific"
+    | "middle_east"
+  >;
+  loadingTerminal?: LoadingTerminalDto;
+  laycan?: LaycanDto;
+  /**
+   * When the listing leaves the marketplace (not cargo validity)
+   */
+  listingExpiresAt?: string;
+  tradeDocuments?: Array<TradeDocumentDto>;
+};
+
+export type ProductsPaginationDataDto = {
+  docs: Array<PopulatedProductResponseDto>;
+  totalDocs: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+};
+
+export type PaginatedProductsResponseDto = {
+  message: string;
+  data: ProductsPaginationDataDto;
+};
+
+export type MarketplaceCountsDto = {
+  /**
+   * All product-family listings (energy commodities + equipment + industrial materials); services are excluded
+   */
+  all: number;
+  energy_commodities: number;
+  equipment: number;
+  industrial_materials: number;
+  services: number;
+};
+
+export type MarketplaceGradeOptionDto = {
+  /**
+   * Specialty ID
+   */
+  id: string;
+  /**
+   * Specialty (grade / product type) name
+   */
+  name: string;
+  /**
+   * Parent category ID
+   */
+  categoryId: string;
+  /**
+   * Parent category name (e.g. Crude Oil)
+   */
+  categoryName?: string;
+  count: number;
+};
+
+export type MarketplaceCountryOptionDto = {
+  /**
+   * Country ID
+   */
+  id: string;
+  name: string;
+  count: number;
+};
+
+export type MarketplaceStateOptionDto = {
+  /**
+   * State ID
+   */
+  id: string;
+  name: string;
+  /**
+   * Country ID the state belongs to
+   */
+  countryId: string;
+  count: number;
+};
+
+export type MarketplaceUnitOptionDto = {
+  value:
+    | "bbl"
+    | "liter"
+    | "gallon"
+    | "m3"
+    | "mt"
+    | "kg"
+    | "ton"
+    | "lb"
+    | "m"
+    | "ft"
+    | "sqm"
+    | "sqft"
+    | "scf"
+    | "sm3"
+    | "nm3"
+    | "mmbtu"
+    | "kwh"
+    | "mwh"
+    | "kva"
+    | "kw"
+    | "mw"
+    | "unit"
+    | "set"
+    | "kit"
+    | "pair"
+    | "joint"
+    | "roll"
+    | "sheet"
+    | "box"
+    | "pack"
+    | "drum"
+    | "bag"
+    | "cylinder"
+    | "ream"
+    | "license"
+    | "skid"
+    | "package"
+    | "plate"
+    | "bar";
+  count: number;
+};
+
+export type MarketplaceConditionOptionDto = {
+  value: "New" | "Used - Good" | "Used - Fair" | "Refurbished";
+  count: number;
+};
+
+export type MarketplaceTradeTermOptionDto = {
+  value:
+    | "FOB"
+    | "CIF"
+    | "CFR"
+    | "EX_WORKS"
+    | "DELIVERED"
+    | "TTO"
+    | "TTT"
+    | "FOT"
+    | "FCA"
+    | "DAP"
+    | "DDP"
+    | "NA";
+  count: number;
+};
+
+export type MarketplacePricingBasisOptionDto = {
+  value: "flat" | "differential";
+  count: number;
+};
+
+export type MarketplaceFacetsDto = {
+  grades: Array<MarketplaceGradeOptionDto>;
+  countries: Array<MarketplaceCountryOptionDto>;
+  states: Array<MarketplaceStateOptionDto>;
+  units: Array<MarketplaceUnitOptionDto>;
+  conditions: Array<MarketplaceConditionOptionDto>;
+  tradeTerms: Array<MarketplaceTradeTermOptionDto>;
+  pricingBases: Array<MarketplacePricingBasisOptionDto>;
+};
+
+export type MarketplaceGroupCountDto = {
+  /**
+   * Category group ID
+   */
+  id: string;
+  /**
+   * Approved listings in the group
+   */
+  listingCount: number;
+  /**
+   * Active categories in the group
+   */
+  categoryCount: number;
+};
+
+export type MarketplaceCategoryCountDto = {
+  /**
+   * Category ID
+   */
+  id: string;
+  /**
+   * Parent category group ID
+   */
+  groupId: string;
+  /**
+   * Approved listings in the category
+   */
+  listingCount: number;
+  /**
+   * Active specialties (product types) in the category
+   */
+  specialtyCount: number;
+};
+
+export type MarketplaceTaxonomyCountsDto = {
+  groups: Array<MarketplaceGroupCountDto>;
+  categories: Array<MarketplaceCategoryCountDto>;
 };
 
 export type FeeTierDto = {
@@ -1337,6 +1715,85 @@ export type ServiceFeeConfigResponseDto = {
   trigger?: "settlement" | "funding" | "delivery";
   tiers?: Array<FeeTierDto>;
   refundable: boolean;
+};
+
+export type CategoryGroupWithFamilyDto = {
+  _id: string;
+  name: string;
+  slug: string;
+  type: string;
+  isActive: boolean;
+  image?: string;
+  requiresLogistics: boolean;
+  allowsInspection: boolean;
+  milestoneDelivery: boolean;
+  requiresEscrow: boolean;
+  requiresCompliance: boolean;
+  allowsOrderQuantityLimits: boolean;
+  allowsInventoryTracking: boolean;
+  allowedCurrencies: Array<"NGN" | "KES" | "USD" | "EUR" | "USDT" | "USDC">;
+  allowedListingTypes: Array<
+    "product" | "service" | "rental" | "lease" | "charter" | "rfq"
+  >;
+  allowedConditions: Array<
+    "New" | "Used - Good" | "Used - Fair" | "Refurbished"
+  >;
+  /**
+   * Allowed trade terms for listings in this group
+   */
+  allowedTradeTerms: Array<
+    | "FOB"
+    | "CIF"
+    | "CFR"
+    | "EX_WORKS"
+    | "DELIVERED"
+    | "TTO"
+    | "TTT"
+    | "FOT"
+    | "FCA"
+    | "DAP"
+    | "DDP"
+    | "NA"
+  >;
+  allowedTransactionTypes: Array<
+    | "purchase"
+    | "lease"
+    | "charter"
+    | "bulk_supply"
+    | "spot_trade"
+    | "rental"
+    | "term_contract"
+    | "service_contract"
+    | "milestone_service"
+  >;
+  allowsCommoditySpecs: boolean;
+  /**
+   * Whether listings in this group must be priced as a benchmark differential (no fixed price)
+   */
+  requiresDifferentialPricing: boolean;
+  allowsEquipmentSpecs: boolean;
+  allowsServiceSpecs: boolean;
+  allowsRentalSpecs: boolean;
+  allowsCharterSpecs: boolean;
+  serviceFeeConfig?: ServiceFeeConfigResponseDto;
+  escrowFeeConfig?: ServiceFeeConfigResponseDto;
+  serviceChargeConfig?: ServiceFeeConfigResponseDto;
+  allowedEscrowStructures: Array<"full" | "deposit" | "milestone" | "partial">;
+  defaultEscrowStructure: "full" | "deposit" | "milestone" | "partial";
+  /**
+   * Deprecated: measurement types are now configured per category.
+   *
+   * @deprecated
+   */
+  allowedMeasurementTypes: Array<"count" | "volume" | "mass" | "time">;
+  /**
+   * Marketplace family (buyer tab) derived from the group type and spec flags.
+   */
+  family:
+    | "energy_commodities"
+    | "equipment"
+    | "industrial_materials"
+    | "services";
 };
 
 export type CategoryGroupDto = {
@@ -1771,6 +2228,16 @@ export type CategorySpecialtyDto = {
   productCount: number;
   createdAt: string;
   updatedAt: string;
+};
+
+export type TerminalDto = {
+  _id: string;
+  name: string;
+  /**
+   * Country ID
+   */
+  country: string;
+  kind?: string;
 };
 
 export type CategoryDocumentTemplateDto = {
@@ -6686,6 +7153,32 @@ export type CreateProductDto = {
   specDeclarations?: Array<SpecDeclarationDto>;
   commercialTerms?: CommercialTermsDto;
   milestones?: Array<RequestMilestoneDto>;
+  contractStyle?: "spot" | "term";
+  /**
+   * Only available listings can be ordered directly
+   */
+  availability?: "available" | "indicative" | "request_only";
+  availabilityNote?: string;
+  paymentTerms?: "first_tranche_balance_on_title_transfer";
+  /**
+   * Contractual tolerance, +/- percent
+   */
+  tolerancePercent?: number;
+  shippingRegions?: Array<
+    | "west_africa"
+    | "northwest_europe"
+    | "mediterranean"
+    | "us_gulf"
+    | "asia_pacific"
+    | "middle_east"
+  >;
+  loadingTerminal?: LoadingTerminalDto;
+  laycan?: LaycanDto;
+  /**
+   * When the listing leaves the marketplace (not cargo validity)
+   */
+  listingExpiresAt?: string;
+  tradeDocuments?: Array<TradeDocumentDto>;
   organization?: string;
   status?: "pending" | "approved" | "rejected" | "delisted";
   delistReason?: string;
@@ -6774,7 +7267,31 @@ export type AdminProductResponseDto = {
     | "plate"
     | "bar";
   conditions?: Array<"New" | "Used - Good" | "Used - Fair" | "Refurbished">;
+  /**
+   * Trade terms (Incoterms / delivery procedures) the listing is offered on
+   */
+  tradeTerms?: Array<
+    | "FOB"
+    | "CIF"
+    | "CFR"
+    | "EX_WORKS"
+    | "DELIVERED"
+    | "TTO"
+    | "TTT"
+    | "FOT"
+    | "FCA"
+    | "DAP"
+    | "DDP"
+    | "NA"
+  >;
+  /**
+   * Owning organization. Present only when the viewer owns the listing; never sent to other organizations (counterparty anonymity).
+   */
   organization?: ProductOrganizationDto;
+  /**
+   * Whether the viewer's organization owns this listing.
+   */
+  isOwner?: boolean;
   location?: ProductLocationDto;
   status?: "pending" | "approved" | "rejected" | "delisted";
   rejectionReason?: string;
@@ -6788,6 +7305,32 @@ export type AdminProductResponseDto = {
   specDeclarations?: Array<SpecDeclarationResponseDto>;
   commercialTerms?: CommercialTermsResponseDto;
   milestones?: Array<RequestMilestoneDto>;
+  contractStyle?: "spot" | "term";
+  /**
+   * Unset reads as available. Only available listings can be ordered directly.
+   */
+  availability?: "available" | "indicative" | "request_only";
+  availabilityNote?: string;
+  paymentTerms?: "first_tranche_balance_on_title_transfer";
+  /**
+   * Contractual tolerance, +/- percent
+   */
+  tolerancePercent?: number;
+  shippingRegions?: Array<
+    | "west_africa"
+    | "northwest_europe"
+    | "mediterranean"
+    | "us_gulf"
+    | "asia_pacific"
+    | "middle_east"
+  >;
+  loadingTerminal?: LoadingTerminalResponseDto;
+  laycan?: LaycanResponseDto;
+  /**
+   * When the listing leaves the marketplace
+   */
+  listingExpiresAt?: string;
+  tradeDocuments?: Array<TradeDocumentResponseDto>;
 };
 
 export type UpdateProductDto = {
@@ -6886,6 +7429,32 @@ export type UpdateProductDto = {
   specDeclarations?: Array<SpecDeclarationDto>;
   commercialTerms?: CommercialTermsDto;
   milestones?: Array<RequestMilestoneDto>;
+  contractStyle?: "spot" | "term";
+  /**
+   * Only available listings can be ordered directly
+   */
+  availability?: "available" | "indicative" | "request_only";
+  availabilityNote?: string;
+  paymentTerms?: "first_tranche_balance_on_title_transfer";
+  /**
+   * Contractual tolerance, +/- percent
+   */
+  tolerancePercent?: number;
+  shippingRegions?: Array<
+    | "west_africa"
+    | "northwest_europe"
+    | "mediterranean"
+    | "us_gulf"
+    | "asia_pacific"
+    | "middle_east"
+  >;
+  loadingTerminal?: LoadingTerminalDto;
+  laycan?: LaycanDto;
+  /**
+   * When the listing leaves the marketplace (not cargo validity)
+   */
+  listingExpiresAt?: string;
+  tradeDocuments?: Array<TradeDocumentDto>;
   organization?: string;
   status?: "pending" | "approved" | "rejected" | "delisted";
   delistReason?: string;
@@ -10411,92 +10980,6 @@ export type OrganizationsControllerResolveAccountResponses = {
   201: unknown;
 };
 
-export type ProductsControllerFindAllData = {
-  body?: never;
-  path?: never;
-  query?: {
-    /**
-     * Page number
-     */
-    page?: string;
-    /**
-     * Items per page
-     */
-    limit?: string;
-    /**
-     * Filter by category ID
-     */
-    category?: string;
-    /**
-     * Filter by category group ID
-     */
-    categoryGroup?: string;
-    /**
-     * Filter by specialty ID
-     */
-    specialtyId?: string;
-  };
-  url: "/api/v1/products";
-};
-
-export type ProductsControllerFindAllResponses = {
-  200: PaginatedProductsResponseDto;
-};
-
-export type ProductsControllerFindAllResponse =
-  ProductsControllerFindAllResponses[keyof ProductsControllerFindAllResponses];
-
-export type ProductsControllerFindRecommendedData = {
-  body?: never;
-  path?: never;
-  query?: {
-    /**
-     * Page number
-     */
-    page?: string;
-    /**
-     * Items per page
-     */
-    limit?: string;
-    /**
-     * Filter by category ID
-     */
-    category?: string;
-    /**
-     * Filter by category group ID
-     */
-    categoryGroup?: string;
-    /**
-     * Filter by specialty ID
-     */
-    specialtyId?: string;
-  };
-  url: "/api/v1/products/recommended";
-};
-
-export type ProductsControllerFindRecommendedResponses = {
-  200: PaginatedProductsResponseDto;
-};
-
-export type ProductsControllerFindRecommendedResponse =
-  ProductsControllerFindRecommendedResponses[keyof ProductsControllerFindRecommendedResponses];
-
-export type ProductsControllerFindOneData = {
-  body?: never;
-  path: {
-    id: string;
-  };
-  query?: never;
-  url: "/api/v1/products/{id}";
-};
-
-export type ProductsControllerFindOneResponses = {
-  200: ProductResponseDto;
-};
-
-export type ProductsControllerFindOneResponse =
-  ProductsControllerFindOneResponses[keyof ProductsControllerFindOneResponses];
-
 export type MyProductsControllerFindAllData = {
   body?: never;
   path?: never;
@@ -10586,18 +11069,343 @@ export type MyProductsControllerResubmitResponses = {
 export type MyProductsControllerResubmitResponse =
   MyProductsControllerResubmitResponses[keyof MyProductsControllerResubmitResponses];
 
-export type CategoryGroupsControllerFindAllData = {
+export type ProductsControllerFindAllData = {
+  body?: never;
+  path?: never;
+  query?: {
+    /**
+     * Page number
+     */
+    page?: string;
+    /**
+     * Items per page
+     */
+    limit?: string;
+    /**
+     * Filter by category ID
+     */
+    category?: string;
+    /**
+     * Filter by category group ID
+     */
+    categoryGroup?: string;
+    /**
+     * Filter by specialty ID
+     */
+    specialtyId?: string;
+    /**
+     * Only listings in category groups of these marketplace families; CSV or repeated param
+     */
+    family?: Array<
+      "energy_commodities" | "equipment" | "industrial_materials" | "services"
+    >;
+    /**
+     * Case-insensitive search on the listing title
+     */
+    q?: string;
+    /**
+     * Any of these specialties (grades); CSV or repeated param
+     */
+    specialtyIds?: Array<string>;
+    /**
+     * Listing location country ID (origin)
+     */
+    country?: string;
+    /**
+     * Listing location state ID
+     */
+    state?: string;
+    /**
+     * Listings offered in any of these conditions; CSV or repeated param
+     */
+    conditions?: Array<"New" | "Used - Good" | "Used - Fair" | "Refurbished">;
+    unit?:
+      | "bbl"
+      | "liter"
+      | "gallon"
+      | "m3"
+      | "mt"
+      | "kg"
+      | "ton"
+      | "lb"
+      | "m"
+      | "ft"
+      | "sqm"
+      | "sqft"
+      | "scf"
+      | "sm3"
+      | "nm3"
+      | "mmbtu"
+      | "kwh"
+      | "mwh"
+      | "kva"
+      | "kw"
+      | "mw"
+      | "unit"
+      | "set"
+      | "kit"
+      | "pair"
+      | "joint"
+      | "roll"
+      | "sheet"
+      | "box"
+      | "pack"
+      | "drum"
+      | "bag"
+      | "cylinder"
+      | "ream"
+      | "license"
+      | "skid"
+      | "package"
+      | "plate"
+      | "bar";
+    /**
+     * Listings offering any of these trade terms; CSV or repeated param
+     */
+    tradeTerms?: Array<
+      | "FOB"
+      | "CIF"
+      | "CFR"
+      | "EX_WORKS"
+      | "DELIVERED"
+      | "TTO"
+      | "TTT"
+      | "FOT"
+      | "FCA"
+      | "DAP"
+      | "DDP"
+      | "NA"
+    >;
+    pricingBasis?: "flat" | "differential";
+  };
+  url: "/api/v1/products";
+};
+
+export type ProductsControllerFindAllResponses = {
+  200: PaginatedProductsResponseDto;
+};
+
+export type ProductsControllerFindAllResponse =
+  ProductsControllerFindAllResponses[keyof ProductsControllerFindAllResponses];
+
+export type ProductsControllerFindRecommendedData = {
+  body?: never;
+  path?: never;
+  query?: {
+    /**
+     * Page number
+     */
+    page?: string;
+    /**
+     * Items per page
+     */
+    limit?: string;
+    /**
+     * Filter by category ID
+     */
+    category?: string;
+    /**
+     * Filter by category group ID
+     */
+    categoryGroup?: string;
+    /**
+     * Filter by specialty ID
+     */
+    specialtyId?: string;
+    /**
+     * Only listings in category groups of these marketplace families; CSV or repeated param
+     */
+    family?: Array<
+      "energy_commodities" | "equipment" | "industrial_materials" | "services"
+    >;
+    /**
+     * Case-insensitive search on the listing title
+     */
+    q?: string;
+    /**
+     * Any of these specialties (grades); CSV or repeated param
+     */
+    specialtyIds?: Array<string>;
+    /**
+     * Listing location country ID (origin)
+     */
+    country?: string;
+    /**
+     * Listing location state ID
+     */
+    state?: string;
+    /**
+     * Listings offered in any of these conditions; CSV or repeated param
+     */
+    conditions?: Array<"New" | "Used - Good" | "Used - Fair" | "Refurbished">;
+    unit?:
+      | "bbl"
+      | "liter"
+      | "gallon"
+      | "m3"
+      | "mt"
+      | "kg"
+      | "ton"
+      | "lb"
+      | "m"
+      | "ft"
+      | "sqm"
+      | "sqft"
+      | "scf"
+      | "sm3"
+      | "nm3"
+      | "mmbtu"
+      | "kwh"
+      | "mwh"
+      | "kva"
+      | "kw"
+      | "mw"
+      | "unit"
+      | "set"
+      | "kit"
+      | "pair"
+      | "joint"
+      | "roll"
+      | "sheet"
+      | "box"
+      | "pack"
+      | "drum"
+      | "bag"
+      | "cylinder"
+      | "ream"
+      | "license"
+      | "skid"
+      | "package"
+      | "plate"
+      | "bar";
+    /**
+     * Listings offering any of these trade terms; CSV or repeated param
+     */
+    tradeTerms?: Array<
+      | "FOB"
+      | "CIF"
+      | "CFR"
+      | "EX_WORKS"
+      | "DELIVERED"
+      | "TTO"
+      | "TTT"
+      | "FOT"
+      | "FCA"
+      | "DAP"
+      | "DDP"
+      | "NA"
+    >;
+    pricingBasis?: "flat" | "differential";
+  };
+  url: "/api/v1/products/recommended";
+};
+
+export type ProductsControllerFindRecommendedResponses = {
+  200: PaginatedProductsResponseDto;
+};
+
+export type ProductsControllerFindRecommendedResponse =
+  ProductsControllerFindRecommendedResponses[keyof ProductsControllerFindRecommendedResponses];
+
+export type ProductsControllerCountsData = {
   body?: never;
   path?: never;
   query?: never;
+  url: "/api/v1/products/counts";
+};
+
+export type ProductsControllerCountsResponses = {
+  200: MarketplaceCountsDto;
+};
+
+export type ProductsControllerCountsResponse =
+  ProductsControllerCountsResponses[keyof ProductsControllerCountsResponses];
+
+export type ProductsControllerFacetsData = {
+  body?: never;
+  path?: never;
+  query: {
+    family:
+      | "energy_commodities"
+      | "equipment"
+      | "industrial_materials"
+      | "services";
+    /**
+     * Narrow the options to one category group of the family
+     */
+    groupId?: string;
+    /**
+     * Narrow the options to one category (wins over groupId)
+     */
+    categoryId?: string;
+  };
+  url: "/api/v1/products/facets";
+};
+
+export type ProductsControllerFacetsResponses = {
+  200: MarketplaceFacetsDto;
+};
+
+export type ProductsControllerFacetsResponse =
+  ProductsControllerFacetsResponses[keyof ProductsControllerFacetsResponses];
+
+export type ProductsControllerTaxonomyCountsData = {
+  body?: never;
+  path?: never;
+  query: {
+    family:
+      | "energy_commodities"
+      | "equipment"
+      | "industrial_materials"
+      | "services";
+  };
+  url: "/api/v1/products/taxonomy-counts";
+};
+
+export type ProductsControllerTaxonomyCountsResponses = {
+  200: MarketplaceTaxonomyCountsDto;
+};
+
+export type ProductsControllerTaxonomyCountsResponse =
+  ProductsControllerTaxonomyCountsResponses[keyof ProductsControllerTaxonomyCountsResponses];
+
+export type ProductsControllerFindOneData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/products/{id}";
+};
+
+export type ProductsControllerFindOneResponses = {
+  200: ProductResponseDto;
+};
+
+export type ProductsControllerFindOneResponse =
+  ProductsControllerFindOneResponses[keyof ProductsControllerFindOneResponses];
+
+export type CategoryGroupsControllerFindAllData = {
+  body?: never;
+  path?: never;
+  query?: {
+    /**
+     * Only return groups in this marketplace family
+     */
+    family?:
+      | "energy_commodities"
+      | "equipment"
+      | "industrial_materials"
+      | "services";
+  };
   url: "/api/v1/category-groups";
 };
 
 export type CategoryGroupsControllerFindAllResponses = {
   /**
-   * List of category groups
+   * List of category groups with their marketplace family
    */
-  200: Array<CategoryGroupDto>;
+  200: Array<CategoryGroupWithFamilyDto>;
 };
 
 export type CategoryGroupsControllerFindAllResponse =
@@ -10696,6 +11504,25 @@ export type CategorySpecialtiesControllerFindOneResponses = {
 
 export type CategorySpecialtiesControllerFindOneResponse =
   CategorySpecialtiesControllerFindOneResponses[keyof CategorySpecialtiesControllerFindOneResponses];
+
+export type TerminalsControllerFindAllData = {
+  body?: never;
+  path?: never;
+  query?: {
+    /**
+     * Only terminals in this country (Country ID)
+     */
+    country?: string;
+  };
+  url: "/api/v1/terminals";
+};
+
+export type TerminalsControllerFindAllResponses = {
+  200: Array<TerminalDto>;
+};
+
+export type TerminalsControllerFindAllResponse =
+  TerminalsControllerFindAllResponses[keyof TerminalsControllerFindAllResponses];
 
 export type CategoriesControllerFindAllData = {
   body?: never;
@@ -15806,6 +16633,22 @@ export type QqCatalogControllerFindAllTemplatesData = {
 };
 
 export type QqCatalogControllerFindAllTemplatesResponses = {
+  200: unknown;
+};
+
+export type QqCatalogControllerMatchTemplatesData = {
+  body?: never;
+  path?: never;
+  query: {
+    /**
+     * Category or specialty slugs, in order of preference; CSV or repeated
+     */
+    productType: Array<string>;
+  };
+  url: "/api/v1/qq-catalog/templates/match";
+};
+
+export type QqCatalogControllerMatchTemplatesResponses = {
   200: unknown;
 };
 
