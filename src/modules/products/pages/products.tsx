@@ -81,11 +81,12 @@ export default function ProductsPage() {
   const products: any[] = rawProducts.map((p: any) => ({
     id: p._id,
     name: p.title || "Untitled",
-    category: p.category?.name || "Uncategorized",
+    category: p.categoryId?.name || p.category?.name || "Uncategorized",
     merchant: p.seller?.name || p.organization?.name || "Unknown",
     status: p.status === "pending" ? "pending_approval" : p.status || "draft",
     created: p.createdAt,
     price: p.price ?? p.pricePerUnit ?? 0,
+    pricingBasis: p.pricingBasis,
     transactionType: p.transactionType || p.transactionTypes?.[0] || "purchase",
     currency: p.currency || "USD",
     image: p.image,

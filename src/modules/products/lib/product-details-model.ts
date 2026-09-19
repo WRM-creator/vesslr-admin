@@ -12,6 +12,8 @@ export interface Product {
     | "pending_approval";
   created: string; // ISO date string
   price: number;
+  /** "differential" listings are priced off a benchmark and carry no scalar price. */
+  pricingBasis?: string;
   transactionType:
     | "purchase"
     | "lease"

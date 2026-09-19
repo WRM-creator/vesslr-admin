@@ -75,7 +75,7 @@ export const productsColumns: ColumnDef<Product>[] = [
             }`}
           />
           <span>
-            {qty} {row.original.unitOfMeasurement || "units"}
+            {qty.toLocaleString("en-US")} {row.original.unitOfMeasurement || "units"}
           </span>
         </div>
       );
@@ -85,6 +85,9 @@ export const productsColumns: ColumnDef<Product>[] = [
     accessorKey: "price",
     header: "Price",
     cell: ({ row }) => {
+      if (row.original.pricingBasis === "differential") {
+        return <div className="font-medium">Benchmark-linked</div>;
+      }
       const amount = parseFloat(row.original.price?.toString() ?? "0");
       return <div className="font-medium">{formatCurrency(amount, row.original.currency || "USD")}</div>;
     },
