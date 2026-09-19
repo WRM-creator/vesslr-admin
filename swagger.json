@@ -15934,6 +15934,18 @@
           "frozen"
         ]
       },
+      "BuyerEscrowFeeDto": {
+        "type": "object",
+        "properties": {
+          "percentage": {
+            "type": "number",
+            "description": "Fraction of the goods value, e.g. 0.01 for 1%"
+          }
+        },
+        "required": [
+          "percentage"
+        ]
+      },
       "ProductOrganizationDto": {
         "type": "object",
         "properties": {
@@ -16357,6 +16369,15 @@
             "allOf": [
               {
                 "$ref": "#/components/schemas/SellerFeeDto"
+              }
+            ]
+          },
+          "buyerEscrowFee": {
+            "nullable": true,
+            "description": "Buyers of a differential listing only: the escrow fee they pay on top, when an admin configured one; null means none",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/BuyerEscrowFeeDto"
               }
             ]
           },
@@ -17323,6 +17344,15 @@
             "allOf": [
               {
                 "$ref": "#/components/schemas/SellerFeeDto"
+              }
+            ]
+          },
+          "buyerEscrowFee": {
+            "nullable": true,
+            "description": "Buyers of a differential listing only: the escrow fee they pay on top, when an admin configured one; null means none",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/BuyerEscrowFeeDto"
               }
             ]
           },
@@ -20323,6 +20353,53 @@
           "transactionType": {
             "type": "string"
           },
+          "tradeTerm": {
+            "type": "string",
+            "enum": [
+              "FOB",
+              "CIF",
+              "CFR",
+              "EX_WORKS",
+              "DELIVERED",
+              "TTO",
+              "TTT",
+              "FOT",
+              "FCA",
+              "DAP",
+              "DDP",
+              "NA"
+            ]
+          },
+          "deliveryPoint": {
+            "description": "Commodity orders: where the cargo is handed over",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/LoadingTerminalResponseDto"
+              }
+            ]
+          },
+          "laycan": {
+            "description": "Commodity orders: the loading window ordered, inside the listing laycan",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/LaycanResponseDto"
+              }
+            ]
+          },
+          "inspectionPoint": {
+            "type": "string",
+            "enum": [
+              "load_port",
+              "discharge_port"
+            ]
+          },
+          "paymentTerms": {
+            "type": "string",
+            "enum": [
+              "first_tranche_balance_on_title_transfer"
+            ],
+            "description": "The listing's declared payment terms at purchase. Display only: escrow is funded in full."
+          },
           "quantity": {
             "type": "number"
           },
@@ -22000,6 +22077,30 @@
               "NA"
             ],
             "description": "Selected trade term"
+          },
+          "deliveryPoint": {
+            "description": "Commodity orders: the discharge port the buyer names on CIF-type terms. On FOB-type terms the server uses the listing's loading terminal and ignores this.",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/LoadingTerminalDto"
+              }
+            ]
+          },
+          "laycan": {
+            "description": "Commodity orders: the loading window, inside the listing laycan",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/LaycanDto"
+              }
+            ]
+          },
+          "inspectionPoint": {
+            "type": "string",
+            "enum": [
+              "load_port",
+              "discharge_port"
+            ],
+            "description": "Commodity orders: where Q&Q inspection takes place"
           },
           "condition": {
             "type": "string",
@@ -29757,6 +29858,15 @@
             "allOf": [
               {
                 "$ref": "#/components/schemas/SellerFeeDto"
+              }
+            ]
+          },
+          "buyerEscrowFee": {
+            "nullable": true,
+            "description": "Buyers of a differential listing only: the escrow fee they pay on top, when an admin configured one; null means none",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/BuyerEscrowFeeDto"
               }
             ]
           },

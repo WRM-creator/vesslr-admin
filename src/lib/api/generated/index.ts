@@ -844,6 +844,7 @@ export type {
   BusinessRegistrationReviewDto,
   BusinessRepresentativeAddressDto,
   BusinessRepresentativeDto,
+  BuyerEscrowFeeDto,
   CategoriesControllerFindAllData,
   CategoriesControllerFindAllResponse,
   CategoriesControllerFindAllResponses,

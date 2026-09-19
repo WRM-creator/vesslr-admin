@@ -541,6 +541,13 @@ export type SellerFeeDto = {
   feeSettlementAmount?: number;
 };
 
+export type BuyerEscrowFeeDto = {
+  /**
+   * Fraction of the goods value, e.g. 0.01 for 1%
+   */
+  percentage: number;
+};
+
 export type ProductOrganizationDto = {
   _id: string;
   name: string;
@@ -697,6 +704,10 @@ export type PopulatedProductResponseDto = {
    * Disclosed platform fee on a differential listing — owning seller only; resolved from the category/group fee config
    */
   sellerFee?: SellerFeeDto;
+  /**
+   * Buyers of a differential listing only: the escrow fee they pay on top, when an admin configured one; null means none
+   */
+  buyerEscrowFee?: BuyerEscrowFeeDto | null;
   currency?: "NGN" | "KES" | "USD" | "EUR" | "USDT" | "USDC";
   images?: Array<string>;
   features?: Array<string>;
@@ -1225,6 +1236,10 @@ export type ProductResponseDto = {
    * Disclosed platform fee on a differential listing — owning seller only; resolved from the category/group fee config
    */
   sellerFee?: SellerFeeDto;
+  /**
+   * Buyers of a differential listing only: the escrow fee they pay on top, when an admin configured one; null means none
+   */
+  buyerEscrowFee?: BuyerEscrowFeeDto | null;
   currency?: "NGN" | "KES" | "USD" | "EUR" | "USDT" | "USDC";
   images?: Array<string>;
   features?: Array<string>;
@@ -2644,6 +2659,32 @@ export type OrderResponseDto = {
   request: OrderRequestDto;
   product?: OrderProductDto;
   transactionType?: string;
+  tradeTerm?:
+    | "FOB"
+    | "CIF"
+    | "CFR"
+    | "EX_WORKS"
+    | "DELIVERED"
+    | "TTO"
+    | "TTT"
+    | "FOT"
+    | "FCA"
+    | "DAP"
+    | "DDP"
+    | "NA";
+  /**
+   * Commodity orders: where the cargo is handed over
+   */
+  deliveryPoint?: LoadingTerminalResponseDto;
+  /**
+   * Commodity orders: the loading window ordered, inside the listing laycan
+   */
+  laycan?: LaycanResponseDto;
+  inspectionPoint?: "load_port" | "discharge_port";
+  /**
+   * The listing's declared payment terms at purchase. Display only: escrow is funded in full.
+   */
+  paymentTerms?: "first_tranche_balance_on_title_transfer";
   quantity: number;
   unitOfMeasurement:
     | "bbl"
@@ -3563,6 +3604,18 @@ export type PurchaseProductDto = {
     | "DAP"
     | "DDP"
     | "NA";
+  /**
+   * Commodity orders: the discharge port the buyer names on CIF-type terms. On FOB-type terms the server uses the listing's loading terminal and ignores this.
+   */
+  deliveryPoint?: LoadingTerminalDto;
+  /**
+   * Commodity orders: the loading window, inside the listing laycan
+   */
+  laycan?: LaycanDto;
+  /**
+   * Commodity orders: where Q&Q inspection takes place
+   */
+  inspectionPoint?: "load_port" | "discharge_port";
   /**
    * Selected product condition. Required only when the product’s category group offers conditions (physical goods). Commodities and services carry none, so the field is neither shown nor required for them. Enforced in OrdersService.purchase, mirroring IsConditionValid on the RFQ path.
    */
@@ -7216,6 +7269,10 @@ export type AdminProductResponseDto = {
    * Disclosed platform fee on a differential listing — owning seller only; resolved from the category/group fee config
    */
   sellerFee?: SellerFeeDto;
+  /**
+   * Buyers of a differential listing only: the escrow fee they pay on top, when an admin configured one; null means none
+   */
+  buyerEscrowFee?: BuyerEscrowFeeDto | null;
   currency?: "NGN" | "KES" | "USD" | "EUR" | "USDT" | "USDC";
   images?: Array<string>;
   features?: Array<string>;
