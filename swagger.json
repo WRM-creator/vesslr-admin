@@ -3611,10 +3611,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/RequestResponseDto"
-                  }
+                  "$ref": "#/components/schemas/PaginatedRequestsResponseDto"
                 }
               }
             }
@@ -23586,6 +23583,51 @@
           "updatedAt"
         ]
       },
+      "RequestsPageDto": {
+        "type": "object",
+        "properties": {
+          "docs": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RequestResponseDto"
+            }
+          },
+          "totalDocs": {
+            "type": "number"
+          },
+          "page": {
+            "type": "number"
+          },
+          "limit": {
+            "type": "number"
+          },
+          "totalPages": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "docs",
+          "totalDocs",
+          "page",
+          "limit",
+          "totalPages"
+        ]
+      },
+      "PaginatedRequestsResponseDto": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/RequestsPageDto"
+          }
+        },
+        "required": [
+          "message",
+          "data"
+        ]
+      },
       "RequestCountsDto": {
         "type": "object",
         "properties": {
@@ -24509,6 +24551,10 @@
           "closedAt": {
             "format": "date-time",
             "type": "string"
+          },
+          "closingNote": {
+            "type": "string",
+            "description": "The reason given when it was declined, if any"
           },
           "buyerOrganization": {
             "$ref": "#/components/schemas/NegotiationOrganizationDto"

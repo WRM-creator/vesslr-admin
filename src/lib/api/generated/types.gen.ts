@@ -4120,6 +4120,19 @@ export type RequestResponseDto = {
   commercialTerms?: CommercialTermsResponseDto;
 };
 
+export type RequestsPageDto = {
+  docs: Array<RequestResponseDto>;
+  totalDocs: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+};
+
+export type PaginatedRequestsResponseDto = {
+  message: string;
+  data: RequestsPageDto;
+};
+
 export type RequestCountsDto = {
   all: number;
   open: number;
@@ -4638,6 +4651,10 @@ export type NegotiationResponseDto = {
     | "request_matched"
     | "request_cancelled";
   closedAt?: string;
+  /**
+   * The reason given when it was declined, if any
+   */
+  closingNote?: string;
   buyerOrganization: NegotiationOrganizationDto;
   sellerOrganization: NegotiationOrganizationDto;
   pendingOrganization: NegotiationOrganizationDto;
@@ -12441,7 +12458,7 @@ export type RequestsControllerFindAllData = {
 };
 
 export type RequestsControllerFindAllResponses = {
-  200: Array<RequestResponseDto>;
+  200: PaginatedRequestsResponseDto;
 };
 
 export type RequestsControllerFindAllResponse =
