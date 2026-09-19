@@ -7,6 +7,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import type { ProductResponseDto } from "@/lib/api/generated";
+import { getTradeTermLabel } from "@/types/trade-term";
 import { format } from "date-fns";
 import { DetailRow } from "./detail-row";
 
@@ -44,8 +45,12 @@ const SHIPPING_REGION_LABELS: Record<ShippingRegion, string> = {
   middle_east: "Middle East",
 };
 
+// Calendar dates (expiry is stored as the end of its day in UTC): read the date
+// part so the viewer's timezone cannot move it to the next day.
 const formatDate = (value?: string) =>
-  value ? format(new Date(value), "MMM d, yyyy") : undefined;
+  value
+    ? format(new Date(`${value.slice(0, 10)}T00:00:00`), "MMM d, yyyy")
+    : undefined;
 
 /**
  * The terms a seller declares on a commodity listing, laid out as buyers will
@@ -94,6 +99,13 @@ export function ProductCommodityTermsCard({
   ];
 
   const delivery: { label: string; value?: React.ReactNode }[] = [
+    {
+      label: "Delivery methods",
+      value: (product.tradeTerms ?? [])
+        .filter((term) => term !== "NA")
+        .map((term) => getTradeTermLabel(term))
+        .join(", "),
+    },
     { label: "Loading terminal", value: product.loadingTerminal?.name },
     {
       label: "Laycan",

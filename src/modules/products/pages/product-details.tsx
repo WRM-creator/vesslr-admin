@@ -16,6 +16,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
 import { ApproveProductDialog } from "../components/product-details/approve-product-dialog";
 import { ProductSpreadCard } from "../components/product-details/product-spread-card";
+import { useDifferentialFormula } from "@/modules/transactions/components/differential-formula";
 import { ProductCommodityTermsCard } from "../components/product-details/product-commodity-terms-card";
 import { hasCommodityTerms } from "../lib/commodity-terms";
 import { DelistProductDialog } from "../components/product-details/delist-product-dialog";
@@ -42,6 +43,9 @@ export default function ProductDetailsPage() {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const product = (data as any)?.data ?? data;
+
+  // Commodity listings carry a benchmark formula, not a scalar price.
+  const { isDifferential, formula } = useDifferentialFormula(product);
 
   const { mutate: updateProduct, isPending } =
     api.admin.products.update.useMutation();
@@ -128,6 +132,11 @@ export default function ProductDetailsPage() {
   }
 
   const status = product.status ?? "pending";
+  // An approved listing past its expiry is off the marketplace; say so up top.
+  const expired =
+    status === "approved" &&
+    !!product.listingExpiresAt &&
+    new Date(product.listingExpiresAt) <= new Date();
 
   return (
     <Page>
@@ -136,10 +145,12 @@ export default function ProductDetailsPage() {
         endContent={
           <div className="flex items-center gap-3">
             <StatusBadge
-              status={status}
+              status={expired ? "expired" : status}
               variant={
-                STATUS_VARIANT[status as keyof typeof STATUS_VARIANT] ??
-                "neutral"
+                expired
+                  ? "neutral"
+                  : (STATUS_VARIANT[status as keyof typeof STATUS_VARIANT] ??
+                    "neutral")
               }
             />
             {(status === "pending" || status === "rejected") && (
@@ -206,7 +217,9 @@ export default function ProductDetailsPage() {
                     Price per unit
                   </p>
                   <p className="text-sm font-semibold">
-                    {formatCurrency(product.pricePerUnit, product.currency || "USD")}
+                    {isDifferential
+                      ? (formula ?? "Benchmark-linked")
+                      : formatCurrency(product.pricePerUnit, product.currency || "USD")}
                   </p>
                 </div>
                 {product.organization?.name && (

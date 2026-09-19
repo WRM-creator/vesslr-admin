@@ -30,19 +30,19 @@ export function ProductInventoryCard({
         {availableQuantity != null && (
           <DetailRow
             label="Available quantity"
-            value={`${availableQuantity} ${unit}`}
+            value={`${availableQuantity.toLocaleString("en-US")} ${unit}`}
           />
         )}
         {minimumOrderQuantity != null && (
           <DetailRow
             label="Minimum order"
-            value={`${minimumOrderQuantity} ${unit}`}
+            value={`${minimumOrderQuantity.toLocaleString("en-US")} ${unit}`}
           />
         )}
         {maximumOrderQuantity != null && (
           <DetailRow
             label="Maximum order"
-            value={`${maximumOrderQuantity} ${unit}`}
+            value={`${maximumOrderQuantity.toLocaleString("en-US")} ${unit}`}
           />
         )}
         {unitOfMeasurement && (
