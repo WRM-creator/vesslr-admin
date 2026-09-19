@@ -20669,7 +20669,17 @@
             "type": "string"
           },
           "actor": {
-            "type": "string"
+            "type": "string",
+            "description": "Admin views only: the acting user. Parties get actorRole instead."
+          },
+          "actorRole": {
+            "type": "string",
+            "enum": [
+              "buyer",
+              "seller",
+              "platform"
+            ],
+            "description": "Party views: which side acted, never a person"
           },
           "action": {
             "type": "string",
@@ -20714,13 +20724,16 @@
         "type": "object",
         "properties": {
           "name": {
-            "type": "string"
+            "type": "string",
+            "description": "Absent in a party view when the file is the other side's and not yet approved by an admin"
           },
           "url": {
-            "type": "string"
+            "type": "string",
+            "description": "Absent in a party view when the file is the other side's and not yet approved by an admin"
           },
           "uploader": {
-            "type": "string"
+            "type": "string",
+            "description": "Admin views only"
           },
           "timestamp": {
             "format": "date-time",
@@ -20728,8 +20741,6 @@
           }
         },
         "required": [
-          "name",
-          "url",
           "timestamp"
         ]
       },
@@ -21269,6 +21280,14 @@
         "properties": {
           "_id": {
             "type": "string"
+          },
+          "viewerRole": {
+            "type": "string",
+            "enum": [
+              "BUYER",
+              "SELLER"
+            ],
+            "description": "Party views: the viewer's own side of the deal"
           },
           "order": {
             "$ref": "#/components/schemas/OrderResponseDto"

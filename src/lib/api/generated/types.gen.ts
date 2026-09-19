@@ -2795,7 +2795,14 @@ export type OrderResponseDto = {
 
 export type TransactionEventDto = {
   timestamp: string;
+  /**
+   * Admin views only: the acting user. Parties get actorRole instead.
+   */
   actor?: string;
+  /**
+   * Party views: which side acted, never a person
+   */
+  actorRole?: "buyer" | "seller" | "platform";
   action:
     | "CREATED"
     | "STATUS_CHANGE"
@@ -2828,8 +2835,17 @@ export type TransactionEventDto = {
 };
 
 export type TransactionDocumentFileDto = {
-  name: string;
-  url: string;
+  /**
+   * Absent in a party view when the file is the other side's and not yet approved by an admin
+   */
+  name?: string;
+  /**
+   * Absent in a party view when the file is the other side's and not yet approved by an admin
+   */
+  url?: string;
+  /**
+   * Admin views only
+   */
   uploader?: string;
   timestamp: string;
 };
@@ -3087,6 +3103,10 @@ export type TransactionTaskDto = {
 
 export type TransactionResponseDto = {
   _id: string;
+  /**
+   * Party views: the viewer's own side of the deal
+   */
+  viewerRole?: "BUYER" | "SELLER";
   order: OrderResponseDto;
   displayId: number;
   status:
