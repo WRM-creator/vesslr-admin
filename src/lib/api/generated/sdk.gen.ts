@@ -589,8 +589,16 @@ import type {
   QqCatalogControllerFindTemplateResponses,
   QqCatalogControllerMatchTemplatesData,
   QqCatalogControllerMatchTemplatesResponses,
+  RequestsControllerCancelData,
+  RequestsControllerCancelResponses,
+  RequestsControllerCountsData,
+  RequestsControllerCountsResponses,
   RequestsControllerCreateData,
   RequestsControllerCreateResponses,
+  RequestsControllerDeclineFeedData,
+  RequestsControllerDeclineFeedResponses,
+  RequestsControllerFeedCountsData,
+  RequestsControllerFeedCountsResponses,
   RequestsControllerFindAllData,
   RequestsControllerFindAllResponses,
   RequestsControllerFindFeedData,
@@ -2262,7 +2270,7 @@ export const ordersControllerActivity = <ThrowOnError extends boolean = false>(
   });
 
 /**
- * List my requests
+ * List my organization's requests (one tab at a time)
  */
 export const requestsControllerFindAll = <ThrowOnError extends boolean = false>(
   options?: Options<RequestsControllerFindAllData, ThrowOnError>,
@@ -2295,6 +2303,40 @@ export const requestsControllerCreate = <ThrowOnError extends boolean = false>(
       "Content-Type": "application/json",
       ...options.headers,
     },
+  });
+
+/**
+ * How many of my organization's requests are in each tab
+ */
+export const requestsControllerCounts = <ThrowOnError extends boolean = false>(
+  options?: Options<RequestsControllerCountsData, ThrowOnError>,
+) =>
+  (options?.client ?? client).get<
+    RequestsControllerCountsResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/requests/counts",
+    ...options,
+  });
+
+/**
+ * How many requests are in each of the seller's Recommendations tabs
+ */
+export const requestsControllerFeedCounts = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<RequestsControllerFeedCountsData, ThrowOnError>,
+) =>
+  (options?.client ?? client).get<
+    RequestsControllerFeedCountsResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/requests/feed/counts",
+    ...options,
   });
 
 /**
@@ -2334,6 +2376,28 @@ export const requestsControllerFindOneFeed = <
   });
 
 /**
+ * Seller declines a request, with a reason the buyer reads
+ */
+export const requestsControllerDeclineFeed = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<RequestsControllerDeclineFeedData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    RequestsControllerDeclineFeedResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/requests/feed/{id}/decline",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
  * Get a single request (Own only)
  */
 export const requestsControllerFindOne = <ThrowOnError extends boolean = false>(
@@ -2362,6 +2426,26 @@ export const requestsControllerUpdate = <ThrowOnError extends boolean = false>(
   >({
     security: [{ scheme: "bearer", type: "http" }],
     url: "/api/v1/requests/{id}",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Cancel a request with a reason; every supplier still negotiating is told
+ */
+export const requestsControllerCancel = <ThrowOnError extends boolean = false>(
+  options: Options<RequestsControllerCancelData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    RequestsControllerCancelResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/requests/{id}/cancel",
     ...options,
     headers: {
       "Content-Type": "application/json",
@@ -2552,6 +2636,10 @@ export const negotiationsControllerReject = <
     security: [{ scheme: "bearer", type: "http" }],
     url: "/api/v1/negotiations/{id}/reject",
     ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
   });
 
 /**

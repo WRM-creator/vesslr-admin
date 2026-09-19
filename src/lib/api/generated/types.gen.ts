@@ -3779,6 +3779,16 @@ export type RecommendationFeedItemDto = {
   status: string;
   createdAt: string;
   negotiationId?: string;
+  /**
+   * The seller's own status on this request
+   */
+  myStatus?:
+    | "new"
+    | "proposal_submitted"
+    | "selected"
+    | "not_selected"
+    | "declined"
+    | "expired";
   qqCriteria?: Array<QqCriterionDto>;
   qqCompany?: string;
   listingType: "product" | "service" | "rental" | "lease" | "charter" | "rfq";
@@ -3803,6 +3813,11 @@ export type RecommendationFeedResponseDto = {
 export type SingleRecommendationFeedResponseDto = {
   message: string;
   data: RecommendationFeedItemDto;
+};
+
+export type LoadingWindowDto = {
+  start: string;
+  end: string;
 };
 
 export type CreateRequestDto = {
@@ -3944,6 +3959,18 @@ export type CreateRequestDto = {
    * The preferred Q&Q inspection company
    */
   qqCompany?: string;
+  /**
+   * Commodity requests: loading window
+   */
+  loadingWindow?: LoadingWindowDto;
+  /**
+   * Commodity requests: discharge or delivery port
+   */
+  deliveryPort?: string;
+  /**
+   * Commodity requests: origin preferences or exclusions
+   */
+  originNote?: string;
   specifications?: SpecificationsDto;
   commercialTerms?: CommercialTermsDto;
 };
@@ -4062,6 +4089,25 @@ export type RequestResponseDto = {
     | "user_cancelled"
     | "stale_auto_closed"
     | "order_cancelled";
+  /**
+   * The buyer's reason for cancelling
+   */
+  cancellationNote?: string;
+  loadingWindow?: LoadingWindowDto;
+  deliveryPort?: string;
+  originNote?: string;
+  /**
+   * Category name, for lists
+   */
+  categoryName?: string;
+  /**
+   * Suppliers that responded (offers, counters, declines)
+   */
+  responseCount?: number;
+  /**
+   * Responses waiting on the buyer
+   */
+  awaitingDecisionCount?: number;
   isStale?: boolean;
   autoCloseAt?: string;
   offersCount?: number;
@@ -4072,6 +4118,32 @@ export type RequestResponseDto = {
   qqCriteria?: Array<QqCriterionDto>;
   specifications?: SpecificationsResponseDto;
   commercialTerms?: CommercialTermsResponseDto;
+};
+
+export type RequestCountsDto = {
+  all: number;
+  open: number;
+  awaiting_decision: number;
+  matched: number;
+  closed: number;
+  cancelled: number;
+};
+
+export type SellerRequestCountsDto = {
+  all: number;
+  new: number;
+  proposal_submitted: number;
+  selected: number;
+  not_selected: number;
+  declined: number;
+  expired: number;
+};
+
+export type DeclineReasonDto = {
+  /**
+   * Why. The other side sees it.
+   */
+  reason: string;
 };
 
 export type UpdateRequestDto = {
@@ -4213,9 +4285,28 @@ export type UpdateRequestDto = {
    * The preferred Q&Q inspection company
    */
   qqCompany?: string;
+  /**
+   * Commodity requests: loading window
+   */
+  loadingWindow?: LoadingWindowDto;
+  /**
+   * Commodity requests: discharge or delivery port
+   */
+  deliveryPort?: string;
+  /**
+   * Commodity requests: origin preferences or exclusions
+   */
+  originNote?: string;
   specifications?: SpecificationsDto;
   commercialTerms?: CommercialTermsDto;
   status?: "pending" | "in_review" | "matched" | "fulfilled" | "cancelled";
+};
+
+export type CancelRequestDto = {
+  /**
+   * Why. The other side sees it.
+   */
+  reason: string;
 };
 
 export type CreateNegotiationDto = {
@@ -4324,6 +4415,14 @@ export type CreateNegotiationDto = {
    * Opening message to the buyer
    */
   notes?: string;
+  /**
+   * Documents the seller will provide
+   */
+  documentsProvided?: string;
+  /**
+   * Other commercial conditions of this offer
+   */
+  additionalTerms?: string;
   /**
    * Hours until this offer expires (default: 24)
    */
@@ -4501,6 +4600,14 @@ export type NegotiationOffer = {
   paymentTerms?: string;
   deliveryDate?: string;
   notes?: string;
+  /**
+   * Documents the seller will provide with this offer
+   */
+  documentsProvided?: string;
+  /**
+   * Other commercial conditions attached to this offer
+   */
+  additionalTerms?: string;
   commercialTerms?: CommercialTerms;
 };
 
@@ -4518,6 +4625,19 @@ export type NegotiationResponseDto = {
   displayId: number;
   request: NegotiationRequestDto;
   product?: string;
+  /**
+   * How the viewer knows the other side: "Supplier n" (buyer view) or "Verified buyer" (seller view)
+   */
+  counterpartyLabel?: string;
+  /**
+   * Why the negotiation ended without an order
+   */
+  closedReason?:
+    | "buyer_declined"
+    | "seller_declined"
+    | "request_matched"
+    | "request_cancelled";
+  closedAt?: string;
   buyerOrganization: NegotiationOrganizationDto;
   sellerOrganization: NegotiationOrganizationDto;
   pendingOrganization: NegotiationOrganizationDto;
@@ -4653,6 +4773,14 @@ export type CounterOfferDto = {
    */
   notes?: string;
   /**
+   * Documents the seller will provide
+   */
+  documentsProvided?: string;
+  /**
+   * Other commercial conditions of this offer
+   */
+  additionalTerms?: string;
+  /**
    * Hours until this offer expires (default: 24)
    */
   expirationHours?: number;
@@ -4663,6 +4791,13 @@ export type SendMessageDto = {
    * Text message content
    */
   text: string;
+};
+
+export type RejectNegotiationDto = {
+  /**
+   * Why. The other side sees it.
+   */
+  reason?: string;
 };
 
 export type InvoiceItemDto = {
@@ -12282,7 +12417,26 @@ export type OrdersControllerActivityResponse =
 export type RequestsControllerFindAllData = {
   body?: never;
   path?: never;
-  query?: never;
+  query?: {
+    /**
+     * Page number
+     */
+    page?: string;
+    /**
+     * Items per page
+     */
+    limit?: string;
+    /**
+     * Filter by status
+     */
+    status?: Array<
+      "pending" | "in_review" | "matched" | "fulfilled" | "cancelled"
+    >;
+    /**
+     * List tab: open, awaiting_decision, matched, closed (fulfilled), cancelled
+     */
+    bucket?: "open" | "awaiting_decision" | "matched" | "closed" | "cancelled";
+  };
   url: "/api/v1/requests";
 };
 
@@ -12307,6 +12461,34 @@ export type RequestsControllerCreateResponses = {
 export type RequestsControllerCreateResponse =
   RequestsControllerCreateResponses[keyof RequestsControllerCreateResponses];
 
+export type RequestsControllerCountsData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: "/api/v1/requests/counts";
+};
+
+export type RequestsControllerCountsResponses = {
+  200: RequestCountsDto;
+};
+
+export type RequestsControllerCountsResponse =
+  RequestsControllerCountsResponses[keyof RequestsControllerCountsResponses];
+
+export type RequestsControllerFeedCountsData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: "/api/v1/requests/feed/counts";
+};
+
+export type RequestsControllerFeedCountsResponses = {
+  200: SellerRequestCountsDto;
+};
+
+export type RequestsControllerFeedCountsResponse =
+  RequestsControllerFeedCountsResponses[keyof RequestsControllerFeedCountsResponses];
+
 export type RequestsControllerFindFeedData = {
   body?: never;
   path?: never;
@@ -12329,6 +12511,16 @@ export type RequestsControllerFindFeedData = {
     status?: Array<
       "pending" | "in_review" | "matched" | "fulfilled" | "cancelled"
     >;
+    /**
+     * Recommendations tab by the seller's own status on the request. When set, `status` is ignored.
+     */
+    bucket?:
+      | "new"
+      | "proposal_submitted"
+      | "selected"
+      | "not_selected"
+      | "declined"
+      | "expired";
   };
   url: "/api/v1/requests/feed";
 };
@@ -12362,6 +12554,19 @@ export type RequestsControllerFindOneFeedResponses = {
 export type RequestsControllerFindOneFeedResponse =
   RequestsControllerFindOneFeedResponses[keyof RequestsControllerFindOneFeedResponses];
 
+export type RequestsControllerDeclineFeedData = {
+  body: DeclineReasonDto;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/requests/feed/{id}/decline";
+};
+
+export type RequestsControllerDeclineFeedResponses = {
+  201: unknown;
+};
+
 export type RequestsControllerFindOneData = {
   body?: never;
   path: {
@@ -12393,6 +12598,22 @@ export type RequestsControllerUpdateResponses = {
 
 export type RequestsControllerUpdateResponse =
   RequestsControllerUpdateResponses[keyof RequestsControllerUpdateResponses];
+
+export type RequestsControllerCancelData = {
+  body: CancelRequestDto;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/requests/{id}/cancel";
+};
+
+export type RequestsControllerCancelResponses = {
+  200: RequestResponseDto;
+};
+
+export type RequestsControllerCancelResponse =
+  RequestsControllerCancelResponses[keyof RequestsControllerCancelResponses];
 
 export type RequestsControllerKeepActiveData = {
   body?: never;
@@ -12559,7 +12780,7 @@ export type NegotiationsControllerConfirmResponse =
   NegotiationsControllerConfirmResponses[keyof NegotiationsControllerConfirmResponses];
 
 export type NegotiationsControllerRejectData = {
-  body?: never;
+  body: RejectNegotiationDto;
   path: {
     id: string;
   };

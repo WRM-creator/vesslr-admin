@@ -3550,7 +3550,61 @@
       },
       "get": {
         "operationId": "RequestsController_findAll",
-        "parameters": [],
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "description": "Page number",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Items per page",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "description": "Filter by status",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "pending",
+                  "in_review",
+                  "matched",
+                  "fulfilled",
+                  "cancelled"
+                ]
+              }
+            }
+          },
+          {
+            "name": "bucket",
+            "required": false,
+            "in": "query",
+            "description": "List tab: open, awaiting_decision, matched, closed (fulfilled), cancelled",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "open",
+                "awaiting_decision",
+                "matched",
+                "closed",
+                "cancelled"
+              ]
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "",
@@ -3571,7 +3625,61 @@
             "bearer": []
           }
         ],
-        "summary": "List my requests",
+        "summary": "List my organization's requests (one tab at a time)",
+        "tags": [
+          "Requests"
+        ]
+      }
+    },
+    "/api/v1/requests/counts": {
+      "get": {
+        "operationId": "RequestsController_counts",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RequestCountsDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "How many of my organization's requests are in each tab",
+        "tags": [
+          "Requests"
+        ]
+      }
+    },
+    "/api/v1/requests/feed/counts": {
+      "get": {
+        "operationId": "RequestsController_feedCounts",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SellerRequestCountsDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "How many requests are in each of the seller's Recommendations tabs",
         "tags": [
           "Requests"
         ]
@@ -3633,6 +3741,23 @@
                 ]
               }
             }
+          },
+          {
+            "name": "bucket",
+            "required": false,
+            "in": "query",
+            "description": "Recommendations tab by the seller's own status on the request. When set, `status` is ignored.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "new",
+                "proposal_submitted",
+                "selected",
+                "not_selected",
+                "declined",
+                "expired"
+              ]
+            }
           }
         ],
         "responses": {
@@ -3689,6 +3814,45 @@
           }
         ],
         "summary": "Get a single available request (Merchant)",
+        "tags": [
+          "Requests"
+        ]
+      }
+    },
+    "/api/v1/requests/feed/{id}/decline": {
+      "post": {
+        "operationId": "RequestsController_declineFeed",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DeclineReasonDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Seller declines a request, with a reason the buyer reads",
         "tags": [
           "Requests"
         ]
@@ -3769,6 +3933,52 @@
           }
         ],
         "summary": "Update an existing request (Own only)",
+        "tags": [
+          "Requests"
+        ]
+      }
+    },
+    "/api/v1/requests/{id}/cancel": {
+      "post": {
+        "operationId": "RequestsController_cancel",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CancelRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RequestResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Cancel a request with a reason; every supplier still negotiating is told",
         "tags": [
           "Requests"
         ]
@@ -4173,6 +4383,16 @@
             }
           }
         ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RejectNegotiationDto"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "",
@@ -22616,6 +22836,18 @@
           "negotiationId": {
             "type": "string"
           },
+          "myStatus": {
+            "type": "string",
+            "enum": [
+              "new",
+              "proposal_submitted",
+              "selected",
+              "not_selected",
+              "declined",
+              "expired"
+            ],
+            "description": "The seller's own status on this request"
+          },
           "qqCriteria": {
             "type": "array",
             "items": {
@@ -22727,6 +22959,23 @@
         "required": [
           "message",
           "data"
+        ]
+      },
+      "LoadingWindowDto": {
+        "type": "object",
+        "properties": {
+          "start": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "end": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "start",
+          "end"
         ]
       },
       "CreateRequestDto": {
@@ -22959,6 +23208,24 @@
           "qqCompany": {
             "type": "string",
             "description": "The preferred Q&Q inspection company"
+          },
+          "loadingWindow": {
+            "description": "Commodity requests: loading window",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/LoadingWindowDto"
+              }
+            ]
+          },
+          "deliveryPort": {
+            "type": "string",
+            "description": "Commodity requests: discharge or delivery port",
+            "maxLength": 200
+          },
+          "originNote": {
+            "type": "string",
+            "description": "Commodity requests: origin preferences or exclusions",
+            "maxLength": 500
           },
           "specifications": {
             "$ref": "#/components/schemas/SpecificationsDto"
@@ -23245,6 +23512,31 @@
               "order_cancelled"
             ]
           },
+          "cancellationNote": {
+            "type": "string",
+            "description": "The buyer's reason for cancelling"
+          },
+          "loadingWindow": {
+            "$ref": "#/components/schemas/LoadingWindowDto"
+          },
+          "deliveryPort": {
+            "type": "string"
+          },
+          "originNote": {
+            "type": "string"
+          },
+          "categoryName": {
+            "type": "string",
+            "description": "Category name, for lists"
+          },
+          "responseCount": {
+            "type": "number",
+            "description": "Suppliers that responded (offers, counters, declines)"
+          },
+          "awaitingDecisionCount": {
+            "type": "number",
+            "description": "Responses waiting on the buyer"
+          },
           "isStale": {
             "type": "boolean"
           },
@@ -23292,6 +23584,86 @@
           "status",
           "createdAt",
           "updatedAt"
+        ]
+      },
+      "RequestCountsDto": {
+        "type": "object",
+        "properties": {
+          "all": {
+            "type": "number"
+          },
+          "open": {
+            "type": "number"
+          },
+          "awaiting_decision": {
+            "type": "number"
+          },
+          "matched": {
+            "type": "number"
+          },
+          "closed": {
+            "type": "number"
+          },
+          "cancelled": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "all",
+          "open",
+          "awaiting_decision",
+          "matched",
+          "closed",
+          "cancelled"
+        ]
+      },
+      "SellerRequestCountsDto": {
+        "type": "object",
+        "properties": {
+          "all": {
+            "type": "number"
+          },
+          "new": {
+            "type": "number"
+          },
+          "proposal_submitted": {
+            "type": "number"
+          },
+          "selected": {
+            "type": "number"
+          },
+          "not_selected": {
+            "type": "number"
+          },
+          "declined": {
+            "type": "number"
+          },
+          "expired": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "all",
+          "new",
+          "proposal_submitted",
+          "selected",
+          "not_selected",
+          "declined",
+          "expired"
+        ]
+      },
+      "DeclineReasonDto": {
+        "type": "object",
+        "properties": {
+          "reason": {
+            "type": "string",
+            "description": "Why. The other side sees it.",
+            "minLength": 3,
+            "maxLength": 500
+          }
+        },
+        "required": [
+          "reason"
         ]
       },
       "UpdateRequestDto": {
@@ -23525,6 +23897,24 @@
             "type": "string",
             "description": "The preferred Q&Q inspection company"
           },
+          "loadingWindow": {
+            "description": "Commodity requests: loading window",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/LoadingWindowDto"
+              }
+            ]
+          },
+          "deliveryPort": {
+            "type": "string",
+            "description": "Commodity requests: discharge or delivery port",
+            "maxLength": 200
+          },
+          "originNote": {
+            "type": "string",
+            "description": "Commodity requests: origin preferences or exclusions",
+            "maxLength": 500
+          },
           "specifications": {
             "$ref": "#/components/schemas/SpecificationsDto"
           },
@@ -23542,6 +23932,20 @@
             ]
           }
         }
+      },
+      "CancelRequestDto": {
+        "type": "object",
+        "properties": {
+          "reason": {
+            "type": "string",
+            "description": "Why. The other side sees it.",
+            "minLength": 3,
+            "maxLength": 500
+          }
+        },
+        "required": [
+          "reason"
+        ]
       },
       "CreateNegotiationDto": {
         "type": "object",
@@ -23698,6 +24102,16 @@
           "notes": {
             "type": "string",
             "description": "Opening message to the buyer"
+          },
+          "documentsProvided": {
+            "type": "string",
+            "description": "Documents the seller will provide",
+            "maxLength": 1000
+          },
+          "additionalTerms": {
+            "type": "string",
+            "description": "Other commercial conditions of this offer",
+            "maxLength": 1000
           },
           "expirationHours": {
             "type": "number",
@@ -24015,6 +24429,14 @@
           "notes": {
             "type": "string"
           },
+          "documentsProvided": {
+            "type": "string",
+            "description": "Documents the seller will provide with this offer"
+          },
+          "additionalTerms": {
+            "type": "string",
+            "description": "Other commercial conditions attached to this offer"
+          },
           "commercialTerms": {
             "$ref": "#/components/schemas/CommercialTerms"
           }
@@ -24068,6 +24490,24 @@
             "$ref": "#/components/schemas/NegotiationRequestDto"
           },
           "product": {
+            "type": "string"
+          },
+          "counterpartyLabel": {
+            "type": "string",
+            "description": "How the viewer knows the other side: \"Supplier n\" (buyer view) or \"Verified buyer\" (seller view)"
+          },
+          "closedReason": {
+            "type": "string",
+            "enum": [
+              "buyer_declined",
+              "seller_declined",
+              "request_matched",
+              "request_cancelled"
+            ],
+            "description": "Why the negotiation ended without an order"
+          },
+          "closedAt": {
+            "format": "date-time",
             "type": "string"
           },
           "buyerOrganization": {
@@ -24332,6 +24772,16 @@
             "type": "string",
             "description": "Message explaining the counter-offer"
           },
+          "documentsProvided": {
+            "type": "string",
+            "description": "Documents the seller will provide",
+            "maxLength": 1000
+          },
+          "additionalTerms": {
+            "type": "string",
+            "description": "Other commercial conditions of this offer",
+            "maxLength": 1000
+          },
           "expirationHours": {
             "type": "number",
             "description": "Hours until this offer expires (default: 24)",
@@ -24357,6 +24807,16 @@
         "required": [
           "text"
         ]
+      },
+      "RejectNegotiationDto": {
+        "type": "object",
+        "properties": {
+          "reason": {
+            "type": "string",
+            "description": "Why. The other side sees it.",
+            "maxLength": 500
+          }
+        }
       },
       "InvoiceItemDto": {
         "type": "object",
