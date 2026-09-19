@@ -1,3 +1,4 @@
+import { getTradeTermLabel } from "@/types/trade-term";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { TransactionResponseDto } from "@/lib/api/generated";
 import { formatCurrency } from "@/lib/currency";
@@ -227,6 +228,19 @@ export function OverviewStatusCard({
   const productName = order?.product?.title;
   const quantity = order?.quantity;
   const unitOfMeasurement = order?.unitOfMeasurement;
+  // Commodity orders: how the cargo moves, as the buyer confirmed at purchase.
+  const calendarDay = (value: string) =>
+    format(new Date(`${value.slice(0, 10)}T00:00:00`), "MMM d, yyyy");
+  const deliveryLine = [
+    order?.tradeTerm && getTradeTermLabel(order.tradeTerm),
+    order?.deliveryPoint?.name,
+    order?.laycan &&
+      `Laycan ${calendarDay(order.laycan.start)} to ${calendarDay(order.laycan.end)}`,
+    order?.inspectionPoint &&
+      `Inspection at ${order.inspectionPoint === "load_port" ? "load port" : "discharge port"}`,
+  ]
+    .filter(Boolean)
+    .join(" · ");
 
   return (
     <Card>
@@ -254,6 +268,9 @@ export function OverviewStatusCard({
                         ? (formula ?? "Benchmark differential")
                         : formatCurrency(amount, currency)}
                     </p>
+                  )}
+                  {deliveryLine && (
+                    <p className="text-muted-foreground text-xs">{deliveryLine}</p>
                   )}
                 </div>
               </div>
