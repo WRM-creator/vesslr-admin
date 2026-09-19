@@ -22727,6 +22727,23 @@
           "name"
         ]
       },
+      "LoadingWindowDto": {
+        "type": "object",
+        "properties": {
+          "start": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "end": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "start",
+          "end"
+        ]
+      },
       "RecommendationFeedItemDto": {
         "type": "object",
         "properties": {
@@ -22739,8 +22756,13 @@
           "quantity": {
             "type": "number"
           },
-          "category": {
-            "$ref": "#/components/schemas/RequestCategoryDto"
+          "categoryId": {
+            "description": "The category, populated (id and name)",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/RequestCategoryDto"
+              }
+            ]
           },
           "image": {
             "type": "string"
@@ -22845,6 +22867,19 @@
             ],
             "description": "The seller's own status on this request"
           },
+          "loadingWindow": {
+            "$ref": "#/components/schemas/LoadingWindowDto"
+          },
+          "deliveryPort": {
+            "type": "string"
+          },
+          "originNote": {
+            "type": "string"
+          },
+          "cancellationNote": {
+            "type": "string",
+            "description": "The buyer's reason, when it cancelled the request"
+          },
           "qqCriteria": {
             "type": "array",
             "items": {
@@ -22882,7 +22917,7 @@
           "_id",
           "name",
           "quantity",
-          "category",
+          "categoryId",
           "region",
           "country",
           "state",
@@ -22956,23 +22991,6 @@
         "required": [
           "message",
           "data"
-        ]
-      },
-      "LoadingWindowDto": {
-        "type": "object",
-        "properties": {
-          "start": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "end": {
-            "type": "string",
-            "format": "date-time"
-          }
-        },
-        "required": [
-          "start",
-          "end"
         ]
       },
       "CreateRequestDto": {

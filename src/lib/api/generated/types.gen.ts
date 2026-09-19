@@ -3746,11 +3746,19 @@ export type RequestStateDto = {
   name: string;
 };
 
+export type LoadingWindowDto = {
+  start: string;
+  end: string;
+};
+
 export type RecommendationFeedItemDto = {
   _id: string;
   name: string;
   quantity: number;
-  category: RequestCategoryDto;
+  /**
+   * The category, populated (id and name)
+   */
+  categoryId: RequestCategoryDto;
   image?: string;
   region: Array<RequestRegionDto>;
   country: Array<RequestCountryDto>;
@@ -3789,6 +3797,13 @@ export type RecommendationFeedItemDto = {
     | "not_selected"
     | "declined"
     | "expired";
+  loadingWindow?: LoadingWindowDto;
+  deliveryPort?: string;
+  originNote?: string;
+  /**
+   * The buyer's reason, when it cancelled the request
+   */
+  cancellationNote?: string;
   qqCriteria?: Array<QqCriterionDto>;
   qqCompany?: string;
   listingType: "product" | "service" | "rental" | "lease" | "charter" | "rfq";
@@ -3813,11 +3828,6 @@ export type RecommendationFeedResponseDto = {
 export type SingleRecommendationFeedResponseDto = {
   message: string;
   data: RecommendationFeedItemDto;
-};
-
-export type LoadingWindowDto = {
-  start: string;
-  end: string;
 };
 
 export type CreateRequestDto = {
