@@ -2170,34 +2170,6 @@
       }
     },
     "/api/v1/transactions": {
-      "post": {
-        "operationId": "TransactionsController_create",
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateTransactionDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "The created transaction"
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
-        "summary": "Create a transaction (Internal/Admin)",
-        "tags": [
-          "Transactions"
-        ]
-      },
       "get": {
         "operationId": "TransactionsController_findInFlight",
         "parameters": [
@@ -2312,52 +2284,6 @@
           }
         ],
         "summary": "Get transaction by ID",
-        "tags": [
-          "Transactions"
-        ]
-      }
-    },
-    "/api/v1/transactions/{id}/status": {
-      "patch": {
-        "operationId": "TransactionsController_updateStatus",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateTransactionStatusDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "The updated transaction",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TransactionResponseDto"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
-        "summary": "Update transaction status",
         "tags": [
           "Transactions"
         ]
@@ -3166,6 +3092,21 @@
             }
           },
           {
+            "name": "bucket",
+            "required": false,
+            "in": "query",
+            "description": "Status tab: open (pending), in_execution (confirmed, in a transaction or disputed), completed, cancelled",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "open",
+                "in_execution",
+                "completed",
+                "cancelled"
+              ]
+            }
+          },
+          {
             "name": "requestId",
             "required": false,
             "in": "query",
@@ -3193,6 +3134,100 @@
           }
         ],
         "summary": "List my orders (as buyer or seller)",
+        "tags": [
+          "Orders"
+        ]
+      }
+    },
+    "/api/v1/orders/counts": {
+      "get": {
+        "operationId": "OrdersController_counts",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "description": "Page number",
+            "schema": {
+              "default": "1",
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Items per page",
+            "schema": {
+              "default": "10",
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "description": "Filter by status (Order or Transaction status)",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "role",
+            "required": false,
+            "in": "query",
+            "description": "Filter by role (buyer or seller)",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "buyer",
+                "seller"
+              ]
+            }
+          },
+          {
+            "name": "bucket",
+            "required": false,
+            "in": "query",
+            "description": "Status tab: open (pending), in_execution (confirmed, in a transaction or disputed), completed, cancelled",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "open",
+                "in_execution",
+                "completed",
+                "cancelled"
+              ]
+            }
+          },
+          {
+            "name": "requestId",
+            "required": false,
+            "in": "query",
+            "description": "Filter by the originating request ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrderCountsDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "How many of my orders are in each status tab",
         "tags": [
           "Orders"
         ]
@@ -3405,6 +3440,16 @@
             }
           }
         ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CancelOrderDto"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "",
@@ -3423,6 +3468,45 @@
           }
         ],
         "summary": "Cancel order (either party, pending only)",
+        "tags": [
+          "Orders"
+        ]
+      }
+    },
+    "/api/v1/orders/{id}/activity": {
+      "get": {
+        "operationId": "OrdersController_activity",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/OrderActivityEntryDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "The order's timeline: order and transaction events, newest first, actors as sides",
         "tags": [
           "Orders"
         ]
@@ -19729,68 +19813,6 @@
           "updatedAt"
         ]
       },
-      "MilestoneInputDto": {
-        "type": "object",
-        "properties": {
-          "name": {
-            "type": "string",
-            "example": "Site Preparation"
-          },
-          "description": {
-            "type": "string",
-            "example": "Clear the site and prepare equipment."
-          },
-          "requiredDocuments": {
-            "description": "Names of documents the seller must submit for this milestone",
-            "example": [
-              "Site Survey Report",
-              "Photo Evidence"
-            ],
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          "percentage": {
-            "type": "number",
-            "description": "Payment percentage for this milestone (1-100). All milestone percentages must sum to 100.",
-            "example": 30
-          }
-        },
-        "required": [
-          "name",
-          "percentage"
-        ]
-      },
-      "CreateTransactionDto": {
-        "type": "object",
-        "properties": {
-          "orderId": {
-            "type": "string",
-            "description": "ID of the confirmed order",
-            "example": "60d0fe4f5311236168a109ca"
-          },
-          "productSource": {
-            "type": "string",
-            "enum": [
-              "ORDER",
-              "REQUEST"
-            ],
-            "description": "Tells the system whether to use the product from the order or the matching request to determine the category."
-          },
-          "milestones": {
-            "description": "Ordered list of milestones. Providing milestones selects the MILESTONE workflow (progressive settlement); omitting them selects STANDARD (single settlement).",
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/MilestoneInputDto"
-            }
-          }
-        },
-        "required": [
-          "orderId",
-          "productSource"
-        ]
-      },
       "InFlightStageSummaryDto": {
         "type": "object",
         "properties": {
@@ -19980,6 +20002,33 @@
         "required": [
           "message",
           "data"
+        ]
+      },
+      "OrderCancellationDto": {
+        "type": "object",
+        "properties": {
+          "reason": {
+            "type": "string",
+            "description": "Why the order was cancelled"
+          },
+          "by": {
+            "type": "string",
+            "enum": [
+              "buyer",
+              "seller",
+              "platform"
+            ],
+            "description": "Which side cancelled; never a person"
+          },
+          "at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "reason",
+          "by",
+          "at"
         ]
       },
       "OrderOrganizationDto": {
@@ -20337,6 +20386,21 @@
         "properties": {
           "_id": {
             "type": "string"
+          },
+          "orderType": {
+            "type": "string",
+            "enum": [
+              "marketplace",
+              "request"
+            ],
+            "description": "marketplace = bought from a listing; request = awarded on a buyer request"
+          },
+          "categoryName": {
+            "type": "string",
+            "description": "Category of the listing or request"
+          },
+          "cancellation": {
+            "$ref": "#/components/schemas/OrderCancellationDto"
           },
           "sellerOrganization": {
             "$ref": "#/components/schemas/OrderOrganizationDto"
@@ -21356,49 +21420,6 @@
           "updatedAt"
         ]
       },
-      "UpdateTransactionStatusDto": {
-        "type": "object",
-        "properties": {
-          "status": {
-            "type": "string",
-            "enum": [
-              "INITIATED",
-              "DOCUMENTS_SUBMITTED",
-              "COMPLIANCE_REVIEWED",
-              "ESCROW_FUNDED",
-              "LOGISTICS_ASSIGNED",
-              "IN_TRANSIT",
-              "INSPECTION_PENDING",
-              "INSPECTION_UNDER_REVIEW",
-              "INSPECTION_FAILED",
-              "INSPECTION_PRICE_REVIEW",
-              "DELIVERY_CONFIRMED",
-              "PREPARATION_IN_PROGRESS",
-              "RENTAL_IN_PROGRESS",
-              "OFF_HIRE_PENDING",
-              "RETURN_INSPECTION_PENDING",
-              "VESSEL_MOBILIZING",
-              "CHARTER_IN_PROGRESS",
-              "VOYAGE_COMPLETING",
-              "MILESTONES_IN_PROGRESS",
-              "SETTLEMENT_RELEASED",
-              "CLOSED",
-              "CANCELLED",
-              "REFUNDED",
-              "PARTIALLY_REFUNDED",
-              "DISPUTED"
-            ],
-            "description": "The new status to transition to"
-          },
-          "reason": {
-            "type": "string",
-            "description": "Reason for the status change (optional)"
-          }
-        },
-        "required": [
-          "status"
-        ]
-      },
       "AddTransactionDocumentDto": {
         "type": "object",
         "properties": {
@@ -21985,6 +22006,39 @@
           "url"
         ]
       },
+      "MilestoneInputDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Site Preparation"
+          },
+          "description": {
+            "type": "string",
+            "example": "Clear the site and prepare equipment."
+          },
+          "requiredDocuments": {
+            "description": "Names of documents the seller must submit for this milestone",
+            "example": [
+              "Site Survey Report",
+              "Photo Evidence"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "percentage": {
+            "type": "number",
+            "description": "Payment percentage for this milestone (1-100). All milestone percentages must sum to 100.",
+            "example": 30
+          }
+        },
+        "required": [
+          "name",
+          "percentage"
+        ]
+      },
       "PurchaseProductDto": {
         "type": "object",
         "properties": {
@@ -22219,6 +22273,33 @@
           "data"
         ]
       },
+      "OrderCountsDto": {
+        "type": "object",
+        "properties": {
+          "all": {
+            "type": "number"
+          },
+          "open": {
+            "type": "number"
+          },
+          "in_execution": {
+            "type": "number"
+          },
+          "completed": {
+            "type": "number"
+          },
+          "cancelled": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "all",
+          "open",
+          "in_execution",
+          "completed",
+          "cancelled"
+        ]
+      },
       "UpdateOrderDto": {
         "type": "object",
         "properties": {
@@ -22272,6 +22353,51 @@
             }
           }
         }
+      },
+      "CancelOrderDto": {
+        "type": "object",
+        "properties": {
+          "reason": {
+            "type": "string",
+            "description": "Why the order is cancelled. Shown to both parties.",
+            "minLength": 3,
+            "maxLength": 500
+          }
+        },
+        "required": [
+          "reason"
+        ]
+      },
+      "OrderActivityEntryDto": {
+        "type": "object",
+        "properties": {
+          "at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "label": {
+            "type": "string",
+            "description": "What happened, in plain words"
+          },
+          "actorRole": {
+            "type": "string",
+            "enum": [
+              "buyer",
+              "seller",
+              "platform"
+            ],
+            "description": "Which side acted; never a person"
+          },
+          "detail": {
+            "type": "string",
+            "description": "Extra context, e.g. a cancellation reason or document type"
+          }
+        },
+        "required": [
+          "at",
+          "label",
+          "actorRole"
+        ]
       },
       "RequestCategoryGroupDto": {
         "type": "object",
@@ -31080,6 +31206,49 @@
         "required": [
           "message",
           "data"
+        ]
+      },
+      "UpdateTransactionStatusDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "INITIATED",
+              "DOCUMENTS_SUBMITTED",
+              "COMPLIANCE_REVIEWED",
+              "ESCROW_FUNDED",
+              "LOGISTICS_ASSIGNED",
+              "IN_TRANSIT",
+              "INSPECTION_PENDING",
+              "INSPECTION_UNDER_REVIEW",
+              "INSPECTION_FAILED",
+              "INSPECTION_PRICE_REVIEW",
+              "DELIVERY_CONFIRMED",
+              "PREPARATION_IN_PROGRESS",
+              "RENTAL_IN_PROGRESS",
+              "OFF_HIRE_PENDING",
+              "RETURN_INSPECTION_PENDING",
+              "VESSEL_MOBILIZING",
+              "CHARTER_IN_PROGRESS",
+              "VOYAGE_COMPLETING",
+              "MILESTONES_IN_PROGRESS",
+              "SETTLEMENT_RELEASED",
+              "CLOSED",
+              "CANCELLED",
+              "REFUNDED",
+              "PARTIALLY_REFUNDED",
+              "DISPUTED"
+            ],
+            "description": "The new status to transition to"
+          },
+          "reason": {
+            "type": "string",
+            "description": "Reason for the status change (optional)"
+          }
+        },
+        "required": [
+          "status"
         ]
       },
       "AddTransactionRequirementDto": {

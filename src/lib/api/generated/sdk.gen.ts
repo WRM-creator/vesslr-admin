@@ -517,10 +517,14 @@ import type {
   OnboardingControllerUpdateTransactionProfileResponses,
   OnboardingControllerVerifyPhoneOtpData,
   OnboardingControllerVerifyPhoneOtpResponses,
+  OrdersControllerActivityData,
+  OrdersControllerActivityResponses,
   OrdersControllerCancelData,
   OrdersControllerCancelResponses,
   OrdersControllerConfirmData,
   OrdersControllerConfirmResponses,
+  OrdersControllerCountsData,
+  OrdersControllerCountsResponses,
   OrdersControllerFindAllData,
   OrdersControllerFindAllResponses,
   OrdersControllerFindOneData,
@@ -645,8 +649,6 @@ import type {
   TransactionsControllerCompleteGenericStageResponses,
   TransactionsControllerConfirmDeliveryData,
   TransactionsControllerConfirmDeliveryResponses,
-  TransactionsControllerCreateData,
-  TransactionsControllerCreateResponses,
   TransactionsControllerDownloadContractData,
   TransactionsControllerDownloadContractResponses,
   TransactionsControllerFindByIdData,
@@ -667,8 +669,6 @@ import type {
   TransactionsControllerSubmitInspectionResponses,
   TransactionsControllerSubmitMilestoneData,
   TransactionsControllerSubmitMilestoneResponses,
-  TransactionsControllerUpdateStatusData,
-  TransactionsControllerUpdateStatusResponses,
   TransfiWebhooksControllerHandleWebhookData,
   TransfiWebhooksControllerHandleWebhookResponses,
   UsersAuthControllerChangePasswordData,
@@ -1708,28 +1708,6 @@ export const transactionsControllerFindInFlight = <
   });
 
 /**
- * Create a transaction (Internal/Admin)
- */
-export const transactionsControllerCreate = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<TransactionsControllerCreateData, ThrowOnError>,
-) =>
-  (options.client ?? client).post<
-    TransactionsControllerCreateResponses,
-    unknown,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/api/v1/transactions",
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options.headers,
-    },
-  });
-
-/**
  * Get transaction by order ID
  */
 export const transactionsControllerFindByOrderId = <
@@ -1763,28 +1741,6 @@ export const transactionsControllerFindById = <
     security: [{ scheme: "bearer", type: "http" }],
     url: "/api/v1/transactions/{id}",
     ...options,
-  });
-
-/**
- * Update transaction status
- */
-export const transactionsControllerUpdateStatus = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<TransactionsControllerUpdateStatusData, ThrowOnError>,
-) =>
-  (options.client ?? client).patch<
-    TransactionsControllerUpdateStatusResponses,
-    unknown,
-    ThrowOnError
-  >({
-    security: [{ scheme: "bearer", type: "http" }],
-    url: "/api/v1/transactions/{id}/status",
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options.headers,
-    },
   });
 
 /**
@@ -2182,6 +2138,22 @@ export const ordersControllerFindAll = <ThrowOnError extends boolean = false>(
   });
 
 /**
+ * How many of my orders are in each status tab
+ */
+export const ordersControllerCounts = <ThrowOnError extends boolean = false>(
+  options?: Options<OrdersControllerCountsData, ThrowOnError>,
+) =>
+  (options?.client ?? client).get<
+    OrdersControllerCountsResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/orders/counts",
+    ...options,
+  });
+
+/**
  * Get a single order (party only)
  */
 export const ordersControllerFindOne = <ThrowOnError extends boolean = false>(
@@ -2266,6 +2238,26 @@ export const ordersControllerCancel = <ThrowOnError extends boolean = false>(
   >({
     security: [{ scheme: "bearer", type: "http" }],
     url: "/api/v1/orders/{id}/cancel",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * The order's timeline: order and transaction events, newest first, actors as sides
+ */
+export const ordersControllerActivity = <ThrowOnError extends boolean = false>(
+  options: Options<OrdersControllerActivityData, ThrowOnError>,
+) =>
+  (options.client ?? client).get<
+    OrdersControllerActivityResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/orders/{id}/activity",
     ...options,
   });
 

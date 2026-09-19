@@ -2377,34 +2377,6 @@ export type CategoryDto = {
   updatedAt: string;
 };
 
-export type MilestoneInputDto = {
-  name: string;
-  description?: string;
-  /**
-   * Names of documents the seller must submit for this milestone
-   */
-  requiredDocuments?: Array<string>;
-  /**
-   * Payment percentage for this milestone (1-100). All milestone percentages must sum to 100.
-   */
-  percentage: number;
-};
-
-export type CreateTransactionDto = {
-  /**
-   * ID of the confirmed order
-   */
-  orderId: string;
-  /**
-   * Tells the system whether to use the product from the order or the matching request to determine the category.
-   */
-  productSource: "ORDER" | "REQUEST";
-  /**
-   * Ordered list of milestones. Providing milestones selects the MILESTONE workflow (progressive settlement); omitting them selects STANDARD (single settlement).
-   */
-  milestones?: Array<MilestoneInputDto>;
-};
-
 export type InFlightStageSummaryDto = {
   /**
    * Name of the currently active stage. Omitted when the active stage is a PARTY_ONLY stage belonging to the counterparty.
@@ -2494,6 +2466,18 @@ export type PaginatedInFlightDataDto = {
 export type PaginatedInFlightTransactionsResponseDto = {
   message: string;
   data: PaginatedInFlightDataDto;
+};
+
+export type OrderCancellationDto = {
+  /**
+   * Why the order was cancelled
+   */
+  reason: string;
+  /**
+   * Which side cancelled; never a person
+   */
+  by: "buyer" | "seller" | "platform";
+  at: string;
 };
 
 export type OrderOrganizationDto = {
@@ -2654,6 +2638,15 @@ export type OrderLocationDto = {
 
 export type OrderResponseDto = {
   _id: string;
+  /**
+   * marketplace = bought from a listing; request = awarded on a buyer request
+   */
+  orderType?: "marketplace" | "request";
+  /**
+   * Category of the listing or request
+   */
+  categoryName?: string;
+  cancellation?: OrderCancellationDto;
   sellerOrganization?: OrderOrganizationDto;
   buyerOrganization?: OrderOrganizationDto;
   request: OrderRequestDto;
@@ -3174,42 +3167,6 @@ export type TransactionResponseDto = {
   updatedAt: string;
 };
 
-export type UpdateTransactionStatusDto = {
-  /**
-   * The new status to transition to
-   */
-  status:
-    | "INITIATED"
-    | "DOCUMENTS_SUBMITTED"
-    | "COMPLIANCE_REVIEWED"
-    | "ESCROW_FUNDED"
-    | "LOGISTICS_ASSIGNED"
-    | "IN_TRANSIT"
-    | "INSPECTION_PENDING"
-    | "INSPECTION_UNDER_REVIEW"
-    | "INSPECTION_FAILED"
-    | "INSPECTION_PRICE_REVIEW"
-    | "DELIVERY_CONFIRMED"
-    | "PREPARATION_IN_PROGRESS"
-    | "RENTAL_IN_PROGRESS"
-    | "OFF_HIRE_PENDING"
-    | "RETURN_INSPECTION_PENDING"
-    | "VESSEL_MOBILIZING"
-    | "CHARTER_IN_PROGRESS"
-    | "VOYAGE_COMPLETING"
-    | "MILESTONES_IN_PROGRESS"
-    | "SETTLEMENT_RELEASED"
-    | "CLOSED"
-    | "CANCELLED"
-    | "REFUNDED"
-    | "PARTIALLY_REFUNDED"
-    | "DISPUTED";
-  /**
-   * Reason for the status change (optional)
-   */
-  reason?: string;
-};
-
 export type AddTransactionDocumentDto = {
   /**
    * The type of document being uploaded
@@ -3519,6 +3476,19 @@ export type CreateOrderDocumentDto = {
   url: string;
 };
 
+export type MilestoneInputDto = {
+  name: string;
+  description?: string;
+  /**
+   * Names of documents the seller must submit for this milestone
+   */
+  requiredDocuments?: Array<string>;
+  /**
+   * Payment percentage for this milestone (1-100). All milestone percentages must sum to 100.
+   */
+  percentage: number;
+};
+
 export type PurchaseProductDto = {
   /**
    * ID of the product to purchase
@@ -3673,6 +3643,14 @@ export type PaginatedOrdersResponseDto = {
   data: OrdersPaginationDataDto;
 };
 
+export type OrderCountsDto = {
+  all: number;
+  open: number;
+  in_execution: number;
+  completed: number;
+  cancelled: number;
+};
+
 export type UpdateOrderDto = {
   buyerDocuments?: Array<CreateOrderDocumentDto>;
   sellerDocuments?: Array<CreateOrderDocumentDto>;
@@ -3693,6 +3671,29 @@ export type ConfirmOrderDto = {
    * Ordered list of milestones. Providing milestones selects the MILESTONE workflow (progressive settlement); omitting them selects STANDARD (single settlement).
    */
   milestones?: Array<ConfirmOrderMilestoneDto>;
+};
+
+export type CancelOrderDto = {
+  /**
+   * Why the order is cancelled. Shown to both parties.
+   */
+  reason: string;
+};
+
+export type OrderActivityEntryDto = {
+  at: string;
+  /**
+   * What happened, in plain words
+   */
+  label: string;
+  /**
+   * Which side acted; never a person
+   */
+  actorRole: "buyer" | "seller" | "platform";
+  /**
+   * Extra context, e.g. a cancellation reason or document type
+   */
+  detail?: string;
 };
 
 export type RequestCategoryGroupDto = {
@@ -7975,6 +7976,42 @@ export type PaginatedTransactionsResponseDto = {
   data: PaginatedDataDto;
 };
 
+export type UpdateTransactionStatusDto = {
+  /**
+   * The new status to transition to
+   */
+  status:
+    | "INITIATED"
+    | "DOCUMENTS_SUBMITTED"
+    | "COMPLIANCE_REVIEWED"
+    | "ESCROW_FUNDED"
+    | "LOGISTICS_ASSIGNED"
+    | "IN_TRANSIT"
+    | "INSPECTION_PENDING"
+    | "INSPECTION_UNDER_REVIEW"
+    | "INSPECTION_FAILED"
+    | "INSPECTION_PRICE_REVIEW"
+    | "DELIVERY_CONFIRMED"
+    | "PREPARATION_IN_PROGRESS"
+    | "RENTAL_IN_PROGRESS"
+    | "OFF_HIRE_PENDING"
+    | "RETURN_INSPECTION_PENDING"
+    | "VESSEL_MOBILIZING"
+    | "CHARTER_IN_PROGRESS"
+    | "VOYAGE_COMPLETING"
+    | "MILESTONES_IN_PROGRESS"
+    | "SETTLEMENT_RELEASED"
+    | "CLOSED"
+    | "CANCELLED"
+    | "REFUNDED"
+    | "PARTIALLY_REFUNDED"
+    | "DISPUTED";
+  /**
+   * Reason for the status change (optional)
+   */
+  reason?: string;
+};
+
 export type AddTransactionRequirementDto = {
   /**
    * The type of document required
@@ -11669,20 +11706,6 @@ export type TransactionsControllerFindInFlightResponses = {
 export type TransactionsControllerFindInFlightResponse =
   TransactionsControllerFindInFlightResponses[keyof TransactionsControllerFindInFlightResponses];
 
-export type TransactionsControllerCreateData = {
-  body: CreateTransactionDto;
-  path?: never;
-  query?: never;
-  url: "/api/v1/transactions";
-};
-
-export type TransactionsControllerCreateResponses = {
-  /**
-   * The created transaction
-   */
-  200: unknown;
-};
-
 export type TransactionsControllerFindByOrderIdData = {
   body?: never;
   path: {
@@ -11720,25 +11743,6 @@ export type TransactionsControllerFindByIdResponses = {
 
 export type TransactionsControllerFindByIdResponse =
   TransactionsControllerFindByIdResponses[keyof TransactionsControllerFindByIdResponses];
-
-export type TransactionsControllerUpdateStatusData = {
-  body: UpdateTransactionStatusDto;
-  path: {
-    id: string;
-  };
-  query?: never;
-  url: "/api/v1/transactions/{id}/status";
-};
-
-export type TransactionsControllerUpdateStatusResponses = {
-  /**
-   * The updated transaction
-   */
-  200: TransactionResponseDto;
-};
-
-export type TransactionsControllerUpdateStatusResponse =
-  TransactionsControllerUpdateStatusResponses[keyof TransactionsControllerUpdateStatusResponses];
 
 export type TransactionsControllerAddDocumentData = {
   body: AddTransactionDocumentDto;
@@ -12089,6 +12093,10 @@ export type OrdersControllerFindAllData = {
      */
     role?: "buyer" | "seller";
     /**
+     * Status tab: open (pending), in_execution (confirmed, in a transaction or disputed), completed, cancelled
+     */
+    bucket?: "open" | "in_execution" | "completed" | "cancelled";
+    /**
      * Filter by the originating request ID
      */
     requestId?: string;
@@ -12102,6 +12110,45 @@ export type OrdersControllerFindAllResponses = {
 
 export type OrdersControllerFindAllResponse =
   OrdersControllerFindAllResponses[keyof OrdersControllerFindAllResponses];
+
+export type OrdersControllerCountsData = {
+  body?: never;
+  path?: never;
+  query?: {
+    /**
+     * Page number
+     */
+    page?: string;
+    /**
+     * Items per page
+     */
+    limit?: string;
+    /**
+     * Filter by status (Order or Transaction status)
+     */
+    status?: string;
+    /**
+     * Filter by role (buyer or seller)
+     */
+    role?: "buyer" | "seller";
+    /**
+     * Status tab: open (pending), in_execution (confirmed, in a transaction or disputed), completed, cancelled
+     */
+    bucket?: "open" | "in_execution" | "completed" | "cancelled";
+    /**
+     * Filter by the originating request ID
+     */
+    requestId?: string;
+  };
+  url: "/api/v1/orders/counts";
+};
+
+export type OrdersControllerCountsResponses = {
+  200: OrderCountsDto;
+};
+
+export type OrdersControllerCountsResponse =
+  OrdersControllerCountsResponses[keyof OrdersControllerCountsResponses];
 
 export type OrdersControllerFindOneData = {
   body?: never;
@@ -12181,7 +12228,7 @@ export type OrdersControllerGetLogsResponse =
   OrdersControllerGetLogsResponses[keyof OrdersControllerGetLogsResponses];
 
 export type OrdersControllerCancelData = {
-  body?: never;
+  body: CancelOrderDto;
   path: {
     id: string;
   };
@@ -12195,6 +12242,22 @@ export type OrdersControllerCancelResponses = {
 
 export type OrdersControllerCancelResponse =
   OrdersControllerCancelResponses[keyof OrdersControllerCancelResponses];
+
+export type OrdersControllerActivityData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/orders/{id}/activity";
+};
+
+export type OrdersControllerActivityResponses = {
+  200: Array<OrderActivityEntryDto>;
+};
+
+export type OrdersControllerActivityResponse =
+  OrdersControllerActivityResponses[keyof OrdersControllerActivityResponses];
 
 export type RequestsControllerFindAllData = {
   body?: never;
