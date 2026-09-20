@@ -1493,6 +1493,7 @@ export type {
   RegistryTrusteeDto,
   RejectNegotiationDto,
   RelatedResourceDto,
+  ReleaseScheduleEntryDto,
   RentalSpecsDto,
   RentalSpecsResponseDto,
   ReopenFundingWindowDto,

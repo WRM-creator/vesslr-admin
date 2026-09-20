@@ -2624,6 +2624,41 @@ export type OrderProductDto = {
   milestoneDelivery?: boolean;
 };
 
+export type ReleaseScheduleEntryDto = {
+  label: string;
+  /**
+   * Share of the viewer's base amount, as a fraction (0.2 = 20%)
+   */
+  percentage: number;
+  /**
+   * The share in minor units, when the base amount is known
+   */
+  amount?: number;
+  /**
+   * Completing this stage releases the entry. Releases are triggered by stage completion, never by a date.
+   */
+  triggerStage:
+    | "DOCUMENT_SUBMISSION"
+    | "COMPLIANCE_REVIEW"
+    | "FUND_ESCROW"
+    | "LOGISTICS"
+    | "IN_TRANSIT"
+    | "INSPECTION"
+    | "DELIVERY_CONFIRMATION"
+    | "SELLER_PREPARATION"
+    | "RENTAL_ACTIVE"
+    | "OFF_HIRE_REPORT"
+    | "RETURN_INSPECTION"
+    | "VESSEL_MOBILIZATION"
+    | "CHARTER_ACTIVE"
+    | "VOYAGE_COMPLETION"
+    | "MILESTONE_SUBMIT"
+    | "MILESTONE_APPROVE"
+    | "SETTLEMENT"
+    | "CLOSED";
+  triggerLabel: string;
+};
+
 export type OrderDocumentDto = {
   name: string;
   url: string;
@@ -2678,6 +2713,10 @@ export type OrderResponseDto = {
    * The listing's declared payment terms at purchase. Display only: escrow is funded in full.
    */
   paymentTerms?: "first_tranche_balance_on_title_transfer";
+  /**
+   * How the money leaves escrow on the way to the seller. Escrow is still funded IN FULL before the cargo moves; this is the release side only. Amounts are the VIEWER's own arithmetic: the goods value for a buyer, the amount net of the service charge for a seller.
+   */
+  releaseSchedule?: Array<ReleaseScheduleEntryDto>;
   quantity: number;
   unitOfMeasurement:
     | "bbl"
