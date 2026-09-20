@@ -161,7 +161,7 @@ export function BenchmarkFormDialog({
           <DialogDescription>
             {isReferenced
               ? "This benchmark is referenced by existing deals: its code, currency, and unit are frozen. Only the display name can change."
-              : "A differential deal settles in the benchmark's currency, quoted per its unit."}
+              : "A differential is quoted in the benchmark's currency, per its unit. The deal itself can settle in another currency."}
           </DialogDescription>
         </DialogHeader>
 
