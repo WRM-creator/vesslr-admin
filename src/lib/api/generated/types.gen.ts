@@ -2720,6 +2720,22 @@ export type OrderResponseDto = {
     | "plate"
     | "bar";
   /**
+   * How long the engagement runs, for a rental, lease or charter. Recorded only: it does not multiply the price, which covers the whole engagement.
+   */
+  duration?: number;
+  /**
+   * The unit the duration is counted in
+   */
+  durationUnit?:
+    | "hour"
+    | "day"
+    | "week"
+    | "month"
+    | "year"
+    | "project"
+    | "milestone"
+    | "contract";
+  /**
    * How the order is priced. A differential order stays unpriced (pricePerUnit/totals unset) until the benchmark resolves at funding.
    */
   pricingBasis: "flat" | "differential";

@@ -20728,6 +20728,24 @@
               "bar"
             ]
           },
+          "duration": {
+            "type": "number",
+            "description": "How long the engagement runs, for a rental, lease or charter. Recorded only: it does not multiply the price, which covers the whole engagement."
+          },
+          "durationUnit": {
+            "type": "string",
+            "enum": [
+              "hour",
+              "day",
+              "week",
+              "month",
+              "year",
+              "project",
+              "milestone",
+              "contract"
+            ],
+            "description": "The unit the duration is counted in"
+          },
           "pricingBasis": {
             "type": "string",
             "enum": [
