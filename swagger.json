@@ -16675,7 +16675,7 @@
           },
           "buyerEscrowFee": {
             "nullable": true,
-            "description": "Buyers of a differential listing only: the escrow fee they pay on top, when an admin configured one; null means none",
+            "description": "The escrow fee the buyer pays on top of the listed price. Always present on a flat listing (an order cannot price without one); opt-in on a differential listing, where null means none",
             "allOf": [
               {
                 "$ref": "#/components/schemas/BuyerEscrowFeeDto"
@@ -16957,7 +16957,7 @@
               "USDT",
               "USDC"
             ],
-            "description": "Currency of the differential; must equal the deal / benchmark currency"
+            "description": "Currency the differential is quoted in; must equal the benchmark currency. Not necessarily the settlement currency"
           },
           "notes": {
             "type": "string",
@@ -17650,7 +17650,7 @@
           },
           "buyerEscrowFee": {
             "nullable": true,
-            "description": "Buyers of a differential listing only: the escrow fee they pay on top, when an admin configured one; null means none",
+            "description": "The escrow fee the buyer pays on top of the listed price. Always present on a flat listing (an order cannot price without one); opt-in on a differential listing, where null means none",
             "allOf": [
               {
                 "$ref": "#/components/schemas/BuyerEscrowFeeDto"
@@ -30532,7 +30532,7 @@
           },
           "buyerEscrowFee": {
             "nullable": true,
-            "description": "Buyers of a differential listing only: the escrow fee they pay on top, when an admin configured one; null means none",
+            "description": "The escrow fee the buyer pays on top of the listed price. Always present on a flat listing (an order cannot price without one); opt-in on a differential listing, where null means none",
             "allOf": [
               {
                 "$ref": "#/components/schemas/BuyerEscrowFeeDto"

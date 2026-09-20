@@ -705,7 +705,7 @@ export type PopulatedProductResponseDto = {
    */
   sellerFee?: SellerFeeDto;
   /**
-   * Buyers of a differential listing only: the escrow fee they pay on top, when an admin configured one; null means none
+   * The escrow fee the buyer pays on top of the listed price. Always present on a flat listing (an order cannot price without one); opt-in on a differential listing, where null means none
    */
   buyerEscrowFee?: BuyerEscrowFeeDto | null;
   currency?: "NGN" | "KES" | "USD" | "EUR" | "USDT" | "USDC";
@@ -835,7 +835,7 @@ export type DifferentialPriceDto = {
    */
   differentialValue: number;
   /**
-   * Currency of the differential; must equal the deal / benchmark currency
+   * Currency the differential is quoted in; must equal the benchmark currency. Not necessarily the settlement currency
    */
   differentialCurrency: "NGN" | "KES" | "USD" | "EUR" | "USDT" | "USDC";
   /**
@@ -1237,7 +1237,7 @@ export type ProductResponseDto = {
    */
   sellerFee?: SellerFeeDto;
   /**
-   * Buyers of a differential listing only: the escrow fee they pay on top, when an admin configured one; null means none
+   * The escrow fee the buyer pays on top of the listed price. Always present on a flat listing (an order cannot price without one); opt-in on a differential listing, where null means none
    */
   buyerEscrowFee?: BuyerEscrowFeeDto | null;
   currency?: "NGN" | "KES" | "USD" | "EUR" | "USDT" | "USDC";
@@ -7453,7 +7453,7 @@ export type AdminProductResponseDto = {
    */
   sellerFee?: SellerFeeDto;
   /**
-   * Buyers of a differential listing only: the escrow fee they pay on top, when an admin configured one; null means none
+   * The escrow fee the buyer pays on top of the listed price. Always present on a flat listing (an order cannot price without one); opt-in on a differential listing, where null means none
    */
   buyerEscrowFee?: BuyerEscrowFeeDto | null;
   currency?: "NGN" | "KES" | "USD" | "EUR" | "USDT" | "USDC";
