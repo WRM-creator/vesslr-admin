@@ -151,12 +151,19 @@ export function RailsTable({ bindings }: RailsTableProps) {
                     {binding.stalledAt ? (
                       // Once retries have stopped there is no next check, and
                       // showing one would be a lie. The repeating reason is
-                      // what the admin needs instead.
-                      <p className="text-muted-foreground">
-                        Stopped after {binding.consecutiveSameOutcome ?? 0}{" "}
-                        identical failures
-                        {binding.stallReason ? `: ${binding.stallReason}` : ""}
-                      </p>
+                      // what the admin needs instead. It is raw provider text
+                      // of unbounded length, so it wraps inside a fixed width:
+                      // unconstrained it stretched the table by ~370px and made
+                      // the whole row a horizontal scroll on a phone.
+                      <div className="text-muted-foreground max-w-[220px] whitespace-normal">
+                        <p>
+                          Stopped after {binding.consecutiveSameOutcome ?? 0}{" "}
+                          identical failures
+                        </p>
+                        {binding.stallReason && (
+                          <p className="break-words">{binding.stallReason}</p>
+                        )}
+                      </div>
                     ) : (
                       binding.nextPollAt &&
                       POLLED_STATUSES.has(binding.onboardingStatus) && (
