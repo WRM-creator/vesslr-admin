@@ -103,6 +103,11 @@ export function RailsTable({ bindings }: RailsTableProps) {
                       Disabled
                     </Badge>
                   )}
+                  {binding.stalledAt && (
+                    <Badge variant="outline" className={`text-[11px] ${TINT.red}`}>
+                      Retries stopped
+                    </Badge>
+                  )}
                 </div>
               </TableCell>
               <TableCell>
@@ -143,13 +148,24 @@ export function RailsTable({ bindings }: RailsTableProps) {
                         "dd MMM yyyy, HH:mm",
                       )}
                     </p>
-                    {binding.nextPollAt &&
+                    {binding.stalledAt ? (
+                      // Once retries have stopped there is no next check, and
+                      // showing one would be a lie. The repeating reason is
+                      // what the admin needs instead.
+                      <p className="text-muted-foreground">
+                        Stopped after {binding.consecutiveSameOutcome ?? 0}{" "}
+                        identical failures
+                        {binding.stallReason ? `: ${binding.stallReason}` : ""}
+                      </p>
+                    ) : (
+                      binding.nextPollAt &&
                       POLLED_STATUSES.has(binding.onboardingStatus) && (
                         <p className="text-muted-foreground">
                           Next check{" "}
                           {format(new Date(binding.nextPollAt), "dd MMM, HH:mm")}
                         </p>
-                      )}
+                      )
+                    )}
                   </div>
                 ) : (
                   <span className="text-muted-foreground text-xs">

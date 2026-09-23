@@ -82,6 +82,21 @@ export function derivePaymentsVerdict(
 
   const buckets = new Set(bindings.map((b) => b.blockedBy).filter(Boolean));
 
+  // Outranks the rest: whatever the underlying reason, the operative fact is
+  // that nothing will happen again on its own until someone acts.
+  if (buckets.has("stalled")) {
+    return {
+      tone: "blocked",
+      headline: "Provisioning stopped after repeated failures",
+      detail:
+        "The same error came back several times, so automatic retries stopped. Fix the cause, then retry; retrying starts the count again.",
+      ownership: "admin",
+      canRetry: true,
+      retryPrimary: true,
+      lastChangedAt,
+    };
+  }
+
   // Most actionable bucket wins the headline.
   if (buckets.has("data_actionable")) {
     return {
