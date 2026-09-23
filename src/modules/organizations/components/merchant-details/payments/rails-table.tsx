@@ -19,6 +19,7 @@ const STATUS_LABELS: Record<string, string> = {
   in_review: "In review",
   active: "Verified",
   rejected: "Rejected",
+  archived: "Closed by provider",
 };
 
 const STATUS_TINTS: Record<string, string> = {
@@ -27,6 +28,13 @@ const STATUS_TINTS: Record<string, string> = {
   pending: TINT.amber,
   in_review: TINT.amber,
   rejected: TINT.red,
+  archived: TINT.red,
+};
+
+/** The provider's KYC flag, shown only when it needs attention. */
+const KYC_CAPTIONS: Record<string, string> = {
+  expiry_soon: "KYC expiring",
+  expired: "KYC expired",
 };
 
 const PROVIDER_LABELS: Record<string, string> = {
@@ -51,6 +59,8 @@ const OUTCOME_LABELS: Record<string, string> = {
   incomplete: "Deferred, data missing",
   error: "Failed",
   poll_error: "Status check failed",
+  provider_closed: "Closed by provider",
+  suspended: "Suspended by provider",
 };
 
 /** In-flight statuses the reconciler keeps checking on a backoff. */
@@ -108,6 +118,15 @@ export function RailsTable({ bindings }: RailsTableProps) {
                       Retries stopped
                     </Badge>
                   )}
+                  {binding.providerKycStatus &&
+                    KYC_CAPTIONS[binding.providerKycStatus] && (
+                      <Badge
+                        variant="outline"
+                        className={`text-[11px] ${TINT.amber}`}
+                      >
+                        {KYC_CAPTIONS[binding.providerKycStatus]}
+                      </Badge>
+                    )}
                 </div>
               </TableCell>
               <TableCell>

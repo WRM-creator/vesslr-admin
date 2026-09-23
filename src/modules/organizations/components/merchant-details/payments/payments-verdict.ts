@@ -124,6 +124,23 @@ export function derivePaymentsVerdict(
     };
   }
 
+  // A closed principal is a harder stop than "waiting": the provider has to
+  // act (restore it) or a new customer is needed, and retrying cannot help.
+  if (bindings.some((b) => b.onboardingStatus === "archived")) {
+    return {
+      tone: "blocked",
+      headline: "Closed by the provider",
+      detail:
+        "The provider has closed this organization's customer and gave no reason. Nothing sent from here can reach it. Ask the provider to restore it, or provision a new customer. Retrying only re-checks the status, so use it once the provider says the customer is restored.",
+      ownership: "provider",
+      // Nothing polls a closed customer, so a manual retry (which reads the
+      // status and stops) is how a provider-side restore is discovered.
+      canRetry: true,
+      retryPrimary: false,
+      lastChangedAt,
+    };
+  }
+
   if (buckets.has("provider_blocked")) {
     return {
       tone: "blocked",
