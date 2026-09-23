@@ -35607,7 +35607,8 @@
               "pending",
               "in_review",
               "active",
-              "rejected"
+              "rejected",
+              "archived"
             ],
             "description": "Provider-side onboarding/verification status."
           },
@@ -37156,7 +37157,8 @@
               "pending",
               "in_review",
               "active",
-              "rejected"
+              "rejected",
+              "archived"
             ],
             "type": "string"
           },
@@ -37189,7 +37191,7 @@
           },
           "lastOutcome": {
             "type": "string",
-            "description": "created | resubmitted | status_refreshed | reconciled | webhook_update | incomplete | error"
+            "description": "created | resubmitted | status_refreshed | reconciled | webhook_update | incomplete | error | poll_error | provider_closed | suspended"
           },
           "lastError": {
             "type": "string"
@@ -37198,6 +37200,10 @@
             "format": "date-time",
             "type": "string",
             "description": "When the reconciler next polls this in-flight principal (backs off 30 min to 6 h while nothing changes). Absent when not in flight or due now."
+          },
+          "providerKycStatus": {
+            "type": "string",
+            "description": "The provider's own KYC freshness flag, verbatim (Busha: pending | unverified | verified | expiry_soon | expired). Independent of onboardingStatus; informational, custody does not gate on it."
           },
           "stalledAt": {
             "format": "date-time",

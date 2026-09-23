@@ -9382,7 +9382,7 @@ export type ProviderOnboardingStatusDto = {
   /**
    * Provider-side onboarding/verification status.
    */
-  status: "none" | "pending" | "in_review" | "active" | "rejected";
+  status: "none" | "pending" | "in_review" | "active" | "rejected" | "archived";
   /**
    * Provider principal/customer handle, if onboarded.
    */
@@ -10135,7 +10135,13 @@ export type AdminProviderBindingDto = {
    * ISO2 corridor country at provisioning time
    */
   country: string;
-  onboardingStatus: "none" | "pending" | "in_review" | "active" | "rejected";
+  onboardingStatus:
+    | "none"
+    | "pending"
+    | "in_review"
+    | "active"
+    | "rejected"
+    | "archived";
   status: "active" | "disabled";
   /**
    * Provider-side principal (e.g. Busha business customer id)
@@ -10155,7 +10161,7 @@ export type AdminProviderBindingDto = {
    */
   lastAttemptAt?: string;
   /**
-   * created | resubmitted | status_refreshed | reconciled | webhook_update | incomplete | error
+   * created | resubmitted | status_refreshed | reconciled | webhook_update | incomplete | error | poll_error | provider_closed | suspended
    */
   lastOutcome?: string;
   lastError?: string;
@@ -10163,6 +10169,10 @@ export type AdminProviderBindingDto = {
    * When the reconciler next polls this in-flight principal (backs off 30 min to 6 h while nothing changes). Absent when not in flight or due now.
    */
   nextPollAt?: string;
+  /**
+   * The provider's own KYC freshness flag, verbatim (Busha: pending | unverified | verified | expiry_soon | expired). Independent of onboardingStatus; informational, custody does not gate on it.
+   */
+  providerKycStatus?: string;
   /**
    * When unattended retrying stopped because the same failure kept recurring. Nothing re-drives this binding until an admin retries or the provider reports a change.
    */
