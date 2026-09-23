@@ -28,6 +28,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
+import { sellerFeePreview } from "./funding-review-fee";
 import { api } from "@/lib/api";
 import type {
   ConfirmDepositFundingDto,
@@ -35,12 +36,7 @@ import type {
   FundingReviewDto,
   TransactionResponseDto,
 } from "@/lib/api/generated";
-import {
-  formatCurrency,
-  fromMinorUnit,
-  getCurrencyDecimals,
-  toMinorUnit,
-} from "@/lib/currency";
+import { formatCurrency, fromMinorUnit, toMinorUnit } from "@/lib/currency";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import {
@@ -218,39 +214,26 @@ function ConfirmFundingDialog({
   const priceValid = Number.isFinite(parsedPrice) && parsedPrice > 0;
   const priceMinor = priceValid ? toMinorUnit(parsedPrice, currency) : 0;
 
-  // The seller fee rides on the formula, so it is quoted in the benchmark's
-  // currency. When the deal settles elsewhere the clamped total crosses at
-  // the rate the parties agreed. Mirrors calculateSellerFee +
-  // convertFeeToSettlement on the server: clamp formula-side, convert once.
   const parsedRate = Number(fxRateInput);
   const rateValid = Number.isFinite(parsedRate) && parsedRate > 0;
   const fxRateMicros = rateValid ? Math.round(parsedRate * 1_000_000) : 0;
   const fee = review.sellerFee;
-  const feeFormulaTotal = (() => {
-    if (!fee) return 0;
-    let total = Math.round(fee.feePerUnit * review.quantity);
-    if (fee.minFee != null) total = Math.max(total, fee.minFee);
-    if (fee.maxFee != null) total = Math.min(total, fee.maxFee);
-    return total;
-  })();
-  const feeSettlementTotal = review.requiresFxRate
-    ? rateValid
-      ? Math.round(
-          (feeFormulaTotal *
-            fxRateMicros *
-            10 **
-              (getCurrencyDecimals(currency) -
-                getCurrencyDecimals(review.formulaCurrency))) /
-            1_000_000,
-        )
-      : 0
-    : feeFormulaTotal;
 
   const derivable = priceValid && (!review.requiresFxRate || rateValid);
   // The buyer pays the listed price PLUS the escrow fee, so the deposit has
   // to cover both; the seller's charge comes out of the goods amount alone.
   // Mirrors confirmDepositLedFunding exactly.
   const goodsTotal = derivable ? Math.round(review.quantity * priceMinor) : 0;
+
+  const { feeFormulaTotal, feeSettlementTotal } = sellerFeePreview({
+    fee,
+    quantity: review.quantity,
+    goodsTotal,
+    settlementCurrency: currency,
+    formulaCurrency: review.formulaCurrency,
+    fxRateMicros: rateValid ? fxRateMicros : 0,
+    requiresFxRate: !!review.requiresFxRate,
+  });
   const escrowFeeTotal = Math.round(goodsTotal * (review.escrowFeeRate ?? 0));
   const escrowTotal = goodsTotal + escrowFeeTotal;
   const sellerAmount = derivable ? goodsTotal - feeSettlementTotal : 0;
@@ -431,12 +414,15 @@ function ConfirmFundingDialog({
                   </div>
                 </>
               )}
-              {review.requiresFxRate && (
+              {fee && (
                 <div className="flex items-center justify-between">
                   <span className="text-muted-foreground">
-                    Seller fee (
-                    {formatCurrency(feeFormulaTotal, review.formulaCurrency)}{" "}
-                    converted)
+                    Seller fee
+                    {fee.method === "percentage"
+                      ? ` (${Number(((fee.percentage ?? 0) * 100).toFixed(4))}% of goods)`
+                      : review.requiresFxRate
+                        ? ` (${formatCurrency(feeFormulaTotal, review.formulaCurrency)} converted)`
+                        : ""}
                   </span>
                   <span className="font-medium">
                     {derivable

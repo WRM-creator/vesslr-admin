@@ -1,3 +1,4 @@
+import { getTradeTermLabel } from "@/types/trade-term";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { TransactionResponseDto } from "@/lib/api/generated";
 import { formatCurrency } from "@/lib/currency";
@@ -227,6 +228,25 @@ export function OverviewStatusCard({
   const productName = order?.product?.title;
   const quantity = order?.quantity;
   const unitOfMeasurement = order?.unitOfMeasurement;
+  // A rental, lease or charter runs for a period. It is recorded, not priced:
+  // the agreed price covers the whole engagement.
+  const period =
+    order?.duration && order?.durationUnit
+      ? `${Number(order.duration).toLocaleString()} ${order.durationUnit}${Number(order.duration) === 1 ? "" : "s"}`
+      : undefined;
+  // Commodity orders: how the cargo moves, as the buyer confirmed at purchase.
+  const calendarDay = (value: string) =>
+    format(new Date(`${value.slice(0, 10)}T00:00:00`), "MMM d, yyyy");
+  const deliveryLine = [
+    order?.tradeTerm && getTradeTermLabel(order.tradeTerm),
+    order?.deliveryPoint?.name,
+    order?.laycan &&
+      `Laycan ${calendarDay(order.laycan.start)} to ${calendarDay(order.laycan.end)}`,
+    order?.inspectionPoint &&
+      `Inspection at ${order.inspectionPoint === "load_port" ? "load port" : "discharge port"}`,
+  ]
+    .filter(Boolean)
+    .join(" · ");
 
   return (
     <Card>
@@ -235,25 +255,31 @@ export function OverviewStatusCard({
       </CardHeader>
       <CardContent>
         <div className="flex flex-col gap-4">
-          {/* Order context strip */}
-          {productName && (
+          {/* Order context strip. The product is not always populated on this
+              endpoint, so the strip stands on the order's own terms too. */}
+          {(productName || quantity != null) && (
             <>
               <div className="flex items-start gap-2.5">
                 <Package className="mt-0.5 size-4 shrink-0 text-indigo-500" />
                 <div className="space-y-1">
                   <div className="flex items-center gap-1.5">
                     <span className="text-muted-foreground text-xs font-medium tracking-wider uppercase">
-                      Product
+                      {productName ? "Product" : "Order"}
                     </span>
                   </div>
-                  <p className="text-sm font-medium">{productName}</p>
+                  {productName && (
+                    <p className="text-sm font-medium">{productName}</p>
+                  )}
                   {quantity != null && (
                     <p className="text-muted-foreground text-xs">
                       {Number(quantity).toLocaleString()} {unitOfMeasurement || "units"}{" "}
-                      · {amountPending
+                      {period ? `· ${period} ` : ""}· {amountPending
                         ? (formula ?? "Benchmark differential")
                         : formatCurrency(amount, currency)}
                     </p>
+                  )}
+                  {deliveryLine && (
+                    <p className="text-muted-foreground text-xs">{deliveryLine}</p>
                   )}
                 </div>
               </div>

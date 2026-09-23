@@ -39,25 +39,10 @@ export type UpdateAddressDto = {
 };
 
 export type RegisterDto = {
-  /**
-   * User's email address (used for login)
-   */
   email: string;
-  /**
-   * Password (minimum 8 characters)
-   */
   password: string;
-  /**
-   * User's first name
-   */
   firstName: string;
-  /**
-   * User's last name
-   */
   lastName: string;
-  /**
-   * User's phone number in E.164 international format (e.g. +1234567890)
-   */
   phone: string;
   /**
    * ISO-3166-1 alpha-2 operating country
@@ -66,9 +51,6 @@ export type RegisterDto = {
 };
 
 export type AuthTokenResponseDto = {
-  /**
-   * JWT access token
-   */
   accessToken: string;
   user?: {
     [key: string]: unknown;
@@ -76,13 +58,7 @@ export type AuthTokenResponseDto = {
 };
 
 export type LoginDto = {
-  /**
-   * User's email address
-   */
   email: string;
-  /**
-   * User's password
-   */
   password: string;
 };
 
@@ -95,10 +71,7 @@ export type UserVerifyOtpDto = {
 };
 
 export type ForgotPasswordDto = {
-  /**
-   * Email to send the password reset link to
-   */
-  email: string;
+  [key: string]: unknown;
 };
 
 export type ResetPasswordDto = {
@@ -375,20 +348,12 @@ export type ComplianceRequirementsDto = {
   phoneVerificationRequired: boolean;
 };
 
-export type GeneratePresignedUrlDto = {
-  filename: string;
-  contentType: string;
-};
-
 export type GeneratePresignedUrlsDto = {
-  files: Array<GeneratePresignedUrlDto>;
+  [key: string]: unknown;
 };
 
 export type PresignedUrlResponseDto = {
-  key: string;
-  url: string;
-  publicUrl: string;
-  filename: string;
+  [key: string]: unknown;
 };
 
 export type UpdateOrganizationDto = {
@@ -465,6 +430,18 @@ export type ProductCategoryGroupDto = {
   allowsOrderQuantityLimits?: boolean;
   milestoneDelivery?: boolean;
   allowsInspection?: boolean;
+  /**
+   * Whether the group is an energy commodity group (the buyer tab and the seller wizard both branch on it).
+   */
+  allowsCommoditySpecs?: boolean;
+  /**
+   * Marketplace family the listing belongs to, resolved from the group so no client re-derives it.
+   */
+  family?:
+    | "energy_commodities"
+    | "equipment"
+    | "industrial_materials"
+    | "services";
   /**
    * Group forbids fixed pricing; listings must be differential.
    */
@@ -562,6 +539,13 @@ export type SellerFeeDto = {
    * Frozen fee crossed into the settlement currency at the agreed rate (frozen only)
    */
   feeSettlementAmount?: number;
+};
+
+export type BuyerEscrowFeeDto = {
+  /**
+   * Fraction of the goods value, e.g. 0.01 for 1%
+   */
+  percentage: number;
 };
 
 export type ProductOrganizationDto = {
@@ -678,6 +662,22 @@ export type RequestMilestoneDto = {
   percentage: number;
 };
 
+export type LoadingTerminalResponseDto = {
+  terminalId?: string;
+  name: string;
+};
+
+export type LaycanResponseDto = {
+  start: string;
+  end: string;
+};
+
+export type TradeDocumentResponseDto = {
+  key: string;
+  name: string;
+  status: "available" | "to_be_advised";
+};
+
 export type PopulatedProductResponseDto = {
   _id: string;
   /**
@@ -704,6 +704,10 @@ export type PopulatedProductResponseDto = {
    * Disclosed platform fee on a differential listing — owning seller only; resolved from the category/group fee config
    */
   sellerFee?: SellerFeeDto;
+  /**
+   * The escrow fee the buyer pays on top of the listed price. Always present on a flat listing (an order cannot price without one); opt-in on a differential listing, where null means none
+   */
+  buyerEscrowFee?: BuyerEscrowFeeDto | null;
   currency?: "NGN" | "KES" | "USD" | "EUR" | "USDT" | "USDC";
   images?: Array<string>;
   features?: Array<string>;
@@ -755,7 +759,31 @@ export type PopulatedProductResponseDto = {
     | "plate"
     | "bar";
   conditions?: Array<"New" | "Used - Good" | "Used - Fair" | "Refurbished">;
+  /**
+   * Trade terms (Incoterms / delivery procedures) the listing is offered on
+   */
+  tradeTerms?: Array<
+    | "FOB"
+    | "CIF"
+    | "CFR"
+    | "EX_WORKS"
+    | "DELIVERED"
+    | "TTO"
+    | "TTT"
+    | "FOT"
+    | "FCA"
+    | "DAP"
+    | "DDP"
+    | "NA"
+  >;
+  /**
+   * Present only when the viewer owns the listing.
+   */
   organization?: ProductOrganizationDto;
+  /**
+   * Whether the viewer's organization owns this listing.
+   */
+  isOwner?: boolean;
   location?: PopulatedProductLocationDto;
   status?: "pending" | "approved" | "rejected" | "delisted";
   rejectionReason?: string;
@@ -769,123 +797,32 @@ export type PopulatedProductResponseDto = {
   specDeclarations?: Array<SpecDeclarationResponseDto>;
   commercialTerms?: CommercialTermsResponseDto;
   milestones?: Array<RequestMilestoneDto>;
-};
-
-export type ProductsPaginationDataDto = {
-  docs: Array<PopulatedProductResponseDto>;
-  totalDocs: number;
-  page: number;
-  limit: number;
-  totalPages: number;
-};
-
-export type PaginatedProductsResponseDto = {
-  message: string;
-  data: ProductsPaginationDataDto;
-};
-
-export type ProductLocationDto = {
-  state?: ProductStateDto;
-  region?: ProductRegionDto;
-  country?: CountryDto;
-  address?: string;
-};
-
-export type ProductResponseDto = {
-  _id: string;
+  contractStyle?: "spot" | "term";
   /**
-   * Display ID
+   * Unset reads as available. Only available listings can be ordered directly.
    */
-  displayId: number;
-  title: string;
-  description?: string;
-  specialtyId?: string;
-  categoryId?: {
-    [key: string]: unknown;
-  };
-  groupId?: {
-    [key: string]: unknown;
-  };
-  type?: "products" | "services";
-  listingType?: "product" | "service" | "rental" | "charter";
+  availability?: "available" | "indicative" | "request_only";
+  availabilityNote?: string;
+  paymentTerms?: "first_tranche_balance_on_title_transfer";
   /**
-   * How the price is expressed (flat or differential).
+   * Contractual tolerance, +/- percent
    */
-  pricingBasis?: "flat" | "differential";
+  tolerancePercent?: number;
+  shippingRegions?: Array<
+    | "west_africa"
+    | "northwest_europe"
+    | "mediterranean"
+    | "us_gulf"
+    | "asia_pacific"
+    | "middle_east"
+  >;
+  loadingTerminal?: LoadingTerminalResponseDto;
+  laycan?: LaycanResponseDto;
   /**
-   * Flat price per unit in minor currency units (kobo/cents). Absent on differential listings.
+   * When the listing leaves the marketplace
    */
-  pricePerUnit?: number;
-  differentialPrice?: DifferentialPriceResponseDto;
-  /**
-   * Disclosed platform fee on a differential listing — owning seller only; resolved from the category/group fee config
-   */
-  sellerFee?: SellerFeeDto;
-  currency?: "NGN" | "KES" | "USD" | "EUR" | "USDT" | "USDC";
-  images?: Array<string>;
-  features?: Array<string>;
-  availableQuantity?: number;
-  minimumOrderQuantity?: number;
-  maximumOrderQuantity?: number;
-  trackInventory?: boolean;
-  lowStockThreshold?: number;
-  showStockToBuyers?: boolean;
-  allowBackorders?: boolean;
-  unitOfMeasurement?:
-    | "bbl"
-    | "liter"
-    | "gallon"
-    | "m3"
-    | "mt"
-    | "kg"
-    | "ton"
-    | "lb"
-    | "m"
-    | "ft"
-    | "sqm"
-    | "sqft"
-    | "scf"
-    | "sm3"
-    | "nm3"
-    | "mmbtu"
-    | "kwh"
-    | "mwh"
-    | "kva"
-    | "kw"
-    | "mw"
-    | "unit"
-    | "set"
-    | "kit"
-    | "pair"
-    | "joint"
-    | "roll"
-    | "sheet"
-    | "box"
-    | "pack"
-    | "drum"
-    | "bag"
-    | "cylinder"
-    | "ream"
-    | "license"
-    | "skid"
-    | "package"
-    | "plate"
-    | "bar";
-  conditions?: Array<"New" | "Used - Good" | "Used - Fair" | "Refurbished">;
-  organization?: ProductOrganizationDto;
-  location?: ProductLocationDto;
-  status?: "pending" | "approved" | "rejected" | "delisted";
-  rejectionReason?: string;
-  delistReason?: string;
-  resubmissionCount?: number;
-  isActive?: boolean;
-  createdAt?: string;
-  updatedAt?: string;
-  documents?: Array<string>;
-  specifications?: SpecificationsResponseDto;
-  specDeclarations?: Array<SpecDeclarationResponseDto>;
-  commercialTerms?: CommercialTermsResponseDto;
-  milestones?: Array<RequestMilestoneDto>;
+  listingExpiresAt?: string;
+  tradeDocuments?: Array<TradeDocumentResponseDto>;
 };
 
 export type DifferentialPriceDto = {
@@ -898,7 +835,7 @@ export type DifferentialPriceDto = {
    */
   differentialValue: number;
   /**
-   * Currency of the differential; must equal the deal / benchmark currency
+   * Currency the differential is quoted in; must equal the benchmark currency. Not necessarily the settlement currency
    */
   differentialCurrency: "NGN" | "KES" | "USD" | "EUR" | "USDT" | "USDC";
   /**
@@ -1113,6 +1050,31 @@ export type CommercialTermsDto = {
   refundPolicy?: string;
 };
 
+export type LoadingTerminalDto = {
+  /**
+   * Seeded terminal ID; omit when the seller types a terminal that is not listed
+   */
+  terminalId?: string;
+  /**
+   * Terminal or port name, as buyers see it
+   */
+  name: string;
+};
+
+export type LaycanDto = {
+  start: string;
+  end: string;
+};
+
+export type TradeDocumentDto = {
+  /**
+   * Stable key (e.g. certificate_of_origin); custom documents use custom_<slug>
+   */
+  key: string;
+  name: string;
+  status: "available" | "to_be_advised";
+};
+
 export type UpsertMyProductDto = {
   /**
    * Ignored. The listing name is derived from the category leaf and equipment specs.
@@ -1139,8 +1101,8 @@ export type UpsertMyProductDto = {
    */
   differentialPrice?: DifferentialPriceDto;
   currency?: "NGN" | "KES" | "USD" | "EUR" | "USDT" | "USDC";
-  images?: Array<string>;
-  documents?: Array<string>;
+  images: Array<string>;
+  documents: Array<string>;
   features?: Array<string>;
   availableQuantity?: number;
   minimumOrderQuantity?: number;
@@ -1203,12 +1165,196 @@ export type UpsertMyProductDto = {
     | "DDP"
     | "NA"
   >;
-  conditions?: Array<"New" | "Used - Good" | "Used - Fair" | "Refurbished">;
-  location?: LocationDto;
+  conditions: Array<"New" | "Used - Good" | "Used - Fair" | "Refurbished">;
+  location: LocationDto;
   specifications?: SpecificationsDto;
   specDeclarations?: Array<SpecDeclarationDto>;
   commercialTerms?: CommercialTermsDto;
   milestones?: Array<RequestMilestoneDto>;
+  contractStyle?: "spot" | "term";
+  /**
+   * Only available listings can be ordered directly
+   */
+  availability?: "available" | "indicative" | "request_only";
+  availabilityNote?: string;
+  paymentTerms?: "first_tranche_balance_on_title_transfer";
+  /**
+   * Contractual tolerance, +/- percent
+   */
+  tolerancePercent?: number;
+  shippingRegions?: Array<
+    | "west_africa"
+    | "northwest_europe"
+    | "mediterranean"
+    | "us_gulf"
+    | "asia_pacific"
+    | "middle_east"
+  >;
+  loadingTerminal?: LoadingTerminalDto;
+  laycan?: LaycanDto;
+  /**
+   * When the listing leaves the marketplace (not cargo validity)
+   */
+  listingExpiresAt?: string;
+  tradeDocuments?: Array<TradeDocumentDto>;
+};
+
+export type ProductLocationDto = {
+  state?: ProductStateDto;
+  region?: ProductRegionDto;
+  country?: CountryDto;
+  address?: string;
+};
+
+export type ProductResponseDto = {
+  _id: string;
+  /**
+   * Display ID
+   */
+  displayId: number;
+  title: string;
+  description?: string;
+  specialtyId?: string;
+  categoryId?: {
+    [key: string]: unknown;
+  };
+  groupId?: {
+    [key: string]: unknown;
+  };
+  type?: "products" | "services";
+  listingType?: "product" | "service" | "rental" | "charter";
+  /**
+   * How the price is expressed (flat or differential).
+   */
+  pricingBasis?: "flat" | "differential";
+  /**
+   * Flat price per unit in minor currency units (kobo/cents). Absent on differential listings.
+   */
+  pricePerUnit?: number;
+  differentialPrice?: DifferentialPriceResponseDto;
+  /**
+   * Disclosed platform fee on a differential listing — owning seller only; resolved from the category/group fee config
+   */
+  sellerFee?: SellerFeeDto;
+  /**
+   * The escrow fee the buyer pays on top of the listed price. Always present on a flat listing (an order cannot price without one); opt-in on a differential listing, where null means none
+   */
+  buyerEscrowFee?: BuyerEscrowFeeDto | null;
+  currency?: "NGN" | "KES" | "USD" | "EUR" | "USDT" | "USDC";
+  images?: Array<string>;
+  features?: Array<string>;
+  availableQuantity?: number;
+  minimumOrderQuantity?: number;
+  maximumOrderQuantity?: number;
+  trackInventory?: boolean;
+  lowStockThreshold?: number;
+  showStockToBuyers?: boolean;
+  allowBackorders?: boolean;
+  unitOfMeasurement?:
+    | "bbl"
+    | "liter"
+    | "gallon"
+    | "m3"
+    | "mt"
+    | "kg"
+    | "ton"
+    | "lb"
+    | "m"
+    | "ft"
+    | "sqm"
+    | "sqft"
+    | "scf"
+    | "sm3"
+    | "nm3"
+    | "mmbtu"
+    | "kwh"
+    | "mwh"
+    | "kva"
+    | "kw"
+    | "mw"
+    | "unit"
+    | "set"
+    | "kit"
+    | "pair"
+    | "joint"
+    | "roll"
+    | "sheet"
+    | "box"
+    | "pack"
+    | "drum"
+    | "bag"
+    | "cylinder"
+    | "ream"
+    | "license"
+    | "skid"
+    | "package"
+    | "plate"
+    | "bar";
+  conditions?: Array<"New" | "Used - Good" | "Used - Fair" | "Refurbished">;
+  /**
+   * Trade terms (Incoterms / delivery procedures) the listing is offered on
+   */
+  tradeTerms?: Array<
+    | "FOB"
+    | "CIF"
+    | "CFR"
+    | "EX_WORKS"
+    | "DELIVERED"
+    | "TTO"
+    | "TTT"
+    | "FOT"
+    | "FCA"
+    | "DAP"
+    | "DDP"
+    | "NA"
+  >;
+  /**
+   * Owning organization. Present only when the viewer owns the listing; never sent to other organizations (counterparty anonymity).
+   */
+  organization?: ProductOrganizationDto;
+  /**
+   * Whether the viewer's organization owns this listing.
+   */
+  isOwner?: boolean;
+  location?: ProductLocationDto;
+  status?: "pending" | "approved" | "rejected" | "delisted";
+  rejectionReason?: string;
+  delistReason?: string;
+  resubmissionCount?: number;
+  isActive?: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+  documents?: Array<string>;
+  specifications?: SpecificationsResponseDto;
+  specDeclarations?: Array<SpecDeclarationResponseDto>;
+  commercialTerms?: CommercialTermsResponseDto;
+  milestones?: Array<RequestMilestoneDto>;
+  contractStyle?: "spot" | "term";
+  /**
+   * Unset reads as available. Only available listings can be ordered directly.
+   */
+  availability?: "available" | "indicative" | "request_only";
+  availabilityNote?: string;
+  paymentTerms?: "first_tranche_balance_on_title_transfer";
+  /**
+   * Contractual tolerance, +/- percent
+   */
+  tolerancePercent?: number;
+  shippingRegions?: Array<
+    | "west_africa"
+    | "northwest_europe"
+    | "mediterranean"
+    | "us_gulf"
+    | "asia_pacific"
+    | "middle_east"
+  >;
+  loadingTerminal?: LoadingTerminalResponseDto;
+  laycan?: LaycanResponseDto;
+  /**
+   * When the listing leaves the marketplace
+   */
+  listingExpiresAt?: string;
+  tradeDocuments?: Array<TradeDocumentResponseDto>;
 };
 
 export type UpdateMyProductDto = {
@@ -1307,6 +1453,218 @@ export type UpdateMyProductDto = {
   specDeclarations?: Array<SpecDeclarationDto>;
   commercialTerms?: CommercialTermsDto;
   milestones?: Array<RequestMilestoneDto>;
+  contractStyle?: "spot" | "term";
+  /**
+   * Only available listings can be ordered directly
+   */
+  availability?: "available" | "indicative" | "request_only";
+  availabilityNote?: string;
+  paymentTerms?: "first_tranche_balance_on_title_transfer";
+  /**
+   * Contractual tolerance, +/- percent
+   */
+  tolerancePercent?: number;
+  shippingRegions?: Array<
+    | "west_africa"
+    | "northwest_europe"
+    | "mediterranean"
+    | "us_gulf"
+    | "asia_pacific"
+    | "middle_east"
+  >;
+  loadingTerminal?: LoadingTerminalDto;
+  laycan?: LaycanDto;
+  /**
+   * When the listing leaves the marketplace (not cargo validity)
+   */
+  listingExpiresAt?: string;
+  tradeDocuments?: Array<TradeDocumentDto>;
+};
+
+export type ProductsPaginationDataDto = {
+  docs: Array<PopulatedProductResponseDto>;
+  totalDocs: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+};
+
+export type PaginatedProductsResponseDto = {
+  message: string;
+  data: ProductsPaginationDataDto;
+};
+
+export type MarketplaceCountsDto = {
+  /**
+   * All product-family listings (energy commodities + equipment + industrial materials); services are excluded
+   */
+  all: number;
+  energy_commodities: number;
+  equipment: number;
+  industrial_materials: number;
+  services: number;
+};
+
+export type MarketplaceGradeOptionDto = {
+  /**
+   * Specialty ID
+   */
+  id: string;
+  /**
+   * Specialty (grade / product type) name
+   */
+  name: string;
+  /**
+   * Parent category ID
+   */
+  categoryId: string;
+  /**
+   * Parent category name (e.g. Crude Oil)
+   */
+  categoryName?: string;
+  count: number;
+};
+
+export type MarketplaceCountryOptionDto = {
+  /**
+   * Country ID
+   */
+  id: string;
+  name: string;
+  count: number;
+};
+
+export type MarketplaceStateOptionDto = {
+  /**
+   * State ID
+   */
+  id: string;
+  name: string;
+  /**
+   * Country ID the state belongs to
+   */
+  countryId: string;
+  count: number;
+};
+
+export type MarketplaceUnitOptionDto = {
+  value:
+    | "bbl"
+    | "liter"
+    | "gallon"
+    | "m3"
+    | "mt"
+    | "kg"
+    | "ton"
+    | "lb"
+    | "m"
+    | "ft"
+    | "sqm"
+    | "sqft"
+    | "scf"
+    | "sm3"
+    | "nm3"
+    | "mmbtu"
+    | "kwh"
+    | "mwh"
+    | "kva"
+    | "kw"
+    | "mw"
+    | "unit"
+    | "set"
+    | "kit"
+    | "pair"
+    | "joint"
+    | "roll"
+    | "sheet"
+    | "box"
+    | "pack"
+    | "drum"
+    | "bag"
+    | "cylinder"
+    | "ream"
+    | "license"
+    | "skid"
+    | "package"
+    | "plate"
+    | "bar";
+  count: number;
+};
+
+export type MarketplaceConditionOptionDto = {
+  value: "New" | "Used - Good" | "Used - Fair" | "Refurbished";
+  count: number;
+};
+
+export type MarketplaceTradeTermOptionDto = {
+  value:
+    | "FOB"
+    | "CIF"
+    | "CFR"
+    | "EX_WORKS"
+    | "DELIVERED"
+    | "TTO"
+    | "TTT"
+    | "FOT"
+    | "FCA"
+    | "DAP"
+    | "DDP"
+    | "NA";
+  count: number;
+};
+
+export type MarketplacePricingBasisOptionDto = {
+  value: "flat" | "differential";
+  count: number;
+};
+
+export type MarketplaceFacetsDto = {
+  grades: Array<MarketplaceGradeOptionDto>;
+  countries: Array<MarketplaceCountryOptionDto>;
+  states: Array<MarketplaceStateOptionDto>;
+  units: Array<MarketplaceUnitOptionDto>;
+  conditions: Array<MarketplaceConditionOptionDto>;
+  tradeTerms: Array<MarketplaceTradeTermOptionDto>;
+  pricingBases: Array<MarketplacePricingBasisOptionDto>;
+};
+
+export type MarketplaceGroupCountDto = {
+  /**
+   * Category group ID
+   */
+  id: string;
+  /**
+   * Approved listings in the group
+   */
+  listingCount: number;
+  /**
+   * Active categories in the group
+   */
+  categoryCount: number;
+};
+
+export type MarketplaceCategoryCountDto = {
+  /**
+   * Category ID
+   */
+  id: string;
+  /**
+   * Parent category group ID
+   */
+  groupId: string;
+  /**
+   * Approved listings in the category
+   */
+  listingCount: number;
+  /**
+   * Active specialties (product types) in the category
+   */
+  specialtyCount: number;
+};
+
+export type MarketplaceTaxonomyCountsDto = {
+  groups: Array<MarketplaceGroupCountDto>;
+  categories: Array<MarketplaceCategoryCountDto>;
 };
 
 export type FeeTierDto = {
@@ -1372,6 +1730,85 @@ export type ServiceFeeConfigResponseDto = {
   trigger?: "settlement" | "funding" | "delivery";
   tiers?: Array<FeeTierDto>;
   refundable: boolean;
+};
+
+export type CategoryGroupWithFamilyDto = {
+  _id: string;
+  name: string;
+  slug: string;
+  type: string;
+  isActive: boolean;
+  image?: string;
+  requiresLogistics: boolean;
+  allowsInspection: boolean;
+  milestoneDelivery: boolean;
+  requiresEscrow: boolean;
+  requiresCompliance: boolean;
+  allowsOrderQuantityLimits: boolean;
+  allowsInventoryTracking: boolean;
+  allowedCurrencies: Array<"NGN" | "KES" | "USD" | "EUR" | "USDT" | "USDC">;
+  allowedListingTypes: Array<
+    "product" | "service" | "rental" | "lease" | "charter" | "rfq"
+  >;
+  allowedConditions: Array<
+    "New" | "Used - Good" | "Used - Fair" | "Refurbished"
+  >;
+  /**
+   * Allowed trade terms for listings in this group
+   */
+  allowedTradeTerms: Array<
+    | "FOB"
+    | "CIF"
+    | "CFR"
+    | "EX_WORKS"
+    | "DELIVERED"
+    | "TTO"
+    | "TTT"
+    | "FOT"
+    | "FCA"
+    | "DAP"
+    | "DDP"
+    | "NA"
+  >;
+  allowedTransactionTypes: Array<
+    | "purchase"
+    | "lease"
+    | "charter"
+    | "bulk_supply"
+    | "spot_trade"
+    | "rental"
+    | "term_contract"
+    | "service_contract"
+    | "milestone_service"
+  >;
+  allowsCommoditySpecs: boolean;
+  /**
+   * Whether listings in this group must be priced as a benchmark differential (no fixed price)
+   */
+  requiresDifferentialPricing: boolean;
+  allowsEquipmentSpecs: boolean;
+  allowsServiceSpecs: boolean;
+  allowsRentalSpecs: boolean;
+  allowsCharterSpecs: boolean;
+  serviceFeeConfig?: ServiceFeeConfigResponseDto;
+  escrowFeeConfig?: ServiceFeeConfigResponseDto;
+  serviceChargeConfig?: ServiceFeeConfigResponseDto;
+  allowedEscrowStructures: Array<"full" | "deposit" | "milestone" | "partial">;
+  defaultEscrowStructure: "full" | "deposit" | "milestone" | "partial";
+  /**
+   * Deprecated: measurement types are now configured per category.
+   *
+   * @deprecated
+   */
+  allowedMeasurementTypes: Array<"count" | "volume" | "mass" | "time">;
+  /**
+   * Marketplace family (buyer tab) derived from the group type and spec flags.
+   */
+  family:
+    | "energy_commodities"
+    | "equipment"
+    | "industrial_materials"
+    | "services";
 };
 
 export type CategoryGroupDto = {
@@ -1549,7 +1986,9 @@ export type UpdateCategoryGroupDto = {
   allowedListingTypes?: Array<
     "product" | "service" | "rental" | "lease" | "charter" | "rfq"
   >;
-  allowedConditions?: "New" | "Used - Good" | "Used - Fair" | "Refurbished";
+  allowedConditions?: Array<
+    "New" | "Used - Good" | "Used - Fair" | "Refurbished"
+  >;
   /**
    * Allowed trade terms for listings in this group
    */
@@ -1806,6 +2245,16 @@ export type CategorySpecialtyDto = {
   updatedAt: string;
 };
 
+export type TerminalDto = {
+  _id: string;
+  name: string;
+  /**
+   * Country ID
+   */
+  country: string;
+  kind?: string;
+};
+
 export type CategoryDocumentTemplateDto = {
   type:
     | "INVOICE"
@@ -1928,34 +2377,6 @@ export type CategoryDto = {
   updatedAt: string;
 };
 
-export type MilestoneInputDto = {
-  name: string;
-  description?: string;
-  /**
-   * Names of documents the seller must submit for this milestone
-   */
-  requiredDocuments?: Array<string>;
-  /**
-   * Payment percentage for this milestone (1-100). All milestone percentages must sum to 100.
-   */
-  percentage: number;
-};
-
-export type CreateTransactionDto = {
-  /**
-   * ID of the confirmed order
-   */
-  orderId: string;
-  /**
-   * Tells the system whether to use the product from the order or the matching request to determine the category.
-   */
-  productSource: "ORDER" | "REQUEST";
-  /**
-   * Ordered list of milestones. Providing milestones selects the MILESTONE workflow (progressive settlement); omitting them selects STANDARD (single settlement).
-   */
-  milestones?: Array<MilestoneInputDto>;
-};
-
 export type InFlightStageSummaryDto = {
   /**
    * Name of the currently active stage. Omitted when the active stage is a PARTY_ONLY stage belonging to the counterparty.
@@ -2045,6 +2466,18 @@ export type PaginatedInFlightDataDto = {
 export type PaginatedInFlightTransactionsResponseDto = {
   message: string;
   data: PaginatedInFlightDataDto;
+};
+
+export type OrderCancellationDto = {
+  /**
+   * Why the order was cancelled
+   */
+  reason: string;
+  /**
+   * Which side cancelled; never a person
+   */
+  by: "buyer" | "seller" | "platform";
+  at: string;
 };
 
 export type OrderOrganizationDto = {
@@ -2191,6 +2624,41 @@ export type OrderProductDto = {
   milestoneDelivery?: boolean;
 };
 
+export type ReleaseScheduleEntryDto = {
+  label: string;
+  /**
+   * Share of the viewer's base amount, as a fraction (0.2 = 20%)
+   */
+  percentage: number;
+  /**
+   * The share in minor units, when the base amount is known
+   */
+  amount?: number;
+  /**
+   * Completing this stage releases the entry. Releases are triggered by stage completion, never by a date.
+   */
+  triggerStage:
+    | "DOCUMENT_SUBMISSION"
+    | "COMPLIANCE_REVIEW"
+    | "FUND_ESCROW"
+    | "LOGISTICS"
+    | "IN_TRANSIT"
+    | "INSPECTION"
+    | "DELIVERY_CONFIRMATION"
+    | "SELLER_PREPARATION"
+    | "RENTAL_ACTIVE"
+    | "OFF_HIRE_REPORT"
+    | "RETURN_INSPECTION"
+    | "VESSEL_MOBILIZATION"
+    | "CHARTER_ACTIVE"
+    | "VOYAGE_COMPLETION"
+    | "MILESTONE_SUBMIT"
+    | "MILESTONE_APPROVE"
+    | "SETTLEMENT"
+    | "CLOSED";
+  triggerLabel: string;
+};
+
 export type OrderDocumentDto = {
   name: string;
   url: string;
@@ -2205,11 +2673,50 @@ export type OrderLocationDto = {
 
 export type OrderResponseDto = {
   _id: string;
+  /**
+   * marketplace = bought from a listing; request = awarded on a buyer request
+   */
+  orderType?: "marketplace" | "request";
+  /**
+   * Category of the listing or request
+   */
+  categoryName?: string;
+  cancellation?: OrderCancellationDto;
   sellerOrganization?: OrderOrganizationDto;
   buyerOrganization?: OrderOrganizationDto;
   request: OrderRequestDto;
   product?: OrderProductDto;
   transactionType?: string;
+  tradeTerm?:
+    | "FOB"
+    | "CIF"
+    | "CFR"
+    | "EX_WORKS"
+    | "DELIVERED"
+    | "TTO"
+    | "TTT"
+    | "FOT"
+    | "FCA"
+    | "DAP"
+    | "DDP"
+    | "NA";
+  /**
+   * Commodity orders: where the cargo is handed over
+   */
+  deliveryPoint?: LoadingTerminalResponseDto;
+  /**
+   * Commodity orders: the loading window ordered, inside the listing laycan
+   */
+  laycan?: LaycanResponseDto;
+  inspectionPoint?: "load_port" | "discharge_port";
+  /**
+   * The listing's declared payment terms at purchase. Display only: escrow is funded in full.
+   */
+  paymentTerms?: "first_tranche_balance_on_title_transfer";
+  /**
+   * How the money leaves escrow on the way to the seller. Escrow is still funded IN FULL before the cargo moves; this is the release side only. Amounts are the VIEWER's own arithmetic: the goods value for a buyer, the amount net of the service charge for a seller.
+   */
+  releaseSchedule?: Array<ReleaseScheduleEntryDto>;
   quantity: number;
   unitOfMeasurement:
     | "bbl"
@@ -2251,6 +2758,22 @@ export type OrderResponseDto = {
     | "package"
     | "plate"
     | "bar";
+  /**
+   * How long the engagement runs, for a rental, lease or charter. Recorded only: it does not multiply the price, which covers the whole engagement.
+   */
+  duration?: number;
+  /**
+   * The unit the duration is counted in
+   */
+  durationUnit?:
+    | "hour"
+    | "day"
+    | "week"
+    | "month"
+    | "year"
+    | "project"
+    | "milestone"
+    | "contract";
   /**
    * How the order is priced. A differential order stays unpriced (pricePerUnit/totals unset) until the benchmark resolves at funding.
    */
@@ -2327,7 +2850,14 @@ export type OrderResponseDto = {
 
 export type TransactionEventDto = {
   timestamp: string;
+  /**
+   * Admin views only: the acting user. Parties get actorRole instead.
+   */
   actor?: string;
+  /**
+   * Party views: which side acted, never a person
+   */
+  actorRole?: "buyer" | "seller" | "platform";
   action:
     | "CREATED"
     | "STATUS_CHANGE"
@@ -2360,8 +2890,17 @@ export type TransactionEventDto = {
 };
 
 export type TransactionDocumentFileDto = {
-  name: string;
-  url: string;
+  /**
+   * Absent in a party view when the file is the other side's and not yet approved by an admin
+   */
+  name?: string;
+  /**
+   * Absent in a party view when the file is the other side's and not yet approved by an admin
+   */
+  url?: string;
+  /**
+   * Admin views only
+   */
   uploader?: string;
   timestamp: string;
 };
@@ -2588,9 +3127,9 @@ export type TransactionStageResponseDto = {
   assignedTo: "BUYER" | "SELLER" | "ADMIN" | "SYSTEM";
   status: "PENDING" | "ACTIVE" | "COMPLETED" | "DISPUTED";
   visibility: "SHARED" | "PARTY_ONLY";
-  actionTarget?: string | null;
-  completedAt?: string | null;
-  completedBy?: string | null;
+  actionTarget?: string;
+  completedAt?: string;
+  completedBy?: string;
   metadata: {
     [key: string]: unknown;
   };
@@ -2619,6 +3158,10 @@ export type TransactionTaskDto = {
 
 export type TransactionResponseDto = {
   _id: string;
+  /**
+   * Party views: the viewer's own side of the deal
+   */
+  viewerRole?: "BUYER" | "SELLER";
   order: OrderResponseDto;
   displayId: number;
   status:
@@ -2697,42 +3240,6 @@ export type TransactionResponseDto = {
     | "funding_window_closed_by_admin";
   createdAt: string;
   updatedAt: string;
-};
-
-export type UpdateTransactionStatusDto = {
-  /**
-   * The new status to transition to
-   */
-  status:
-    | "INITIATED"
-    | "DOCUMENTS_SUBMITTED"
-    | "COMPLIANCE_REVIEWED"
-    | "ESCROW_FUNDED"
-    | "LOGISTICS_ASSIGNED"
-    | "IN_TRANSIT"
-    | "INSPECTION_PENDING"
-    | "INSPECTION_UNDER_REVIEW"
-    | "INSPECTION_FAILED"
-    | "INSPECTION_PRICE_REVIEW"
-    | "DELIVERY_CONFIRMED"
-    | "PREPARATION_IN_PROGRESS"
-    | "RENTAL_IN_PROGRESS"
-    | "OFF_HIRE_PENDING"
-    | "RETURN_INSPECTION_PENDING"
-    | "VESSEL_MOBILIZING"
-    | "CHARTER_IN_PROGRESS"
-    | "VOYAGE_COMPLETING"
-    | "MILESTONES_IN_PROGRESS"
-    | "SETTLEMENT_RELEASED"
-    | "CLOSED"
-    | "CANCELLED"
-    | "REFUNDED"
-    | "PARTIALLY_REFUNDED"
-    | "DISPUTED";
-  /**
-   * Reason for the status change (optional)
-   */
-  reason?: string;
 };
 
 export type AddTransactionDocumentDto = {
@@ -3044,6 +3551,19 @@ export type CreateOrderDocumentDto = {
   url: string;
 };
 
+export type MilestoneInputDto = {
+  name: string;
+  description?: string;
+  /**
+   * Names of documents the seller must submit for this milestone
+   */
+  requiredDocuments?: Array<string>;
+  /**
+   * Payment percentage for this milestone (1-100). All milestone percentages must sum to 100.
+   */
+  percentage: number;
+};
+
 export type PurchaseProductDto = {
   /**
    * ID of the product to purchase
@@ -3130,6 +3650,18 @@ export type PurchaseProductDto = {
     | "DDP"
     | "NA";
   /**
+   * Commodity orders: the discharge port the buyer names on CIF-type terms. On FOB-type terms the server uses the listing's loading terminal and ignores this.
+   */
+  deliveryPoint?: LoadingTerminalDto;
+  /**
+   * Commodity orders: the loading window, inside the listing laycan
+   */
+  laycan?: LaycanDto;
+  /**
+   * Commodity orders: where Q&Q inspection takes place
+   */
+  inspectionPoint?: "load_port" | "discharge_port";
+  /**
    * Selected product condition. Required only when the product’s category group offers conditions (physical goods). Commodities and services carry none, so the field is neither shown nor required for them. Enforced in OrdersService.purchase, mirroring IsConditionValid on the RFQ path.
    */
   condition?: string;
@@ -3186,6 +3718,14 @@ export type PaginatedOrdersResponseDto = {
   data: OrdersPaginationDataDto;
 };
 
+export type OrderCountsDto = {
+  all: number;
+  open: number;
+  in_execution: number;
+  completed: number;
+  cancelled: number;
+};
+
 export type UpdateOrderDto = {
   buyerDocuments?: Array<CreateOrderDocumentDto>;
   sellerDocuments?: Array<CreateOrderDocumentDto>;
@@ -3206,6 +3746,29 @@ export type ConfirmOrderDto = {
    * Ordered list of milestones. Providing milestones selects the MILESTONE workflow (progressive settlement); omitting them selects STANDARD (single settlement).
    */
   milestones?: Array<ConfirmOrderMilestoneDto>;
+};
+
+export type CancelOrderDto = {
+  /**
+   * Why the order is cancelled. Shown to both parties.
+   */
+  reason: string;
+};
+
+export type OrderActivityEntryDto = {
+  at: string;
+  /**
+   * What happened, in plain words
+   */
+  label: string;
+  /**
+   * Which side acted; never a person
+   */
+  actorRole: "buyer" | "seller" | "platform";
+  /**
+   * Extra context, e.g. a cancellation reason or document type
+   */
+  detail?: string;
 };
 
 export type RequestCategoryGroupDto = {
@@ -3238,11 +3801,19 @@ export type RequestStateDto = {
   name: string;
 };
 
+export type LoadingWindowDto = {
+  start: string;
+  end: string;
+};
+
 export type RecommendationFeedItemDto = {
   _id: string;
   name: string;
   quantity: number;
-  category: RequestCategoryDto;
+  /**
+   * The category, populated (id and name)
+   */
+  categoryId: RequestCategoryDto;
   image?: string;
   region: Array<RequestRegionDto>;
   country: Array<RequestCountryDto>;
@@ -3271,6 +3842,23 @@ export type RecommendationFeedItemDto = {
   status: string;
   createdAt: string;
   negotiationId?: string;
+  /**
+   * The seller's own status on this request
+   */
+  myStatus?:
+    | "new"
+    | "proposal_submitted"
+    | "selected"
+    | "not_selected"
+    | "declined"
+    | "expired";
+  loadingWindow?: LoadingWindowDto;
+  deliveryPort?: string;
+  originNote?: string;
+  /**
+   * The buyer's reason, when it cancelled the request
+   */
+  cancellationNote?: string;
   qqCriteria?: Array<QqCriterionDto>;
   qqCompany?: string;
   listingType: "product" | "service" | "rental" | "lease" | "charter" | "rfq";
@@ -3426,7 +4014,7 @@ export type CreateRequestDto = {
     | "project"
     | "milestone"
     | "contract";
-  selectionMode?: "open" | "jira-ai" | "direct";
+  selectionMode: "open" | "jira-ai" | "direct";
   milestones?: Array<RequestMilestoneDto>;
   /**
    * Q&Q acceptance criteria. Supply an empty array or omit when the category group does not have allowsInspection=true.
@@ -3436,6 +4024,18 @@ export type CreateRequestDto = {
    * The preferred Q&Q inspection company
    */
   qqCompany?: string;
+  /**
+   * Commodity requests: loading window
+   */
+  loadingWindow?: LoadingWindowDto;
+  /**
+   * Commodity requests: discharge or delivery port
+   */
+  deliveryPort?: string;
+  /**
+   * Commodity requests: origin preferences or exclusions
+   */
+  originNote?: string;
   specifications?: SpecificationsDto;
   commercialTerms?: CommercialTermsDto;
 };
@@ -3554,6 +4154,25 @@ export type RequestResponseDto = {
     | "user_cancelled"
     | "stale_auto_closed"
     | "order_cancelled";
+  /**
+   * The buyer's reason for cancelling
+   */
+  cancellationNote?: string;
+  loadingWindow?: LoadingWindowDto;
+  deliveryPort?: string;
+  originNote?: string;
+  /**
+   * Category name, for lists
+   */
+  categoryName?: string;
+  /**
+   * Suppliers that responded (offers, counters, declines)
+   */
+  responseCount?: number;
+  /**
+   * Responses waiting on the buyer
+   */
+  awaitingDecisionCount?: number;
   isStale?: boolean;
   autoCloseAt?: string;
   offersCount?: number;
@@ -3564,6 +4183,45 @@ export type RequestResponseDto = {
   qqCriteria?: Array<QqCriterionDto>;
   specifications?: SpecificationsResponseDto;
   commercialTerms?: CommercialTermsResponseDto;
+};
+
+export type RequestsPageDto = {
+  docs: Array<RequestResponseDto>;
+  totalDocs: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+};
+
+export type PaginatedRequestsResponseDto = {
+  message: string;
+  data: RequestsPageDto;
+};
+
+export type RequestCountsDto = {
+  all: number;
+  open: number;
+  awaiting_decision: number;
+  matched: number;
+  closed: number;
+  cancelled: number;
+};
+
+export type SellerRequestCountsDto = {
+  all: number;
+  new: number;
+  proposal_submitted: number;
+  selected: number;
+  not_selected: number;
+  declined: number;
+  expired: number;
+};
+
+export type DeclineReasonDto = {
+  /**
+   * Why. The other side sees it.
+   */
+  reason: string;
 };
 
 export type UpdateRequestDto = {
@@ -3705,9 +4363,28 @@ export type UpdateRequestDto = {
    * The preferred Q&Q inspection company
    */
   qqCompany?: string;
+  /**
+   * Commodity requests: loading window
+   */
+  loadingWindow?: LoadingWindowDto;
+  /**
+   * Commodity requests: discharge or delivery port
+   */
+  deliveryPort?: string;
+  /**
+   * Commodity requests: origin preferences or exclusions
+   */
+  originNote?: string;
   specifications?: SpecificationsDto;
   commercialTerms?: CommercialTermsDto;
   status?: "pending" | "in_review" | "matched" | "fulfilled" | "cancelled";
+};
+
+export type CancelRequestDto = {
+  /**
+   * Why. The other side sees it.
+   */
+  reason: string;
 };
 
 export type CreateNegotiationDto = {
@@ -3816,6 +4493,14 @@ export type CreateNegotiationDto = {
    * Opening message to the buyer
    */
   notes?: string;
+  /**
+   * Documents the seller will provide
+   */
+  documentsProvided?: string;
+  /**
+   * Other commercial conditions of this offer
+   */
+  additionalTerms?: string;
   /**
    * Hours until this offer expires (default: 24)
    */
@@ -3993,6 +4678,14 @@ export type NegotiationOffer = {
   paymentTerms?: string;
   deliveryDate?: string;
   notes?: string;
+  /**
+   * Documents the seller will provide with this offer
+   */
+  documentsProvided?: string;
+  /**
+   * Other commercial conditions attached to this offer
+   */
+  additionalTerms?: string;
   commercialTerms?: CommercialTerms;
 };
 
@@ -4010,6 +4703,23 @@ export type NegotiationResponseDto = {
   displayId: number;
   request: NegotiationRequestDto;
   product?: string;
+  /**
+   * How the viewer knows the other side: "Supplier n" (buyer view) or "Verified buyer" (seller view)
+   */
+  counterpartyLabel?: string;
+  /**
+   * Why the negotiation ended without an order
+   */
+  closedReason?:
+    | "buyer_declined"
+    | "seller_declined"
+    | "request_matched"
+    | "request_cancelled";
+  closedAt?: string;
+  /**
+   * The reason given when it was declined, if any
+   */
+  closingNote?: string;
   buyerOrganization: NegotiationOrganizationDto;
   sellerOrganization: NegotiationOrganizationDto;
   pendingOrganization: NegotiationOrganizationDto;
@@ -4145,6 +4855,14 @@ export type CounterOfferDto = {
    */
   notes?: string;
   /**
+   * Documents the seller will provide
+   */
+  documentsProvided?: string;
+  /**
+   * Other commercial conditions of this offer
+   */
+  additionalTerms?: string;
+  /**
    * Hours until this offer expires (default: 24)
    */
   expirationHours?: number;
@@ -4155,6 +4873,13 @@ export type SendMessageDto = {
    * Text message content
    */
   text: string;
+};
+
+export type RejectNegotiationDto = {
+  /**
+   * Why. The other side sees it.
+   */
+  reason?: string;
 };
 
 export type InvoiceItemDto = {
@@ -5253,9 +5978,7 @@ export type DisputeAttachmentResponseDto = {
   url: string;
   name: string;
   uploadedAt: string;
-  uploadedByRole: {
-    [key: string]: unknown;
-  };
+  uploadedByRole: string;
 };
 
 export type DisputeResponseDto = {
@@ -5271,10 +5994,6 @@ export type DisputeResponseDto = {
   attachments: Array<DisputeAttachmentResponseDto>;
   createdAt: string;
   updatedAt: string;
-};
-
-export type Dispute = {
-  [key: string]: unknown;
 };
 
 export type SingleDisputeResponseDto = {
@@ -5316,8 +6035,7 @@ export type WithdrawDisputeDto = {
 };
 
 export type AttachmentDto = {
-  url: string;
-  name: string;
+  [key: string]: unknown;
 };
 
 export type FulfillInformationRequestDto = {
@@ -5325,9 +6043,45 @@ export type FulfillInformationRequestDto = {
   attachments?: Array<AttachmentDto>;
 };
 
+export type PersonBvnCheckDto = {
+  provider?: string;
+  /**
+   * passed = name matches the BVN record; failed = it does not (submission is blocked); manual_review = partial match, provider outage or check disabled.
+   */
+  status?: "manual_review" | "passed" | "failed";
+  /**
+   * How the entered details compared with the ID authority record. "transposed" = given name and surname swapped.
+   */
+  outcome?:
+    | "exact"
+    | "partial"
+    | "transposed"
+    | "no_match"
+    | "not_found"
+    | "unavailable"
+    | "disabled"
+    | "error";
+  /**
+   * Provider verdict on the names: Exact Match | Partial Match | Transposed | No Match
+   */
+  namesMatch?: string;
+  dateOfBirthMatch?: string;
+  checkedAt?: string;
+  referenceId?: string;
+  errorMessage?: string;
+};
+
 export type OnboardingPersonDto = {
   _id: string;
   name?: string;
+  /**
+   * The name exactly as the company registry listed it (registry-seeded people only). Shown as a hint; the registry does not fix name order, so firstName/lastName are always entered by the user.
+   */
+  registryName?: string;
+  /**
+   * Result of verifying the BVN against the entered name (corridors that require a BVN). A failed check blocks submission until the name or BVN is corrected; "transposed" means the given name and surname are swapped.
+   */
+  bvnCheck?: PersonBvnCheckDto;
   firstName?: string;
   lastName?: string;
   occupation?: string;
@@ -5766,7 +6520,13 @@ export type UpdateBusinessRepresentativeDto = {
 };
 
 export type UpdatePersonInfoDto = {
+  /**
+   * Given name(s) as on the BVN or ID document. Required for submission.
+   */
   firstName?: string;
+  /**
+   * Surname as on the BVN or ID document. Required for submission.
+   */
   lastName?: string;
   ownsMoreThanFivePercent: boolean;
   /**
@@ -5784,6 +6544,10 @@ export type UpdatePersonInfoDto = {
    * Nationality as an ISO-3166-1 alpha-2 country code (e.g. "NG").
    */
   nationalityCode: string;
+  /**
+   * Date of birth (YYYY-MM-DD). Payment providers require one for every shareholder. The NG registry supplies it for directors it returns; on every other corridor, and for any hand-added person, this is the only way it can be provided.
+   */
+  dateOfBirth?: string;
   streetAddress: string;
   country: string;
   state: string;
@@ -5812,6 +6576,10 @@ export type CreatePersonDto = {
    * Nationality as an ISO-3166-1 alpha-2 country code (e.g. "NG").
    */
   nationalityCode: string;
+  /**
+   * Date of birth (YYYY-MM-DD). Payment providers require one for every shareholder. The NG registry supplies it for directors it returns; on every other corridor, and for any hand-added person, this is the only way it can be provided.
+   */
+  dateOfBirth?: string;
   streetAddress: string;
   country: string;
   state: string;
@@ -6137,19 +6905,11 @@ export type UpdateBenchmarkDto = {
 };
 
 export type AdminLoginDto = {
-  /**
-   * Admin's email address
-   */
-  email: string;
-  /**
-   * Admin's password
-   */
-  password: string;
+  [key: string]: unknown;
 };
 
 export type AdminVerifyOtpDto = {
-  email: string;
-  otp: string;
+  [key: string]: unknown;
 };
 
 export type PermissionOverridesDto = {
@@ -6299,14 +7059,7 @@ export type CreateAdminDto = {
 };
 
 export type AdminChangePasswordDto = {
-  /**
-   * Current password for verification
-   */
-  currentPassword: string;
-  /**
-   * New password (min 8 chars)
-   */
-  newPassword: string;
+  [key: string]: unknown;
 };
 
 export type PermissionOverridesResponseDto = {
@@ -6621,8 +7374,8 @@ export type CreateProductDto = {
    */
   differentialPrice?: DifferentialPriceDto;
   currency?: "NGN" | "KES" | "USD" | "EUR" | "USDT" | "USDC";
-  images?: Array<string>;
-  documents?: Array<string>;
+  images: Array<string>;
+  documents: Array<string>;
   features?: Array<string>;
   availableQuantity?: number;
   minimumOrderQuantity?: number;
@@ -6685,12 +7438,38 @@ export type CreateProductDto = {
     | "DDP"
     | "NA"
   >;
-  conditions?: Array<"New" | "Used - Good" | "Used - Fair" | "Refurbished">;
-  location?: LocationDto;
+  conditions: Array<"New" | "Used - Good" | "Used - Fair" | "Refurbished">;
+  location: LocationDto;
   specifications?: SpecificationsDto;
   specDeclarations?: Array<SpecDeclarationDto>;
   commercialTerms?: CommercialTermsDto;
   milestones?: Array<RequestMilestoneDto>;
+  contractStyle?: "spot" | "term";
+  /**
+   * Only available listings can be ordered directly
+   */
+  availability?: "available" | "indicative" | "request_only";
+  availabilityNote?: string;
+  paymentTerms?: "first_tranche_balance_on_title_transfer";
+  /**
+   * Contractual tolerance, +/- percent
+   */
+  tolerancePercent?: number;
+  shippingRegions?: Array<
+    | "west_africa"
+    | "northwest_europe"
+    | "mediterranean"
+    | "us_gulf"
+    | "asia_pacific"
+    | "middle_east"
+  >;
+  loadingTerminal?: LoadingTerminalDto;
+  laycan?: LaycanDto;
+  /**
+   * When the listing leaves the marketplace (not cargo validity)
+   */
+  listingExpiresAt?: string;
+  tradeDocuments?: Array<TradeDocumentDto>;
   organization?: string;
   status?: "pending" | "approved" | "rejected" | "delisted";
   delistReason?: string;
@@ -6728,6 +7507,10 @@ export type AdminProductResponseDto = {
    * Disclosed platform fee on a differential listing — owning seller only; resolved from the category/group fee config
    */
   sellerFee?: SellerFeeDto;
+  /**
+   * The escrow fee the buyer pays on top of the listed price. Always present on a flat listing (an order cannot price without one); opt-in on a differential listing, where null means none
+   */
+  buyerEscrowFee?: BuyerEscrowFeeDto | null;
   currency?: "NGN" | "KES" | "USD" | "EUR" | "USDT" | "USDC";
   images?: Array<string>;
   features?: Array<string>;
@@ -6779,7 +7562,31 @@ export type AdminProductResponseDto = {
     | "plate"
     | "bar";
   conditions?: Array<"New" | "Used - Good" | "Used - Fair" | "Refurbished">;
+  /**
+   * Trade terms (Incoterms / delivery procedures) the listing is offered on
+   */
+  tradeTerms?: Array<
+    | "FOB"
+    | "CIF"
+    | "CFR"
+    | "EX_WORKS"
+    | "DELIVERED"
+    | "TTO"
+    | "TTT"
+    | "FOT"
+    | "FCA"
+    | "DAP"
+    | "DDP"
+    | "NA"
+  >;
+  /**
+   * Owning organization. Present only when the viewer owns the listing; never sent to other organizations (counterparty anonymity).
+   */
   organization?: ProductOrganizationDto;
+  /**
+   * Whether the viewer's organization owns this listing.
+   */
+  isOwner?: boolean;
   location?: ProductLocationDto;
   status?: "pending" | "approved" | "rejected" | "delisted";
   rejectionReason?: string;
@@ -6793,6 +7600,32 @@ export type AdminProductResponseDto = {
   specDeclarations?: Array<SpecDeclarationResponseDto>;
   commercialTerms?: CommercialTermsResponseDto;
   milestones?: Array<RequestMilestoneDto>;
+  contractStyle?: "spot" | "term";
+  /**
+   * Unset reads as available. Only available listings can be ordered directly.
+   */
+  availability?: "available" | "indicative" | "request_only";
+  availabilityNote?: string;
+  paymentTerms?: "first_tranche_balance_on_title_transfer";
+  /**
+   * Contractual tolerance, +/- percent
+   */
+  tolerancePercent?: number;
+  shippingRegions?: Array<
+    | "west_africa"
+    | "northwest_europe"
+    | "mediterranean"
+    | "us_gulf"
+    | "asia_pacific"
+    | "middle_east"
+  >;
+  loadingTerminal?: LoadingTerminalResponseDto;
+  laycan?: LaycanResponseDto;
+  /**
+   * When the listing leaves the marketplace
+   */
+  listingExpiresAt?: string;
+  tradeDocuments?: Array<TradeDocumentResponseDto>;
 };
 
 export type UpdateProductDto = {
@@ -6891,6 +7724,32 @@ export type UpdateProductDto = {
   specDeclarations?: Array<SpecDeclarationDto>;
   commercialTerms?: CommercialTermsDto;
   milestones?: Array<RequestMilestoneDto>;
+  contractStyle?: "spot" | "term";
+  /**
+   * Only available listings can be ordered directly
+   */
+  availability?: "available" | "indicative" | "request_only";
+  availabilityNote?: string;
+  paymentTerms?: "first_tranche_balance_on_title_transfer";
+  /**
+   * Contractual tolerance, +/- percent
+   */
+  tolerancePercent?: number;
+  shippingRegions?: Array<
+    | "west_africa"
+    | "northwest_europe"
+    | "mediterranean"
+    | "us_gulf"
+    | "asia_pacific"
+    | "middle_east"
+  >;
+  loadingTerminal?: LoadingTerminalDto;
+  laycan?: LaycanDto;
+  /**
+   * When the listing leaves the marketplace (not cargo validity)
+   */
+  listingExpiresAt?: string;
+  tradeDocuments?: Array<TradeDocumentDto>;
   organization?: string;
   status?: "pending" | "approved" | "rejected" | "delisted";
   delistReason?: string;
@@ -6979,7 +7838,7 @@ export type CreateCategoryDto = {
   /**
    * Specific units allowed for listings in this category
    */
-  allowedUnits?:
+  allowedUnits?: Array<
     | "bbl"
     | "liter"
     | "gallon"
@@ -7026,7 +7885,8 @@ export type CreateCategoryDto = {
     | "year"
     | "project"
     | "milestone"
-    | "contract";
+    | "contract"
+  >;
   policyOverrides?: CategoryPolicyOverridesInput;
   /**
    * Per-category service fee config; overrides the group default when set. Pass null to clear the override (fall back to the group default).
@@ -7043,7 +7903,7 @@ export type CreateCategoryDto = {
   /**
    * Whether the category is active
    */
-  isActive?: boolean;
+  isActive: boolean;
 };
 
 export type UpdateCategoryDto = {
@@ -7072,7 +7932,7 @@ export type UpdateCategoryDto = {
   /**
    * Specific units allowed for listings in this category
    */
-  allowedUnits?:
+  allowedUnits?: Array<
     | "bbl"
     | "liter"
     | "gallon"
@@ -7119,7 +7979,8 @@ export type UpdateCategoryDto = {
     | "year"
     | "project"
     | "milestone"
-    | "contract";
+    | "contract"
+  >;
   policyOverrides?: CategoryPolicyOverridesInput;
   /**
    * Per-category service fee config; overrides the group default when set. Pass null to clear the override (fall back to the group default).
@@ -7163,7 +8024,7 @@ export type CreateCategorySpecialtyDto = {
   /**
    * Override the parent category’s allowed units. Omit to inherit from category.
    */
-  allowedUnits?:
+  allowedUnits?: Array<
     | "bbl"
     | "liter"
     | "gallon"
@@ -7210,11 +8071,12 @@ export type CreateCategorySpecialtyDto = {
     | "year"
     | "project"
     | "milestone"
-    | "contract";
+    | "contract"
+  >;
   /**
    * Override the parent group’s allowed trade terms. Omit to inherit from the group.
    */
-  allowedTradeTerms?:
+  allowedTradeTerms?: Array<
     | "FOB"
     | "CIF"
     | "CFR"
@@ -7226,7 +8088,8 @@ export type CreateCategorySpecialtyDto = {
     | "FCA"
     | "DAP"
     | "DDP"
-    | "NA";
+    | "NA"
+  >;
   /**
    * Whether the specialty is active
    */
@@ -7261,7 +8124,7 @@ export type UpdateCategorySpecialtyDto = {
   /**
    * Override the parent category’s allowed units. Omit to inherit from category.
    */
-  allowedUnits?:
+  allowedUnits?: Array<
     | "bbl"
     | "liter"
     | "gallon"
@@ -7308,11 +8171,12 @@ export type UpdateCategorySpecialtyDto = {
     | "year"
     | "project"
     | "milestone"
-    | "contract";
+    | "contract"
+  >;
   /**
    * Override the parent group’s allowed trade terms. Omit to inherit from the group.
    */
-  allowedTradeTerms?:
+  allowedTradeTerms?: Array<
     | "FOB"
     | "CIF"
     | "CFR"
@@ -7324,7 +8188,8 @@ export type UpdateCategorySpecialtyDto = {
     | "FCA"
     | "DAP"
     | "DDP"
-    | "NA";
+    | "NA"
+  >;
   /**
    * Whether the specialty is active
    */
@@ -7346,6 +8211,42 @@ export type PaginatedDataDto = {
 export type PaginatedTransactionsResponseDto = {
   message: string;
   data: PaginatedDataDto;
+};
+
+export type UpdateTransactionStatusDto = {
+  /**
+   * The new status to transition to
+   */
+  status:
+    | "INITIATED"
+    | "DOCUMENTS_SUBMITTED"
+    | "COMPLIANCE_REVIEWED"
+    | "ESCROW_FUNDED"
+    | "LOGISTICS_ASSIGNED"
+    | "IN_TRANSIT"
+    | "INSPECTION_PENDING"
+    | "INSPECTION_UNDER_REVIEW"
+    | "INSPECTION_FAILED"
+    | "INSPECTION_PRICE_REVIEW"
+    | "DELIVERY_CONFIRMED"
+    | "PREPARATION_IN_PROGRESS"
+    | "RENTAL_IN_PROGRESS"
+    | "OFF_HIRE_PENDING"
+    | "RETURN_INSPECTION_PENDING"
+    | "VESSEL_MOBILIZING"
+    | "CHARTER_IN_PROGRESS"
+    | "VOYAGE_COMPLETING"
+    | "MILESTONES_IN_PROGRESS"
+    | "SETTLEMENT_RELEASED"
+    | "CLOSED"
+    | "CANCELLED"
+    | "REFUNDED"
+    | "PARTIALLY_REFUNDED"
+    | "DISPUTED";
+  /**
+   * Reason for the status change (optional)
+   */
+  reason?: string;
 };
 
 export type AddTransactionRequirementDto = {
@@ -7494,8 +8395,7 @@ export type FundingReviewDepositDto = {
     [key: string]: unknown;
   };
   sourceWallet?: {
-    orgId: string;
-    walletIndex: number;
+    [key: string]: unknown;
   };
   receivedAt: string;
 };
@@ -8185,6 +9085,14 @@ export type PersonAmlCheckSummaryDto = {
 export type BusinessPersonDto = {
   _id: string;
   name?: string;
+  /**
+   * The name exactly as the company registry listed it (registry-seeded people only).
+   */
+  registryName?: string;
+  /**
+   * BVN-to-name verification result, when the corridor requires a BVN.
+   */
+  bvnCheck?: PersonBvnCheckDto;
   firstName?: string;
   lastName?: string;
   occupation?: string;
@@ -8495,9 +9403,6 @@ export type ComplianceEventDto = {
   eventType: string;
   actorType: "user" | "admin" | "system";
   actorId?: string;
-  /**
-   * Display name of the admin actor, resolved from actorId at read time.
-   */
   actorName?: string;
   fromStatus?: string;
   toStatus?: string;
@@ -8648,7 +9553,7 @@ export type DocumentIssueDateDto = {
   /**
    * The date printed ON the document (YYYY-MM-DD), read from the document itself. Omit or send null to clear it. This is NOT the upload date — an upload date says nothing about a document’s recency.
    */
-  issuedAt?: string | null;
+  issuedAt?: string;
 };
 
 export type SetDocumentIssueDatesDto = {
@@ -8739,7 +9644,11 @@ export type PersonScreeningSubjectDto = {
   personIds: Array<string>;
   name: string;
   roles: Array<string>;
-  amlCheck?: PersonAmlCheckSummaryDto | null;
+  amlCheck?: PersonAmlCheckSummaryDto;
+  /**
+   * BVN-to-name verification for stored directors/owners; null for the representative and for corridors without a BVN.
+   */
+  bvnCheck?: PersonBvnCheckDto;
 };
 
 export type ScreenAllResponseDto = {
@@ -8761,13 +9670,17 @@ export type PersonScreeningDetailDto = {
   personIds: Array<string>;
   name: string;
   roles: Array<string>;
-  amlCheck?: PersonAmlCheckSummaryDto | null;
+  amlCheck?: PersonAmlCheckSummaryDto;
+  /**
+   * BVN-to-name verification for stored directors/owners; null for the representative and for corridors without a BVN.
+   */
+  bvnCheck?: PersonBvnCheckDto;
   /**
    * Full stored check including the raw provider payload (match candidates) and adjudications
    */
   check?: {
     [key: string]: unknown;
-  } | null;
+  };
 };
 
 export type AdjudicateScreeningDto = {
@@ -8811,7 +9724,7 @@ export type AccountBalanceResponseDto = {
   accountCode: string;
   accountType: string;
   entityType: string;
-  entityId?: string | null;
+  entityId?: string;
   description: string;
   currency: string;
   isActive: boolean;
@@ -8819,8 +9732,8 @@ export type AccountBalanceResponseDto = {
    * Balance in minor currency units (kobo/cents)
    */
   balance: number;
-  internalReconciledUpTo?: string | null;
-  externalReconciledUpTo?: string | null;
+  internalReconciledUpTo?: string;
+  externalReconciledUpTo?: string;
 };
 
 export type ReverseEntryDto = {
@@ -9109,11 +10022,7 @@ export type PageResponseDto = {
 export type PaginatedPagesResponseDto = {
   message: string;
   data: {
-    docs: Array<PageResponseDto>;
-    totalDocs: number;
-    page: number;
-    limit: number;
-    totalPages: number;
+    [key: string]: unknown;
   };
 };
 
@@ -9193,6 +10102,10 @@ export type AdminProviderBindingDto = {
    */
   lastOutcome?: string;
   lastError?: string;
+  /**
+   * When the reconciler next polls this in-flight principal (backs off 30 min to 6 h while nothing changes). Absent when not in flight or due now.
+   */
+  nextPollAt?: string;
   /**
    * Why the binding is not active, bucketed by whose move it is: transient (retry helps), data_actionable (org must correct data via request-changes), provider_blocked (waiting on the provider; retrying is futile). Null when healthy or normally in progress.
    */
@@ -9800,14 +10713,6 @@ export type DrainVaultResponseDto = {
   data: DrainVaultDto;
 };
 
-export type QqFieldDef = {
-  [key: string]: unknown;
-};
-
-export type QqTemplate = {
-  [key: string]: unknown;
-};
-
 export type CriterionResultDto = {
   /**
    * UUID matching QQCriterion.id stored on the request
@@ -9841,10 +10746,6 @@ export type SubmitInspectionDto = {
   reportFileHash?: string;
   criteriaResults: Array<CriterionResultDto>;
   notes?: string;
-};
-
-export type InspectionReport = {
-  [key: string]: unknown;
 };
 
 export type RelatedResourceDto = {
@@ -9884,9 +10785,7 @@ export type SupportMessageResponseDto = {
   };
   senderType: string;
   body: string;
-  attachments: Array<{
-    [key: string]: unknown;
-  }>;
+  attachments: Array<string>;
   createdAt: string;
 };
 
@@ -9957,11 +10856,8 @@ export type AppControllerGetHelloData = {
 };
 
 export type AppControllerGetHelloResponses = {
-  200: string;
+  200: unknown;
 };
-
-export type AppControllerGetHelloResponse =
-  AppControllerGetHelloResponses[keyof AppControllerGetHelloResponses];
 
 export type HealthControllerCheckData = {
   body?: never;
@@ -10074,13 +10970,7 @@ export type UsersAuthControllerLoginResponses = {
    * Returns OTP challenge
    */
   200: unknown;
-  201: {
-    [key: string]: unknown;
-  };
 };
-
-export type UsersAuthControllerLoginResponse =
-  UsersAuthControllerLoginResponses[keyof UsersAuthControllerLoginResponses];
 
 export type UsersAuthControllerVerifyOtpData = {
   body: UserVerifyOtpDto;
@@ -10091,9 +10981,6 @@ export type UsersAuthControllerVerifyOtpData = {
 
 export type UsersAuthControllerVerifyOtpResponses = {
   200: AuthTokenResponseDto;
-  201: {
-    [key: string]: unknown;
-  };
 };
 
 export type UsersAuthControllerVerifyOtpResponse =
@@ -10154,7 +11041,6 @@ export type UsersAuthControllerVerifyPhoneOtpResponses = {
    * Phone number verified
    */
   200: unknown;
-  201: unknown;
 };
 
 export type UsersAuthControllerValidateResetTokenData = {
@@ -10176,7 +11062,6 @@ export type UsersAuthControllerValidateResetTokenResponses = {
    * Token valid, phone OTP sent
    */
   200: unknown;
-  201: unknown;
 };
 
 export type UsersAuthControllerVerifyEmailData = {
@@ -10259,7 +11144,6 @@ export type UsersAuthControllerChangePasswordResponses = {
    * Password changed successfully
    */
   200: unknown;
-  201: unknown;
 };
 
 export type UsersAuthControllerGetTawkHashData = {
@@ -10310,7 +11194,6 @@ export type StorageControllerGeneratePresignedUrlsData = {
 
 export type StorageControllerGeneratePresignedUrlsResponses = {
   200: Array<PresignedUrlResponseDto>;
-  201: Array<PresignedUrlResponseDto>;
 };
 
 export type StorageControllerGeneratePresignedUrlsResponse =
@@ -10326,13 +11209,8 @@ export type OrganizationsControllerUpdateOrganizationData = {
 };
 
 export type OrganizationsControllerUpdateOrganizationResponses = {
-  200: {
-    [key: string]: unknown;
-  };
+  200: unknown;
 };
-
-export type OrganizationsControllerUpdateOrganizationResponse =
-  OrganizationsControllerUpdateOrganizationResponses[keyof OrganizationsControllerUpdateOrganizationResponses];
 
 export type OrganizationsControllerListMembersData = {
   body?: never;
@@ -10361,13 +11239,8 @@ export type OrganizationsControllerUpdateMemberRolesData = {
 };
 
 export type OrganizationsControllerUpdateMemberRolesResponses = {
-  200: {
-    [key: string]: unknown;
-  };
+  200: unknown;
 };
-
-export type OrganizationsControllerUpdateMemberRolesResponse =
-  OrganizationsControllerUpdateMemberRolesResponses[keyof OrganizationsControllerUpdateMemberRolesResponses];
 
 export type OrganizationsControllerRemoveMemberData = {
   body?: never;
@@ -10393,13 +11266,8 @@ export type OrganizationsControllerGetBankDetailsData = {
 };
 
 export type OrganizationsControllerGetBankDetailsResponses = {
-  200: {
-    [key: string]: unknown;
-  };
+  200: unknown;
 };
-
-export type OrganizationsControllerGetBankDetailsResponse =
-  OrganizationsControllerGetBankDetailsResponses[keyof OrganizationsControllerGetBankDetailsResponses];
 
 export type OrganizationsControllerUpdateBankDetailsData = {
   body: UpdateBankDetailsDto;
@@ -10411,13 +11279,8 @@ export type OrganizationsControllerUpdateBankDetailsData = {
 };
 
 export type OrganizationsControllerUpdateBankDetailsResponses = {
-  200: {
-    [key: string]: unknown;
-  };
+  200: unknown;
 };
-
-export type OrganizationsControllerUpdateBankDetailsResponse =
-  OrganizationsControllerUpdateBankDetailsResponses[keyof OrganizationsControllerUpdateBankDetailsResponses];
 
 export type OrganizationsControllerGetSettlementBanksData = {
   body?: never;
@@ -10445,99 +11308,8 @@ export type OrganizationsControllerResolveAccountData = {
 };
 
 export type OrganizationsControllerResolveAccountResponses = {
-  201: {
-    [key: string]: unknown;
-  };
+  201: unknown;
 };
-
-export type OrganizationsControllerResolveAccountResponse =
-  OrganizationsControllerResolveAccountResponses[keyof OrganizationsControllerResolveAccountResponses];
-
-export type ProductsControllerFindAllData = {
-  body?: never;
-  path?: never;
-  query?: {
-    /**
-     * Page number
-     */
-    page?: string;
-    /**
-     * Items per page
-     */
-    limit?: string;
-    /**
-     * Filter by category ID
-     */
-    category?: string;
-    /**
-     * Filter by category group ID
-     */
-    categoryGroup?: string;
-    /**
-     * Filter by specialty ID
-     */
-    specialtyId?: string;
-  };
-  url: "/api/v1/products";
-};
-
-export type ProductsControllerFindAllResponses = {
-  200: PaginatedProductsResponseDto;
-};
-
-export type ProductsControllerFindAllResponse =
-  ProductsControllerFindAllResponses[keyof ProductsControllerFindAllResponses];
-
-export type ProductsControllerFindRecommendedData = {
-  body?: never;
-  path?: never;
-  query?: {
-    /**
-     * Page number
-     */
-    page?: string;
-    /**
-     * Items per page
-     */
-    limit?: string;
-    /**
-     * Filter by category ID
-     */
-    category?: string;
-    /**
-     * Filter by category group ID
-     */
-    categoryGroup?: string;
-    /**
-     * Filter by specialty ID
-     */
-    specialtyId?: string;
-  };
-  url: "/api/v1/products/recommended";
-};
-
-export type ProductsControllerFindRecommendedResponses = {
-  200: PaginatedProductsResponseDto;
-};
-
-export type ProductsControllerFindRecommendedResponse =
-  ProductsControllerFindRecommendedResponses[keyof ProductsControllerFindRecommendedResponses];
-
-export type ProductsControllerFindOneData = {
-  body?: never;
-  path: {
-    id: string;
-  };
-  query?: never;
-  url: "/api/v1/products/{id}";
-};
-
-export type ProductsControllerFindOneResponses = {
-  200: ProductResponseDto;
-};
-
-export type ProductsControllerFindOneResponse =
-  ProductsControllerFindOneResponses[keyof ProductsControllerFindOneResponses];
 
 export type MyProductsControllerFindAllData = {
   body?: never;
@@ -10628,18 +11400,343 @@ export type MyProductsControllerResubmitResponses = {
 export type MyProductsControllerResubmitResponse =
   MyProductsControllerResubmitResponses[keyof MyProductsControllerResubmitResponses];
 
-export type CategoryGroupsControllerFindAllData = {
+export type ProductsControllerFindAllData = {
+  body?: never;
+  path?: never;
+  query?: {
+    /**
+     * Page number
+     */
+    page?: string;
+    /**
+     * Items per page
+     */
+    limit?: string;
+    /**
+     * Filter by category ID
+     */
+    category?: string;
+    /**
+     * Filter by category group ID
+     */
+    categoryGroup?: string;
+    /**
+     * Filter by specialty ID
+     */
+    specialtyId?: string;
+    /**
+     * Only listings in category groups of these marketplace families; CSV or repeated param
+     */
+    family?: Array<
+      "energy_commodities" | "equipment" | "industrial_materials" | "services"
+    >;
+    /**
+     * Case-insensitive search on the listing title
+     */
+    q?: string;
+    /**
+     * Any of these specialties (grades); CSV or repeated param
+     */
+    specialtyIds?: Array<string>;
+    /**
+     * Listing location country ID (origin)
+     */
+    country?: string;
+    /**
+     * Listing location state ID
+     */
+    state?: string;
+    /**
+     * Listings offered in any of these conditions; CSV or repeated param
+     */
+    conditions?: Array<"New" | "Used - Good" | "Used - Fair" | "Refurbished">;
+    unit?:
+      | "bbl"
+      | "liter"
+      | "gallon"
+      | "m3"
+      | "mt"
+      | "kg"
+      | "ton"
+      | "lb"
+      | "m"
+      | "ft"
+      | "sqm"
+      | "sqft"
+      | "scf"
+      | "sm3"
+      | "nm3"
+      | "mmbtu"
+      | "kwh"
+      | "mwh"
+      | "kva"
+      | "kw"
+      | "mw"
+      | "unit"
+      | "set"
+      | "kit"
+      | "pair"
+      | "joint"
+      | "roll"
+      | "sheet"
+      | "box"
+      | "pack"
+      | "drum"
+      | "bag"
+      | "cylinder"
+      | "ream"
+      | "license"
+      | "skid"
+      | "package"
+      | "plate"
+      | "bar";
+    /**
+     * Listings offering any of these trade terms; CSV or repeated param
+     */
+    tradeTerms?: Array<
+      | "FOB"
+      | "CIF"
+      | "CFR"
+      | "EX_WORKS"
+      | "DELIVERED"
+      | "TTO"
+      | "TTT"
+      | "FOT"
+      | "FCA"
+      | "DAP"
+      | "DDP"
+      | "NA"
+    >;
+    pricingBasis?: "flat" | "differential";
+  };
+  url: "/api/v1/products";
+};
+
+export type ProductsControllerFindAllResponses = {
+  200: PaginatedProductsResponseDto;
+};
+
+export type ProductsControllerFindAllResponse =
+  ProductsControllerFindAllResponses[keyof ProductsControllerFindAllResponses];
+
+export type ProductsControllerFindRecommendedData = {
+  body?: never;
+  path?: never;
+  query?: {
+    /**
+     * Page number
+     */
+    page?: string;
+    /**
+     * Items per page
+     */
+    limit?: string;
+    /**
+     * Filter by category ID
+     */
+    category?: string;
+    /**
+     * Filter by category group ID
+     */
+    categoryGroup?: string;
+    /**
+     * Filter by specialty ID
+     */
+    specialtyId?: string;
+    /**
+     * Only listings in category groups of these marketplace families; CSV or repeated param
+     */
+    family?: Array<
+      "energy_commodities" | "equipment" | "industrial_materials" | "services"
+    >;
+    /**
+     * Case-insensitive search on the listing title
+     */
+    q?: string;
+    /**
+     * Any of these specialties (grades); CSV or repeated param
+     */
+    specialtyIds?: Array<string>;
+    /**
+     * Listing location country ID (origin)
+     */
+    country?: string;
+    /**
+     * Listing location state ID
+     */
+    state?: string;
+    /**
+     * Listings offered in any of these conditions; CSV or repeated param
+     */
+    conditions?: Array<"New" | "Used - Good" | "Used - Fair" | "Refurbished">;
+    unit?:
+      | "bbl"
+      | "liter"
+      | "gallon"
+      | "m3"
+      | "mt"
+      | "kg"
+      | "ton"
+      | "lb"
+      | "m"
+      | "ft"
+      | "sqm"
+      | "sqft"
+      | "scf"
+      | "sm3"
+      | "nm3"
+      | "mmbtu"
+      | "kwh"
+      | "mwh"
+      | "kva"
+      | "kw"
+      | "mw"
+      | "unit"
+      | "set"
+      | "kit"
+      | "pair"
+      | "joint"
+      | "roll"
+      | "sheet"
+      | "box"
+      | "pack"
+      | "drum"
+      | "bag"
+      | "cylinder"
+      | "ream"
+      | "license"
+      | "skid"
+      | "package"
+      | "plate"
+      | "bar";
+    /**
+     * Listings offering any of these trade terms; CSV or repeated param
+     */
+    tradeTerms?: Array<
+      | "FOB"
+      | "CIF"
+      | "CFR"
+      | "EX_WORKS"
+      | "DELIVERED"
+      | "TTO"
+      | "TTT"
+      | "FOT"
+      | "FCA"
+      | "DAP"
+      | "DDP"
+      | "NA"
+    >;
+    pricingBasis?: "flat" | "differential";
+  };
+  url: "/api/v1/products/recommended";
+};
+
+export type ProductsControllerFindRecommendedResponses = {
+  200: PaginatedProductsResponseDto;
+};
+
+export type ProductsControllerFindRecommendedResponse =
+  ProductsControllerFindRecommendedResponses[keyof ProductsControllerFindRecommendedResponses];
+
+export type ProductsControllerCountsData = {
   body?: never;
   path?: never;
   query?: never;
+  url: "/api/v1/products/counts";
+};
+
+export type ProductsControllerCountsResponses = {
+  200: MarketplaceCountsDto;
+};
+
+export type ProductsControllerCountsResponse =
+  ProductsControllerCountsResponses[keyof ProductsControllerCountsResponses];
+
+export type ProductsControllerFacetsData = {
+  body?: never;
+  path?: never;
+  query: {
+    family:
+      | "energy_commodities"
+      | "equipment"
+      | "industrial_materials"
+      | "services";
+    /**
+     * Narrow the options to one category group of the family
+     */
+    groupId?: string;
+    /**
+     * Narrow the options to one category (wins over groupId)
+     */
+    categoryId?: string;
+  };
+  url: "/api/v1/products/facets";
+};
+
+export type ProductsControllerFacetsResponses = {
+  200: MarketplaceFacetsDto;
+};
+
+export type ProductsControllerFacetsResponse =
+  ProductsControllerFacetsResponses[keyof ProductsControllerFacetsResponses];
+
+export type ProductsControllerTaxonomyCountsData = {
+  body?: never;
+  path?: never;
+  query: {
+    family:
+      | "energy_commodities"
+      | "equipment"
+      | "industrial_materials"
+      | "services";
+  };
+  url: "/api/v1/products/taxonomy-counts";
+};
+
+export type ProductsControllerTaxonomyCountsResponses = {
+  200: MarketplaceTaxonomyCountsDto;
+};
+
+export type ProductsControllerTaxonomyCountsResponse =
+  ProductsControllerTaxonomyCountsResponses[keyof ProductsControllerTaxonomyCountsResponses];
+
+export type ProductsControllerFindOneData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/products/{id}";
+};
+
+export type ProductsControllerFindOneResponses = {
+  200: ProductResponseDto;
+};
+
+export type ProductsControllerFindOneResponse =
+  ProductsControllerFindOneResponses[keyof ProductsControllerFindOneResponses];
+
+export type CategoryGroupsControllerFindAllData = {
+  body?: never;
+  path?: never;
+  query?: {
+    /**
+     * Only return groups in this marketplace family
+     */
+    family?:
+      | "energy_commodities"
+      | "equipment"
+      | "industrial_materials"
+      | "services";
+  };
   url: "/api/v1/category-groups";
 };
 
 export type CategoryGroupsControllerFindAllResponses = {
   /**
-   * List of category groups
+   * List of category groups with their marketplace family
    */
-  200: Array<CategoryGroupDto>;
+  200: Array<CategoryGroupWithFamilyDto>;
 };
 
 export type CategoryGroupsControllerFindAllResponse =
@@ -10739,6 +11836,25 @@ export type CategorySpecialtiesControllerFindOneResponses = {
 export type CategorySpecialtiesControllerFindOneResponse =
   CategorySpecialtiesControllerFindOneResponses[keyof CategorySpecialtiesControllerFindOneResponses];
 
+export type TerminalsControllerFindAllData = {
+  body?: never;
+  path?: never;
+  query?: {
+    /**
+     * Only terminals in this country (Country ID)
+     */
+    country?: string;
+  };
+  url: "/api/v1/terminals";
+};
+
+export type TerminalsControllerFindAllResponses = {
+  200: Array<TerminalDto>;
+};
+
+export type TerminalsControllerFindAllResponse =
+  TerminalsControllerFindAllResponses[keyof TerminalsControllerFindAllResponses];
+
 export type CategoriesControllerFindAllData = {
   body?: never;
   path?: never;
@@ -10827,26 +11943,6 @@ export type TransactionsControllerFindInFlightResponses = {
 export type TransactionsControllerFindInFlightResponse =
   TransactionsControllerFindInFlightResponses[keyof TransactionsControllerFindInFlightResponses];
 
-export type TransactionsControllerCreateData = {
-  body: CreateTransactionDto;
-  path?: never;
-  query?: never;
-  url: "/api/v1/transactions";
-};
-
-export type TransactionsControllerCreateResponses = {
-  /**
-   * The created transaction
-   */
-  200: unknown;
-  201: {
-    [key: string]: unknown;
-  };
-};
-
-export type TransactionsControllerCreateResponse =
-  TransactionsControllerCreateResponses[keyof TransactionsControllerCreateResponses];
-
 export type TransactionsControllerFindByOrderIdData = {
   body?: never;
   path: {
@@ -10885,25 +11981,6 @@ export type TransactionsControllerFindByIdResponses = {
 export type TransactionsControllerFindByIdResponse =
   TransactionsControllerFindByIdResponses[keyof TransactionsControllerFindByIdResponses];
 
-export type TransactionsControllerUpdateStatusData = {
-  body: UpdateTransactionStatusDto;
-  path: {
-    id: string;
-  };
-  query?: never;
-  url: "/api/v1/transactions/{id}/status";
-};
-
-export type TransactionsControllerUpdateStatusResponses = {
-  /**
-   * The updated transaction
-   */
-  200: TransactionResponseDto;
-};
-
-export type TransactionsControllerUpdateStatusResponse =
-  TransactionsControllerUpdateStatusResponses[keyof TransactionsControllerUpdateStatusResponses];
-
 export type TransactionsControllerAddDocumentData = {
   body: AddTransactionDocumentDto;
   path: {
@@ -10918,9 +11995,6 @@ export type TransactionsControllerAddDocumentResponses = {
    * The updated transaction
    */
   200: TransactionResponseDto;
-  201: {
-    [key: string]: unknown;
-  };
 };
 
 export type TransactionsControllerAddDocumentResponse =
@@ -10940,7 +12014,6 @@ export type TransactionsControllerAddFundingReceiptResponses = {
    * The updated transaction
    */
   200: TransactionResponseDto;
-  201: unknown;
 };
 
 export type TransactionsControllerAddFundingReceiptResponse =
@@ -10995,9 +12068,6 @@ export type TransactionsControllerAssignLogisticsResponses = {
    * Logistics assigned successfully.
    */
   200: TransactionResponseDto;
-  201: {
-    [key: string]: unknown;
-  };
 };
 
 export type TransactionsControllerAssignLogisticsResponse =
@@ -11071,9 +12141,6 @@ export type TransactionsControllerConfirmDeliveryResponses = {
    * The updated transaction
    */
   200: TransactionResponseDto;
-  201: {
-    [key: string]: unknown;
-  };
 };
 
 export type TransactionsControllerConfirmDeliveryResponse =
@@ -11120,9 +12187,6 @@ export type TransactionsControllerSubmitMilestoneResponses = {
    * Milestone submitted successfully.
    */
   200: TransactionResponseDto;
-  201: {
-    [key: string]: unknown;
-  };
 };
 
 export type TransactionsControllerSubmitMilestoneResponse =
@@ -11143,9 +12207,6 @@ export type TransactionsControllerApproveMilestoneResponses = {
    * Milestone approved successfully.
    */
   200: TransactionResponseDto;
-  201: {
-    [key: string]: unknown;
-  };
 };
 
 export type TransactionsControllerApproveMilestoneResponse =
@@ -11166,9 +12227,6 @@ export type TransactionsControllerSubmitInspectionResponses = {
    * Inspection documents submitted successfully.
    */
   200: TransactionResponseDto;
-  201: {
-    [key: string]: unknown;
-  };
 };
 
 export type TransactionsControllerSubmitInspectionResponse =
@@ -11229,7 +12287,6 @@ export type TransactionConversationsControllerSendMessageData = {
 
 export type TransactionConversationsControllerSendMessageResponses = {
   200: TransactionConversationResponseDto;
-  201: TransactionConversationResponseDto;
 };
 
 export type TransactionConversationsControllerSendMessageResponse =
@@ -11247,9 +12304,6 @@ export type OrdersControllerPurchaseResponses = {
    * The created order in pending status
    */
   200: OrderResponseDto;
-  201: {
-    [key: string]: unknown;
-  };
 };
 
 export type OrdersControllerPurchaseResponse =
@@ -11276,6 +12330,10 @@ export type OrdersControllerFindAllData = {
      */
     role?: "buyer" | "seller";
     /**
+     * Status tab: open (pending), in_execution (confirmed, in a transaction or disputed), completed, cancelled
+     */
+    bucket?: "open" | "in_execution" | "completed" | "cancelled";
+    /**
      * Filter by the originating request ID
      */
     requestId?: string;
@@ -11289,6 +12347,45 @@ export type OrdersControllerFindAllResponses = {
 
 export type OrdersControllerFindAllResponse =
   OrdersControllerFindAllResponses[keyof OrdersControllerFindAllResponses];
+
+export type OrdersControllerCountsData = {
+  body?: never;
+  path?: never;
+  query?: {
+    /**
+     * Page number
+     */
+    page?: string;
+    /**
+     * Items per page
+     */
+    limit?: string;
+    /**
+     * Filter by status (Order or Transaction status)
+     */
+    status?: string;
+    /**
+     * Filter by role (buyer or seller)
+     */
+    role?: "buyer" | "seller";
+    /**
+     * Status tab: open (pending), in_execution (confirmed, in a transaction or disputed), completed, cancelled
+     */
+    bucket?: "open" | "in_execution" | "completed" | "cancelled";
+    /**
+     * Filter by the originating request ID
+     */
+    requestId?: string;
+  };
+  url: "/api/v1/orders/counts";
+};
+
+export type OrdersControllerCountsResponses = {
+  200: OrderCountsDto;
+};
+
+export type OrdersControllerCountsResponse =
+  OrdersControllerCountsResponses[keyof OrdersControllerCountsResponses];
 
 export type OrdersControllerFindOneData = {
   body?: never;
@@ -11333,9 +12430,6 @@ export type OrdersControllerConfirmData = {
 
 export type OrdersControllerConfirmResponses = {
   200: OrderResponseDto;
-  201: {
-    [key: string]: unknown;
-  };
 };
 
 export type OrdersControllerConfirmResponse =
@@ -11371,7 +12465,7 @@ export type OrdersControllerGetLogsResponse =
   OrdersControllerGetLogsResponses[keyof OrdersControllerGetLogsResponses];
 
 export type OrdersControllerCancelData = {
-  body?: never;
+  body: CancelOrderDto;
   path: {
     id: string;
   };
@@ -11381,23 +12475,55 @@ export type OrdersControllerCancelData = {
 
 export type OrdersControllerCancelResponses = {
   200: OrderResponseDto;
-  201: {
-    [key: string]: unknown;
-  };
 };
 
 export type OrdersControllerCancelResponse =
   OrdersControllerCancelResponses[keyof OrdersControllerCancelResponses];
 
+export type OrdersControllerActivityData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/orders/{id}/activity";
+};
+
+export type OrdersControllerActivityResponses = {
+  200: Array<OrderActivityEntryDto>;
+};
+
+export type OrdersControllerActivityResponse =
+  OrdersControllerActivityResponses[keyof OrdersControllerActivityResponses];
+
 export type RequestsControllerFindAllData = {
   body?: never;
   path?: never;
-  query?: never;
+  query?: {
+    /**
+     * Page number
+     */
+    page?: string;
+    /**
+     * Items per page
+     */
+    limit?: string;
+    /**
+     * Filter by status
+     */
+    status?: Array<
+      "pending" | "in_review" | "matched" | "fulfilled" | "cancelled"
+    >;
+    /**
+     * List tab: open, awaiting_decision, matched, closed (fulfilled), cancelled
+     */
+    bucket?: "open" | "awaiting_decision" | "matched" | "closed" | "cancelled";
+  };
   url: "/api/v1/requests";
 };
 
 export type RequestsControllerFindAllResponses = {
-  200: Array<RequestResponseDto>;
+  200: PaginatedRequestsResponseDto;
 };
 
 export type RequestsControllerFindAllResponse =
@@ -11412,13 +12538,38 @@ export type RequestsControllerCreateData = {
 
 export type RequestsControllerCreateResponses = {
   200: RequestResponseDto;
-  201: {
-    [key: string]: unknown;
-  };
 };
 
 export type RequestsControllerCreateResponse =
   RequestsControllerCreateResponses[keyof RequestsControllerCreateResponses];
+
+export type RequestsControllerCountsData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: "/api/v1/requests/counts";
+};
+
+export type RequestsControllerCountsResponses = {
+  200: RequestCountsDto;
+};
+
+export type RequestsControllerCountsResponse =
+  RequestsControllerCountsResponses[keyof RequestsControllerCountsResponses];
+
+export type RequestsControllerFeedCountsData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: "/api/v1/requests/feed/counts";
+};
+
+export type RequestsControllerFeedCountsResponses = {
+  200: SellerRequestCountsDto;
+};
+
+export type RequestsControllerFeedCountsResponse =
+  RequestsControllerFeedCountsResponses[keyof RequestsControllerFeedCountsResponses];
 
 export type RequestsControllerFindFeedData = {
   body?: never;
@@ -11442,6 +12593,16 @@ export type RequestsControllerFindFeedData = {
     status?: Array<
       "pending" | "in_review" | "matched" | "fulfilled" | "cancelled"
     >;
+    /**
+     * Recommendations tab by the seller's own status on the request. When set, `status` is ignored.
+     */
+    bucket?:
+      | "new"
+      | "proposal_submitted"
+      | "selected"
+      | "not_selected"
+      | "declined"
+      | "expired";
   };
   url: "/api/v1/requests/feed";
 };
@@ -11475,6 +12636,19 @@ export type RequestsControllerFindOneFeedResponses = {
 export type RequestsControllerFindOneFeedResponse =
   RequestsControllerFindOneFeedResponses[keyof RequestsControllerFindOneFeedResponses];
 
+export type RequestsControllerDeclineFeedData = {
+  body: DeclineReasonDto;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/requests/feed/{id}/decline";
+};
+
+export type RequestsControllerDeclineFeedResponses = {
+  201: unknown;
+};
+
 export type RequestsControllerFindOneData = {
   body?: never;
   path: {
@@ -11506,6 +12680,22 @@ export type RequestsControllerUpdateResponses = {
 
 export type RequestsControllerUpdateResponse =
   RequestsControllerUpdateResponses[keyof RequestsControllerUpdateResponses];
+
+export type RequestsControllerCancelData = {
+  body: CancelRequestDto;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/requests/{id}/cancel";
+};
+
+export type RequestsControllerCancelResponses = {
+  200: RequestResponseDto;
+};
+
+export type RequestsControllerCancelResponse =
+  RequestsControllerCancelResponses[keyof RequestsControllerCancelResponses];
 
 export type RequestsControllerKeepActiveData = {
   body?: never;
@@ -11586,7 +12776,6 @@ export type NegotiationsControllerCreateData = {
 
 export type NegotiationsControllerCreateResponses = {
   200: NegotiationResponseDto;
-  201: NegotiationResponseDto;
 };
 
 export type NegotiationsControllerCreateResponse =
@@ -11619,7 +12808,6 @@ export type NegotiationsControllerCounterOfferData = {
 
 export type NegotiationsControllerCounterOfferResponses = {
   200: NegotiationResponseDto;
-  201: NegotiationResponseDto;
 };
 
 export type NegotiationsControllerCounterOfferResponse =
@@ -11636,7 +12824,6 @@ export type NegotiationsControllerSendMessageData = {
 
 export type NegotiationsControllerSendMessageResponses = {
   200: NegotiationResponseDto;
-  201: NegotiationResponseDto;
 };
 
 export type NegotiationsControllerSendMessageResponse =
@@ -11653,7 +12840,6 @@ export type NegotiationsControllerAcceptData = {
 
 export type NegotiationsControllerAcceptResponses = {
   200: NegotiationResponseDto;
-  201: NegotiationResponseDto;
 };
 
 export type NegotiationsControllerAcceptResponse =
@@ -11670,14 +12856,13 @@ export type NegotiationsControllerConfirmData = {
 
 export type NegotiationsControllerConfirmResponses = {
   200: NegotiationResponseDto;
-  201: NegotiationResponseDto;
 };
 
 export type NegotiationsControllerConfirmResponse =
   NegotiationsControllerConfirmResponses[keyof NegotiationsControllerConfirmResponses];
 
 export type NegotiationsControllerRejectData = {
-  body?: never;
+  body: RejectNegotiationDto;
   path: {
     id: string;
   };
@@ -11687,7 +12872,6 @@ export type NegotiationsControllerRejectData = {
 
 export type NegotiationsControllerRejectResponses = {
   200: NegotiationResponseDto;
-  201: NegotiationResponseDto;
 };
 
 export type NegotiationsControllerRejectResponse =
@@ -11704,7 +12888,6 @@ export type NegotiationsControllerWithdrawData = {
 
 export type NegotiationsControllerWithdrawResponses = {
   200: NegotiationResponseDto;
-  201: NegotiationResponseDto;
 };
 
 export type NegotiationsControllerWithdrawResponse =
@@ -12245,7 +13428,6 @@ export type WalletControllerCreateBeneficiaryData = {
 
 export type WalletControllerCreateBeneficiaryResponses = {
   200: WalletBeneficiaryResponseDto;
-  201: WalletBeneficiaryResponseDto;
 };
 
 export type WalletControllerCreateBeneficiaryResponse =
@@ -12293,7 +13475,6 @@ export type WalletControllerCreateTransferData = {
 
 export type WalletControllerCreateTransferResponses = {
   200: WalletTransferResponseDto;
-  201: WalletTransferResponseDto;
 };
 
 export type WalletControllerCreateTransferResponse =
@@ -12433,7 +13614,6 @@ export type DisputesControllerRaiseDisputeResponses = {
    * The created dispute
    */
   200: DisputeResponseDto;
-  201: Dispute;
 };
 
 export type DisputesControllerRaiseDisputeResponse =
@@ -12466,7 +13646,6 @@ export type DisputesControllerAddAttachmentData = {
 
 export type DisputesControllerAddAttachmentResponses = {
   200: DisputeResponseDto;
-  201: Dispute;
 };
 
 export type DisputesControllerAddAttachmentResponse =
@@ -12483,7 +13662,6 @@ export type DisputesControllerWithdrawDisputeData = {
 
 export type DisputesControllerWithdrawDisputeResponses = {
   200: DisputeResponseDto;
-  201: unknown;
 };
 
 export type DisputesControllerWithdrawDisputeResponse =
@@ -13070,7 +14248,6 @@ export type OnboardingControllerCompleteOnboardingResponses = {
    * Compliance package submitted for review
    */
   200: OnboardingStatusResponseDto;
-  201: unknown;
 };
 
 export type OnboardingControllerCompleteOnboardingResponse =
@@ -13128,13 +14305,8 @@ export type InvitationsControllerInviteData = {
 };
 
 export type InvitationsControllerInviteResponses = {
-  201: {
-    [key: string]: unknown;
-  };
+  201: unknown;
 };
-
-export type InvitationsControllerInviteResponse =
-  InvitationsControllerInviteResponses[keyof InvitationsControllerInviteResponses];
 
 export type InvitationsControllerRevokeInvitationData = {
   body?: never;
@@ -13176,13 +14348,8 @@ export type LicenseDocumentsControllerUploadData = {
 };
 
 export type LicenseDocumentsControllerUploadResponses = {
-  201: {
-    [key: string]: unknown;
-  };
+  201: unknown;
 };
-
-export type LicenseDocumentsControllerUploadResponse =
-  LicenseDocumentsControllerUploadResponses[keyof LicenseDocumentsControllerUploadResponses];
 
 export type LicenseDocumentsControllerDeleteData = {
   body?: never;
@@ -13224,11 +14391,8 @@ export type AdminLicenseDocumentsControllerGetOrgRequirementsData = {
 };
 
 export type AdminLicenseDocumentsControllerGetOrgRequirementsResponses = {
-  200: LicenseRequirementsResponseDto;
+  200: unknown;
 };
-
-export type AdminLicenseDocumentsControllerGetOrgRequirementsResponse =
-  AdminLicenseDocumentsControllerGetOrgRequirementsResponses[keyof AdminLicenseDocumentsControllerGetOrgRequirementsResponses];
 
 export type AdminLicenseDocumentsControllerReviewData = {
   body: ReviewLicenseDocumentDto;
@@ -13240,13 +14404,8 @@ export type AdminLicenseDocumentsControllerReviewData = {
 };
 
 export type AdminLicenseDocumentsControllerReviewResponses = {
-  200: {
-    [key: string]: unknown;
-  };
+  200: unknown;
 };
-
-export type AdminLicenseDocumentsControllerReviewResponse =
-  AdminLicenseDocumentsControllerReviewResponses[keyof AdminLicenseDocumentsControllerReviewResponses];
 
 export type AdminLicenseRequirementsControllerFindAllData = {
   body?: never;
@@ -13259,13 +14418,8 @@ export type AdminLicenseRequirementsControllerFindAllData = {
 };
 
 export type AdminLicenseRequirementsControllerFindAllResponses = {
-  200: Array<{
-    [key: string]: unknown;
-  }>;
+  200: unknown;
 };
-
-export type AdminLicenseRequirementsControllerFindAllResponse =
-  AdminLicenseRequirementsControllerFindAllResponses[keyof AdminLicenseRequirementsControllerFindAllResponses];
 
 export type AdminLicenseRequirementsControllerCreateData = {
   body: CreateLicenseRequirementDto;
@@ -13275,13 +14429,8 @@ export type AdminLicenseRequirementsControllerCreateData = {
 };
 
 export type AdminLicenseRequirementsControllerCreateResponses = {
-  201: {
-    [key: string]: unknown;
-  };
+  201: unknown;
 };
-
-export type AdminLicenseRequirementsControllerCreateResponse =
-  AdminLicenseRequirementsControllerCreateResponses[keyof AdminLicenseRequirementsControllerCreateResponses];
 
 export type AdminLicenseRequirementsControllerRemoveData = {
   body?: never;
@@ -13306,13 +14455,8 @@ export type AdminLicenseRequirementsControllerFindOneData = {
 };
 
 export type AdminLicenseRequirementsControllerFindOneResponses = {
-  200: {
-    [key: string]: unknown;
-  };
+  200: unknown;
 };
-
-export type AdminLicenseRequirementsControllerFindOneResponse =
-  AdminLicenseRequirementsControllerFindOneResponses[keyof AdminLicenseRequirementsControllerFindOneResponses];
 
 export type AdminLicenseRequirementsControllerUpdateData = {
   body: UpdateLicenseRequirementDto;
@@ -13324,13 +14468,8 @@ export type AdminLicenseRequirementsControllerUpdateData = {
 };
 
 export type AdminLicenseRequirementsControllerUpdateResponses = {
-  200: {
-    [key: string]: unknown;
-  };
+  200: unknown;
 };
-
-export type AdminLicenseRequirementsControllerUpdateResponse =
-  AdminLicenseRequirementsControllerUpdateResponses[keyof AdminLicenseRequirementsControllerUpdateResponses];
 
 export type AdminBenchmarksControllerListData = {
   body?: never;
@@ -13404,13 +14543,7 @@ export type AdminAuthControllerLoginResponses = {
    * Returns OTP challenge
    */
   200: unknown;
-  201: {
-    [key: string]: unknown;
-  };
 };
-
-export type AdminAuthControllerLoginResponse =
-  AdminAuthControllerLoginResponses[keyof AdminAuthControllerLoginResponses];
 
 export type AdminAuthControllerVerifyOtpData = {
   body: AdminVerifyOtpDto;
@@ -13424,13 +14557,7 @@ export type AdminAuthControllerVerifyOtpResponses = {
    * Returns access token and user info
    */
   200: unknown;
-  201: {
-    [key: string]: unknown;
-  };
 };
-
-export type AdminAuthControllerVerifyOtpResponse =
-  AdminAuthControllerVerifyOtpResponses[keyof AdminAuthControllerVerifyOtpResponses];
 
 export type AdminAuthControllerCreateAdminData = {
   body: CreateAdminDto;
@@ -13440,13 +14567,8 @@ export type AdminAuthControllerCreateAdminData = {
 };
 
 export type AdminAuthControllerCreateAdminResponses = {
-  201: {
-    [key: string]: unknown;
-  };
+  201: unknown;
 };
-
-export type AdminAuthControllerCreateAdminResponse =
-  AdminAuthControllerCreateAdminResponses[keyof AdminAuthControllerCreateAdminResponses];
 
 export type AdminAuthControllerChangePasswordData = {
   body: AdminChangePasswordDto;
@@ -13467,13 +14589,8 @@ export type AdminAuthControllerGetProfileData = {
 };
 
 export type AdminAuthControllerGetProfileResponses = {
-  200: {
-    [key: string]: unknown;
-  };
+  200: unknown;
 };
-
-export type AdminAuthControllerGetProfileResponse =
-  AdminAuthControllerGetProfileResponses[keyof AdminAuthControllerGetProfileResponses];
 
 export type AdminManagementControllerListData = {
   body?: never;
@@ -14059,9 +15176,6 @@ export type AdminTransactionsControllerAddDocumentResponses = {
    * The updated transaction
    */
   200: TransactionResponseDto;
-  201: {
-    [key: string]: unknown;
-  };
 };
 
 export type AdminTransactionsControllerAddDocumentResponse =
@@ -14081,9 +15195,6 @@ export type AdminTransactionsControllerAddRequirementResponses = {
    * The updated transaction
    */
   200: TransactionResponseDto;
-  201: {
-    [key: string]: unknown;
-  };
 };
 
 export type AdminTransactionsControllerAddRequirementResponse =
@@ -14195,7 +15306,6 @@ export type AdminTransactionsControllerConfirmDepositFundingData = {
 
 export type AdminTransactionsControllerConfirmDepositFundingResponses = {
   200: ConfirmDepositFundingResultDto;
-  201: unknown;
 };
 
 export type AdminTransactionsControllerConfirmDepositFundingResponse =
@@ -14213,7 +15323,6 @@ export type AdminTransactionsControllerConfirmDepositFundingWithWaiverData = {
 export type AdminTransactionsControllerConfirmDepositFundingWithWaiverResponses =
   {
     200: ConfirmDepositFundingResultDto;
-    201: unknown;
   };
 
 export type AdminTransactionsControllerConfirmDepositFundingWithWaiverResponse =
@@ -14287,9 +15396,6 @@ export type AdminTransactionsControllerReleaseSettlementResponses = {
    * The updated transaction
    */
   200: TransactionResponseDto;
-  201: {
-    [key: string]: unknown;
-  };
 };
 
 export type AdminTransactionsControllerReleaseSettlementResponse =
@@ -14310,7 +15416,6 @@ export type AdminTransactionsControllerRetryMilestonePaymentResponses = {
    * The retry was initiated
    */
   200: unknown;
-  201: unknown;
 };
 
 export type AdminTransactionsControllerSubmitInspectionData = {
@@ -14328,9 +15433,6 @@ export type AdminTransactionsControllerSubmitInspectionResponses = {
    * Inspection documents submitted successfully.
    */
   200: TransactionResponseDto;
-  201: {
-    [key: string]: unknown;
-  };
 };
 
 export type AdminTransactionsControllerSubmitInspectionResponse =
@@ -14689,13 +15791,8 @@ export type AdminRequestsControllerAcceptRequestData = {
 };
 
 export type AdminRequestsControllerAcceptRequestResponses = {
-  201: {
-    [key: string]: unknown;
-  };
+  201: unknown;
 };
-
-export type AdminRequestsControllerAcceptRequestResponse =
-  AdminRequestsControllerAcceptRequestResponses[keyof AdminRequestsControllerAcceptRequestResponses];
 
 export type AdminNegotiationsControllerFindAllData = {
   body?: never;
@@ -14924,7 +16021,6 @@ export type AdminComplianceControllerRequestDocumentsData = {
 
 export type AdminComplianceControllerRequestDocumentsResponses = {
   200: ComplianceCaseDetailDto;
-  201: unknown;
 };
 
 export type AdminComplianceControllerRequestDocumentsResponse =
@@ -14954,7 +16050,6 @@ export type AdminComplianceControllerRequestChangesData = {
 
 export type AdminComplianceControllerRequestChangesResponses = {
   200: ComplianceCaseDetailDto;
-  201: unknown;
 };
 
 export type AdminComplianceControllerRequestChangesResponse =
@@ -14987,7 +16082,6 @@ export type AdminComplianceControllerAdoptRegistryPeopleData = {
 
 export type AdminComplianceControllerAdoptRegistryPeopleResponses = {
   200: ComplianceCaseDetailDto;
-  201: unknown;
 };
 
 export type AdminComplianceControllerAdoptRegistryPeopleResponse =
@@ -15087,7 +16181,6 @@ export type AdminComplianceControllerOnboardData = {
 
 export type AdminComplianceControllerOnboardResponses = {
   200: ProviderOnboardingOutcomeDto;
-  201: unknown;
 };
 
 export type AdminComplianceControllerOnboardResponse =
@@ -15147,13 +16240,8 @@ export type AdminLedgerControllerGetStatementData = {
 };
 
 export type AdminLedgerControllerGetStatementResponses = {
-  200: Array<{
-    [key: string]: unknown;
-  }>;
+  200: unknown;
 };
-
-export type AdminLedgerControllerGetStatementResponse =
-  AdminLedgerControllerGetStatementResponses[keyof AdminLedgerControllerGetStatementResponses];
 
 export type AdminLedgerControllerQueryEntriesData = {
   body?: never;
@@ -15168,13 +16256,8 @@ export type AdminLedgerControllerQueryEntriesData = {
 };
 
 export type AdminLedgerControllerQueryEntriesResponses = {
-  200: Array<{
-    [key: string]: unknown;
-  }>;
+  200: unknown;
 };
-
-export type AdminLedgerControllerQueryEntriesResponse =
-  AdminLedgerControllerQueryEntriesResponses[keyof AdminLedgerControllerQueryEntriesResponses];
 
 export type AdminLedgerControllerPostManualAdjustmentData = {
   body: ManualAdjustmentDto;
@@ -15184,13 +16267,8 @@ export type AdminLedgerControllerPostManualAdjustmentData = {
 };
 
 export type AdminLedgerControllerPostManualAdjustmentResponses = {
-  201: {
-    [key: string]: unknown;
-  };
+  201: unknown;
 };
-
-export type AdminLedgerControllerPostManualAdjustmentResponse =
-  AdminLedgerControllerPostManualAdjustmentResponses[keyof AdminLedgerControllerPostManualAdjustmentResponses];
 
 export type AdminLedgerControllerGetEntryData = {
   body?: never;
@@ -15202,13 +16280,8 @@ export type AdminLedgerControllerGetEntryData = {
 };
 
 export type AdminLedgerControllerGetEntryResponses = {
-  200: {
-    [key: string]: unknown;
-  };
+  200: unknown;
 };
-
-export type AdminLedgerControllerGetEntryResponse =
-  AdminLedgerControllerGetEntryResponses[keyof AdminLedgerControllerGetEntryResponses];
 
 export type AdminLedgerControllerReverseEntryData = {
   body: ReverseEntryDto;
@@ -15220,13 +16293,8 @@ export type AdminLedgerControllerReverseEntryData = {
 };
 
 export type AdminLedgerControllerReverseEntryResponses = {
-  201: {
-    [key: string]: unknown;
-  };
+  201: unknown;
 };
-
-export type AdminLedgerControllerReverseEntryResponse =
-  AdminLedgerControllerReverseEntryResponses[keyof AdminLedgerControllerReverseEntryResponses];
 
 export type AdminLedgerControllerListReconciliationRunsData = {
   body?: never;
@@ -15243,13 +16311,8 @@ export type AdminLedgerControllerListReconciliationRunsData = {
 };
 
 export type AdminLedgerControllerListReconciliationRunsResponses = {
-  200: Array<{
-    [key: string]: unknown;
-  }>;
+  200: unknown;
 };
-
-export type AdminLedgerControllerListReconciliationRunsResponse =
-  AdminLedgerControllerListReconciliationRunsResponses[keyof AdminLedgerControllerListReconciliationRunsResponses];
 
 export type AdminLedgerControllerGetReconciliationRunData = {
   body?: never;
@@ -15261,13 +16324,8 @@ export type AdminLedgerControllerGetReconciliationRunData = {
 };
 
 export type AdminLedgerControllerGetReconciliationRunResponses = {
-  200: {
-    [key: string]: unknown;
-  };
+  200: unknown;
 };
-
-export type AdminLedgerControllerGetReconciliationRunResponse =
-  AdminLedgerControllerGetReconciliationRunResponses[keyof AdminLedgerControllerGetReconciliationRunResponses];
 
 export type AdminLedgerControllerTriggerInternalReconciliationData = {
   body?: never;
@@ -15277,13 +16335,8 @@ export type AdminLedgerControllerTriggerInternalReconciliationData = {
 };
 
 export type AdminLedgerControllerTriggerInternalReconciliationResponses = {
-  201: {
-    [key: string]: unknown;
-  };
+  201: unknown;
 };
-
-export type AdminLedgerControllerTriggerInternalReconciliationResponse =
-  AdminLedgerControllerTriggerInternalReconciliationResponses[keyof AdminLedgerControllerTriggerInternalReconciliationResponses];
 
 export type AdminLedgerControllerTriggerExternalReconciliationData = {
   body?: never;
@@ -15293,13 +16346,8 @@ export type AdminLedgerControllerTriggerExternalReconciliationData = {
 };
 
 export type AdminLedgerControllerTriggerExternalReconciliationResponses = {
-  201: {
-    [key: string]: unknown;
-  };
+  201: unknown;
 };
-
-export type AdminLedgerControllerTriggerExternalReconciliationResponse =
-  AdminLedgerControllerTriggerExternalReconciliationResponses[keyof AdminLedgerControllerTriggerExternalReconciliationResponses];
 
 export type AdminDashboardControllerGetStatsData = {
   body?: never;
@@ -15718,13 +16766,8 @@ export type MockProviderDevControllerSimulateDepositData = {
 };
 
 export type MockProviderDevControllerSimulateDepositResponses = {
-  201: {
-    [key: string]: unknown;
-  };
+  201: unknown;
 };
-
-export type MockProviderDevControllerSimulateDepositResponse =
-  MockProviderDevControllerSimulateDepositResponses[keyof MockProviderDevControllerSimulateDepositResponses];
 
 export type AdminProviderDrainControllerListData = {
   body?: never;
@@ -15950,13 +16993,8 @@ export type OrgProductsControllerCreateData = {
 };
 
 export type OrgProductsControllerCreateResponses = {
-  201: {
-    [key: string]: unknown;
-  };
+  201: unknown;
 };
-
-export type OrgProductsControllerCreateResponse =
-  OrgProductsControllerCreateResponses[keyof OrgProductsControllerCreateResponses];
 
 export type OrgProductsControllerRemoveData = {
   body?: never;
@@ -15969,13 +17007,8 @@ export type OrgProductsControllerRemoveData = {
 };
 
 export type OrgProductsControllerRemoveResponses = {
-  200: {
-    [key: string]: unknown;
-  };
+  200: unknown;
 };
-
-export type OrgProductsControllerRemoveResponse =
-  OrgProductsControllerRemoveResponses[keyof OrgProductsControllerRemoveResponses];
 
 export type OrgProductsControllerFindOneData = {
   body?: never;
@@ -16005,13 +17038,8 @@ export type OrgProductsControllerUpdateData = {
 };
 
 export type OrgProductsControllerUpdateResponses = {
-  200: {
-    [key: string]: unknown;
-  };
+  200: unknown;
 };
-
-export type OrgProductsControllerUpdateResponse =
-  OrgProductsControllerUpdateResponses[keyof OrgProductsControllerUpdateResponses];
 
 export type QqCatalogControllerFindAllFieldsData = {
   body?: never;
@@ -16021,11 +17049,8 @@ export type QqCatalogControllerFindAllFieldsData = {
 };
 
 export type QqCatalogControllerFindAllFieldsResponses = {
-  200: Array<QqFieldDef>;
+  200: unknown;
 };
-
-export type QqCatalogControllerFindAllFieldsResponse =
-  QqCatalogControllerFindAllFieldsResponses[keyof QqCatalogControllerFindAllFieldsResponses];
 
 export type QqCatalogControllerFindFieldData = {
   body?: never;
@@ -16040,11 +17065,8 @@ export type QqCatalogControllerFindFieldData = {
 };
 
 export type QqCatalogControllerFindFieldResponses = {
-  200: QqFieldDef;
+  200: unknown;
 };
-
-export type QqCatalogControllerFindFieldResponse =
-  QqCatalogControllerFindFieldResponses[keyof QqCatalogControllerFindFieldResponses];
 
 export type QqCatalogControllerFindAllTemplatesData = {
   body?: never;
@@ -16054,11 +17076,24 @@ export type QqCatalogControllerFindAllTemplatesData = {
 };
 
 export type QqCatalogControllerFindAllTemplatesResponses = {
-  200: Array<QqTemplate>;
+  200: unknown;
 };
 
-export type QqCatalogControllerFindAllTemplatesResponse =
-  QqCatalogControllerFindAllTemplatesResponses[keyof QqCatalogControllerFindAllTemplatesResponses];
+export type QqCatalogControllerMatchTemplatesData = {
+  body?: never;
+  path?: never;
+  query: {
+    /**
+     * Category or specialty slugs, in order of preference; CSV or repeated
+     */
+    productType: Array<string>;
+  };
+  url: "/api/v1/qq-catalog/templates/match";
+};
+
+export type QqCatalogControllerMatchTemplatesResponses = {
+  200: unknown;
+};
 
 export type QqCatalogControllerFindTemplateData = {
   body?: never;
@@ -16073,11 +17108,8 @@ export type QqCatalogControllerFindTemplateData = {
 };
 
 export type QqCatalogControllerFindTemplateResponses = {
-  200: QqTemplate;
+  200: unknown;
 };
-
-export type QqCatalogControllerFindTemplateResponse =
-  QqCatalogControllerFindTemplateResponses[keyof QqCatalogControllerFindTemplateResponses];
 
 export type QqCatalogControllerFindAllCompaniesData = {
   body?: never;
@@ -16087,11 +17119,8 @@ export type QqCatalogControllerFindAllCompaniesData = {
 };
 
 export type QqCatalogControllerFindAllCompaniesResponses = {
-  200: Array<string>;
+  200: unknown;
 };
-
-export type QqCatalogControllerFindAllCompaniesResponse =
-  QqCatalogControllerFindAllCompaniesResponses[keyof QqCatalogControllerFindAllCompaniesResponses];
 
 export type InspectionControllerSubmitInspectionData = {
   body: SubmitInspectionDto;
@@ -16106,11 +17135,8 @@ export type InspectionControllerSubmitInspectionData = {
 };
 
 export type InspectionControllerSubmitInspectionResponses = {
-  201: InspectionReport;
+  201: unknown;
 };
-
-export type InspectionControllerSubmitInspectionResponse =
-  InspectionControllerSubmitInspectionResponses[keyof InspectionControllerSubmitInspectionResponses];
 
 export type InspectionControllerListInspectionsData = {
   body?: never;
@@ -16125,11 +17151,8 @@ export type InspectionControllerListInspectionsData = {
 };
 
 export type InspectionControllerListInspectionsResponses = {
-  200: Array<InspectionReport>;
+  200: unknown;
 };
-
-export type InspectionControllerListInspectionsResponse =
-  InspectionControllerListInspectionsResponses[keyof InspectionControllerListInspectionsResponses];
 
 export type InspectionReportControllerFindOneData = {
   body?: never;
@@ -16144,11 +17167,8 @@ export type InspectionReportControllerFindOneData = {
 };
 
 export type InspectionReportControllerFindOneResponses = {
-  200: InspectionReport;
+  200: unknown;
 };
-
-export type InspectionReportControllerFindOneResponse =
-  InspectionReportControllerFindOneResponses[keyof InspectionReportControllerFindOneResponses];
 
 export type PlacesControllerAutocompleteData = {
   body?: never;
@@ -16167,13 +17187,8 @@ export type PlacesControllerAutocompleteData = {
 };
 
 export type PlacesControllerAutocompleteResponses = {
-  200: Array<{
-    [key: string]: unknown;
-  }>;
+  200: unknown;
 };
-
-export type PlacesControllerAutocompleteResponse =
-  PlacesControllerAutocompleteResponses[keyof PlacesControllerAutocompleteResponses];
 
 export type PlacesControllerGetDetailsData = {
   body?: never;
@@ -16192,13 +17207,8 @@ export type PlacesControllerGetDetailsData = {
 };
 
 export type PlacesControllerGetDetailsResponses = {
-  200: Array<{
-    [key: string]: unknown;
-  }>;
+  200: unknown;
 };
-
-export type PlacesControllerGetDetailsResponse =
-  PlacesControllerGetDetailsResponses[keyof PlacesControllerGetDetailsResponses];
 
 export type FlutterwaveWebhooksControllerHandleWebhookData = {
   body?: never;
@@ -16284,7 +17294,6 @@ export type SupportControllerCreateData = {
 
 export type SupportControllerCreateResponses = {
   200: SupportTicketResponseDto;
-  201: unknown;
 };
 
 export type SupportControllerCreateResponse =
@@ -16334,7 +17343,6 @@ export type SupportControllerAddMessageData = {
 
 export type SupportControllerAddMessageResponses = {
   200: SupportTicketResponseDto;
-  201: unknown;
 };
 
 export type SupportControllerAddMessageResponse =
@@ -16354,7 +17362,6 @@ export type SupportControllerCloseData = {
 
 export type SupportControllerCloseResponses = {
   200: SupportTicketResponseDto;
-  201: unknown;
 };
 
 export type SupportControllerCloseResponse =
