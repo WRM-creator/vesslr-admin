@@ -12,10 +12,12 @@ interface FormatCurrencyOptions {
  */
 const CURRENCY_DECIMALS: Record<string, number> = {
   NGN: 2,
+  KES: 2,
   USD: 2,
   EUR: 2,
   GBP: 2,
   USDT: 6,
+  USDC: 6,
 };
 
 const DEFAULT_DECIMALS = 2;
@@ -28,7 +30,7 @@ export function getCurrencyDecimals(currency: string): number {
  * Currencies Intl.NumberFormat cannot render (non-ISO-4217 codes like USDT
  * throw a RangeError). These format as a plain number with the code suffixed.
  */
-const NON_ISO_CURRENCIES = new Set(["USDT"]);
+const NON_ISO_CURRENCIES = new Set(["USDT", "USDC"]);
 
 /**
  * Format a monetary amount (in **minor units**) with its currency symbol.
@@ -59,7 +61,7 @@ export function formatCurrency(
     compact = false,
   } = options;
 
-  if (NON_ISO_CURRENCIES.has(currency)) {
+  const asPlainNumber = () => {
     const formatted = new Intl.NumberFormat(locale, {
       minimumFractionDigits,
       // Show the full crypto precision unless the caller narrowed it.
@@ -68,18 +70,28 @@ export function formatCurrency(
       ...(compact && { notation: "compact" as const, compactDisplay: "short" as const }),
     }).format(majorAmount);
     return `${formatted} ${currency}`;
-  }
+  };
 
-  return new Intl.NumberFormat(locale, {
-    style: "currency",
-    currency,
-    // "narrowSymbol" renders ₦ for NGN; the default ("symbol") falls back to
-    // the bare code for currencies the locale considers foreign.
-    currencyDisplay: "narrowSymbol",
-    minimumFractionDigits,
-    maximumFractionDigits,
-    ...(compact && { notation: "compact" as const, compactDisplay: "short" as const }),
-  }).format(majorAmount);
+  if (NON_ISO_CURRENCIES.has(currency)) return asPlainNumber();
+
+  try {
+    return new Intl.NumberFormat(locale, {
+      style: "currency",
+      currency,
+      // "narrowSymbol" renders ₦ for NGN; the default ("symbol") falls back to
+      // the bare code for currencies the locale considers foreign.
+      currencyDisplay: "narrowSymbol",
+      minimumFractionDigits,
+      maximumFractionDigits,
+      ...(compact && { notation: "compact" as const, compactDisplay: "short" as const }),
+    }).format(majorAmount);
+  } catch {
+    // A code missing from NON_ISO_CURRENCIES makes Intl throw a RangeError.
+    // That used to escape the table cell and take the whole page down with an
+    // error boundary (the Ledger page died on USDC). Degrade to a plain number
+    // instead: one odd-looking cell beats an unusable screen.
+    return asPlainNumber();
+  }
 }
 
 /** Convert minor units from API to major units for display. */
