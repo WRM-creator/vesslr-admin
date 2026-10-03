@@ -28482,6 +28482,9 @@
           "firstName": {
             "type": "string"
           },
+          "middleName": {
+            "type": "string"
+          },
           "lastName": {
             "type": "string"
           },
@@ -29568,7 +29571,11 @@
         "properties": {
           "firstName": {
             "type": "string",
-            "description": "Given name(s) as on the BVN or ID document. Required for submission."
+            "description": "First given name as on the BVN or ID document, without middle names. Required for submission."
+          },
+          "middleName": {
+            "type": "string",
+            "description": "Middle name(s) as on the BVN or ID document. Optional."
           },
           "lastName": {
             "type": "string",
@@ -29658,6 +29665,10 @@
       "CreatePersonDto": {
         "type": "object",
         "properties": {
+          "middleName": {
+            "type": "string",
+            "description": "Middle name(s) as on the BVN or ID document. Optional."
+          },
           "ownsMoreThanFivePercent": {
             "type": "boolean"
           },
@@ -35045,6 +35056,9 @@
             ]
           },
           "firstName": {
+            "type": "string"
+          },
+          "middleName": {
             "type": "string"
           },
           "lastName": {

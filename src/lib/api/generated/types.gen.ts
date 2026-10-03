@@ -6123,6 +6123,7 @@ export type OnboardingPersonDto = {
    */
   bvnCheck?: PersonBvnCheckDto;
   firstName?: string;
+  middleName?: string;
   lastName?: string;
   occupation?: string;
   nationalityCode?: string;
@@ -6561,9 +6562,13 @@ export type UpdateBusinessRepresentativeDto = {
 
 export type UpdatePersonInfoDto = {
   /**
-   * Given name(s) as on the BVN or ID document. Required for submission.
+   * First given name as on the BVN or ID document, without middle names. Required for submission.
    */
   firstName?: string;
+  /**
+   * Middle name(s) as on the BVN or ID document. Optional.
+   */
+  middleName?: string;
   /**
    * Surname as on the BVN or ID document. Required for submission.
    */
@@ -6600,6 +6605,10 @@ export type UpdatePersonInfoDto = {
 };
 
 export type CreatePersonDto = {
+  /**
+   * Middle name(s) as on the BVN or ID document. Optional.
+   */
+  middleName?: string;
   ownsMoreThanFivePercent: boolean;
   /**
    * Numeric ownership stake (0–100).
@@ -9144,6 +9153,7 @@ export type BusinessPersonDto = {
    */
   bvnCheck?: PersonBvnCheckDto;
   firstName?: string;
+  middleName?: string;
   lastName?: string;
   occupation?: string;
   nationalityCode?: string;
