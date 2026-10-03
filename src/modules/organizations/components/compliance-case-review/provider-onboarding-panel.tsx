@@ -71,7 +71,7 @@ const STATUS_LABELS: Record<Status, string> = {
   in_review: "In review",
   active: "Verified",
   rejected: "Rejected",
-  archived: "Closed by provider",
+  archived: "Archived by provider",
 };
 
 function statusVariant(
@@ -94,9 +94,9 @@ function statusVariant(
 
 /**
  * A provider in one of these states can benefit from a manual (re-)run. For
- * `archived` the re-run only re-reads the status (nothing is resubmitted to a
- * closed customer), which is still worth offering: nothing polls a closed
- * customer, so this is how a provider-side restore is discovered.
+ * `archived` it is the only way forward: nothing resubmits an archived
+ * customer automatically, but a manual re-run sends the corrected record and
+ * asks the provider to verify again (revived two Busha customers, 2026-10-03).
  */
 const RETRYABLE: Status[] = ["none", "pending", "rejected", "archived"];
 
@@ -176,10 +176,10 @@ export function ProviderOnboardingPanel({
         )}
         {list.some((i) => i.status === "archived") && (
           <p className="text-muted-foreground mt-3 text-xs">
-            The provider has closed this customer and gave no reason. Nothing
-            sent from here can reach it. Ask the provider to restore it, or
-            provision a new customer. Re-running only checks whether it has
-            been restored.
+            The provider archived this customer and gave no reason, usually
+            after a verification failed. Nothing resubmits it automatically.
+            Correct the data that failed, then re-run: that sends the corrected
+            record and asks the provider to verify again.
           </p>
         )}
         {lastOutcome && <OutcomeNote outcome={lastOutcome} />}

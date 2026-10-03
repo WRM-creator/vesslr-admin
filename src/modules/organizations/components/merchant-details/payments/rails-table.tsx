@@ -19,7 +19,7 @@ const STATUS_LABELS: Record<string, string> = {
   in_review: "In review",
   active: "Verified",
   rejected: "Rejected",
-  archived: "Closed by provider",
+  archived: "Archived by provider",
 };
 
 const STATUS_TINTS: Record<string, string> = {
@@ -59,7 +59,7 @@ const OUTCOME_LABELS: Record<string, string> = {
   incomplete: "Deferred, data missing",
   error: "Failed",
   poll_error: "Status check failed",
-  provider_closed: "Closed by provider",
+  provider_closed: "Archived by provider",
   suspended: "Suspended by provider",
 };
 

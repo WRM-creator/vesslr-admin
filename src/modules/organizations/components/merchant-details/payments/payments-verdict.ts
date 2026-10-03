@@ -124,19 +124,19 @@ export function derivePaymentsVerdict(
     };
   }
 
-  // A closed principal is a harder stop than "waiting": the provider has to
-  // act (restore it) or a new customer is needed, and retrying cannot help.
+  // An archived principal is a stop nothing clears on its own: no background
+  // pass resubmits it. But it is the admin's move, not the provider's: after
+  // the failing data was corrected, a re-onboard from here revived two
+  // archived Busha customers to "awaiting review" (2026-10-03).
   if (bindings.some((b) => b.onboardingStatus === "archived")) {
     return {
       tone: "blocked",
-      headline: "Closed by the provider",
+      headline: "Archived by the provider",
       detail:
-        "The provider has closed this organization's customer and gave no reason. Nothing sent from here can reach it. Ask the provider to restore it, or provision a new customer. Retrying only re-checks the status, so use it once the provider says the customer is restored.",
-      ownership: "provider",
-      // Nothing polls a closed customer, so a manual retry (which reads the
-      // status and stops) is how a provider-side restore is discovered.
+        "The provider archived this organization's customer and gave no reason, usually after a verification failed and nothing changed. Nothing resubmits it automatically. Correct the data that failed (most often a BVN, name or date of birth), then retry: that sends the corrected record and asks the provider to verify again.",
+      ownership: "admin",
       canRetry: true,
-      retryPrimary: false,
+      retryPrimary: true,
       lastChangedAt,
     };
   }
