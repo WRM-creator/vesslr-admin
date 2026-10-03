@@ -71,6 +71,7 @@ const STATUS_LABELS: Record<Status, string> = {
   in_review: "In review",
   active: "Verified",
   rejected: "Rejected",
+  archived: "Archived by provider",
 };
 
 function statusVariant(
@@ -80,6 +81,7 @@ function statusVariant(
     case "active":
       return "default";
     case "rejected":
+    case "archived":
       return "destructive";
     case "in_review":
     case "pending":
@@ -90,8 +92,13 @@ function statusVariant(
   }
 }
 
-/** A provider in one of these states can benefit from a manual (re-)run. */
-const RETRYABLE: Status[] = ["none", "pending", "rejected"];
+/**
+ * A provider in one of these states can benefit from a manual (re-)run. For
+ * `archived` it is the only way forward: nothing resubmits an archived
+ * customer automatically, but a manual re-run sends the corrected record and
+ * asks the provider to verify again (revived two Busha customers, 2026-10-03).
+ */
+const RETRYABLE: Status[] = ["none", "pending", "rejected", "archived"];
 
 /**
  * OPS/ADMIN-ONLY status board for the org's payment-provider onboarding. One row
@@ -166,6 +173,14 @@ export function ProviderOnboardingPanel({
             </div>
             ))}
           </div>
+        )}
+        {list.some((i) => i.status === "archived") && (
+          <p className="text-muted-foreground mt-3 text-xs">
+            The provider archived this customer and gave no reason, usually
+            after a verification failed. Nothing resubmits it automatically.
+            Correct the data that failed, then re-run: that sends the corrected
+            record and asks the provider to verify again.
+          </p>
         )}
         {lastOutcome && <OutcomeNote outcome={lastOutcome} />}
       </CardContent>

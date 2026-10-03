@@ -82,6 +82,21 @@ export function derivePaymentsVerdict(
 
   const buckets = new Set(bindings.map((b) => b.blockedBy).filter(Boolean));
 
+  // Outranks the rest: whatever the underlying reason, the operative fact is
+  // that nothing will happen again on its own until someone acts.
+  if (buckets.has("stalled")) {
+    return {
+      tone: "blocked",
+      headline: "Provisioning stopped after repeated failures",
+      detail:
+        "The same error came back several times, so automatic retries stopped. Fix the cause, then retry; retrying starts the count again.",
+      ownership: "admin",
+      canRetry: true,
+      retryPrimary: true,
+      lastChangedAt,
+    };
+  }
+
   // Most actionable bucket wins the headline.
   if (buckets.has("data_actionable")) {
     return {
@@ -102,6 +117,23 @@ export function derivePaymentsVerdict(
       headline: "Provisioning hit an error",
       detail:
         "The last attempt failed. A retry may resolve it; the reconciler also retries automatically every 30 minutes.",
+      ownership: "admin",
+      canRetry: true,
+      retryPrimary: true,
+      lastChangedAt,
+    };
+  }
+
+  // An archived principal is a stop nothing clears on its own: no background
+  // pass resubmits it. But it is the admin's move, not the provider's: after
+  // the failing data was corrected, a re-onboard from here revived two
+  // archived Busha customers to "awaiting review" (2026-10-03).
+  if (bindings.some((b) => b.onboardingStatus === "archived")) {
+    return {
+      tone: "blocked",
+      headline: "Archived by the provider",
+      detail:
+        "The provider archived this organization's customer and gave no reason, usually after a verification failed and nothing changed. Nothing resubmits it automatically. Correct the data that failed (most often a BVN, name or date of birth), then retry: that sends the corrected record and asks the provider to verify again.",
       ownership: "admin",
       canRetry: true,
       retryPrimary: true,

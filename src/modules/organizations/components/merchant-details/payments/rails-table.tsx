@@ -19,6 +19,7 @@ const STATUS_LABELS: Record<string, string> = {
   in_review: "In review",
   active: "Verified",
   rejected: "Rejected",
+  archived: "Archived by provider",
 };
 
 const STATUS_TINTS: Record<string, string> = {
@@ -27,6 +28,13 @@ const STATUS_TINTS: Record<string, string> = {
   pending: TINT.amber,
   in_review: TINT.amber,
   rejected: TINT.red,
+  archived: TINT.red,
+};
+
+/** The provider's KYC flag, shown only when it needs attention. */
+const KYC_CAPTIONS: Record<string, string> = {
+  expiry_soon: "KYC expiring",
+  expired: "KYC expired",
 };
 
 const PROVIDER_LABELS: Record<string, string> = {
@@ -51,6 +59,8 @@ const OUTCOME_LABELS: Record<string, string> = {
   incomplete: "Deferred, data missing",
   error: "Failed",
   poll_error: "Status check failed",
+  provider_closed: "Archived by provider",
+  suspended: "Suspended by provider",
 };
 
 /** In-flight statuses the reconciler keeps checking on a backoff. */
@@ -103,6 +113,20 @@ export function RailsTable({ bindings }: RailsTableProps) {
                       Disabled
                     </Badge>
                   )}
+                  {binding.stalledAt && (
+                    <Badge variant="outline" className={`text-[11px] ${TINT.red}`}>
+                      Retries stopped
+                    </Badge>
+                  )}
+                  {binding.providerKycStatus &&
+                    KYC_CAPTIONS[binding.providerKycStatus] && (
+                      <Badge
+                        variant="outline"
+                        className={`text-[11px] ${TINT.amber}`}
+                      >
+                        {KYC_CAPTIONS[binding.providerKycStatus]}
+                      </Badge>
+                    )}
                 </div>
               </TableCell>
               <TableCell>
@@ -143,13 +167,31 @@ export function RailsTable({ bindings }: RailsTableProps) {
                         "dd MMM yyyy, HH:mm",
                       )}
                     </p>
-                    {binding.nextPollAt &&
+                    {binding.stalledAt ? (
+                      // Once retries have stopped there is no next check, and
+                      // showing one would be a lie. The repeating reason is
+                      // what the admin needs instead. It is raw provider text
+                      // of unbounded length, so it wraps inside a fixed width:
+                      // unconstrained it stretched the table by ~370px and made
+                      // the whole row a horizontal scroll on a phone.
+                      <div className="text-muted-foreground max-w-[220px] whitespace-normal">
+                        <p>
+                          Stopped after {binding.consecutiveSameOutcome ?? 0}{" "}
+                          identical failures
+                        </p>
+                        {binding.stallReason && (
+                          <p className="break-words">{binding.stallReason}</p>
+                        )}
+                      </div>
+                    ) : (
+                      binding.nextPollAt &&
                       POLLED_STATUSES.has(binding.onboardingStatus) && (
                         <p className="text-muted-foreground">
                           Next check{" "}
                           {format(new Date(binding.nextPollAt), "dd MMM, HH:mm")}
                         </p>
-                      )}
+                      )
+                    )}
                   </div>
                 ) : (
                   <span className="text-muted-foreground text-xs">
