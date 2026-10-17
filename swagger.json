@@ -16018,6 +16018,26 @@
           }
         }
       },
+      "OrganizationAddressDto": {
+        "type": "object",
+        "properties": {
+          "streetAddress": {
+            "type": "string"
+          },
+          "city": {
+            "$ref": "#/components/schemas/PopulatedLocationDto"
+          },
+          "state": {
+            "$ref": "#/components/schemas/PopulatedLocationDto"
+          },
+          "country": {
+            "$ref": "#/components/schemas/PopulatedLocationDto"
+          },
+          "postalCode": {
+            "type": "string"
+          }
+        }
+      },
       "FileMetadataResponseDto": {
         "type": "object",
         "properties": {
@@ -16073,7 +16093,7 @@
             "description": "Declared participant role (buyer, seller, service_provider, etc.). Behaviour is driven by `type`; this is the finer-grained self-identified role."
           },
           "address": {
-            "$ref": "#/components/schemas/ResidentialAddressDto"
+            "$ref": "#/components/schemas/OrganizationAddressDto"
           },
           "email": {
             "type": "string"

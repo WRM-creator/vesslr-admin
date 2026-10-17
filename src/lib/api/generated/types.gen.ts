@@ -186,6 +186,14 @@ export type ResidentialAddressDto = {
   postalCode?: string;
 };
 
+export type OrganizationAddressDto = {
+  streetAddress?: string;
+  city?: PopulatedLocationDto;
+  state?: PopulatedLocationDto;
+  country?: PopulatedLocationDto;
+  postalCode?: string;
+};
+
 export type FileMetadataResponseDto = {
   url: string;
   name?: string;
@@ -207,7 +215,7 @@ export type OnboardingOrganizationDto = {
    * Declared participant role (buyer, seller, service_provider, etc.). Behaviour is driven by `type`; this is the finer-grained self-identified role.
    */
   accountType?: string;
-  address?: ResidentialAddressDto;
+  address?: OrganizationAddressDto;
   email?: string;
   phoneNumber?: string;
   rcNumber?: string;
