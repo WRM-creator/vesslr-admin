@@ -37712,8 +37712,6 @@
           "rejectionReason": {
             "type": "string",
             "enum": [
-              "unknown_account",
-              "binding_inactive",
               "unsupported_currency",
               "invalid_amount"
             ],
@@ -37722,6 +37720,23 @@
           "processedAt": {
             "type": "string",
             "format": "date-time"
+          },
+          "unmatchedReason": {
+            "type": "string",
+            "enum": [
+              "unknown_account",
+              "binding_inactive"
+            ],
+            "description": "Why a `recorded` settlement is waiting: its account matches no active wallet yet. It is checked again at `nextApplyAt` and credits itself once the wallet exists."
+          },
+          "unmatchedChecks": {
+            "type": "number",
+            "description": "How many checks found no active wallet for the account"
+          },
+          "nextApplyAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the applier next tries a `recorded` settlement (backoff)"
           },
           "createdAt": {
             "type": "string",
@@ -37923,8 +37938,6 @@
           "rejectionReason": {
             "type": "string",
             "enum": [
-              "unknown_account",
-              "binding_inactive",
               "unsupported_currency",
               "invalid_amount"
             ],
@@ -37933,6 +37946,23 @@
           "processedAt": {
             "type": "string",
             "format": "date-time"
+          },
+          "unmatchedReason": {
+            "type": "string",
+            "enum": [
+              "unknown_account",
+              "binding_inactive"
+            ],
+            "description": "Why a `recorded` settlement is waiting: its account matches no active wallet yet. It is checked again at `nextApplyAt` and credits itself once the wallet exists."
+          },
+          "unmatchedChecks": {
+            "type": "number",
+            "description": "How many checks found no active wallet for the account"
+          },
+          "nextApplyAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the applier next tries a `recorded` settlement (backoff)"
           },
           "createdAt": {
             "type": "string",

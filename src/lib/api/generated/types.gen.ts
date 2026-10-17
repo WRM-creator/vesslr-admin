@@ -10888,12 +10888,20 @@ export type AdminProvidusSettlementDto = {
   /**
    * Why the settlement was not applied (status `rejected`)
    */
-  rejectionReason?:
-    | "unknown_account"
-    | "binding_inactive"
-    | "unsupported_currency"
-    | "invalid_amount";
+  rejectionReason?: "unsupported_currency" | "invalid_amount";
   processedAt?: string;
+  /**
+   * Why a `recorded` settlement is waiting: its account matches no active wallet yet. It is checked again at `nextApplyAt` and credits itself once the wallet exists.
+   */
+  unmatchedReason?: "unknown_account" | "binding_inactive";
+  /**
+   * How many checks found no active wallet for the account
+   */
+  unmatchedChecks?: number;
+  /**
+   * When the applier next tries a `recorded` settlement (backoff)
+   */
+  nextApplyAt?: string;
   /**
    * When we received the webhook
    */
@@ -10983,12 +10991,20 @@ export type AdminProvidusSettlementDetailDto = {
   /**
    * Why the settlement was not applied (status `rejected`)
    */
-  rejectionReason?:
-    | "unknown_account"
-    | "binding_inactive"
-    | "unsupported_currency"
-    | "invalid_amount";
+  rejectionReason?: "unsupported_currency" | "invalid_amount";
   processedAt?: string;
+  /**
+   * Why a `recorded` settlement is waiting: its account matches no active wallet yet. It is checked again at `nextApplyAt` and credits itself once the wallet exists.
+   */
+  unmatchedReason?: "unknown_account" | "binding_inactive";
+  /**
+   * How many checks found no active wallet for the account
+   */
+  unmatchedChecks?: number;
+  /**
+   * When the applier next tries a `recorded` settlement (backoff)
+   */
+  nextApplyAt?: string;
   /**
    * When we received the webhook
    */
