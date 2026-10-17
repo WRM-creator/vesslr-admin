@@ -8,6 +8,7 @@ import {
   ClipboardList,
   FileText,
   Globe,
+  Landmark,
   LayoutDashboard,
   LifeBuoy,
   LineChart,
@@ -119,6 +120,11 @@ const navGroups: NavGroup[] = [
         title: "Provider Drain",
         url: "/provider-drain",
         icon: Unplug,
+      },
+      {
+        title: "Providus Settlements",
+        url: "/providus-settlements",
+        icon: Landmark,
       },
       {
         title: "Benchmarks",
