@@ -8,6 +8,7 @@ import {
   ClipboardList,
   FileText,
   Globe,
+  Landmark,
   LayoutDashboard,
   LifeBuoy,
   LineChart,
@@ -18,7 +19,6 @@ import {
   Tags,
   TimerIcon,
   Unplug,
-  Landmark,
   Waypoints,
 } from "lucide-react";
 import * as React from "react";

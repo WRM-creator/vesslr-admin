@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
 import { DataPagination } from "@/components/shared/data-pagination";
 import { Page } from "@/components/shared/page";
 import { PageHeader } from "@/components/shared/page-header";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import {
@@ -25,11 +26,12 @@ import {
 import { api } from "@/lib/api";
 import type { AdminProvidusSettlementDto } from "@/lib/api/generated";
 import { cn, formatDateTime } from "@/lib/utils";
-import { SearchIcon } from "lucide-react";
+import { AlertCircleIcon, SearchIcon } from "lucide-react";
 import {
   RESULT,
   RESULT_ORDER,
   STATUS,
+  errorMessage,
   formatNaira,
   type ResultFilter,
 } from "../lib/format";
@@ -46,17 +48,19 @@ export default function ProvidusSettlementsListPage() {
   const [result, setResult] = useState<ResultFilter | "all">("all");
   const [status, setStatus] = useState<StatusFilter>("all");
   const [search, setSearch] = useState("");
+  const query = useDebounced(search.trim(), 300);
   const [page, setPage] = useState(1);
 
-  const { data, isLoading } = api.admin.providus.settlements.useQuery({
-    query: {
-      ...(result !== "all" && { result }),
-      ...(status !== "all" && { status }),
-      ...(search.trim() && { search: search.trim() }),
-      limit: PAGE_SIZE,
-      offset: (page - 1) * PAGE_SIZE,
-    },
-  });
+  const { data, isLoading, isError, error } =
+    api.admin.providus.settlements.useQuery({
+      query: {
+        ...(result !== "all" && { result }),
+        ...(status !== "all" && { status }),
+        ...(query && { search: query }),
+        limit: PAGE_SIZE,
+        offset: (page - 1) * PAGE_SIZE,
+      },
+    });
 
   const items = data?.items ?? [];
   const counts = data?.counts;
@@ -131,7 +135,13 @@ export default function ProvidusSettlementsListPage() {
         </Select>
       </div>
 
-      {isLoading ? (
+      {isError ? (
+        <Alert variant="destructive">
+          <AlertCircleIcon className="size-4" />
+          <AlertTitle>Could not load settlements</AlertTitle>
+          <AlertDescription>{errorMessage(error)}</AlertDescription>
+        </Alert>
+      ) : isLoading ? (
         <div className="space-y-2">
           <Skeleton className="h-10 w-full" />
           <Skeleton className="h-10 w-full" />
@@ -149,7 +159,9 @@ export default function ProvidusSettlementsListPage() {
                 <TableHead>Transaction time</TableHead>
                 <TableHead className="text-right">Amount</TableHead>
                 <TableHead className="hidden md:table-cell">Account</TableHead>
-                <TableHead className="hidden md:table-cell">Sender bank</TableHead>
+                <TableHead className="hidden md:table-cell">
+                  Sender bank
+                </TableHead>
                 <TableHead className="hidden sm:table-cell">Status</TableHead>
                 <TableHead>Reconciliation</TableHead>
               </TableRow>
@@ -225,7 +237,7 @@ function SettlementRow({
       <TableCell className="text-sm whitespace-normal sm:whitespace-nowrap">
         <Link
           to={`/providus-settlements/${s.id}`}
-          className="hover:underline after:absolute after:inset-0"
+          className="after:absolute after:inset-0 hover:underline"
         >
           {formatDateTime(s.tranDateTime ?? s.createdAt)}
         </Link>
@@ -251,4 +263,14 @@ function SettlementRow({
       </TableCell>
     </TableRow>
   );
+}
+
+/** `value`, once it has stopped changing for `ms`. */
+function useDebounced<T>(value: T, ms: number): T {
+  const [settled, setSettled] = useState(value);
+  useEffect(() => {
+    const timer = setTimeout(() => setSettled(value), ms);
+    return () => clearTimeout(timer);
+  }, [value, ms]);
+  return settled;
 }

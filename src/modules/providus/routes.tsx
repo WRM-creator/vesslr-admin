@@ -8,7 +8,7 @@ export const providusRoutes: RouteObject[] = [
     }),
   },
   {
-    path: "providus-settlements/:settlementId",
+    path: "providus-settlements/:id",
     lazy: async () => ({
       Component: (await import("./pages/providus-settlement-detail")).default,
     }),

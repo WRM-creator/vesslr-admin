@@ -15,12 +15,14 @@ export const RESULT: Record<
   agreed: {
     label: "Agreed",
     tint: TINT.green,
-    description: "Providus agrees on amount and account, and shows it posted and acknowledged.",
+    description:
+      "Providus agrees on amount and account, and shows it posted and acknowledged.",
   },
   pending: {
     label: "Pending",
     tint: TINT.amber,
-    description: "Fields match, but Providus has not posted it or seen our acknowledgement yet.",
+    description:
+      "Fields match, but Providus has not posted it or seen our acknowledgement yet.",
   },
   disagreed: {
     label: "Disagreed",
@@ -35,7 +37,7 @@ export const RESULT: Record<
   error: {
     label: "Lookup failed",
     tint: TINT.orange,
-    description: "The call to Providus failed. It is retried.",
+    description: "Providus has not answered a lookup for this settlement yet.",
   },
   unchecked: {
     label: "Not checked",
@@ -77,6 +79,8 @@ export const FIELD_LABEL: Record<string, string> = {
   accountNumber: "Account",
   settledAmount: "Settled amount",
   transactionAmount: "Transaction amount",
+  currency: "Currency",
+  reversal: "Reversed at Providus",
 };
 
 export function errorMessage(err: unknown): string {

@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { CopyButton } from "@/components/shared/copy-button";
 import { Page } from "@/components/shared/page";
 import { PageHeader } from "@/components/shared/page-header";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -21,7 +22,7 @@ import {
 import { api } from "@/lib/api";
 import type { AdminProvidusSettlementDetailDto } from "@/lib/api/generated";
 import { cn, formatDateTime } from "@/lib/utils";
-import { ArrowLeftIcon, RefreshCwIcon } from "lucide-react";
+import { AlertCircleIcon, ArrowLeftIcon, RefreshCwIcon } from "lucide-react";
 import {
   FIELD_LABEL,
   RESULT,
@@ -36,9 +37,26 @@ import {
  * reconciliation result; it never changes the status or moves money.
  */
 export default function ProvidusSettlementDetailPage() {
-  const { settlementId = "" } = useParams<{ settlementId: string }>();
-  const { data: settlement, isLoading } =
-    api.admin.providus.settlement.useQuery({ path: { id: settlementId } });
+  const { id = "" } = useParams<{ id: string }>();
+  const {
+    data: settlement,
+    isLoading,
+    isError,
+    error,
+  } = api.admin.providus.settlement.useQuery({ path: { id } });
+
+  if (isError) {
+    return (
+      <Page>
+        <BackLink />
+        <Alert variant="destructive">
+          <AlertCircleIcon className="size-4" />
+          <AlertTitle>Could not load this settlement</AlertTitle>
+          <AlertDescription>{errorMessage(error)}</AlertDescription>
+        </Alert>
+      </Page>
+    );
+  }
 
   if (isLoading || !settlement) {
     return (
@@ -78,8 +96,11 @@ export default function ProvidusSettlementDetailPage() {
               <>
                 {" "}
                 Last checked {formatDateTime(rec.checkedAt)}
-                {rec.lookedUpBy === "session_id" && rec.provider && " by session ID"}, {rec.attempts}{" "}
-                {rec.attempts === 1 ? "lookup" : "lookups"} so far.
+                {rec.lookedUpBy === "session_id" &&
+                  rec.provider &&
+                  " by session ID"}
+                , {rec.attempts} {rec.attempts === 1 ? "answer" : "answers"}{" "}
+                from Providus so far.
               </>
             )}
           </>
@@ -88,9 +109,18 @@ export default function ProvidusSettlementDetailPage() {
       />
 
       {rec?.error && (
-        <div className="border-destructive/40 bg-destructive/5 text-destructive rounded-md border px-4 py-3 text-sm">
-          {rec.error}
-        </div>
+        <Alert variant="destructive">
+          <AlertCircleIcon className="size-4" />
+          <AlertTitle>
+            Last lookup failed{rec.errorAt && ` ${formatDateTime(rec.errorAt)}`}
+          </AlertTitle>
+          <AlertDescription>
+            <p>{rec.error}</p>
+            {rec.result !== "error" && (
+              <p>The result above is from the last lookup Providus answered.</p>
+            )}
+          </AlertDescription>
+        </Alert>
       )}
 
       <SummaryCard settlement={settlement} />
@@ -202,7 +232,10 @@ function SummaryCard({
             label="Fee + VAT"
             value={`${formatNaira(s.feeAmount ?? 0, s.currency)} + ${formatNaira(s.vatAmount ?? 0, s.currency)}`}
           />
-          <Field label="Settled amount" value={formatNaira(s.settledAmount, s.currency)} />
+          <Field
+            label="Settled amount"
+            value={formatNaira(s.settledAmount, s.currency)}
+          />
           <Field label="Sender" value={s.sourceAccountName} />
           <Field label="Sender account" value={s.sourceAccountNumber} mono />
           <Field
@@ -213,7 +246,10 @@ function SummaryCard({
                 : s.sourceBankName
             }
           />
-          <Field label="Transaction time" value={formatDateTime(s.tranDateTime)} />
+          <Field
+            label="Transaction time"
+            value={formatDateTime(s.tranDateTime)}
+          />
           <Field label="Received" value={formatDateTime(s.createdAt)} />
           {s.processedAt && (
             <Field label="Processed" value={formatDateTime(s.processedAt)} />
@@ -239,9 +275,17 @@ function ComparisonCard({
   const mismatches = new Set(s.reconciliation?.mismatches ?? []);
 
   const rows: { key: string; ours: string; theirs: string }[] = [
-    { key: "settlementId", ours: s.settlementId, theirs: p?.settlementId ?? "-" },
+    {
+      key: "settlementId",
+      ours: s.settlementId,
+      theirs: p?.settlementId ?? "-",
+    },
     { key: "sessionId", ours: s.sessionId ?? "-", theirs: p?.sessionId ?? "-" },
-    { key: "accountNumber", ours: s.accountNumber ?? "-", theirs: p?.accountNumber ?? "-" },
+    {
+      key: "accountNumber",
+      ours: s.accountNumber ?? "-",
+      theirs: p?.accountNumber ?? "-",
+    },
     {
       key: "transactionAmount",
       ours: formatNaira(s.transactionAmount, s.currency),
@@ -261,9 +305,7 @@ function ComparisonCard({
       </CardHeader>
       <CardContent className="space-y-4">
         {!p ? (
-          <p className="text-muted-foreground text-sm">
-            No lookup result yet.
-          </p>
+          <p className="text-muted-foreground text-sm">No lookup result yet.</p>
         ) : (
           <>
             <Table>
@@ -320,6 +362,13 @@ function ComparisonCard({
                 label="Providus settlement time"
                 value={formatDateTime(p.settlementDateTime)}
               />
+              {p.reversalSessionId && (
+                <Field
+                  label="Reversal session ID"
+                  value={p.reversalSessionId}
+                  mono
+                />
+              )}
             </dl>
           </>
         )}
