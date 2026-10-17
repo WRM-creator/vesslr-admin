@@ -171,9 +171,18 @@ export type StructuredReasonDto = {
 
 export type ResidentialAddressDto = {
   streetAddress?: string;
-  city?: PopulatedLocationDto;
-  state?: PopulatedLocationDto;
-  country?: PopulatedLocationDto;
+  /**
+   * City id or name
+   */
+  city?: string;
+  /**
+   * State id or name
+   */
+  state?: string;
+  /**
+   * Country id or ISO2 code
+   */
+  country?: string;
   postalCode?: string;
 };
 

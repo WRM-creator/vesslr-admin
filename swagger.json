@@ -16002,13 +16002,16 @@
             "type": "string"
           },
           "city": {
-            "$ref": "#/components/schemas/PopulatedLocationDto"
+            "type": "string",
+            "description": "City id or name"
           },
           "state": {
-            "$ref": "#/components/schemas/PopulatedLocationDto"
+            "type": "string",
+            "description": "State id or name"
           },
           "country": {
-            "$ref": "#/components/schemas/PopulatedLocationDto"
+            "type": "string",
+            "description": "Country id or ISO2 code"
           },
           "postalCode": {
             "type": "string"
