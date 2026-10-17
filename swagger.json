@@ -16002,6 +16002,29 @@
             "type": "string"
           },
           "city": {
+            "type": "string",
+            "description": "City id or name"
+          },
+          "state": {
+            "type": "string",
+            "description": "State id or name"
+          },
+          "country": {
+            "type": "string",
+            "description": "Country id or ISO2 code"
+          },
+          "postalCode": {
+            "type": "string"
+          }
+        }
+      },
+      "OrganizationAddressDto": {
+        "type": "object",
+        "properties": {
+          "streetAddress": {
+            "type": "string"
+          },
+          "city": {
             "$ref": "#/components/schemas/PopulatedLocationDto"
           },
           "state": {
@@ -16070,7 +16093,7 @@
             "description": "Declared participant role (buyer, seller, service_provider, etc.). Behaviour is driven by `type`; this is the finer-grained self-identified role."
           },
           "address": {
-            "$ref": "#/components/schemas/ResidentialAddressDto"
+            "$ref": "#/components/schemas/OrganizationAddressDto"
           },
           "email": {
             "type": "string"

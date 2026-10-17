@@ -1405,6 +1405,7 @@ export type {
   OrgProductsControllerUpdateData,
   OrgProductsControllerUpdateResponse,
   OrgProductsControllerUpdateResponses,
+  OrganizationAddressDto,
   OrganizationsControllerGetBankDetailsData,
   OrganizationsControllerGetBankDetailsResponse,
   OrganizationsControllerGetBankDetailsResponses,

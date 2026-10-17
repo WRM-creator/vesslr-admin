@@ -171,6 +171,23 @@ export type StructuredReasonDto = {
 
 export type ResidentialAddressDto = {
   streetAddress?: string;
+  /**
+   * City id or name
+   */
+  city?: string;
+  /**
+   * State id or name
+   */
+  state?: string;
+  /**
+   * Country id or ISO2 code
+   */
+  country?: string;
+  postalCode?: string;
+};
+
+export type OrganizationAddressDto = {
+  streetAddress?: string;
   city?: PopulatedLocationDto;
   state?: PopulatedLocationDto;
   country?: PopulatedLocationDto;
@@ -198,7 +215,7 @@ export type OnboardingOrganizationDto = {
    * Declared participant role (buyer, seller, service_provider, etc.). Behaviour is driven by `type`; this is the finer-grained self-identified role.
    */
   accountType?: string;
-  address?: ResidentialAddressDto;
+  address?: OrganizationAddressDto;
   email?: string;
   phoneNumber?: string;
   rcNumber?: string;
