@@ -18,6 +18,7 @@ import {
   Tags,
   TimerIcon,
   Unplug,
+  Landmark,
   Waypoints,
 } from "lucide-react";
 import * as React from "react";
@@ -119,6 +120,11 @@ const navGroups: NavGroup[] = [
         title: "Provider Drain",
         url: "/provider-drain",
         icon: Unplug,
+      },
+      {
+        title: "Providus Settlements",
+        url: "/providus-settlements",
+        icon: Landmark,
       },
       {
         title: "Benchmarks",

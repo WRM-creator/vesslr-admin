@@ -63,6 +63,9 @@ import {
   adminBenchmarksControllerList,
   adminBenchmarksControllerRemove,
   adminBenchmarksControllerUpdate,
+  adminProvidusControllerGet,
+  adminProvidusControllerList,
+  adminProvidusControllerReverify,
   adminRoutingControllerCreate,
   adminRoutingControllerList,
   adminRoutingControllerReload,
@@ -739,6 +742,23 @@ export const api = {
       }),
       complete: createMutation(adminProviderDrainControllerComplete, {
         invalidates: () => [["admin", "provider-drain"]],
+      }),
+    },
+    providus: {
+      settlements: createQuery(adminProvidusControllerList, (args) => [
+        "admin",
+        "providus",
+        "settlements",
+        args?.query,
+      ]),
+      settlement: createQuery(adminProvidusControllerGet, (args) => [
+        "admin",
+        "providus",
+        "settlement",
+        args.path.id,
+      ]),
+      reverify: createMutation(adminProvidusControllerReverify, {
+        invalidates: () => [["admin", "providus"]],
       }),
     },
     compliance: {
