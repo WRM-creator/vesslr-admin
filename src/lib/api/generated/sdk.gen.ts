@@ -229,6 +229,14 @@ import type {
   AdminProviderDrainControllerScanResponses,
   AdminProviderDrainControllerSweepData,
   AdminProviderDrainControllerSweepResponses,
+  AdminProvidusControllerGetData,
+  AdminProvidusControllerGetErrors,
+  AdminProvidusControllerGetResponses,
+  AdminProvidusControllerListData,
+  AdminProvidusControllerListResponses,
+  AdminProvidusControllerReverifyData,
+  AdminProvidusControllerReverifyErrors,
+  AdminProvidusControllerReverifyResponses,
   AdminRequestsControllerAcceptRequestData,
   AdminRequestsControllerAcceptRequestResponses,
   AdminRequestsControllerFindAllData,
@@ -577,6 +585,8 @@ import type {
   ProductsControllerFindRecommendedResponses,
   ProductsControllerTaxonomyCountsData,
   ProductsControllerTaxonomyCountsResponses,
+  ProvidusWebhooksControllerHandleSettlementData,
+  ProvidusWebhooksControllerHandleSettlementResponses,
   QqCatalogControllerFindAllCompaniesData,
   QqCatalogControllerFindAllCompaniesResponses,
   QqCatalogControllerFindAllFieldsData,
@@ -7535,6 +7545,62 @@ export const adminProviderDrainControllerComplete = <
     ...options,
   });
 
+/**
+ * List Providus settlements, newest first
+ */
+export const adminProvidusControllerList = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<AdminProvidusControllerListData, ThrowOnError>,
+) =>
+  (options?.client ?? client).get<
+    AdminProvidusControllerListResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/providus/settlements",
+    ...options,
+  });
+
+/**
+ * Get one Providus settlement with the webhook and lookup payloads
+ */
+export const adminProvidusControllerGet = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AdminProvidusControllerGetData, ThrowOnError>,
+) =>
+  (options.client ?? client).get<
+    AdminProvidusControllerGetResponses,
+    AdminProvidusControllerGetErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/providus/settlements/{id}",
+    ...options,
+  });
+
+/**
+ * Look the settlement up at Providus now and store the result
+ *
+ * Calls Providus. Writes only the reconciliation result: never the status, never money.
+ */
+export const adminProvidusControllerReverify = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AdminProvidusControllerReverifyData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    AdminProvidusControllerReverifyResponses,
+    AdminProvidusControllerReverifyErrors,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/providus/settlements/{id}/reverify",
+    ...options,
+  });
+
 export const orgProductsControllerFindAll = <
   ThrowOnError extends boolean = false,
 >(
@@ -7866,6 +7932,23 @@ export const transfiWebhooksControllerHandleWebhook = <
     unknown,
     ThrowOnError
   >({ url: "/api/v1/transfi/webhooks", ...options });
+
+/**
+ * Handle Providus settlement notifications (public)
+ */
+export const providusWebhooksControllerHandleSettlement = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    ProvidusWebhooksControllerHandleSettlementData,
+    ThrowOnError
+  >,
+) =>
+  (options.client ?? client).post<
+    ProvidusWebhooksControllerHandleSettlementResponses,
+    unknown,
+    ThrowOnError
+  >({ url: "/api/v1/providus/webhook", ...options });
 
 /**
  * List support tickets for your organization
