@@ -10869,9 +10869,13 @@ export type AdminProvidusSettlementDto = {
   tranDateTime?: string;
   status: "recorded" | "processed" | "rejected";
   /**
-   * Why the settlement was not applied
+   * Why the settlement was not applied (status `rejected`)
    */
-  rejectionReason?: string;
+  rejectionReason?:
+    | "unknown_account"
+    | "binding_inactive"
+    | "unsupported_currency"
+    | "invalid_amount";
   processedAt?: string;
   /**
    * When we received the webhook
@@ -10960,9 +10964,13 @@ export type AdminProvidusSettlementDetailDto = {
   tranDateTime?: string;
   status: "recorded" | "processed" | "rejected";
   /**
-   * Why the settlement was not applied
+   * Why the settlement was not applied (status `rejected`)
    */
-  rejectionReason?: string;
+  rejectionReason?:
+    | "unknown_account"
+    | "binding_inactive"
+    | "unsupported_currency"
+    | "invalid_amount";
   processedAt?: string;
   /**
    * When we received the webhook

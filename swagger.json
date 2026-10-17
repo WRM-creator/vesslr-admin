@@ -37688,7 +37688,13 @@
           },
           "rejectionReason": {
             "type": "string",
-            "description": "Why the settlement was not applied"
+            "enum": [
+              "unknown_account",
+              "binding_inactive",
+              "unsupported_currency",
+              "invalid_amount"
+            ],
+            "description": "Why the settlement was not applied (status `rejected`)"
           },
           "processedAt": {
             "type": "string",
@@ -37893,7 +37899,13 @@
           },
           "rejectionReason": {
             "type": "string",
-            "description": "Why the settlement was not applied"
+            "enum": [
+              "unknown_account",
+              "binding_inactive",
+              "unsupported_currency",
+              "invalid_amount"
+            ],
+            "description": "Why the settlement was not applied (status `rejected`)"
           },
           "processedAt": {
             "type": "string",
