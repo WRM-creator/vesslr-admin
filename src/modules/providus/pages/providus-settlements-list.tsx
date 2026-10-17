@@ -146,11 +146,11 @@ export default function ProvidusSettlementsListPage() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Received</TableHead>
+                <TableHead>Transaction time</TableHead>
                 <TableHead className="text-right">Amount</TableHead>
-                <TableHead>Account</TableHead>
-                <TableHead>Sender bank</TableHead>
-                <TableHead>Status</TableHead>
+                <TableHead className="hidden md:table-cell">Account</TableHead>
+                <TableHead className="hidden md:table-cell">Sender bank</TableHead>
+                <TableHead className="hidden sm:table-cell">Status</TableHead>
                 <TableHead>Reconciliation</TableHead>
               </TableRow>
             </TableHeader>
@@ -222,7 +222,7 @@ function SettlementRow({
 
   return (
     <TableRow className="relative">
-      <TableCell className="text-sm whitespace-nowrap">
+      <TableCell className="text-sm whitespace-normal sm:whitespace-nowrap">
         <Link
           to={`/providus-settlements/${s.id}`}
           className="hover:underline after:absolute after:inset-0"
@@ -233,11 +233,13 @@ function SettlementRow({
       <TableCell className="text-right font-medium whitespace-nowrap tabular-nums">
         {formatNaira(s.settledAmount, s.currency)}
       </TableCell>
-      <TableCell className="font-mono text-sm tabular-nums">
+      <TableCell className="hidden font-mono text-sm tabular-nums md:table-cell">
         {s.accountNumber ?? "-"}
       </TableCell>
-      <TableCell className="text-sm">{s.sourceBankName ?? "-"}</TableCell>
-      <TableCell>
+      <TableCell className="hidden text-sm md:table-cell">
+        {s.sourceBankName ?? "-"}
+      </TableCell>
+      <TableCell className="hidden sm:table-cell">
         <Badge variant="outline" className={cn("font-medium", status.tint)}>
           {status.label}
         </Badge>

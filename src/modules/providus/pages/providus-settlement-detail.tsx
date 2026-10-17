@@ -78,7 +78,7 @@ export default function ProvidusSettlementDetailPage() {
               <>
                 {" "}
                 Last checked {formatDateTime(rec.checkedAt)}
-                {rec.lookedUpBy === "session_id" && " by session ID"}, {rec.attempts}{" "}
+                {rec.lookedUpBy === "session_id" && rec.provider && " by session ID"}, {rec.attempts}{" "}
                 {rec.attempts === 1 ? "lookup" : "lookups"} so far.
               </>
             )}
@@ -282,7 +282,7 @@ function ComparisonCard({
                       key={row.key}
                       className={cn(differs && "bg-destructive/5")}
                     >
-                      <TableCell className="text-sm">
+                      <TableCell className="text-sm whitespace-normal">
                         {FIELD_LABEL[row.key]}
                         {differs && (
                           <span className="text-destructive ml-2 text-xs font-medium">
@@ -290,12 +290,12 @@ function ComparisonCard({
                           </span>
                         )}
                       </TableCell>
-                      <TableCell className="font-mono text-sm tabular-nums">
+                      <TableCell className="font-mono text-sm break-all whitespace-normal tabular-nums">
                         {row.ours}
                       </TableCell>
                       <TableCell
                         className={cn(
-                          "font-mono text-sm tabular-nums",
+                          "font-mono text-sm break-all whitespace-normal tabular-nums",
                           differs && "text-destructive font-medium",
                         )}
                       >
