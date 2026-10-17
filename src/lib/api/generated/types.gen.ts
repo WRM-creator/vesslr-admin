@@ -10807,6 +10807,10 @@ export type ProvidusLookupSnapshotDto = {
   tranDateTime?: string;
   settlementDateTime?: string;
   /**
+   * Set when Providus reversed the settlement
+   */
+  reversalSessionId?: string;
+  /**
    * `post_flg`: 1 = posted at Providus
    */
   postFlag?: number;
@@ -10820,7 +10824,7 @@ export type ProvidusReconciliationDto = {
   result: "agreed" | "pending" | "disagreed" | "not_found" | "error";
   checkedAt: string;
   /**
-   * Lookups made so far
+   * Lookups Providus answered (failed ones do not count)
    */
   attempts: number;
   lookedUpBy?: "settlement_id" | "session_id";
@@ -10829,7 +10833,11 @@ export type ProvidusReconciliationDto = {
    */
   mismatches: Array<string>;
   provider?: ProvidusLookupSnapshotDto;
+  /**
+   * The last failed lookup, kept beside the last answer
+   */
   error?: string;
+  errorAt?: string;
 };
 
 export type AdminProvidusSettlementDto = {
@@ -10901,7 +10909,7 @@ export type ProvidusReconciliationDetailDto = {
   result: "agreed" | "pending" | "disagreed" | "not_found" | "error";
   checkedAt: string;
   /**
-   * Lookups made so far
+   * Lookups Providus answered (failed ones do not count)
    */
   attempts: number;
   lookedUpBy?: "settlement_id" | "session_id";
@@ -10910,7 +10918,11 @@ export type ProvidusReconciliationDetailDto = {
    */
   mismatches: Array<string>;
   provider?: ProvidusLookupSnapshotDto;
+  /**
+   * The last failed lookup, kept beside the last answer
+   */
   error?: string;
+  errorAt?: string;
   /**
    * The lookup body exactly as Providus returned it
    */

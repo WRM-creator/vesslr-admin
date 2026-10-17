@@ -37560,6 +37560,10 @@
             "type": "string",
             "format": "date-time"
           },
+          "reversalSessionId": {
+            "type": "string",
+            "description": "Set when Providus reversed the settlement"
+          },
           "postFlag": {
             "type": "number",
             "description": "`post_flg`: 1 = posted at Providus"
@@ -37589,7 +37593,7 @@
           },
           "attempts": {
             "type": "number",
-            "description": "Lookups made so far"
+            "description": "Lookups Providus answered (failed ones do not count)"
           },
           "lookedUpBy": {
             "type": "string",
@@ -37609,7 +37613,12 @@
             "$ref": "#/components/schemas/ProvidusLookupSnapshotDto"
           },
           "error": {
-            "type": "string"
+            "type": "string",
+            "description": "The last failed lookup, kept beside the last answer"
+          },
+          "errorAt": {
+            "type": "string",
+            "format": "date-time"
           }
         },
         "required": [
@@ -37784,7 +37793,7 @@
           },
           "attempts": {
             "type": "number",
-            "description": "Lookups made so far"
+            "description": "Lookups Providus answered (failed ones do not count)"
           },
           "lookedUpBy": {
             "type": "string",
@@ -37804,7 +37813,12 @@
             "$ref": "#/components/schemas/ProvidusLookupSnapshotDto"
           },
           "error": {
-            "type": "string"
+            "type": "string",
+            "description": "The last failed lookup, kept beside the last answer"
+          },
+          "errorAt": {
+            "type": "string",
+            "format": "date-time"
           },
           "raw": {
             "type": "object",
