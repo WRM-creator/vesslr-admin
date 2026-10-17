@@ -21,6 +21,7 @@ import { productsRoutes } from "../products/routes";
 import { requestsRoutes } from "../requests/routes";
 import { routingRoutes } from "../routing/routes";
 import { providerDrainRoutes } from "../provider-drain/routes";
+import { providusRoutes } from "../providus/routes";
 import { settingsRoutes } from "../settings/routes";
 import { transactionRoutes } from "../transactions/routes";
 import { cmsRoutes } from "../cms/routes";
@@ -48,6 +49,7 @@ export const appRoutes: RouteObject[] = [
           ...ledgerRoutes,
           ...routingRoutes,
           ...providerDrainRoutes,
+          ...providusRoutes,
           ...benchmarksRoutes,
           ...fundingWindowsRoutes,
           ...disputesRoutes,
