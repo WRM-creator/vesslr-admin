@@ -5590,7 +5590,7 @@ export type WalletDisburseDto = {
    */
   walletIndex: number;
   /**
-   * Amount in minor currency units
+   * Amount in minor currency units. NGN withdrawals below NGN 100 (10000) are refused with a 400: the payout provider rejects them.
    */
   amount: number;
   /**
@@ -10113,6 +10113,10 @@ export type AdminProviderBindingDto = {
     | "rejected"
     | "archived";
   status: "active" | "disabled";
+  /**
+   * Status of the provider wallet this binding belongs to. `retired` = the wallet is gone for good (drained or the provider switched off) and hidden from the customer; tells it apart from a binding that is merely `disabled`. Absent when the profile has no wallet entry for the provider.
+   */
+  walletStatus?: "active" | "disabled" | "retired";
   /**
    * Provider-side principal (e.g. Busha business customer id)
    */

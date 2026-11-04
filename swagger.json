@@ -26616,7 +26616,7 @@
           "amount": {
             "type": "number",
             "example": 500000,
-            "description": "Amount in minor currency units"
+            "description": "Amount in minor currency units. NGN withdrawals below NGN 100 (10000) are refused with a 400: the payout provider rejects them."
           },
           "method": {
             "type": "string",
@@ -36143,6 +36143,15 @@
               "active",
               "disabled"
             ]
+          },
+          "walletStatus": {
+            "type": "string",
+            "enum": [
+              "active",
+              "disabled",
+              "retired"
+            ],
+            "description": "Status of the provider wallet this binding belongs to. `retired` = the wallet is gone for good (drained or the provider switched off) and hidden from the customer; tells it apart from a binding that is merely `disabled`. Absent when the profile has no wallet entry for the provider."
           },
           "principalId": {
             "type": "string",
