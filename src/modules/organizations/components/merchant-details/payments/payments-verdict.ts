@@ -40,7 +40,12 @@ function latestTouch(bindings: AdminProviderBindingDto[]): string | undefined {
 export function derivePaymentsVerdict(
   profile: AdminPaymentProfileDto,
 ): PaymentsVerdict {
-  const { kybStatus, bindings } = profile;
+  const { kybStatus } = profile;
+  // A retired provider wallet is out of the picture: it must not make the
+  // org look half set up once its replacement is healthy.
+  const bindings = profile.bindings.filter(
+    (b) => (b as { walletStatus?: string }).walletStatus !== "retired",
+  );
   const lastChangedAt = latestTouch(bindings);
 
   if (kybStatus !== "approved") {

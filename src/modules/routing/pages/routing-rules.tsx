@@ -161,6 +161,11 @@ export default function RoutingRulesPage() {
                 </TableCell>
                 <TableCell className="font-medium">
                   {formatProvider(rule.custodian)}
+                  {!rule.enabled && (
+                    <span className="text-muted-foreground ml-2 text-xs font-normal">
+                      Switched off
+                    </span>
+                  )}
                 </TableCell>
                 <TableCell className="text-center">
                   {rule.rank}

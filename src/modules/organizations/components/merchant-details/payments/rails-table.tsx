@@ -66,6 +66,17 @@ const OUTCOME_LABELS: Record<string, string> = {
 /** In-flight statuses the reconciler keeps checking on a backoff. */
 const POLLED_STATUSES = new Set(["pending", "in_review"]);
 
+/**
+ * `walletStatus` is the provider wallet's own state; "retired" means the
+ * provider was switched off for this org and the wallet is hidden from it.
+ * Read defensively: older API builds do not send it.
+ */
+export function isRetired(binding: AdminProviderBindingDto): boolean {
+  return (
+    (binding as { walletStatus?: string }).walletStatus === "retired"
+  );
+}
+
 interface RailsTableProps {
   bindings: AdminProviderBindingDto[];
 }
@@ -91,24 +102,35 @@ export function RailsTable({ bindings }: RailsTableProps) {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {bindings.map((binding) => (
-            <TableRow key={`${binding.provider}-${binding.currency}`}>
+          {[...bindings]
+            .sort((a, b) => Number(isRetired(a)) - Number(isRetired(b)))
+            .map((binding) => (
+            <TableRow
+              key={`${binding.provider}-${binding.currency}`}
+              className={isRetired(binding) ? "opacity-60" : ""}
+            >
               <TableCell className="font-medium">{binding.currency}</TableCell>
               <TableCell className="text-muted-foreground">
                 {providerLabel(binding.provider)}
               </TableCell>
               <TableCell>
                 <div className="flex items-center gap-1.5">
-                  <Badge
-                    variant="outline"
-                    className={`text-[11px] ${
-                      STATUS_TINTS[binding.onboardingStatus] ?? ""
-                    }`}
-                  >
-                    {STATUS_LABELS[binding.onboardingStatus] ??
-                      binding.onboardingStatus}
-                  </Badge>
-                  {binding.status === "disabled" && (
+                  {isRetired(binding) ? (
+                    <Badge variant="outline" className={`text-[11px] ${TINT.gray}`}>
+                      Retired
+                    </Badge>
+                  ) : (
+                    <Badge
+                      variant="outline"
+                      className={`text-[11px] ${
+                        STATUS_TINTS[binding.onboardingStatus] ?? ""
+                      }`}
+                    >
+                      {STATUS_LABELS[binding.onboardingStatus] ??
+                        binding.onboardingStatus}
+                    </Badge>
+                  )}
+                  {binding.status === "disabled" && !isRetired(binding) && (
                     <Badge variant="outline" className={`text-[11px] ${TINT.red}`}>
                       Disabled
                     </Badge>
