@@ -3456,6 +3456,96 @@ export type ApproveMilestoneDto = {
   notes?: string;
 };
 
+export type ApproveMilestoneResponseDto = {
+  _id: string;
+  /**
+   * Party views: the viewer's own side of the deal
+   */
+  viewerRole?: "BUYER" | "SELLER";
+  order: OrderResponseDto;
+  displayId: number;
+  status:
+    | "INITIATED"
+    | "DOCUMENTS_SUBMITTED"
+    | "COMPLIANCE_REVIEWED"
+    | "ESCROW_FUNDED"
+    | "LOGISTICS_ASSIGNED"
+    | "IN_TRANSIT"
+    | "INSPECTION_PENDING"
+    | "INSPECTION_UNDER_REVIEW"
+    | "INSPECTION_FAILED"
+    | "INSPECTION_PRICE_REVIEW"
+    | "DELIVERY_CONFIRMED"
+    | "PREPARATION_IN_PROGRESS"
+    | "RENTAL_IN_PROGRESS"
+    | "OFF_HIRE_PENDING"
+    | "RETURN_INSPECTION_PENDING"
+    | "VESSEL_MOBILIZING"
+    | "CHARTER_IN_PROGRESS"
+    | "VOYAGE_COMPLETING"
+    | "MILESTONES_IN_PROGRESS"
+    | "SETTLEMENT_RELEASED"
+    | "CLOSED"
+    | "CANCELLED"
+    | "REFUNDED"
+    | "PARTIALLY_REFUNDED"
+    | "DISPUTED";
+  workflowType:
+    | "COMMODITY"
+    | "EQUIPMENT"
+    | "STANDARD"
+    | "MILESTONE"
+    | "RENTAL"
+    | "CHARTER"
+    | "SERVICE";
+  events: Array<TransactionEventDto>;
+  requiredDocuments?: Array<TransactionDocumentSlotDto>;
+  /**
+   * Documents grouped by stage
+   */
+  documents?: {
+    [key: string]: unknown;
+  };
+  /**
+   * Buyer-uploaded proof of payment for external escrow funding. Only serialized to the buyer (and admins), never to the seller.
+   */
+  fundingReceipts?: Array<TransactionDocumentFileDto>;
+  escrow?: EscrowResponseDto | null;
+  /**
+   * State of the buyer's latest wallet escrow-funding attempt. Buyer-only (and admin); null once the escrow exists or when funding never started.
+   */
+  escrowFunding?: TransactionEscrowFundingDto | null;
+  /**
+   * Which of the SELLER's numbered wallets escrow proceeds settle into. Known once the escrow is funded; null for bank-path/legacy escrows.
+   */
+  settlementWallet?: TransactionSettlementWalletDto | null;
+  assignedLogistics?: {
+    [key: string]: unknown;
+  };
+  stages?: Array<TransactionStageResponseDto>;
+  pendingTasks?: Array<TransactionTaskDto>;
+  /**
+   * When compliance was approved and the funding window opened.
+   */
+  complianceApprovedAt?: string;
+  /**
+   * Deadline for the buyer to fund escrow (7 days after compliance approval).
+   */
+  fundingDueAt?: string;
+  /**
+   * Why the platform cancelled this transaction, when it did.
+   */
+  cancellationReason?:
+    | "funding_window_expired"
+    | "funding_window_closed_by_admin";
+  createdAt: string;
+  updatedAt: string;
+  /**
+   * The approved milestone's payout to the seller: `started` (sent), `delayed` (the transfer was refused or its outcome is unclear; it is retried automatically or by an admin) or `none` (the deal has no per-milestone payouts).
+   */
+  milestonePayout: "started" | "delayed" | "none";
+};
+
 export type InspectionDocumentDto = {
   name: string;
   url: string;
@@ -5533,6 +5623,9 @@ export type WalletTransactionResponseDto = {
   category: WalletActivityCategory;
   status: string;
   createdAt: string;
+  /**
+   * Vesslr's reference for the movement, to quote to support. Never the payment provider's reference.
+   */
   reference?: string;
   /**
    * Linked transaction ID
@@ -8588,6 +8681,11 @@ export type MarkDepositRefundedOfflineDto = {
    * Why/how the refund was executed (audit trail)
    */
   note: string;
+};
+
+export type RetryMilestonePaymentResponseDto = {
+  milestoneIndex: number;
+  outcome: "started" | "awaiting";
 };
 
 export type AdminConversationMessageDto = {
@@ -12513,9 +12611,9 @@ export type TransactionsControllerApproveMilestoneData = {
 
 export type TransactionsControllerApproveMilestoneResponses = {
   /**
-   * Milestone approved successfully.
+   * Milestone approved. `milestonePayout` says whether its payout to the seller started.
    */
-  200: TransactionResponseDto;
+  200: ApproveMilestoneResponseDto;
 };
 
 export type TransactionsControllerApproveMilestoneResponse =
@@ -15722,10 +15820,13 @@ export type AdminTransactionsControllerRetryMilestonePaymentData = {
 
 export type AdminTransactionsControllerRetryMilestonePaymentResponses = {
   /**
-   * The retry was initiated
+   * The payout was resent (`started`) or the provider already holds it (`awaiting`). 404 when there is no such payout, 409 when it has nothing to retry (pending approval, in flight or released); a provider refusal is a 502 with its reason.
    */
-  200: unknown;
+  200: RetryMilestonePaymentResponseDto;
 };
+
+export type AdminTransactionsControllerRetryMilestonePaymentResponse =
+  AdminTransactionsControllerRetryMilestonePaymentResponses[keyof AdminTransactionsControllerRetryMilestonePaymentResponses];
 
 export type AdminTransactionsControllerSubmitInspectionData = {
   body: SubmitInspectionDocumentsDto;
