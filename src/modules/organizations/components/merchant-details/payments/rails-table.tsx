@@ -11,6 +11,7 @@ import { CopyButton } from "@/components/shared/copy-button";
 import { TINT } from "@/lib/tint";
 import type { AdminProviderBindingDto } from "@/lib/api/generated";
 import { format } from "date-fns";
+import { isRetired } from "./binding-status";
 
 /** Same status vocabulary as the compliance ProviderOnboardingPanel. */
 const STATUS_LABELS: Record<string, string> = {
@@ -65,17 +66,6 @@ const OUTCOME_LABELS: Record<string, string> = {
 
 /** In-flight statuses the reconciler keeps checking on a backoff. */
 const POLLED_STATUSES = new Set(["pending", "in_review"]);
-
-/**
- * `walletStatus` is the provider wallet's own state; "retired" means the
- * provider was switched off for this org and the wallet is hidden from it.
- * Read defensively: older API builds do not send it.
- */
-export function isRetired(binding: AdminProviderBindingDto): boolean {
-  return (
-    (binding as { walletStatus?: string }).walletStatus === "retired"
-  );
-}
 
 interface RailsTableProps {
   bindings: AdminProviderBindingDto[];
