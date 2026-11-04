@@ -1404,6 +1404,7 @@ export type {
   OrganizationsControllerRemoveMemberData,
   OrganizationsControllerRemoveMemberResponses,
   OrganizationsControllerResolveAccountData,
+  OrganizationsControllerResolveAccountResponse,
   OrganizationsControllerResolveAccountResponses,
   OrganizationsControllerUpdateBankDetailsData,
   OrganizationsControllerUpdateBankDetailsResponses,

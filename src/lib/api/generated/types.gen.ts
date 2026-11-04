@@ -421,6 +421,17 @@ export type ResolveBankAccountDto = {
   bankCode: string;
 };
 
+export type WalletResolvedAccountDto = {
+  /**
+   * Name registered on the account
+   */
+  accountName: string;
+  /**
+   * Account number as confirmed
+   */
+  accountNumber: string;
+};
+
 export type UpdateBankDetailsDto = {
   /**
    * 10-digit NUBAN account number
@@ -3541,7 +3552,7 @@ export type ApproveMilestoneResponseDto = {
   createdAt: string;
   updatedAt: string;
   /**
-   * The approved milestone's payout to the seller: `started` (sent), `delayed` (the transfer was refused or its outcome is unclear; it is retried automatically or by an admin) or `none` (the deal has no per-milestone payouts).
+   * The approved milestone's payout to the seller: `started` (sent), `delayed` (the transfer was refused, could not be sent or has an unclear outcome; admins are alerted, and a refusal is retried automatically) or `none` (the deal has no per-milestone payouts).
    */
   milestonePayout: "started" | "delayed" | "none";
 };
@@ -5769,17 +5780,6 @@ export type WalletResolveAccountDto = {
    * Bank code from GET /wallet/banks for this wallet
    */
   bankCode: string;
-};
-
-export type WalletResolvedAccountDto = {
-  /**
-   * Name registered on the account
-   */
-  accountName: string;
-  /**
-   * Account number as confirmed
-   */
-  accountNumber: string;
 };
 
 export type WalletBeneficiaryResponseDto = {
@@ -11715,8 +11715,14 @@ export type OrganizationsControllerResolveAccountData = {
 };
 
 export type OrganizationsControllerResolveAccountResponses = {
-  201: unknown;
+  /**
+   * The bank's name for the account. 400 "Could not verify that account…" when the bank can't confirm it.
+   */
+  200: WalletResolvedAccountDto;
 };
+
+export type OrganizationsControllerResolveAccountResponse =
+  OrganizationsControllerResolveAccountResponses[keyof OrganizationsControllerResolveAccountResponses];
 
 export type MyProductsControllerFindAllData = {
   body?: never;

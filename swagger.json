@@ -923,8 +923,15 @@
           }
         },
         "responses": {
-          "201": {
-            "description": ""
+          "200": {
+            "description": "The bank's name for the account. 400 \"Could not verify that account…\" when the bank can't confirm it.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WalletResolvedAccountDto"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -16229,6 +16236,25 @@
           "bankCode"
         ]
       },
+      "WalletResolvedAccountDto": {
+        "type": "object",
+        "properties": {
+          "accountName": {
+            "type": "string",
+            "example": "Jane Doe",
+            "description": "Name registered on the account"
+          },
+          "accountNumber": {
+            "type": "string",
+            "example": "0690000031",
+            "description": "Account number as confirmed"
+          }
+        },
+        "required": [
+          "accountName",
+          "accountNumber"
+        ]
+      },
       "UpdateBankDetailsDto": {
         "type": "object",
         "properties": {
@@ -22429,7 +22455,7 @@
               "delayed",
               "none"
             ],
-            "description": "The approved milestone's payout to the seller: `started` (sent), `delayed` (the transfer was refused or its outcome is unclear; it is retried automatically or by an admin) or `none` (the deal has no per-milestone payouts)."
+            "description": "The approved milestone's payout to the seller: `started` (sent), `delayed` (the transfer was refused, could not be sent or has an unclear outcome; admins are alerted, and a refusal is retried automatically) or `none` (the deal has no per-milestone payouts)."
           }
         },
         "required": [
@@ -26962,25 +26988,6 @@
           "walletIndex",
           "accountNumber",
           "bankCode"
-        ]
-      },
-      "WalletResolvedAccountDto": {
-        "type": "object",
-        "properties": {
-          "accountName": {
-            "type": "string",
-            "example": "Jane Doe",
-            "description": "Name registered on the account"
-          },
-          "accountNumber": {
-            "type": "string",
-            "example": "0690000031",
-            "description": "Account number as confirmed"
-          }
-        },
-        "required": [
-          "accountName",
-          "accountNumber"
         ]
       },
       "WalletBeneficiaryResponseDto": {
