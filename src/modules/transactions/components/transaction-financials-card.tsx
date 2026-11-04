@@ -14,6 +14,11 @@ import {
   TransactionPaymentStatus,
   TransactionPaymentStatusBadge,
 } from "./transaction-payment-status-badge";
+import {
+  isUnconfirmedPayout,
+  retryOutcomeMessage,
+  unconfirmedPayoutConfig,
+} from "./milestone-payout-retry";
 
 interface TransactionFinancialsCardProps {
   transaction: TransactionResponseDto;
@@ -413,14 +418,24 @@ function MilestonePayoutRow({
   currency,
   transactionId,
 }: {
-  payout: { milestoneIndex: number; amount: number; status: string; retryCount: number };
+  payout: {
+    milestoneIndex: number;
+    amount: number;
+    status: string;
+    retryCount: number;
+    transferId?: string | null;
+  };
   currency: string;
   transactionId: string;
 }) {
   const retryMutation = api.admin.transactions.retryMilestonePayment.useMutation();
-  const config = payoutStatusConfig[payout.status as keyof typeof payoutStatusConfig] ??
-    payoutStatusConfig.PENDING;
-  const canRetry = payout.status === "FAILED" || payout.status === "FAILED_PERMANENT";
+  const unconfirmed = isUnconfirmedPayout(payout);
+  const config = unconfirmed
+    ? unconfirmedPayoutConfig
+    : (payoutStatusConfig[payout.status as keyof typeof payoutStatusConfig] ??
+      payoutStatusConfig.PENDING);
+  const canRetry =
+    payout.status === "FAILED" || payout.status === "FAILED_PERMANENT" || unconfirmed;
 
   const handleRetry = () => {
     retryMutation.mutate(
@@ -428,7 +443,7 @@ function MilestonePayoutRow({
         path: { id: transactionId, milestoneIndex: payout.milestoneIndex },
       },
       {
-        onSuccess: () => toast.success(`Milestone ${payout.milestoneIndex + 1} retry initiated`),
+        onSuccess: (res) => toast.success(retryOutcomeMessage(payout.milestoneIndex, res?.outcome)),
         onError: (err) => toast.error(`Retry failed: ${(err as Error).message}`),
       },
     );
