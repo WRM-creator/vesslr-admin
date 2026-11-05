@@ -3,6 +3,8 @@ import type {
   AdminProviderBindingDto,
 } from "@/lib/api/generated";
 
+import { isRetired } from "./binding-status";
+
 /**
  * The tab's top-level answer, derived once from the profile. The backend owns
  * the per-binding `blockedBy` interpretation; this only aggregates it into a
@@ -40,7 +42,10 @@ function latestTouch(bindings: AdminProviderBindingDto[]): string | undefined {
 export function derivePaymentsVerdict(
   profile: AdminPaymentProfileDto,
 ): PaymentsVerdict {
-  const { kybStatus, bindings } = profile;
+  const { kybStatus } = profile;
+  // A retired provider wallet is out of the picture: it must not make the
+  // org look half set up once its replacement is healthy.
+  const bindings = profile.bindings.filter((b) => !isRetired(b));
   const lastChangedAt = latestTouch(bindings);
 
   if (kybStatus !== "approved") {

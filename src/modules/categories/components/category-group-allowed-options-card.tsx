@@ -58,11 +58,8 @@ const CONDITIONS = [
   { value: "Refurbished", label: "Refurbished" },
 ];
 
-const CURRENCIES = [
-  { value: "NGN", label: "NGN" },
-  { value: "USD", label: "USD" },
-  { value: "EUR", label: "EUR" },
-];
+/** Flutterwave-only platform: naira is the one settlement currency. */
+const SUPPORTED_CURRENCIES = ["NGN"];
 
 export function CategoryGroupAllowedOptionsCard({
   categoryGroup,
@@ -191,10 +188,17 @@ export function CategoryGroupAllowedOptionsCard({
           label="Currencies"
           isPending={isFieldPending("allowedCurrencies")}
         >
-          {CURRENCIES.map(({ value, label }) => (
+          {/* Supported currencies, plus any a group still carries from before,
+              so a leftover one can be switched off. */}
+          {[
+            ...new Set([
+              ...SUPPORTED_CURRENCIES,
+              ...((categoryGroup.allowedCurrencies ?? []) as string[]),
+            ]),
+          ].map((value) => (
             <OptionPill
               key={value}
-              label={label}
+              label={value}
               selected={(
                 (categoryGroup.allowedCurrencies ?? []) as string[]
               ).includes(value)}

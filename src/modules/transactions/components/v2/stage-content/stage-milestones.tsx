@@ -8,6 +8,11 @@ import { formatCurrency } from "@/lib/currency";
 import { Loader2, RotateCw } from "lucide-react";
 import { api } from "@/lib/api";
 import { toast } from "sonner";
+import {
+  isUnconfirmedPayout,
+  retryOutcomeMessage,
+  unconfirmedPayoutConfig,
+} from "../../milestone-payout-retry";
 
 interface StageMilestoneContentProps {
   transaction: TransactionResponseDto;
@@ -63,17 +68,22 @@ function MilestoneRow({
     amount: number;
     status: string;
     retryCount: number;
+    transferId?: string | null;
   };
   currency: string;
   transactionId: string;
 }) {
   const retryMutation =
     api.admin.transactions.retryMilestonePayment.useMutation();
-  const config =
-    payoutStatusConfig[payout.status as keyof typeof payoutStatusConfig] ??
-    payoutStatusConfig.PENDING;
+  const unconfirmed = isUnconfirmedPayout(payout);
+  const config = unconfirmed
+    ? unconfirmedPayoutConfig
+    : (payoutStatusConfig[payout.status as keyof typeof payoutStatusConfig] ??
+      payoutStatusConfig.PENDING);
   const canRetry =
-    payout.status === "FAILED" || payout.status === "FAILED_PERMANENT";
+    payout.status === "FAILED" ||
+    payout.status === "FAILED_PERMANENT" ||
+    unconfirmed;
 
   const handleRetry = () => {
     retryMutation.mutate(
@@ -81,9 +91,9 @@ function MilestoneRow({
         path: { id: transactionId, milestoneIndex: payout.milestoneIndex },
       },
       {
-        onSuccess: () =>
+        onSuccess: (res) =>
           toast.success(
-            `Milestone ${payout.milestoneIndex + 1} retry initiated`,
+            retryOutcomeMessage(payout.milestoneIndex, res?.outcome),
           ),
         onError: (err) =>
           toast.error(`Retry failed: ${(err as Error).message}`),

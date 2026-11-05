@@ -923,8 +923,15 @@
           }
         },
         "responses": {
-          "201": {
-            "description": ""
+          "200": {
+            "description": "The bank's name for the account. 400 \"Could not verify that account…\" when the bank can't confirm it.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WalletResolvedAccountDto"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -2794,11 +2801,11 @@
         },
         "responses": {
           "200": {
-            "description": "Milestone approved successfully.",
+            "description": "Milestone approved. `milestonePayout` says whether its payout to the seller started.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/TransactionResponseDto"
+                  "$ref": "#/components/schemas/ApproveMilestoneResponseDto"
                 }
               }
             }
@@ -10364,7 +10371,14 @@
         ],
         "responses": {
           "200": {
-            "description": "The retry was initiated"
+            "description": "The payout was resent (`started`) or the provider already holds it (`awaiting`). 404 when there is no such payout, 409 when it has nothing to retry (pending approval, in flight or released); a provider refusal is a 502 with its reason.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RetryMilestonePaymentResponseDto"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -16220,6 +16234,25 @@
         "required": [
           "accountNumber",
           "bankCode"
+        ]
+      },
+      "WalletResolvedAccountDto": {
+        "type": "object",
+        "properties": {
+          "accountName": {
+            "type": "string",
+            "example": "Jane Doe",
+            "description": "Name registered on the account"
+          },
+          "accountNumber": {
+            "type": "string",
+            "example": "0690000031",
+            "description": "Account number as confirmed"
+          }
+        },
+        "required": [
+          "accountName",
+          "accountNumber"
         ]
       },
       "UpdateBankDetailsDto": {
@@ -22263,6 +22296,180 @@
           }
         }
       },
+      "ApproveMilestoneResponseDto": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string"
+          },
+          "viewerRole": {
+            "type": "string",
+            "enum": [
+              "BUYER",
+              "SELLER"
+            ],
+            "description": "Party views: the viewer's own side of the deal"
+          },
+          "order": {
+            "$ref": "#/components/schemas/OrderResponseDto"
+          },
+          "displayId": {
+            "type": "number"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "INITIATED",
+              "DOCUMENTS_SUBMITTED",
+              "COMPLIANCE_REVIEWED",
+              "ESCROW_FUNDED",
+              "LOGISTICS_ASSIGNED",
+              "IN_TRANSIT",
+              "INSPECTION_PENDING",
+              "INSPECTION_UNDER_REVIEW",
+              "INSPECTION_FAILED",
+              "INSPECTION_PRICE_REVIEW",
+              "DELIVERY_CONFIRMED",
+              "PREPARATION_IN_PROGRESS",
+              "RENTAL_IN_PROGRESS",
+              "OFF_HIRE_PENDING",
+              "RETURN_INSPECTION_PENDING",
+              "VESSEL_MOBILIZING",
+              "CHARTER_IN_PROGRESS",
+              "VOYAGE_COMPLETING",
+              "MILESTONES_IN_PROGRESS",
+              "SETTLEMENT_RELEASED",
+              "CLOSED",
+              "CANCELLED",
+              "REFUNDED",
+              "PARTIALLY_REFUNDED",
+              "DISPUTED"
+            ]
+          },
+          "workflowType": {
+            "type": "string",
+            "enum": [
+              "COMMODITY",
+              "EQUIPMENT",
+              "STANDARD",
+              "MILESTONE",
+              "RENTAL",
+              "CHARTER",
+              "SERVICE"
+            ]
+          },
+          "events": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TransactionEventDto"
+            }
+          },
+          "requiredDocuments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TransactionDocumentSlotDto"
+            }
+          },
+          "documents": {
+            "type": "object",
+            "description": "Documents grouped by stage"
+          },
+          "fundingReceipts": {
+            "description": "Buyer-uploaded proof of payment for external escrow funding. Only serialized to the buyer (and admins), never to the seller.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TransactionDocumentFileDto"
+            }
+          },
+          "escrow": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/EscrowResponseDto"
+              }
+            ]
+          },
+          "escrowFunding": {
+            "nullable": true,
+            "description": "State of the buyer's latest wallet escrow-funding attempt. Buyer-only (and admin); null once the escrow exists or when funding never started.",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/TransactionEscrowFundingDto"
+              }
+            ]
+          },
+          "settlementWallet": {
+            "nullable": true,
+            "description": "Which of the SELLER's numbered wallets escrow proceeds settle into. Known once the escrow is funded; null for bank-path/legacy escrows.",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/TransactionSettlementWalletDto"
+              }
+            ]
+          },
+          "assignedLogistics": {
+            "type": "object"
+          },
+          "stages": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TransactionStageResponseDto"
+            }
+          },
+          "pendingTasks": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TransactionTaskDto"
+            }
+          },
+          "complianceApprovedAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "When compliance was approved and the funding window opened."
+          },
+          "fundingDueAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "Deadline for the buyer to fund escrow (7 days after compliance approval)."
+          },
+          "cancellationReason": {
+            "type": "string",
+            "enum": [
+              "funding_window_expired",
+              "funding_window_closed_by_admin"
+            ],
+            "description": "Why the platform cancelled this transaction, when it did."
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "milestonePayout": {
+            "type": "string",
+            "enum": [
+              "started",
+              "delayed",
+              "none"
+            ],
+            "description": "The approved milestone's payout to the seller: `started` (sent), `delayed` (the transfer was refused, could not be sent or has an unclear outcome; admins are alerted, and a refusal is retried automatically) or `none` (the deal has no per-milestone payouts)."
+          }
+        },
+        "required": [
+          "_id",
+          "order",
+          "displayId",
+          "status",
+          "workflowType",
+          "events",
+          "createdAt",
+          "updatedAt",
+          "milestonePayout"
+        ]
+      },
       "InspectionDocumentDto": {
         "type": "object",
         "properties": {
@@ -26501,7 +26708,8 @@
           },
           "reference": {
             "type": "string",
-            "example": "REF-001"
+            "example": "VSL-6AEB9BAFED741EFE3A5E942B",
+            "description": "Vesslr's reference for the movement, to quote to support. Never the payment provider's reference."
           },
           "transactionId": {
             "type": "string",
@@ -26616,7 +26824,7 @@
           "amount": {
             "type": "number",
             "example": 500000,
-            "description": "Amount in minor currency units"
+            "description": "Amount in minor currency units. NGN withdrawals below NGN 100 (10000) are refused with a 400: the payout provider rejects them."
           },
           "method": {
             "type": "string",
@@ -26780,25 +26988,6 @@
           "walletIndex",
           "accountNumber",
           "bankCode"
-        ]
-      },
-      "WalletResolvedAccountDto": {
-        "type": "object",
-        "properties": {
-          "accountName": {
-            "type": "string",
-            "example": "Jane Doe",
-            "description": "Name registered on the account"
-          },
-          "accountNumber": {
-            "type": "string",
-            "example": "0690000031",
-            "description": "Account number as confirmed"
-          }
-        },
-        "required": [
-          "accountName",
-          "accountNumber"
         ]
       },
       "WalletBeneficiaryResponseDto": {
@@ -32597,6 +32786,25 @@
           "note"
         ]
       },
+      "RetryMilestonePaymentResponseDto": {
+        "type": "object",
+        "properties": {
+          "milestoneIndex": {
+            "type": "number"
+          },
+          "outcome": {
+            "type": "string",
+            "enum": [
+              "started",
+              "awaiting"
+            ]
+          }
+        },
+        "required": [
+          "milestoneIndex",
+          "outcome"
+        ]
+      },
       "AdminConversationMessageDto": {
         "type": "object",
         "properties": {
@@ -35496,7 +35704,7 @@
           },
           "balance": {
             "type": "number",
-            "description": "Balance in minor currency units (kobo/cents)"
+            "description": "Balance in minor currency units (kobo/cents), on the account's normal side: positive is what the account holds (a funded wallet, the escrow pot, the platform's own funds). ASSET accounts are debit − credit; LIABILITY, EQUITY and REVENUE accounts are credit − debit."
           },
           "internalReconciledUpTo": {
             "format": "date-time",
@@ -36143,6 +36351,15 @@
               "active",
               "disabled"
             ]
+          },
+          "walletStatus": {
+            "type": "string",
+            "enum": [
+              "active",
+              "disabled",
+              "retired"
+            ],
+            "description": "Status of the provider wallet this binding belongs to. `retired` = the wallet is gone for good (drained or the provider switched off) and hidden from the customer; tells it apart from a binding that is merely `disabled`. Absent when the profile has no wallet entry for the provider."
           },
           "principalId": {
             "type": "string",
