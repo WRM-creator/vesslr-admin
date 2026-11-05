@@ -35704,7 +35704,7 @@
           },
           "balance": {
             "type": "number",
-            "description": "Balance in minor currency units (kobo/cents)"
+            "description": "Balance in minor currency units (kobo/cents), on the account's normal side: positive is what the account holds (a funded wallet, the escrow pot, the platform's own funds). ASSET accounts are debit − credit; LIABILITY, EQUITY and REVENUE accounts are credit − debit."
           },
           "internalReconciledUpTo": {
             "format": "date-time",

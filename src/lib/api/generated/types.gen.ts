@@ -9854,7 +9854,7 @@ export type AccountBalanceResponseDto = {
   currency: string;
   isActive: boolean;
   /**
-   * Balance in minor currency units (kobo/cents)
+   * Balance in minor currency units (kobo/cents), on the account's normal side: positive is what the account holds (a funded wallet, the escrow pot, the platform's own funds). ASSET accounts are debit − credit; LIABILITY, EQUITY and REVENUE accounts are credit − debit.
    */
   balance: number;
   internalReconciledUpTo?: string;
