@@ -20,7 +20,10 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { RefundEscrowDialog } from "../refund-escrow-dialog";
-import { canRefundEscrow } from "@/modules/transactions/lib/refund-escrow";
+import {
+  canRefundEscrow,
+  isRefundOwed,
+} from "@/modules/transactions/lib/refund-escrow";
 
 interface ContextSidebarProps {
   transaction: TransactionResponseDto;
@@ -149,7 +152,9 @@ function FinancialSummary({
               onClick={() => setRefundOpen(true)}
             >
               <Undo2 className="size-3.5" />
-              Refund escrow to buyer
+              {isRefundOwed(transaction)
+                ? "Resend escrow refund"
+                : "Refund escrow to buyer"}
             </Button>
             <RefundEscrowDialog
               open={refundOpen}

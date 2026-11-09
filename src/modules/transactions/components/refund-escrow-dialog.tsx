@@ -17,6 +17,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { api } from "@/lib/api";
 import type { TransactionResponseDto } from "@/lib/api/generated";
 import { formatCurrency } from "@/lib/currency";
+import { isRefundOwed } from "@/modules/transactions/lib/refund-escrow";
 
 const MIN_REASON = 5;
 
@@ -47,6 +48,7 @@ export function RefundEscrowDialog({
   const amount = formatCurrency(escrow.amount, escrow.currency);
   const buyerName = transaction.order?.buyerOrganization?.name || "the buyer";
   const trimmed = reason.trim();
+  const resend = isRefundOwed(transaction);
 
   const handleRefund = () => {
     if (!transaction._id || trimmed.length < MIN_REASON) return;
@@ -54,8 +56,8 @@ export function RefundEscrowDialog({
       { path: { id: transaction._id }, body: { reason: trimmed } },
       {
         onSuccess: () => {
-          toast.success("Refund sent", {
-            description: `${amount} is on its way to ${buyerName}'s wallet.`,
+          toast.success(resend ? "Refund resent" : "Refund started", {
+            description: `${amount} to ${buyerName}'s wallet. The escrow shows Refunded once the provider confirms it.`,
           });
           setReason("");
           onOpenChange(false);
@@ -74,10 +76,13 @@ export function RefundEscrowDialog({
     >
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Refund escrow to buyer</DialogTitle>
+          <DialogTitle>
+            {resend ? "Resend escrow refund" : "Refund escrow to buyer"}
+          </DialogTitle>
           <DialogDescription>
-            Returns everything held in escrow to {buyerName}'s wallet and
-            closes the transaction as refunded. The seller receives nothing.
+            {resend
+              ? `The last refund to ${buyerName} failed and the money is still in escrow. This sends it again.`
+              : `Returns everything held in escrow to ${buyerName}'s wallet and closes the transaction as refunded. The seller receives nothing.`}
           </DialogDescription>
         </DialogHeader>
 
@@ -107,8 +112,9 @@ export function RefundEscrowDialog({
         <div className="flex items-start gap-2 rounded-md bg-amber-50 p-3 text-xs text-amber-800 dark:bg-amber-950/20 dark:text-amber-400">
           <AlertCircle className="mt-0.5 size-4 shrink-0" />
           <p>
-            Both parties are told the transaction was cancelled. This can't be
-            undone.
+            {resend
+              ? "The parties were already told; they are not notified again."
+              : "Both parties are told the transaction was cancelled. This can't be undone."}
           </p>
         </div>
 

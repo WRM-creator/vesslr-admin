@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { canRefundEscrow } from "./refund-escrow";
+import { canRefundEscrow, isRefundOwed } from "./refund-escrow";
 
 type Tx = Parameters<typeof canRefundEscrow>[0];
 
@@ -35,5 +35,22 @@ describe("canRefundEscrow", () => {
 
   it("hides it once a milestone payment has gone out", () => {
     expect(canRefundEscrow(funded("MILESTONES_IN_PROGRESS", ["RELEASED", "PENDING"]))).toBe(false);
+  });
+
+  it("offers a resend when the provider failed a full refund", () => {
+    const owed = {
+      status: "REFUNDED",
+      escrow: {
+        status: "FUNDED",
+        milestonePayouts: [],
+        refundHistory: [{ type: "FULL" }],
+      },
+    } as unknown as Tx;
+    expect(isRefundOwed(owed)).toBe(true);
+    expect(canRefundEscrow(owed)).toBe(true);
+    // The same history on a deal that isn't refunded is not offered.
+    expect(
+      canRefundEscrow({ ...owed, status: "DELIVERY_CONFIRMED" } as Tx),
+    ).toBe(false);
   });
 });
