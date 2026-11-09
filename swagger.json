@@ -10312,6 +10312,53 @@
         ]
       }
     },
+    "/api/v1/admin/transactions/{id}/refund-escrow": {
+      "post": {
+        "description": "Allowed at any unfinished stage, SETTLEMENT included, when the escrow is FUNDED, no dispute is open and no milestone payment has been sent. The transaction moves to REFUNDED and accepts no further stage or dispute; the escrow moves to REFUND_PENDING and then REFUNDED when the provider confirms the transfer. If the provider later fails the transfer, the escrow is FUNDED again with the refund still owed, and calling this again resends it. 409 when not allowed; 400 when the amount is below the payout minimum or the buyer can't receive it; a provider refusal returns its error with nothing changed.",
+        "operationId": "AdminTransactionsController_refundEscrow",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RefundEscrowDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The updated transaction",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TransactionResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Refund a funded escrow in full to the buyer's wallet, outside a dispute",
+        "tags": [
+          "Admin Transactions"
+        ]
+      }
+    },
     "/api/v1/admin/transactions/{id}/release-settlement": {
       "post": {
         "operationId": "AdminTransactionsController_releaseSettlement",
@@ -10387,6 +10434,43 @@
           }
         ],
         "summary": "Retry a failed milestone payment transfer",
+        "tags": [
+          "Admin Transactions"
+        ]
+      }
+    },
+    "/api/v1/admin/transactions/{id}/payout/resend": {
+      "post": {
+        "description": "Sends the failed payout again as a new attempt, under a fresh reference. Only a payout the provider accepted and then FAILED (escrow `lastPayoutFailure.cause` = `failed`) can be resent here; one refused at initiation is resent the way it was started.",
+        "operationId": "AdminTransactionsController_resendPayout",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The payout went to the provider (or its outcome is unclear and its webhook decides). 404 when the transaction has no escrow, 409 when there is nothing to resend; a provider refusal is a 4xx/502 with its reason and the payout stays resendable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResendPayoutResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Resend a full release or refund the provider failed",
         "tags": [
           "Admin Transactions"
         ]
@@ -13615,6 +13699,93 @@
         ]
       }
     },
+    "/api/v1/admin/wallet-sweeps": {
+      "get": {
+        "operationId": "AdminWalletSweepsController_list",
+        "parameters": [
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "description": "Comma-separated: pending, sending, sent, unclear, refused, failed, below_floor, gave_up, settled",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AdminWalletSweepDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List received deposits and where their move into the wallet stands",
+        "tags": [
+          "Admin Wallet Sweeps"
+        ]
+      }
+    },
+    "/api/v1/admin/wallet-sweeps/{intentId}/retry": {
+      "post": {
+        "description": "A refused, failed, abandoned (gave_up) or below-floor one, under the next attempt. An unclear, unconfirmed (sent) or stuck (sending) one only with confirmedNotSent, after checking the provider holds no transfer under its current reference. 409 otherwise.",
+        "operationId": "AdminWalletSweepsController_retry",
+        "parameters": [
+          {
+            "name": "intentId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminWalletSweepRetryDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminWalletSweepRetryResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Resend a deposit's move into the org's wallet",
+        "tags": [
+          "Admin Wallet Sweeps"
+        ]
+      }
+    },
     "/api/v1/dev/mock-provider/deposit": {
       "post": {
         "operationId": "MockProviderDevController_simulateDeposit",
@@ -14824,6 +14995,162 @@
         "summary": "Handle Flutterwave webhook events (public)",
         "tags": [
           "Flutterwave Webhooks"
+        ]
+      }
+    },
+    "/api/v1/admin/provider-payouts/transactions/{id}/resolve": {
+      "post": {
+        "description": "For a full release or refund still RELEASE_PENDING / REFUND_PENDING (with or without a transfer: an unclear send, or a crash after the claim), else a pay-from-wallet payment unconfirmed or STUCK. Looks the transfer up by our reference. SUCCESSFUL or FAILED is applied as Flutterwave's webhook would be; NEW or PENDING changes nothing. No record, 30 minutes or more after it started, means it never went out: a release or refund goes back to FUNDED with `lastPayoutFailure.cause` = `not_sent` (resend it with POST /admin/transactions/{id}/payout/resend), and a wallet payment is failed. 409 when there is nothing to look up, or it is too recent to call missing; 502 when Flutterwave can't be asked (nothing changes).",
+        "operationId": "AdminProviderPayoutsController_resolveForTransaction",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PayoutResolveResultDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Look up a transaction's unconfirmed payout at Flutterwave and settle it",
+        "tags": [
+          "Admin Provider Payouts"
+        ]
+      }
+    },
+    "/api/v1/admin/provider-payouts/transfers/{reference}/resolve": {
+      "post": {
+        "description": "For a withdrawal (`wallet-…`), a deposit sweep (`esc-sweep-…`, `wsweep-…`) or a wallet escrow payment (`wallet-escrow-…`), whose reference is in the admin alert. An escrow release or refund is resolved from its transaction instead (400 here). Same rules as the transaction resolve: no record 30 minutes after it started reverses a withdrawal, fails a wallet payment, and resends a sweep under a new reference.",
+        "operationId": "AdminProviderPayoutsController_resolveTransfer",
+        "parameters": [
+          {
+            "name": "reference",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PayoutResolveResultDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Look up one of our transfers at Flutterwave by reference and settle it",
+        "tags": [
+          "Admin Provider Payouts"
+        ]
+      }
+    },
+    "/api/v1/admin/provider-payouts/webhook-events": {
+      "get": {
+        "description": "`UNMATCHED`: handled, but matched nothing (a deposit to an unknown account, a reference no path owns). `FAILED`: retries exhausted. `RECEIVED`: recorded but never finished, and too old to be re-driven on its own (more than 48 hours). Newest first, up to 50.",
+        "operationId": "AdminProviderPayoutsController_listWebhookEvents",
+        "parameters": [
+          {
+            "name": "status",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "enum": [
+                "UNMATCHED",
+                "FAILED",
+                "RECEIVED"
+              ],
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ProviderWebhookEventDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Flutterwave webhook events that need an admin",
+        "tags": [
+          "Admin Provider Payouts"
+        ]
+      }
+    },
+    "/api/v1/admin/provider-payouts/webhook-events/{id}/replay": {
+      "post": {
+        "description": "Only an event waiting for an admin (see the list). After fixing what it was missing (an org binding, a reference). Returns the status the event ends in.",
+        "operationId": "AdminProviderPayoutsController_replayWebhookEvent",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WebhookReplayResultDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Run a Flutterwave webhook event through its handler again",
+        "tags": [
+          "Admin Provider Payouts"
         ]
       }
     },
@@ -21394,8 +21721,10 @@
               "RELEASE_PENDING",
               "RELEASED",
               "FAILED",
-              "FAILED_PERMANENT"
-            ]
+              "FAILED_PERMANENT",
+              "CANCELLED"
+            ],
+            "description": "CANCELLED: the escrow was refunded or split before this milestone was paid; it never will be."
           },
           "transferId": {
             "type": "string",
@@ -21453,6 +21782,42 @@
           "reference",
           "initiatedAt",
           "initiatedBy"
+        ]
+      },
+      "EscrowPayoutFailureResponseDto": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "release",
+              "refund"
+            ]
+          },
+          "attempt": {
+            "type": "number",
+            "description": "The attempt that failed (1 is the first send)"
+          },
+          "cause": {
+            "type": "string",
+            "enum": [
+              "failed",
+              "refused",
+              "contradicted",
+              "not_sent"
+            ],
+            "description": "`failed`: the provider took the payout, then reported it FAILED. `refused`: refused before anything moved. `contradicted`: reported delivered after it was recorded as failed; it must not be resent. `not_sent`: an admin looked it up at the provider, which has no record of it. An admin can resend (POST /admin/transactions/{id}/payout/resend) a failed, refused or not_sent release and a failed or not_sent refund."
+          },
+          "failedAt": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind",
+          "attempt",
+          "cause",
+          "failedAt"
         ]
       },
       "EscrowResponseDto": {
@@ -21523,6 +21888,10 @@
             "nullable": true,
             "description": "Original funded amount before any decrements"
           },
+          "excessAmount": {
+            "type": "number",
+            "description": "Minor units the buyer paid beyond what the escrow needed. Held outside the escrow for an admin to return to the buyer; 0 when none."
+          },
           "totalReleased": {
             "type": "number",
             "description": "Running total of milestone payouts already released"
@@ -21540,6 +21909,29 @@
             "items": {
               "$ref": "#/components/schemas/RefundHistoryEntryResponseDto"
             }
+          },
+          "releaseAttempt": {
+            "type": "number",
+            "description": "The current full-release attempt (1 is the first send; a resend is the next)."
+          },
+          "refundAttempt": {
+            "type": "number",
+            "description": "The current full-refund attempt."
+          },
+          "payoutClaimedAt": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true,
+            "description": "When the current full release or refund was claimed. One still RELEASE_PENDING or REFUND_PENDING 30 minutes after this can be looked up at the provider (POST /admin/provider-payouts/transactions/{id}/resolve)."
+          },
+          "lastPayoutFailure": {
+            "nullable": true,
+            "description": "The current release or full refund that failed or was refused; null otherwise.",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/EscrowPayoutFailureResponseDto"
+              }
+            ]
           }
         },
         "required": [
@@ -21549,6 +21941,7 @@
           "sellerAmount",
           "serviceFeeAmount",
           "currency",
+          "excessAmount",
           "totalReleased",
           "milestonePayouts",
           "refundHistory"
@@ -21603,6 +21996,15 @@
           "failureReason": {
             "type": "string",
             "description": "Why the attempt failed (FAILED only). Nothing left the wallet."
+          },
+          "unconfirmed": {
+            "type": "boolean",
+            "description": "Admin view only: the wallet payment got no clear answer from the provider, so it may or may not have moved. An admin can look it up (POST /admin/provider-payouts/transactions/{id}/resolve)."
+          },
+          "startedAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "Admin view only: when the wallet payment started."
           },
           "mode": {
             "type": "string",
@@ -22078,7 +22480,11 @@
           },
           "amount": {
             "type": "number",
-            "description": "Amount the buyer funds (custody minor units, fee included)"
+            "description": "Amount the buyer still has to fund (custody minor units, fee included). After a short bank payment this is the balance only."
+          },
+          "receivedAmount": {
+            "type": "number",
+            "description": "Already received towards the escrow and held (an earlier short bank payment), custody minor units. 0 when nothing has arrived."
           },
           "subtotal": {
             "type": "number",
@@ -22097,6 +22503,7 @@
         "required": [
           "currency",
           "amount",
+          "receivedAmount",
           "subtotal",
           "serviceFeeAmount",
           "serviceFeeRate"
@@ -22234,6 +22641,10 @@
           "serviceFeeRate": {
             "type": "number",
             "description": "Service fee rate (e.g. 0.03 for 3%)"
+          },
+          "receivedAmount": {
+            "type": "number",
+            "description": "Already received towards this escrow and held (an earlier short payment), minor units. When above 0, `amount` is the balance still to pay and the account is minted for it."
           }
         },
         "required": [
@@ -22244,7 +22655,8 @@
           "payerCurrency",
           "subtotal",
           "serviceFeeAmount",
-          "serviceFeeRate"
+          "serviceFeeRate",
+          "receivedAmount"
         ]
       },
       "CompleteStageDto": {
@@ -22570,6 +22982,10 @@
             "nullable": true,
             "description": "Original funded amount before any decrements"
           },
+          "excessAmount": {
+            "type": "number",
+            "description": "Minor units the buyer paid beyond what the escrow needed. Held outside the escrow for an admin to return to the buyer; 0 when none."
+          },
           "totalReleased": {
             "type": "number",
             "description": "Running total of milestone payouts already released"
@@ -22587,6 +23003,29 @@
             "items": {
               "$ref": "#/components/schemas/RefundHistoryEntryResponseDto"
             }
+          },
+          "releaseAttempt": {
+            "type": "number",
+            "description": "The current full-release attempt (1 is the first send; a resend is the next)."
+          },
+          "refundAttempt": {
+            "type": "number",
+            "description": "The current full-refund attempt."
+          },
+          "payoutClaimedAt": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true,
+            "description": "When the current full release or refund was claimed. One still RELEASE_PENDING or REFUND_PENDING 30 minutes after this can be looked up at the provider (POST /admin/provider-payouts/transactions/{id}/resolve)."
+          },
+          "lastPayoutFailure": {
+            "nullable": true,
+            "description": "The current release or full refund that failed or was refused; null otherwise.",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/EscrowPayoutFailureResponseDto"
+              }
+            ]
           },
           "transactionId": {
             "type": "string"
@@ -22618,6 +23057,7 @@
           "sellerAmount",
           "serviceFeeAmount",
           "currency",
+          "excessAmount",
           "totalReleased",
           "milestonePayouts",
           "refundHistory",
@@ -26920,11 +27360,14 @@
         "properties": {
           "transferId": {
             "type": "string",
-            "example": "trf_123"
+            "example": "trf_123",
+            "nullable": true,
+            "description": "The provider transfer id. Null when the provider gave no clear answer (status UNCONFIRMED)."
           },
           "status": {
             "type": "string",
-            "example": "NEW"
+            "example": "NEW",
+            "description": "The provider's status for the transfer. UNCONFIRMED: the provider gave no clear answer; the debit is booked and the user is notified when the transfer completes or is reversed."
           }
         },
         "required": [
@@ -32786,6 +33229,20 @@
           "note"
         ]
       },
+      "RefundEscrowDto": {
+        "type": "object",
+        "properties": {
+          "reason": {
+            "type": "string",
+            "description": "Why the escrow is being refunded. Kept on the transaction's log for admins; never shown to either party or put on the transfer.",
+            "minLength": 5,
+            "maxLength": 500
+          }
+        },
+        "required": [
+          "reason"
+        ]
+      },
       "RetryMilestonePaymentResponseDto": {
         "type": "object",
         "properties": {
@@ -32803,6 +33260,27 @@
         "required": [
           "milestoneIndex",
           "outcome"
+        ]
+      },
+      "ResendPayoutResponseDto": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "release",
+              "refund"
+            ]
+          },
+          "reference": {
+            "type": "string",
+            "example": "release-6a746a75fde04fac4ace203e-a2",
+            "description": "The new attempt’s transfer reference, to look up at the provider."
+          }
+        },
+        "required": [
+          "kind",
+          "reference"
         ]
       },
       "AdminConversationMessageDto": {
@@ -37235,6 +37713,114 @@
           "data"
         ]
       },
+      "AdminWalletSweepDto": {
+        "type": "object",
+        "properties": {
+          "intentId": {
+            "type": "string",
+            "description": "Funding intent id; the sweep is addressed by it"
+          },
+          "orgId": {
+            "type": "string"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "invoiceId": {
+            "type": "string",
+            "description": "Present when the deposit paid an invoice"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "sending",
+              "sent",
+              "unclear",
+              "refused",
+              "failed",
+              "below_floor",
+              "gave_up",
+              "settled"
+            ],
+            "description": "refused: nothing moved, retried every 15 min. failed: the provider took it and failed it, resent. unclear: may have reached the provider, waits for its webhook. gave_up: retries exhausted, resend it here. below_floor: under the transfer minimum. settled: in the wallet."
+          },
+          "attempt": {
+            "type": "number",
+            "description": "Current attempt; its transfer reference is wsweep-{intentId} (+ -a{n} from 2)"
+          },
+          "received": {
+            "type": "number",
+            "description": "What the payer sent, minor units"
+          },
+          "fee": {
+            "type": "number",
+            "description": "Provider's collection fee, borne by the org, minor units"
+          },
+          "net": {
+            "type": "number",
+            "description": "received - fee: what is moved and credited, minor units"
+          },
+          "receivedAt": {
+            "type": "string"
+          },
+          "nextAttemptAt": {
+            "type": "string",
+            "nullable": true
+          },
+          "lastError": {
+            "type": "string",
+            "nullable": true
+          },
+          "settledAt": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "intentId",
+          "orgId",
+          "currency",
+          "status",
+          "attempt",
+          "received",
+          "fee",
+          "net",
+          "receivedAt"
+        ]
+      },
+      "AdminWalletSweepRetryDto": {
+        "type": "object",
+        "properties": {
+          "confirmedNotSent": {
+            "type": "boolean",
+            "description": "The admin checked the provider and it holds no transfer under the current reference: also resend one that is unclear, sent with no confirmation, or stuck sending. It goes out under a new reference, so a late arrival of the old one is detected, not credited twice."
+          }
+        }
+      },
+      "AdminWalletSweepRetryResponseDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "sending",
+              "sent",
+              "unclear",
+              "refused",
+              "failed",
+              "below_floor",
+              "gave_up",
+              "settled"
+            ],
+            "description": "Status after the resend"
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
       "SimulateDepositDto": {
         "type": "object",
         "properties": {
@@ -38269,6 +38855,109 @@
           "inspectorCompany",
           "inspectedAt",
           "criteriaResults"
+        ]
+      },
+      "PayoutResolveResultDto": {
+        "type": "object",
+        "properties": {
+          "reference": {
+            "type": "string",
+            "description": "Our transfer reference that was looked up"
+          },
+          "outcome": {
+            "type": "string",
+            "enum": [
+              "successful",
+              "failed",
+              "pending",
+              "not_sent"
+            ],
+            "description": "`successful` / `failed`: Flutterwave reported it and it was applied as its webhook would be. `pending`: Flutterwave holds it unfinished; nothing changed. `not_sent`: Flutterwave has no record, so it never went out; it was reversed or made resendable."
+          },
+          "providerStatus": {
+            "type": "string",
+            "description": "Flutterwave's status, when it has the transfer"
+          },
+          "message": {
+            "type": "string",
+            "description": "What happened, in words an admin can act on"
+          }
+        },
+        "required": [
+          "reference",
+          "outcome",
+          "message"
+        ]
+      },
+      "ProviderWebhookEventDto": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string"
+          },
+          "event": {
+            "type": "string"
+          },
+          "reference": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "RECEIVED",
+              "PROCESSED",
+              "FAILED",
+              "UNMATCHED"
+            ]
+          },
+          "unmatchedReason": {
+            "type": "string",
+            "description": "Why it matched nothing (UNMATCHED)"
+          },
+          "lastError": {
+            "type": "string",
+            "description": "Last processing error (FAILED)"
+          },
+          "attempts": {
+            "type": "number"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "payload": {
+            "type": "object",
+            "description": "The raw payload Flutterwave sent"
+          }
+        },
+        "required": [
+          "_id",
+          "event",
+          "status",
+          "attempts",
+          "createdAt",
+          "payload"
+        ]
+      },
+      "WebhookReplayResultDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "RECEIVED",
+              "PROCESSED",
+              "FAILED",
+              "UNMATCHED"
+            ],
+            "description": "The event status after the replay"
+          },
+          "detail": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "status"
         ]
       },
       "RelatedResourceDto": {

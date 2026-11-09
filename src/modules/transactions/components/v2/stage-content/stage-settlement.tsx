@@ -23,6 +23,8 @@ export function StageSettlementContent({
   const fees = deriveSettlementFees(transaction);
   const { currency } = fees;
   const isReleased = stage.status === "COMPLETED";
+  const isRefunding =
+    escrow?.status === "REFUND_PENDING" || escrow?.status === "REFUNDED";
 
   return (
     <div className="space-y-3">
@@ -73,10 +75,18 @@ export function StageSettlementContent({
         </>
       )}
 
-      {!isReleased && stage.status === "ACTIVE" && (
+      {isRefunding ? (
         <p className="text-muted-foreground text-xs">
-          Use the action bar above to release funds to the seller.
+          The escrow was returned to the buyer. Nothing will be released to
+          the seller.
         </p>
+      ) : (
+        !isReleased &&
+        stage.status === "ACTIVE" && (
+          <p className="text-muted-foreground text-xs">
+            Use the action bar above to release funds to the seller.
+          </p>
+        )
       )}
     </div>
   );

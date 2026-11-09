@@ -33,6 +33,7 @@ type EscrowState =
   | "shortfall"
   | "secured"
   | "released"
+  | "refunding"
   | "refunded"
   | "cancelled";
 
@@ -52,7 +53,9 @@ function getEscrowState(
       case "REFUNDED":
       case "PARTIALLY_REFUNDED":
         return "refunded";
-      // FUNDED / RELEASE_PENDING / REFUND_PENDING — funds still in custody.
+      case "REFUND_PENDING":
+        return "refunding";
+      // FUNDED / RELEASE_PENDING — funds still in custody.
       default:
         return "secured";
     }
@@ -102,6 +105,12 @@ const ESCROW_CONFIG: Record<
     label: "Released",
     iconClass: "text-blue-500",
     badgeClass: "bg-blue-100 text-blue-700 dark:bg-blue-500/10 dark:text-blue-400",
+  },
+  refunding: {
+    icon: RotateCcw,
+    label: "Refund in progress",
+    iconClass: "text-amber-500",
+    badgeClass: "bg-amber-100 text-amber-700 dark:bg-amber-500/10 dark:text-amber-400",
   },
   refunded: {
     icon: RotateCcw,
@@ -182,7 +191,9 @@ function activeStageMessage(
     case "MILESTONE_APPROVE":
       return "Awaiting buyer approval.";
     case "SETTLEMENT":
-      return "Settlement is being processed.";
+      return transaction.status === "REFUNDED"
+        ? "The escrow was returned to the buyer."
+        : "Settlement is being processed.";
     default:
       return stage.description ?? "";
   }

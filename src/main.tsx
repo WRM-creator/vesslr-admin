@@ -4,6 +4,7 @@ import { RouterProvider } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AuthProvider } from "@/providers/auth-provider";
 import { ThemeProvider } from "@/providers/theme-provider";
+import { Toaster } from "@/components/ui/sonner";
 import { router } from "./router";
 import "./index.css";
 
@@ -33,6 +34,8 @@ root.render(
         <AuthProvider>
           <RouterProvider router={router} />
         </AuthProvider>
+        {/* Every admin toast (release, refund, retry) renders here. */}
+        <Toaster richColors position="top-right" />
       </QueryClientProvider>
     </ThemeProvider>
   </React.StrictMode>

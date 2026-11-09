@@ -126,9 +126,15 @@ import {
   adminTransactionsControllerRefundFundingDeposit,
   adminTransactionsControllerReportFundingShortfall,
   adminTransactionsControllerReleaseSettlement,
+  adminTransactionsControllerRefundEscrow,
   adminTransactionsControllerReviewDocument,
   adminTransactionsControllerReviewInspection,
   adminTransactionsControllerRetryMilestonePayment,
+  adminTransactionsControllerResendPayout,
+  adminProviderPayoutsControllerResolveForTransaction,
+  adminProviderPayoutsControllerResolveTransfer,
+  adminProviderPayoutsControllerListWebhookEvents,
+  adminProviderPayoutsControllerReplayWebhookEvent,
   adminTransactionsControllerSubmitInspection,
   adminTransactionsControllerUpdateRequirement,
   adminTransactionsControllerEndRentalPeriod,
@@ -321,6 +327,11 @@ export const api = {
           ],
         },
       ),
+      resendPayout: createMutation(adminTransactionsControllerResendPayout, {
+        invalidates: (args) => [
+          ["admin", "transactions", "detail", args.path.id],
+        ],
+      }),
       releaseSettlement: createMutation(
         adminTransactionsControllerReleaseSettlement,
         {
@@ -329,6 +340,12 @@ export const api = {
           ],
         },
       ),
+      refundEscrow: createMutation(adminTransactionsControllerRefundEscrow, {
+        invalidates: (args) => [
+          ["admin", "transactions", "detail", args.path.id],
+          ["admin", "transactions", "logs", args.path.id],
+        ],
+      }),
       endRentalPeriod: createMutation(
         adminTransactionsControllerEndRentalPeriod,
         {
@@ -743,6 +760,27 @@ export const api = {
       complete: createMutation(adminProviderDrainControllerComplete, {
         invalidates: () => [["admin", "provider-drain"]],
       }),
+    },
+    providerPayouts: {
+      resolveForTransaction: createMutation(
+        adminProviderPayoutsControllerResolveForTransaction,
+        {
+          invalidates: (args) => [
+            ["admin", "transactions", "detail", args.path.id],
+          ],
+        },
+      ),
+      resolveTransfer: createMutation(
+        adminProviderPayoutsControllerResolveTransfer,
+      ),
+      webhookEvents: createQuery(
+        adminProviderPayoutsControllerListWebhookEvents,
+        (args) => ["admin", "provider-payouts", "webhook-events", args.query],
+      ),
+      replayWebhookEvent: createMutation(
+        adminProviderPayoutsControllerReplayWebhookEvent,
+        { invalidates: () => [["admin", "provider-payouts", "webhook-events"]] },
+      ),
     },
     providus: {
       settlements: createQuery(adminProvidusControllerList, (args) => [

@@ -229,6 +229,14 @@ import type {
   AdminProviderDrainControllerScanResponses,
   AdminProviderDrainControllerSweepData,
   AdminProviderDrainControllerSweepResponses,
+  AdminProviderPayoutsControllerListWebhookEventsData,
+  AdminProviderPayoutsControllerListWebhookEventsResponses,
+  AdminProviderPayoutsControllerReplayWebhookEventData,
+  AdminProviderPayoutsControllerReplayWebhookEventResponses,
+  AdminProviderPayoutsControllerResolveForTransactionData,
+  AdminProviderPayoutsControllerResolveForTransactionResponses,
+  AdminProviderPayoutsControllerResolveTransferData,
+  AdminProviderPayoutsControllerResolveTransferResponses,
   AdminProvidusControllerGetData,
   AdminProvidusControllerGetErrors,
   AdminProvidusControllerGetResponses,
@@ -299,12 +307,16 @@ import type {
   AdminTransactionsControllerMarkDepositRefundedOfflineResponses,
   AdminTransactionsControllerQueryFundingProofData,
   AdminTransactionsControllerQueryFundingProofResponses,
+  AdminTransactionsControllerRefundEscrowData,
+  AdminTransactionsControllerRefundEscrowResponses,
   AdminTransactionsControllerRefundFundingDepositData,
   AdminTransactionsControllerRefundFundingDepositResponses,
   AdminTransactionsControllerReleaseSettlementData,
   AdminTransactionsControllerReleaseSettlementResponses,
   AdminTransactionsControllerReportFundingShortfallData,
   AdminTransactionsControllerReportFundingShortfallResponses,
+  AdminTransactionsControllerResendPayoutData,
+  AdminTransactionsControllerResendPayoutResponses,
   AdminTransactionsControllerRetryMilestonePaymentData,
   AdminTransactionsControllerRetryMilestonePaymentResponses,
   AdminTransactionsControllerReviewDocumentData,
@@ -317,6 +329,10 @@ import type {
   AdminTransactionsControllerUpdateRequirementResponses,
   AdminTransactionsControllerUpdateStatusData,
   AdminTransactionsControllerUpdateStatusResponses,
+  AdminWalletSweepsControllerListData,
+  AdminWalletSweepsControllerListResponses,
+  AdminWalletSweepsControllerRetryData,
+  AdminWalletSweepsControllerRetryResponses,
   AppControllerGetHelloData,
   AppControllerGetHelloResponses,
   BenchmarksControllerFindAllData,
@@ -5650,6 +5666,30 @@ export const adminTransactionsControllerMarkDepositRefundedOffline = <
   });
 
 /**
+ * Refund a funded escrow in full to the buyer's wallet, outside a dispute
+ *
+ * Allowed at any unfinished stage, SETTLEMENT included, when the escrow is FUNDED, no dispute is open and no milestone payment has been sent. The transaction moves to REFUNDED and accepts no further stage or dispute; the escrow moves to REFUND_PENDING and then REFUNDED when the provider confirms the transfer. If the provider later fails the transfer, the escrow is FUNDED again with the refund still owed, and calling this again resends it. 409 when not allowed; 400 when the amount is below the payout minimum or the buyer can't receive it; a provider refusal returns its error with nothing changed.
+ */
+export const adminTransactionsControllerRefundEscrow = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AdminTransactionsControllerRefundEscrowData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    AdminTransactionsControllerRefundEscrowResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/transactions/{id}/refund-escrow",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
  * MOCK: Release settlement funds (DELIVERY_CONFIRMED → CLOSED)
  */
 export const adminTransactionsControllerReleaseSettlement = <
@@ -5688,6 +5728,26 @@ export const adminTransactionsControllerRetryMilestonePayment = <
   >({
     security: [{ scheme: "bearer", type: "http" }],
     url: "/api/v1/admin/transactions/{id}/retry-milestone-payment/{milestoneIndex}",
+    ...options,
+  });
+
+/**
+ * Resend a full release or refund the provider failed
+ *
+ * Sends the failed payout again as a new attempt, under a fresh reference. Only a payout the provider accepted and then FAILED (escrow `lastPayoutFailure.cause` = `failed`) can be resent here; one refused at initiation is resent the way it was started.
+ */
+export const adminTransactionsControllerResendPayout = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AdminTransactionsControllerResendPayoutData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    AdminTransactionsControllerResendPayoutResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/transactions/{id}/payout/resend",
     ...options,
   });
 
@@ -7305,6 +7365,48 @@ export const adminRoutingControllerResolve = <
   });
 
 /**
+ * List received deposits and where their move into the wallet stands
+ */
+export const adminWalletSweepsControllerList = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<AdminWalletSweepsControllerListData, ThrowOnError>,
+) =>
+  (options?.client ?? client).get<
+    AdminWalletSweepsControllerListResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/wallet-sweeps",
+    ...options,
+  });
+
+/**
+ * Resend a deposit's move into the org's wallet
+ *
+ * A refused, failed, abandoned (gave_up) or below-floor one, under the next attempt. An unclear, unconfirmed (sent) or stuck (sending) one only with confirmedNotSent, after checking the provider holds no transfer under its current reference. 409 otherwise.
+ */
+export const adminWalletSweepsControllerRetry = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AdminWalletSweepsControllerRetryData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    AdminWalletSweepsControllerRetryResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/wallet-sweeps/{intentId}/retry",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
  * Dev: simulate an inbound deposit at the mock provider
  */
 export const mockProviderDevControllerSimulateDeposit = <
@@ -7904,6 +8006,98 @@ export const flutterwaveWebhooksControllerHandleWebhook = <
     unknown,
     ThrowOnError
   >({ url: "/api/v1/flutterwave/webhooks", ...options });
+
+/**
+ * Look up a transaction's unconfirmed payout at Flutterwave and settle it
+ *
+ * For a full release or refund still RELEASE_PENDING / REFUND_PENDING (with or without a transfer: an unclear send, or a crash after the claim), else a pay-from-wallet payment unconfirmed or STUCK. Looks the transfer up by our reference. SUCCESSFUL or FAILED is applied as Flutterwave's webhook would be; NEW or PENDING changes nothing. No record, 30 minutes or more after it started, means it never went out: a release or refund goes back to FUNDED with `lastPayoutFailure.cause` = `not_sent` (resend it with POST /admin/transactions/{id}/payout/resend), and a wallet payment is failed. 409 when there is nothing to look up, or it is too recent to call missing; 502 when Flutterwave can't be asked (nothing changes).
+ */
+export const adminProviderPayoutsControllerResolveForTransaction = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    AdminProviderPayoutsControllerResolveForTransactionData,
+    ThrowOnError
+  >,
+) =>
+  (options.client ?? client).post<
+    AdminProviderPayoutsControllerResolveForTransactionResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/provider-payouts/transactions/{id}/resolve",
+    ...options,
+  });
+
+/**
+ * Look up one of our transfers at Flutterwave by reference and settle it
+ *
+ * For a withdrawal (`wallet-…`), a deposit sweep (`esc-sweep-…`, `wsweep-…`) or a wallet escrow payment (`wallet-escrow-…`), whose reference is in the admin alert. An escrow release or refund is resolved from its transaction instead (400 here). Same rules as the transaction resolve: no record 30 minutes after it started reverses a withdrawal, fails a wallet payment, and resends a sweep under a new reference.
+ */
+export const adminProviderPayoutsControllerResolveTransfer = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    AdminProviderPayoutsControllerResolveTransferData,
+    ThrowOnError
+  >,
+) =>
+  (options.client ?? client).post<
+    AdminProviderPayoutsControllerResolveTransferResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/provider-payouts/transfers/{reference}/resolve",
+    ...options,
+  });
+
+/**
+ * Flutterwave webhook events that need an admin
+ *
+ * `UNMATCHED`: handled, but matched nothing (a deposit to an unknown account, a reference no path owns). `FAILED`: retries exhausted. `RECEIVED`: recorded but never finished, and too old to be re-driven on its own (more than 48 hours). Newest first, up to 50.
+ */
+export const adminProviderPayoutsControllerListWebhookEvents = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    AdminProviderPayoutsControllerListWebhookEventsData,
+    ThrowOnError
+  >,
+) =>
+  (options.client ?? client).get<
+    AdminProviderPayoutsControllerListWebhookEventsResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/provider-payouts/webhook-events",
+    ...options,
+  });
+
+/**
+ * Run a Flutterwave webhook event through its handler again
+ *
+ * Only an event waiting for an admin (see the list). After fixing what it was missing (an org binding, a reference). Returns the status the event ends in.
+ */
+export const adminProviderPayoutsControllerReplayWebhookEvent = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    AdminProviderPayoutsControllerReplayWebhookEventData,
+    ThrowOnError
+  >,
+) =>
+  (options.client ?? client).post<
+    AdminProviderPayoutsControllerReplayWebhookEventResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/provider-payouts/webhook-events/{id}/replay",
+    ...options,
+  });
 
 /**
  * Handle Busha webhook events (public)

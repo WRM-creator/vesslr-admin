@@ -2984,12 +2984,16 @@ export type MilestonePayoutResponseDto = {
    * Payout amount in minor currency units
    */
   amount: number;
+  /**
+   * CANCELLED: the escrow was refunded or split before this milestone was paid; it never will be.
+   */
   status:
     | "PENDING"
     | "RELEASE_PENDING"
     | "RELEASED"
     | "FAILED"
-    | "FAILED_PERMANENT";
+    | "FAILED_PERMANENT"
+    | "CANCELLED";
   transferId?: string | null;
   releasedAt?: string | null;
   /**
@@ -3013,6 +3017,19 @@ export type RefundHistoryEntryResponseDto = {
    * User ID of admin who initiated
    */
   initiatedBy: string;
+};
+
+export type EscrowPayoutFailureResponseDto = {
+  kind: "release" | "refund";
+  /**
+   * The attempt that failed (1 is the first send)
+   */
+  attempt: number;
+  /**
+   * `failed`: the provider took the payout, then reported it FAILED. `refused`: refused before anything moved. `contradicted`: reported delivered after it was recorded as failed; it must not be resent. `not_sent`: an admin looked it up at the provider, which has no record of it. An admin can resend (POST /admin/transactions/{id}/payout/resend) a failed, refused or not_sent release and a failed or not_sent refund.
+   */
+  cause: "failed" | "refused" | "contradicted" | "not_sent";
+  failedAt: string;
 };
 
 export type EscrowResponseDto = {
@@ -3047,6 +3064,10 @@ export type EscrowResponseDto = {
    */
   originalFundedAmount?: number | null;
   /**
+   * Minor units the buyer paid beyond what the escrow needed. Held outside the escrow for an admin to return to the buyer; 0 when none.
+   */
+  excessAmount: number;
+  /**
    * Running total of milestone payouts already released
    */
   totalReleased: number;
@@ -3058,6 +3079,22 @@ export type EscrowResponseDto = {
    * Append-only refund/discount history
    */
   refundHistory: Array<RefundHistoryEntryResponseDto>;
+  /**
+   * The current full-release attempt (1 is the first send; a resend is the next).
+   */
+  releaseAttempt?: number;
+  /**
+   * The current full-refund attempt.
+   */
+  refundAttempt?: number;
+  /**
+   * When the current full release or refund was claimed. One still RELEASE_PENDING or REFUND_PENDING 30 minutes after this can be looked up at the provider (POST /admin/provider-payouts/transactions/{id}/resolve).
+   */
+  payoutClaimedAt?: string | null;
+  /**
+   * The current release or full refund that failed or was refused; null otherwise.
+   */
+  lastPayoutFailure?: EscrowPayoutFailureResponseDto | null;
 };
 
 export type TransactionWalletIntentDto = {
@@ -3088,6 +3125,14 @@ export type TransactionEscrowFundingDto = {
    * Why the attempt failed (FAILED only). Nothing left the wallet.
    */
   failureReason?: string;
+  /**
+   * Admin view only: the wallet payment got no clear answer from the provider, so it may or may not have moved. An admin can look it up (POST /admin/provider-payouts/transactions/{id}/resolve).
+   */
+  unconfirmed?: boolean;
+  /**
+   * Admin view only: when the wallet payment started.
+   */
+  startedAt?: string;
   /**
    * Present when this deal funds by accumulated deposits under admin review
    */
@@ -3329,9 +3374,13 @@ export type EscrowFundingQuoteDto = {
    */
   currency: string;
   /**
-   * Amount the buyer funds (custody minor units, fee included)
+   * Amount the buyer still has to fund (custody minor units, fee included). After a short bank payment this is the balance only.
    */
   amount: number;
+  /**
+   * Already received towards the escrow and held (an earlier short bank payment), custody minor units. 0 when nothing has arrived.
+   */
+  receivedAmount: number;
   /**
    * Goods amount before service fee, minor units
    */
@@ -3435,6 +3484,10 @@ export type VirtualAccountResponseDto = {
    * Service fee rate (e.g. 0.03 for 3%)
    */
   serviceFeeRate: number;
+  /**
+   * Already received towards this escrow and held (an earlier short payment), minor units. When above 0, `amount` is the balance still to pay and the account is minted for it.
+   */
+  receivedAmount: number;
 };
 
 export type CompleteStageDto = {
@@ -3601,6 +3654,10 @@ export type EscrowWithTransactionResponseDto = {
    */
   originalFundedAmount?: number | null;
   /**
+   * Minor units the buyer paid beyond what the escrow needed. Held outside the escrow for an admin to return to the buyer; 0 when none.
+   */
+  excessAmount: number;
+  /**
    * Running total of milestone payouts already released
    */
   totalReleased: number;
@@ -3612,6 +3669,22 @@ export type EscrowWithTransactionResponseDto = {
    * Append-only refund/discount history
    */
   refundHistory: Array<RefundHistoryEntryResponseDto>;
+  /**
+   * The current full-release attempt (1 is the first send; a resend is the next).
+   */
+  releaseAttempt?: number;
+  /**
+   * The current full-refund attempt.
+   */
+  refundAttempt?: number;
+  /**
+   * When the current full release or refund was claimed. One still RELEASE_PENDING or REFUND_PENDING 30 minutes after this can be looked up at the provider (POST /admin/provider-payouts/transactions/{id}/resolve).
+   */
+  payoutClaimedAt?: string | null;
+  /**
+   * The current release or full refund that failed or was refused; null otherwise.
+   */
+  lastPayoutFailure?: EscrowPayoutFailureResponseDto | null;
   transactionId: string;
   transactionDisplayId: number;
   transactionStatus: string;
@@ -5748,7 +5821,13 @@ export type WalletDisburseQuoteResponseDto = {
 };
 
 export type WalletDisburseResponseDto = {
-  transferId: string;
+  /**
+   * The provider transfer id. Null when the provider gave no clear answer (status UNCONFIRMED).
+   */
+  transferId: string | null;
+  /**
+   * The provider's status for the transfer. UNCONFIRMED: the provider gave no clear answer; the debit is booked and the user is notified when the transfer completes or is reversed.
+   */
   status: string;
 };
 
@@ -8683,9 +8762,24 @@ export type MarkDepositRefundedOfflineDto = {
   note: string;
 };
 
+export type RefundEscrowDto = {
+  /**
+   * Why the escrow is being refunded. Kept on the transaction's log for admins; never shown to either party or put on the transfer.
+   */
+  reason: string;
+};
+
 export type RetryMilestonePaymentResponseDto = {
   milestoneIndex: number;
   outcome: "started" | "awaiting";
+};
+
+export type ResendPayoutResponseDto = {
+  kind: "release" | "refund";
+  /**
+   * The new attempt’s transfer reference, to look up at the provider.
+   */
+  reference: string;
 };
 
 export type AdminConversationMessageDto = {
@@ -10666,6 +10760,75 @@ export type RoutingResolveResponseDto = {
   data: RoutingResolveResultDto;
 };
 
+export type AdminWalletSweepDto = {
+  /**
+   * Funding intent id; the sweep is addressed by it
+   */
+  intentId: string;
+  orgId: string;
+  currency: string;
+  /**
+   * Present when the deposit paid an invoice
+   */
+  invoiceId?: string;
+  /**
+   * refused: nothing moved, retried every 15 min. failed: the provider took it and failed it, resent. unclear: may have reached the provider, waits for its webhook. gave_up: retries exhausted, resend it here. below_floor: under the transfer minimum. settled: in the wallet.
+   */
+  status:
+    | "pending"
+    | "sending"
+    | "sent"
+    | "unclear"
+    | "refused"
+    | "failed"
+    | "below_floor"
+    | "gave_up"
+    | "settled";
+  /**
+   * Current attempt; its transfer reference is wsweep-{intentId} (+ -a{n} from 2)
+   */
+  attempt: number;
+  /**
+   * What the payer sent, minor units
+   */
+  received: number;
+  /**
+   * Provider's collection fee, borne by the org, minor units
+   */
+  fee: number;
+  /**
+   * received - fee: what is moved and credited, minor units
+   */
+  net: number;
+  receivedAt: string;
+  nextAttemptAt?: string | null;
+  lastError?: string | null;
+  settledAt?: string | null;
+};
+
+export type AdminWalletSweepRetryDto = {
+  /**
+   * The admin checked the provider and it holds no transfer under the current reference: also resend one that is unclear, sent with no confirmation, or stuck sending. It goes out under a new reference, so a late arrival of the old one is detected, not credited twice.
+   */
+  confirmedNotSent?: boolean;
+};
+
+export type AdminWalletSweepRetryResponseDto = {
+  /**
+   * Status after the resend
+   */
+  status:
+    | "pending"
+    | "sending"
+    | "sent"
+    | "unclear"
+    | "refused"
+    | "failed"
+    | "below_floor"
+    | "gave_up"
+    | "settled";
+};
+
 export type SimulateDepositDto = {
   /**
    * Provider reference of a provisioned amount-bound destination to settle
@@ -11153,6 +11316,56 @@ export type SubmitInspectionDto = {
   reportFileHash?: string;
   criteriaResults: Array<CriterionResultDto>;
   notes?: string;
+};
+
+export type PayoutResolveResultDto = {
+  /**
+   * Our transfer reference that was looked up
+   */
+  reference: string;
+  /**
+   * `successful` / `failed`: Flutterwave reported it and it was applied as its webhook would be. `pending`: Flutterwave holds it unfinished; nothing changed. `not_sent`: Flutterwave has no record, so it never went out; it was reversed or made resendable.
+   */
+  outcome: "successful" | "failed" | "pending" | "not_sent";
+  /**
+   * Flutterwave's status, when it has the transfer
+   */
+  providerStatus?: string;
+  /**
+   * What happened, in words an admin can act on
+   */
+  message: string;
+};
+
+export type ProviderWebhookEventDto = {
+  _id: string;
+  event: string;
+  reference?: string;
+  status: "RECEIVED" | "PROCESSED" | "FAILED" | "UNMATCHED";
+  /**
+   * Why it matched nothing (UNMATCHED)
+   */
+  unmatchedReason?: string;
+  /**
+   * Last processing error (FAILED)
+   */
+  lastError?: string;
+  attempts: number;
+  createdAt: string;
+  /**
+   * The raw payload Flutterwave sent
+   */
+  payload: {
+    [key: string]: unknown;
+  };
+};
+
+export type WebhookReplayResultDto = {
+  /**
+   * The event status after the replay
+   */
+  status: "RECEIVED" | "PROCESSED" | "FAILED" | "UNMATCHED";
+  detail?: string;
 };
 
 export type RelatedResourceDto = {
@@ -15795,6 +16008,25 @@ export type AdminTransactionsControllerMarkDepositRefundedOfflineResponses = {
   201: unknown;
 };
 
+export type AdminTransactionsControllerRefundEscrowData = {
+  body: RefundEscrowDto;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/admin/transactions/{id}/refund-escrow";
+};
+
+export type AdminTransactionsControllerRefundEscrowResponses = {
+  /**
+   * The updated transaction
+   */
+  200: TransactionResponseDto;
+};
+
+export type AdminTransactionsControllerRefundEscrowResponse =
+  AdminTransactionsControllerRefundEscrowResponses[keyof AdminTransactionsControllerRefundEscrowResponses];
+
 export type AdminTransactionsControllerReleaseSettlementData = {
   body?: never;
   path: {
@@ -15833,6 +16065,25 @@ export type AdminTransactionsControllerRetryMilestonePaymentResponses = {
 
 export type AdminTransactionsControllerRetryMilestonePaymentResponse =
   AdminTransactionsControllerRetryMilestonePaymentResponses[keyof AdminTransactionsControllerRetryMilestonePaymentResponses];
+
+export type AdminTransactionsControllerResendPayoutData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/admin/transactions/{id}/payout/resend";
+};
+
+export type AdminTransactionsControllerResendPayoutResponses = {
+  /**
+   * The payout went to the provider (or its outcome is unclear and its webhook decides). 404 when the transaction has no escrow, 409 when there is nothing to resend; a provider refusal is a 4xx/502 with its reason and the payout stays resendable.
+   */
+  200: ResendPayoutResponseDto;
+};
+
+export type AdminTransactionsControllerResendPayoutResponse =
+  AdminTransactionsControllerResendPayoutResponses[keyof AdminTransactionsControllerResendPayoutResponses];
 
 export type AdminTransactionsControllerSubmitInspectionData = {
   body: SubmitInspectionDocumentsDto;
@@ -17174,6 +17425,41 @@ export type AdminRoutingControllerResolveResponses = {
 export type AdminRoutingControllerResolveResponse =
   AdminRoutingControllerResolveResponses[keyof AdminRoutingControllerResolveResponses];
 
+export type AdminWalletSweepsControllerListData = {
+  body?: never;
+  path?: never;
+  query?: {
+    /**
+     * Comma-separated: pending, sending, sent, unclear, refused, failed, below_floor, gave_up, settled
+     */
+    status?: string;
+  };
+  url: "/api/v1/admin/wallet-sweeps";
+};
+
+export type AdminWalletSweepsControllerListResponses = {
+  200: Array<AdminWalletSweepDto>;
+};
+
+export type AdminWalletSweepsControllerListResponse =
+  AdminWalletSweepsControllerListResponses[keyof AdminWalletSweepsControllerListResponses];
+
+export type AdminWalletSweepsControllerRetryData = {
+  body: AdminWalletSweepRetryDto;
+  path: {
+    intentId: string;
+  };
+  query?: never;
+  url: "/api/v1/admin/wallet-sweeps/{intentId}/retry";
+};
+
+export type AdminWalletSweepsControllerRetryResponses = {
+  200: AdminWalletSweepRetryResponseDto;
+};
+
+export type AdminWalletSweepsControllerRetryResponse =
+  AdminWalletSweepsControllerRetryResponses[keyof AdminWalletSweepsControllerRetryResponses];
+
 export type MockProviderDevControllerSimulateDepositData = {
   body: SimulateDepositDto;
   path?: never;
@@ -17727,6 +18013,70 @@ export type FlutterwaveWebhooksControllerHandleWebhookData = {
 export type FlutterwaveWebhooksControllerHandleWebhookResponses = {
   200: unknown;
 };
+
+export type AdminProviderPayoutsControllerResolveForTransactionData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/admin/provider-payouts/transactions/{id}/resolve";
+};
+
+export type AdminProviderPayoutsControllerResolveForTransactionResponses = {
+  200: PayoutResolveResultDto;
+};
+
+export type AdminProviderPayoutsControllerResolveForTransactionResponse =
+  AdminProviderPayoutsControllerResolveForTransactionResponses[keyof AdminProviderPayoutsControllerResolveForTransactionResponses];
+
+export type AdminProviderPayoutsControllerResolveTransferData = {
+  body?: never;
+  path: {
+    reference: string;
+  };
+  query?: never;
+  url: "/api/v1/admin/provider-payouts/transfers/{reference}/resolve";
+};
+
+export type AdminProviderPayoutsControllerResolveTransferResponses = {
+  200: PayoutResolveResultDto;
+};
+
+export type AdminProviderPayoutsControllerResolveTransferResponse =
+  AdminProviderPayoutsControllerResolveTransferResponses[keyof AdminProviderPayoutsControllerResolveTransferResponses];
+
+export type AdminProviderPayoutsControllerListWebhookEventsData = {
+  body?: never;
+  path?: never;
+  query: {
+    status: "UNMATCHED" | "FAILED" | "RECEIVED";
+  };
+  url: "/api/v1/admin/provider-payouts/webhook-events";
+};
+
+export type AdminProviderPayoutsControllerListWebhookEventsResponses = {
+  200: Array<ProviderWebhookEventDto>;
+};
+
+export type AdminProviderPayoutsControllerListWebhookEventsResponse =
+  AdminProviderPayoutsControllerListWebhookEventsResponses[keyof AdminProviderPayoutsControllerListWebhookEventsResponses];
+
+export type AdminProviderPayoutsControllerReplayWebhookEventData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/admin/provider-payouts/webhook-events/{id}/replay";
+};
+
+export type AdminProviderPayoutsControllerReplayWebhookEventResponses = {
+  200: WebhookReplayResultDto;
+};
+
+export type AdminProviderPayoutsControllerReplayWebhookEventResponse =
+  AdminProviderPayoutsControllerReplayWebhookEventResponses[keyof AdminProviderPayoutsControllerReplayWebhookEventResponses];
 
 export type BushaWebhooksControllerHandleWebhookData = {
   body?: never;
