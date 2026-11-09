@@ -3066,7 +3066,7 @@ export type EscrowResponseDto = {
   /**
    * Minor units the buyer paid beyond what the escrow needed. Held outside the escrow for an admin to return to the buyer; 0 when none.
    */
-  excessAmount?: number;
+  excessAmount: number;
   /**
    * Running total of milestone payouts already released
    */
@@ -3644,7 +3644,7 @@ export type EscrowWithTransactionResponseDto = {
   /**
    * Minor units the buyer paid beyond what the escrow needed. Held outside the escrow for an admin to return to the buyer; 0 when none.
    */
-  excessAmount?: number;
+  excessAmount: number;
   /**
    * Running total of milestone payouts already released
    */

@@ -21691,6 +21691,7 @@
           "sellerAmount",
           "serviceFeeAmount",
           "currency",
+          "excessAmount",
           "totalReleased",
           "milestonePayouts",
           "refundHistory"
@@ -22791,6 +22792,7 @@
           "sellerAmount",
           "serviceFeeAmount",
           "currency",
+          "excessAmount",
           "totalReleased",
           "milestonePayouts",
           "refundHistory",
