@@ -126,6 +126,7 @@ import {
   adminTransactionsControllerRefundFundingDeposit,
   adminTransactionsControllerReportFundingShortfall,
   adminTransactionsControllerReleaseSettlement,
+  adminTransactionsControllerRefundEscrow,
   adminTransactionsControllerReviewDocument,
   adminTransactionsControllerReviewInspection,
   adminTransactionsControllerRetryMilestonePayment,
@@ -329,6 +330,12 @@ export const api = {
           ],
         },
       ),
+      refundEscrow: createMutation(adminTransactionsControllerRefundEscrow, {
+        invalidates: (args) => [
+          ["admin", "transactions", "detail", args.path.id],
+          ["admin", "transactions", "logs", args.path.id],
+        ],
+      }),
       endRentalPeriod: createMutation(
         adminTransactionsControllerEndRentalPeriod,
         {
