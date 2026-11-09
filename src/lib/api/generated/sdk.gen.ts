@@ -321,6 +321,10 @@ import type {
   AdminTransactionsControllerUpdateRequirementResponses,
   AdminTransactionsControllerUpdateStatusData,
   AdminTransactionsControllerUpdateStatusResponses,
+  AdminWalletSweepsControllerListData,
+  AdminWalletSweepsControllerListResponses,
+  AdminWalletSweepsControllerRetryData,
+  AdminWalletSweepsControllerRetryResponses,
   AppControllerGetHelloData,
   AppControllerGetHelloResponses,
   BenchmarksControllerFindAllData,
@@ -7349,6 +7353,44 @@ export const adminRoutingControllerResolve = <
   >({
     security: [{ scheme: "bearer", type: "http" }],
     url: "/api/v1/admin/routing/resolve",
+    ...options,
+  });
+
+/**
+ * List received deposits and where their move into the wallet stands
+ */
+export const adminWalletSweepsControllerList = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<AdminWalletSweepsControllerListData, ThrowOnError>,
+) =>
+  (options?.client ?? client).get<
+    AdminWalletSweepsControllerListResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/wallet-sweeps",
+    ...options,
+  });
+
+/**
+ * Resend a deposit's move into the org's wallet
+ *
+ * Only a refused, failed or abandoned (gave_up) one, under the next attempt. 409 for one that is unclear (wait for the provider, or check it there), in flight or settled.
+ */
+export const adminWalletSweepsControllerRetry = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AdminWalletSweepsControllerRetryData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    AdminWalletSweepsControllerRetryResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/wallet-sweeps/{intentId}/retry",
     ...options,
   });
 
