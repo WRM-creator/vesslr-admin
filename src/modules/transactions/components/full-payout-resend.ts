@@ -4,14 +4,20 @@ import type { EscrowResponseDto } from "@/lib/api/generated";
  * A full release or refund an admin can resend (mirrors the API's rule): a
  * release the provider failed or refused (its Release step is already
  * complete), or a refund it failed after taking it (a refused refund leaves
- * its dispute open, to be resolved again). Never one the provider later
+ * its dispute open, to be resolved again), or one the provider has no record
+ * of (`not_sent`, found by "Check with provider"). Never one the provider later
  * reported delivered (`contradicted`).
  */
 export function resendableFailure(escrow?: EscrowResponseDto | null) {
   const failure = escrow?.lastPayoutFailure;
   if (!failure || escrow?.status !== "FUNDED") return null;
   if (failure.cause === "contradicted") return null;
-  if (failure.kind === "refund" && failure.cause !== "failed") return null;
+  if (
+    failure.kind === "refund" &&
+    failure.cause !== "failed" &&
+    failure.cause !== "not_sent"
+  )
+    return null;
   return failure;
 }
 
