@@ -2984,12 +2984,16 @@ export type MilestonePayoutResponseDto = {
    * Payout amount in minor currency units
    */
   amount: number;
+  /**
+   * CANCELLED: the escrow was refunded or split before this milestone was paid; it never will be.
+   */
   status:
     | "PENDING"
     | "RELEASE_PENDING"
     | "RELEASED"
     | "FAILED"
-    | "FAILED_PERMANENT";
+    | "FAILED_PERMANENT"
+    | "CANCELLED";
   transferId?: string | null;
   releasedAt?: string | null;
   /**
@@ -3059,6 +3063,10 @@ export type EscrowResponseDto = {
    * Original funded amount before any decrements
    */
   originalFundedAmount?: number | null;
+  /**
+   * Minor units the buyer paid beyond what the escrow needed. Held outside the escrow for an admin to return to the buyer; 0 when none.
+   */
+  excessAmount?: number;
   /**
    * Running total of milestone payouts already released
    */
@@ -3354,9 +3362,13 @@ export type EscrowFundingQuoteDto = {
    */
   currency: string;
   /**
-   * Amount the buyer funds (custody minor units, fee included)
+   * Amount the buyer still has to fund (custody minor units, fee included). After a short bank payment this is the balance only.
    */
   amount: number;
+  /**
+   * Already received towards the escrow and held (an earlier short bank payment), custody minor units. 0 when nothing has arrived.
+   */
+  receivedAmount: number;
   /**
    * Goods amount before service fee, minor units
    */
@@ -3460,6 +3472,10 @@ export type VirtualAccountResponseDto = {
    * Service fee rate (e.g. 0.03 for 3%)
    */
   serviceFeeRate: number;
+  /**
+   * Already received towards this escrow and held (an earlier short payment), minor units. When above 0, `amount` is the balance still to pay and the account is minted for it.
+   */
+  receivedAmount: number;
 };
 
 export type CompleteStageDto = {
@@ -3625,6 +3641,10 @@ export type EscrowWithTransactionResponseDto = {
    * Original funded amount before any decrements
    */
   originalFundedAmount?: number | null;
+  /**
+   * Minor units the buyer paid beyond what the escrow needed. Held outside the escrow for an admin to return to the buyer; 0 when none.
+   */
+  excessAmount?: number;
   /**
    * Running total of milestone payouts already released
    */
