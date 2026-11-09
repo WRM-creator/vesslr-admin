@@ -20,21 +20,17 @@ export function FailedPayoutResend({
 }: {
   transaction: TransactionResponseDto;
 }) {
-  const resend = api.admin.transactions.resendPayout.useMutation();
+  // Toasts live on the hook: the page refetches after the resend and may
+  // remount this block, which would drop per-call callbacks.
+  const resend = api.admin.transactions.resendPayout.useMutation({
+    onSuccess: (res) =>
+      toast.success(resendMessage(res?.kind ?? "release", res?.reference)),
+    onError: (err) => toast.error(`Resend failed: ${(err as Error).message}`),
+  });
   const failure = resendableFailure(transaction.escrow);
   if (!failure) return null;
 
-  const handleResend = () => {
-    resend.mutate(
-      { path: { id: transaction._id } },
-      {
-        onSuccess: (res) =>
-          toast.success(resendMessage(failure.kind, res?.reference)),
-        onError: (err) =>
-          toast.error(`Resend failed: ${(err as Error).message}`),
-      },
-    );
-  };
+  const handleResend = () => resend.mutate({ path: { id: transaction._id } });
 
   return (
     <div className="border-destructive/40 bg-destructive/5 flex flex-wrap items-center justify-between gap-3 rounded-md border p-3">
