@@ -5654,7 +5654,7 @@ export const adminTransactionsControllerMarkDepositRefundedOffline = <
 /**
  * Refund a funded escrow in full to the buyer's wallet, outside a dispute
  *
- * Allowed at any unfinished stage, SETTLEMENT included, when the escrow is FUNDED, no dispute is open and no milestone payment has been sent. The transaction moves to REFUNDED; the escrow moves to REFUND_PENDING and then REFUNDED when the provider confirms the transfer. 409 when not allowed; 400 when the amount is below the payout minimum or the buyer can't receive it; a provider refusal returns its error with nothing changed.
+ * Allowed at any unfinished stage, SETTLEMENT included, when the escrow is FUNDED, no dispute is open and no milestone payment has been sent. The transaction moves to REFUNDED and accepts no further stage or dispute; the escrow moves to REFUND_PENDING and then REFUNDED when the provider confirms the transfer. If the provider later fails the transfer, the escrow is FUNDED again with the refund still owed, and calling this again resends it. 409 when not allowed; 400 when the amount is below the payout minimum or the buyer can't receive it; a provider refusal returns its error with nothing changed.
  */
 export const adminTransactionsControllerRefundEscrow = <
   ThrowOnError extends boolean = false,
