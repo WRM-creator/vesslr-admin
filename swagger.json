@@ -15037,7 +15037,7 @@
     },
     "/api/v1/admin/provider-payouts/transfers/{reference}/resolve": {
       "post": {
-        "description": "For a withdrawal (`wallet-…`), a deposit sweep (`esc-sweep-…`, `wsweep-…`), a wallet escrow payment (`wallet-escrow-…`) or a full release or refund (`release-…`, `refund-…`), whose reference is in the admin alert. Same rules as the transaction resolve: no record 30 minutes after it started reverses a withdrawal, fails a wallet payment, and resends a sweep under a new reference.",
+        "description": "For a withdrawal (`wallet-…`), a deposit sweep (`esc-sweep-…`, `wsweep-…`) or a wallet escrow payment (`wallet-escrow-…`), whose reference is in the admin alert. An escrow release or refund is resolved from its transaction instead (400 here). Same rules as the transaction resolve: no record 30 minutes after it started reverses a withdrawal, fails a wallet payment, and resends a sweep under a new reference.",
         "operationId": "AdminProviderPayoutsController_resolveTransfer",
         "parameters": [
           {
@@ -15074,7 +15074,7 @@
     },
     "/api/v1/admin/provider-payouts/webhook-events": {
       "get": {
-        "description": "`UNMATCHED`: handled, but matched nothing (a deposit to an unknown account, a reference no path owns). `FAILED`: retries exhausted. Newest first, up to 50.",
+        "description": "`UNMATCHED`: handled, but matched nothing (a deposit to an unknown account, a reference no path owns). `FAILED`: retries exhausted. `RECEIVED`: recorded but never finished, and too old to be re-driven on its own (more than 48 hours). Newest first, up to 50.",
         "operationId": "AdminProviderPayoutsController_listWebhookEvents",
         "parameters": [
           {
@@ -15084,7 +15084,8 @@
             "schema": {
               "enum": [
                 "UNMATCHED",
-                "FAILED"
+                "FAILED",
+                "RECEIVED"
               ],
               "type": "string"
             }
@@ -15118,7 +15119,7 @@
     },
     "/api/v1/admin/provider-payouts/webhook-events/{id}/replay": {
       "post": {
-        "description": "After fixing what it was missing (an org binding, a reference). Handlers are idempotent, so a replay of something already applied changes nothing. Returns the status the event ends in.",
+        "description": "Only an event waiting for an admin (see the list). After fixing what it was missing (an org binding, a reference). Returns the status the event ends in.",
         "operationId": "AdminProviderPayoutsController_replayWebhookEvent",
         "parameters": [
           {

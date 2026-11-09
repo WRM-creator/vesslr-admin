@@ -8033,7 +8033,7 @@ export const adminProviderPayoutsControllerResolveForTransaction = <
 /**
  * Look up one of our transfers at Flutterwave by reference and settle it
  *
- * For a withdrawal (`wallet-…`), a deposit sweep (`esc-sweep-…`, `wsweep-…`), a wallet escrow payment (`wallet-escrow-…`) or a full release or refund (`release-…`, `refund-…`), whose reference is in the admin alert. Same rules as the transaction resolve: no record 30 minutes after it started reverses a withdrawal, fails a wallet payment, and resends a sweep under a new reference.
+ * For a withdrawal (`wallet-…`), a deposit sweep (`esc-sweep-…`, `wsweep-…`) or a wallet escrow payment (`wallet-escrow-…`), whose reference is in the admin alert. An escrow release or refund is resolved from its transaction instead (400 here). Same rules as the transaction resolve: no record 30 minutes after it started reverses a withdrawal, fails a wallet payment, and resends a sweep under a new reference.
  */
 export const adminProviderPayoutsControllerResolveTransfer = <
   ThrowOnError extends boolean = false,
@@ -8056,7 +8056,7 @@ export const adminProviderPayoutsControllerResolveTransfer = <
 /**
  * Flutterwave webhook events that need an admin
  *
- * `UNMATCHED`: handled, but matched nothing (a deposit to an unknown account, a reference no path owns). `FAILED`: retries exhausted. Newest first, up to 50.
+ * `UNMATCHED`: handled, but matched nothing (a deposit to an unknown account, a reference no path owns). `FAILED`: retries exhausted. `RECEIVED`: recorded but never finished, and too old to be re-driven on its own (more than 48 hours). Newest first, up to 50.
  */
 export const adminProviderPayoutsControllerListWebhookEvents = <
   ThrowOnError extends boolean = false,
@@ -8079,7 +8079,7 @@ export const adminProviderPayoutsControllerListWebhookEvents = <
 /**
  * Run a Flutterwave webhook event through its handler again
  *
- * After fixing what it was missing (an org binding, a reference). Handlers are idempotent, so a replay of something already applied changes nothing. Returns the status the event ends in.
+ * Only an event waiting for an admin (see the list). After fixing what it was missing (an org binding, a reference). Returns the status the event ends in.
  */
 export const adminProviderPayoutsControllerReplayWebhookEvent = <
   ThrowOnError extends boolean = false,

@@ -18050,7 +18050,7 @@ export type AdminProviderPayoutsControllerListWebhookEventsData = {
   body?: never;
   path?: never;
   query: {
-    status: "UNMATCHED" | "FAILED";
+    status: "UNMATCHED" | "FAILED" | "RECEIVED";
   };
   url: "/api/v1/admin/provider-payouts/webhook-events";
 };
