@@ -10392,6 +10392,43 @@
         ]
       }
     },
+    "/api/v1/admin/transactions/{id}/payout/resend": {
+      "post": {
+        "description": "Sends the failed payout again as a new attempt, under a fresh reference. Only a payout the provider accepted and then FAILED (escrow `lastPayoutFailure.cause` = `failed`) can be resent here; one refused at initiation is resent the way it was started.",
+        "operationId": "AdminTransactionsController_resendPayout",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The payout went to the provider (or its outcome is unclear and its webhook decides). 404 when the transaction has no escrow, 409 when there is nothing to resend; a provider refusal is a 4xx/502 with its reason and the payout stays resendable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResendPayoutResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Resend a full release or refund the provider failed",
+        "tags": [
+          "Admin Transactions"
+        ]
+      }
+    },
     "/api/v1/admin/transactions/{id}/stages/{stageId}/submit-inspection": {
       "post": {
         "operationId": "AdminTransactionsController_submitInspection",
@@ -21455,6 +21492,40 @@
           "initiatedBy"
         ]
       },
+      "EscrowPayoutFailureResponseDto": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "release",
+              "refund"
+            ]
+          },
+          "attempt": {
+            "type": "number",
+            "description": "The attempt that failed (1 is the first send)"
+          },
+          "cause": {
+            "type": "string",
+            "enum": [
+              "failed",
+              "refused"
+            ],
+            "description": "`failed`: the provider took the payout, then reported it FAILED; an admin can resend it (POST /admin/transactions/{id}/payout/resend). `refused`: refused before anything moved; resend it the way it was started."
+          },
+          "failedAt": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind",
+          "attempt",
+          "cause",
+          "failedAt"
+        ]
+      },
       "EscrowResponseDto": {
         "type": "object",
         "properties": {
@@ -21540,6 +21611,23 @@
             "items": {
               "$ref": "#/components/schemas/RefundHistoryEntryResponseDto"
             }
+          },
+          "releaseAttempt": {
+            "type": "number",
+            "description": "The current full-release attempt (1 is the first send; a resend is the next)."
+          },
+          "refundAttempt": {
+            "type": "number",
+            "description": "The current full-refund attempt."
+          },
+          "lastPayoutFailure": {
+            "nullable": true,
+            "description": "The current release or full refund that failed or was refused; null otherwise.",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/EscrowPayoutFailureResponseDto"
+              }
+            ]
           }
         },
         "required": [
@@ -22587,6 +22675,23 @@
             "items": {
               "$ref": "#/components/schemas/RefundHistoryEntryResponseDto"
             }
+          },
+          "releaseAttempt": {
+            "type": "number",
+            "description": "The current full-release attempt (1 is the first send; a resend is the next)."
+          },
+          "refundAttempt": {
+            "type": "number",
+            "description": "The current full-refund attempt."
+          },
+          "lastPayoutFailure": {
+            "nullable": true,
+            "description": "The current release or full refund that failed or was refused; null otherwise.",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/EscrowPayoutFailureResponseDto"
+              }
+            ]
           },
           "transactionId": {
             "type": "string"
@@ -26920,11 +27025,14 @@
         "properties": {
           "transferId": {
             "type": "string",
-            "example": "trf_123"
+            "example": "trf_123",
+            "nullable": true,
+            "description": "The provider transfer id. Null when the provider gave no clear answer (status UNCONFIRMED)."
           },
           "status": {
             "type": "string",
-            "example": "NEW"
+            "example": "NEW",
+            "description": "The provider's status for the transfer. UNCONFIRMED: the provider gave no clear answer; the debit is booked and the user is notified when the transfer completes or is reversed."
           }
         },
         "required": [
@@ -32803,6 +32911,27 @@
         "required": [
           "milestoneIndex",
           "outcome"
+        ]
+      },
+      "ResendPayoutResponseDto": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "release",
+              "refund"
+            ]
+          },
+          "reference": {
+            "type": "string",
+            "example": "release-6a746a75fde04fac4ace203e-a2",
+            "description": "The new attempt’s transfer reference, to look up at the provider."
+          }
+        },
+        "required": [
+          "kind",
+          "reference"
         ]
       },
       "AdminConversationMessageDto": {

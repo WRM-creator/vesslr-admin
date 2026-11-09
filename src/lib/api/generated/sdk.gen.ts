@@ -305,6 +305,8 @@ import type {
   AdminTransactionsControllerReleaseSettlementResponses,
   AdminTransactionsControllerReportFundingShortfallData,
   AdminTransactionsControllerReportFundingShortfallResponses,
+  AdminTransactionsControllerResendPayoutData,
+  AdminTransactionsControllerResendPayoutResponses,
   AdminTransactionsControllerRetryMilestonePaymentData,
   AdminTransactionsControllerRetryMilestonePaymentResponses,
   AdminTransactionsControllerReviewDocumentData,
@@ -5688,6 +5690,26 @@ export const adminTransactionsControllerRetryMilestonePayment = <
   >({
     security: [{ scheme: "bearer", type: "http" }],
     url: "/api/v1/admin/transactions/{id}/retry-milestone-payment/{milestoneIndex}",
+    ...options,
+  });
+
+/**
+ * Resend a full release or refund the provider failed
+ *
+ * Sends the failed payout again as a new attempt, under a fresh reference. Only a payout the provider accepted and then FAILED (escrow `lastPayoutFailure.cause` = `failed`) can be resent here; one refused at initiation is resent the way it was started.
+ */
+export const adminTransactionsControllerResendPayout = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AdminTransactionsControllerResendPayoutData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    AdminTransactionsControllerResendPayoutResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/transactions/{id}/payout/resend",
     ...options,
   });
 
