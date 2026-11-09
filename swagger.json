@@ -13741,7 +13741,7 @@
     },
     "/api/v1/admin/wallet-sweeps/{intentId}/retry": {
       "post": {
-        "description": "Only a refused, failed or abandoned (gave_up) one, under the next attempt. 409 for one that is unclear (wait for the provider, or check it there), in flight or settled.",
+        "description": "A refused, failed, abandoned (gave_up) or below-floor one, under the next attempt. An unclear, unconfirmed (sent) or stuck (sending) one only with confirmedNotSent, after checking the provider holds no transfer under its current reference. 409 otherwise.",
         "operationId": "AdminWalletSweepsController_retry",
         "parameters": [
           {
@@ -13753,6 +13753,16 @@
             }
           }
         ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminWalletSweepRetryDto"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "",
@@ -37578,6 +37588,15 @@
           "net",
           "receivedAt"
         ]
+      },
+      "AdminWalletSweepRetryDto": {
+        "type": "object",
+        "properties": {
+          "confirmedNotSent": {
+            "type": "boolean",
+            "description": "The admin checked the provider and it holds no transfer under the current reference: also resend one that is unclear, sent with no confirmation, or stuck sending. It goes out under a new reference, so a late arrival of the old one is detected, not credited twice."
+          }
+        }
       },
       "AdminWalletSweepRetryResponseDto": {
         "type": "object",

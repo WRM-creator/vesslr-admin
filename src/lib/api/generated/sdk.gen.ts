@@ -7377,7 +7377,7 @@ export const adminWalletSweepsControllerList = <
 /**
  * Resend a deposit's move into the org's wallet
  *
- * Only a refused, failed or abandoned (gave_up) one, under the next attempt. 409 for one that is unclear (wait for the provider, or check it there), in flight or settled.
+ * A refused, failed, abandoned (gave_up) or below-floor one, under the next attempt. An unclear, unconfirmed (sent) or stuck (sending) one only with confirmedNotSent, after checking the provider holds no transfer under its current reference. 409 otherwise.
  */
 export const adminWalletSweepsControllerRetry = <
   ThrowOnError extends boolean = false,
@@ -7392,6 +7392,10 @@ export const adminWalletSweepsControllerRetry = <
     security: [{ scheme: "bearer", type: "http" }],
     url: "/api/v1/admin/wallet-sweeps/{intentId}/retry",
     ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
   });
 
 /**

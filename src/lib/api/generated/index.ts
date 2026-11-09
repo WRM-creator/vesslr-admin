@@ -861,6 +861,7 @@ export type {
   AdminUpdateTicketDto,
   AdminVerifyOtpDto,
   AdminWalletSweepDto,
+  AdminWalletSweepRetryDto,
   AdminWalletSweepRetryResponseDto,
   AdminWalletSweepsControllerListData,
   AdminWalletSweepsControllerListResponse,

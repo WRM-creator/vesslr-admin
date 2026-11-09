@@ -10770,6 +10770,13 @@ export type AdminWalletSweepDto = {
   settledAt?: string | null;
 };
 
+export type AdminWalletSweepRetryDto = {
+  /**
+   * The admin checked the provider and it holds no transfer under the current reference: also resend one that is unclear, sent with no confirmation, or stuck sending. It goes out under a new reference, so a late arrival of the old one is detected, not credited twice.
+   */
+  confirmedNotSent?: boolean;
+};
+
 export type AdminWalletSweepRetryResponseDto = {
   /**
    * Status after the resend
@@ -17352,7 +17359,7 @@ export type AdminWalletSweepsControllerListResponse =
   AdminWalletSweepsControllerListResponses[keyof AdminWalletSweepsControllerListResponses];
 
 export type AdminWalletSweepsControllerRetryData = {
-  body?: never;
+  body: AdminWalletSweepRetryDto;
   path: {
     intentId: string;
   };
