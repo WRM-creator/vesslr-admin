@@ -19,11 +19,6 @@ import {
   retryOutcomeMessage,
   unconfirmedPayoutConfig,
 } from "./milestone-payout-retry";
-import {
-  failedPayoutLabel,
-  resendableFailure,
-  resendMessage,
-} from "./full-payout-resend";
 
 interface TransactionFinancialsCardProps {
   transaction: TransactionResponseDto;
@@ -360,8 +355,6 @@ export function TransactionFinancialsCard({
             </div>
           )}
 
-          <FailedPayoutResend transaction={transaction} />
-
           {/* Milestone Payouts */}
           {milestonePayouts.length > 0 && (
             <div className="space-y-4">
@@ -490,62 +483,6 @@ function MilestonePayoutRow({
           </Button>
         )}
       </div>
-    </div>
-  );
-}
-
-/**
- * A full release or refund the provider FAILED. The API reversed it and the
- * escrow holds the money again; resending sends it as the next attempt under
- * a fresh reference.
- */
-function FailedPayoutResend({
-  transaction,
-}: {
-  transaction: TransactionResponseDto;
-}) {
-  const resend = api.admin.transactions.resendPayout.useMutation();
-  const failure = resendableFailure(transaction.escrow);
-  if (!failure) return null;
-
-  const handleResend = () => {
-    resend.mutate(
-      { path: { id: transaction._id } },
-      {
-        onSuccess: (res) =>
-          toast.success(resendMessage(failure.kind, res?.reference)),
-        onError: (err) =>
-          toast.error(`Resend failed: ${(err as Error).message}`),
-      },
-    );
-  };
-
-  return (
-    <div className="border-destructive/40 bg-destructive/5 flex flex-wrap items-center justify-between gap-3 rounded-md border p-3">
-      <div className="min-w-0 space-y-0.5">
-        <p className="flex items-center gap-2 text-sm font-medium">
-          <AlertCircle className="text-destructive size-4 shrink-0" />
-          {failedPayoutLabel(failure.kind)} failed
-        </p>
-        <p className="text-muted-foreground text-xs">
-          The payment provider failed attempt {failure.attempt} on{" "}
-          {formatDateTime(failure.failedAt)}. It was reversed and the escrow
-          holds the money again.
-        </p>
-      </div>
-      <Button
-        size="sm"
-        variant="outline"
-        onClick={handleResend}
-        disabled={resend.isPending}
-      >
-        {resend.isPending ? (
-          <Loader2 className="mr-1.5 size-3.5 animate-spin" />
-        ) : (
-          <RotateCw className="mr-1.5 size-3.5" />
-        )}
-        Resend payout
-      </Button>
     </div>
   );
 }
