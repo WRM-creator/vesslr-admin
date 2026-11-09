@@ -10724,6 +10724,75 @@ export type RoutingResolveResponseDto = {
   data: RoutingResolveResultDto;
 };
 
+export type AdminWalletSweepDto = {
+  /**
+   * Funding intent id; the sweep is addressed by it
+   */
+  intentId: string;
+  orgId: string;
+  currency: string;
+  /**
+   * Present when the deposit paid an invoice
+   */
+  invoiceId?: string;
+  /**
+   * refused: nothing moved, retried every 15 min. failed: the provider took it and failed it, resent. unclear: may have reached the provider, waits for its webhook. gave_up: retries exhausted, resend it here. below_floor: under the transfer minimum. settled: in the wallet.
+   */
+  status:
+    | "pending"
+    | "sending"
+    | "sent"
+    | "unclear"
+    | "refused"
+    | "failed"
+    | "below_floor"
+    | "gave_up"
+    | "settled";
+  /**
+   * Current attempt; its transfer reference is wsweep-{intentId} (+ -a{n} from 2)
+   */
+  attempt: number;
+  /**
+   * What the payer sent, minor units
+   */
+  received: number;
+  /**
+   * Provider's collection fee, borne by the org, minor units
+   */
+  fee: number;
+  /**
+   * received - fee: what is moved and credited, minor units
+   */
+  net: number;
+  receivedAt: string;
+  nextAttemptAt?: string | null;
+  lastError?: string | null;
+  settledAt?: string | null;
+};
+
+export type AdminWalletSweepRetryDto = {
+  /**
+   * The admin checked the provider and it holds no transfer under the current reference: also resend one that is unclear, sent with no confirmation, or stuck sending. It goes out under a new reference, so a late arrival of the old one is detected, not credited twice.
+   */
+  confirmedNotSent?: boolean;
+};
+
+export type AdminWalletSweepRetryResponseDto = {
+  /**
+   * Status after the resend
+   */
+  status:
+    | "pending"
+    | "sending"
+    | "sent"
+    | "unclear"
+    | "refused"
+    | "failed"
+    | "below_floor"
+    | "gave_up"
+    | "settled";
+};
+
 export type SimulateDepositDto = {
   /**
    * Provider reference of a provisioned amount-bound destination to settle
@@ -17269,6 +17338,41 @@ export type AdminRoutingControllerResolveResponses = {
 
 export type AdminRoutingControllerResolveResponse =
   AdminRoutingControllerResolveResponses[keyof AdminRoutingControllerResolveResponses];
+
+export type AdminWalletSweepsControllerListData = {
+  body?: never;
+  path?: never;
+  query?: {
+    /**
+     * Comma-separated: pending, sending, sent, unclear, refused, failed, below_floor, gave_up, settled
+     */
+    status?: string;
+  };
+  url: "/api/v1/admin/wallet-sweeps";
+};
+
+export type AdminWalletSweepsControllerListResponses = {
+  200: Array<AdminWalletSweepDto>;
+};
+
+export type AdminWalletSweepsControllerListResponse =
+  AdminWalletSweepsControllerListResponses[keyof AdminWalletSweepsControllerListResponses];
+
+export type AdminWalletSweepsControllerRetryData = {
+  body: AdminWalletSweepRetryDto;
+  path: {
+    intentId: string;
+  };
+  query?: never;
+  url: "/api/v1/admin/wallet-sweeps/{intentId}/retry";
+};
+
+export type AdminWalletSweepsControllerRetryResponses = {
+  200: AdminWalletSweepRetryResponseDto;
+};
+
+export type AdminWalletSweepsControllerRetryResponse =
+  AdminWalletSweepsControllerRetryResponses[keyof AdminWalletSweepsControllerRetryResponses];
 
 export type MockProviderDevControllerSimulateDepositData = {
   body: SimulateDepositDto;

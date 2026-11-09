@@ -321,6 +321,10 @@ import type {
   AdminTransactionsControllerUpdateRequirementResponses,
   AdminTransactionsControllerUpdateStatusData,
   AdminTransactionsControllerUpdateStatusResponses,
+  AdminWalletSweepsControllerListData,
+  AdminWalletSweepsControllerListResponses,
+  AdminWalletSweepsControllerRetryData,
+  AdminWalletSweepsControllerRetryResponses,
   AppControllerGetHelloData,
   AppControllerGetHelloResponses,
   BenchmarksControllerFindAllData,
@@ -7350,6 +7354,48 @@ export const adminRoutingControllerResolve = <
     security: [{ scheme: "bearer", type: "http" }],
     url: "/api/v1/admin/routing/resolve",
     ...options,
+  });
+
+/**
+ * List received deposits and where their move into the wallet stands
+ */
+export const adminWalletSweepsControllerList = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<AdminWalletSweepsControllerListData, ThrowOnError>,
+) =>
+  (options?.client ?? client).get<
+    AdminWalletSweepsControllerListResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/wallet-sweeps",
+    ...options,
+  });
+
+/**
+ * Resend a deposit's move into the org's wallet
+ *
+ * A refused, failed, abandoned (gave_up) or below-floor one, under the next attempt. An unclear, unconfirmed (sent) or stuck (sending) one only with confirmedNotSent, after checking the provider holds no transfer under its current reference. 409 otherwise.
+ */
+export const adminWalletSweepsControllerRetry = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AdminWalletSweepsControllerRetryData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    AdminWalletSweepsControllerRetryResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/wallet-sweeps/{intentId}/retry",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
   });
 
 /**

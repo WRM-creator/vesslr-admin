@@ -13699,6 +13699,93 @@
         ]
       }
     },
+    "/api/v1/admin/wallet-sweeps": {
+      "get": {
+        "operationId": "AdminWalletSweepsController_list",
+        "parameters": [
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "description": "Comma-separated: pending, sending, sent, unclear, refused, failed, below_floor, gave_up, settled",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AdminWalletSweepDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List received deposits and where their move into the wallet stands",
+        "tags": [
+          "Admin Wallet Sweeps"
+        ]
+      }
+    },
+    "/api/v1/admin/wallet-sweeps/{intentId}/retry": {
+      "post": {
+        "description": "A refused, failed, abandoned (gave_up) or below-floor one, under the next attempt. An unclear, unconfirmed (sent) or stuck (sending) one only with confirmedNotSent, after checking the provider holds no transfer under its current reference. 409 otherwise.",
+        "operationId": "AdminWalletSweepsController_retry",
+        "parameters": [
+          {
+            "name": "intentId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminWalletSweepRetryDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminWalletSweepRetryResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Resend a deposit's move into the org's wallet",
+        "tags": [
+          "Admin Wallet Sweeps"
+        ]
+      }
+    },
     "/api/v1/dev/mock-provider/deposit": {
       "post": {
         "operationId": "MockProviderDevController_simulateDeposit",
@@ -37424,6 +37511,114 @@
         "required": [
           "message",
           "data"
+        ]
+      },
+      "AdminWalletSweepDto": {
+        "type": "object",
+        "properties": {
+          "intentId": {
+            "type": "string",
+            "description": "Funding intent id; the sweep is addressed by it"
+          },
+          "orgId": {
+            "type": "string"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "invoiceId": {
+            "type": "string",
+            "description": "Present when the deposit paid an invoice"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "sending",
+              "sent",
+              "unclear",
+              "refused",
+              "failed",
+              "below_floor",
+              "gave_up",
+              "settled"
+            ],
+            "description": "refused: nothing moved, retried every 15 min. failed: the provider took it and failed it, resent. unclear: may have reached the provider, waits for its webhook. gave_up: retries exhausted, resend it here. below_floor: under the transfer minimum. settled: in the wallet."
+          },
+          "attempt": {
+            "type": "number",
+            "description": "Current attempt; its transfer reference is wsweep-{intentId} (+ -a{n} from 2)"
+          },
+          "received": {
+            "type": "number",
+            "description": "What the payer sent, minor units"
+          },
+          "fee": {
+            "type": "number",
+            "description": "Provider's collection fee, borne by the org, minor units"
+          },
+          "net": {
+            "type": "number",
+            "description": "received - fee: what is moved and credited, minor units"
+          },
+          "receivedAt": {
+            "type": "string"
+          },
+          "nextAttemptAt": {
+            "type": "string",
+            "nullable": true
+          },
+          "lastError": {
+            "type": "string",
+            "nullable": true
+          },
+          "settledAt": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "intentId",
+          "orgId",
+          "currency",
+          "status",
+          "attempt",
+          "received",
+          "fee",
+          "net",
+          "receivedAt"
+        ]
+      },
+      "AdminWalletSweepRetryDto": {
+        "type": "object",
+        "properties": {
+          "confirmedNotSent": {
+            "type": "boolean",
+            "description": "The admin checked the provider and it holds no transfer under the current reference: also resend one that is unclear, sent with no confirmation, or stuck sending. It goes out under a new reference, so a late arrival of the old one is detected, not credited twice."
+          }
+        }
+      },
+      "AdminWalletSweepRetryResponseDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "sending",
+              "sent",
+              "unclear",
+              "refused",
+              "failed",
+              "below_floor",
+              "gave_up",
+              "settled"
+            ],
+            "description": "Status after the resend"
+          }
+        },
+        "required": [
+          "status"
         ]
       },
       "SimulateDepositDto": {
