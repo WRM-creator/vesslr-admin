@@ -3015,6 +3015,19 @@ export type RefundHistoryEntryResponseDto = {
   initiatedBy: string;
 };
 
+export type EscrowPayoutFailureResponseDto = {
+  kind: "release" | "refund";
+  /**
+   * The attempt that failed (1 is the first send)
+   */
+  attempt: number;
+  /**
+   * `failed`: the provider took the payout, then reported it FAILED. `refused`: refused before anything moved. `contradicted`: reported delivered after it was recorded as failed; it must not be resent. An admin can resend (POST /admin/transactions/{id}/payout/resend) a failed or refused release and a failed refund.
+   */
+  cause: "failed" | "refused" | "contradicted";
+  failedAt: string;
+};
+
 export type EscrowResponseDto = {
   _id: string;
   status:
@@ -3058,6 +3071,18 @@ export type EscrowResponseDto = {
    * Append-only refund/discount history
    */
   refundHistory: Array<RefundHistoryEntryResponseDto>;
+  /**
+   * The current full-release attempt (1 is the first send; a resend is the next).
+   */
+  releaseAttempt?: number;
+  /**
+   * The current full-refund attempt.
+   */
+  refundAttempt?: number;
+  /**
+   * The current release or full refund that failed or was refused; null otherwise.
+   */
+  lastPayoutFailure?: EscrowPayoutFailureResponseDto | null;
 };
 
 export type TransactionWalletIntentDto = {
@@ -3612,6 +3637,18 @@ export type EscrowWithTransactionResponseDto = {
    * Append-only refund/discount history
    */
   refundHistory: Array<RefundHistoryEntryResponseDto>;
+  /**
+   * The current full-release attempt (1 is the first send; a resend is the next).
+   */
+  releaseAttempt?: number;
+  /**
+   * The current full-refund attempt.
+   */
+  refundAttempt?: number;
+  /**
+   * The current release or full refund that failed or was refused; null otherwise.
+   */
+  lastPayoutFailure?: EscrowPayoutFailureResponseDto | null;
   transactionId: string;
   transactionDisplayId: number;
   transactionStatus: string;
@@ -5748,7 +5785,13 @@ export type WalletDisburseQuoteResponseDto = {
 };
 
 export type WalletDisburseResponseDto = {
-  transferId: string;
+  /**
+   * The provider transfer id. Null when the provider gave no clear answer (status UNCONFIRMED).
+   */
+  transferId: string | null;
+  /**
+   * The provider's status for the transfer. UNCONFIRMED: the provider gave no clear answer; the debit is booked and the user is notified when the transfer completes or is reversed.
+   */
   status: string;
 };
 
@@ -8693,6 +8736,14 @@ export type RefundEscrowDto = {
 export type RetryMilestonePaymentResponseDto = {
   milestoneIndex: number;
   outcome: "started" | "awaiting";
+};
+
+export type ResendPayoutResponseDto = {
+  kind: "release" | "refund";
+  /**
+   * The new attempt’s transfer reference, to look up at the provider.
+   */
+  reference: string;
 };
 
 export type AdminConversationMessageDto = {
@@ -15859,6 +15910,25 @@ export type AdminTransactionsControllerRetryMilestonePaymentResponses = {
 
 export type AdminTransactionsControllerRetryMilestonePaymentResponse =
   AdminTransactionsControllerRetryMilestonePaymentResponses[keyof AdminTransactionsControllerRetryMilestonePaymentResponses];
+
+export type AdminTransactionsControllerResendPayoutData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/admin/transactions/{id}/payout/resend";
+};
+
+export type AdminTransactionsControllerResendPayoutResponses = {
+  /**
+   * The payout went to the provider (or its outcome is unclear and its webhook decides). 404 when the transaction has no escrow, 409 when there is nothing to resend; a provider refusal is a 4xx/502 with its reason and the payout stays resendable.
+   */
+  200: ResendPayoutResponseDto;
+};
+
+export type AdminTransactionsControllerResendPayoutResponse =
+  AdminTransactionsControllerResendPayoutResponses[keyof AdminTransactionsControllerResendPayoutResponses];
 
 export type AdminTransactionsControllerSubmitInspectionData = {
   body: SubmitInspectionDocumentsDto;

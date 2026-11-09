@@ -130,6 +130,7 @@ import {
   adminTransactionsControllerReviewDocument,
   adminTransactionsControllerReviewInspection,
   adminTransactionsControllerRetryMilestonePayment,
+  adminTransactionsControllerResendPayout,
   adminTransactionsControllerSubmitInspection,
   adminTransactionsControllerUpdateRequirement,
   adminTransactionsControllerEndRentalPeriod,
@@ -322,6 +323,11 @@ export const api = {
           ],
         },
       ),
+      resendPayout: createMutation(adminTransactionsControllerResendPayout, {
+        invalidates: (args) => [
+          ["admin", "transactions", "detail", args.path.id],
+        ],
+      }),
       releaseSettlement: createMutation(
         adminTransactionsControllerReleaseSettlement,
         {
