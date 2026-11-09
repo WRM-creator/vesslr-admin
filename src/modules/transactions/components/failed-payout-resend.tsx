@@ -40,9 +40,9 @@ export function FailedPayoutResend({
           {failedPayoutLabel(failure.kind)} failed
         </p>
         <p className="text-muted-foreground text-xs">
-          The payment provider failed attempt {failure.attempt} on{" "}
-          {formatDateTime(failure.failedAt)}. It was reversed and the escrow
-          holds the money again.
+          {failure.cause === "refused"
+            ? `The payment provider refused attempt ${failure.attempt} on ${formatDateTime(failure.failedAt)}. Nothing left the escrow.`
+            : `The payment provider failed attempt ${failure.attempt} on ${formatDateTime(failure.failedAt)}. It was reversed and the escrow holds the money again.`}
         </p>
       </div>
       <Button

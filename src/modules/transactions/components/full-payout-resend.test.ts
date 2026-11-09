@@ -1,5 +1,5 @@
-import { describe, expect, it } from "vitest";
 import type { EscrowResponseDto } from "@/lib/api/generated";
+import { describe, expect, it } from "vitest";
 import { resendableFailure, resendMessage } from "./full-payout-resend";
 
 const escrow = (over: Partial<EscrowResponseDto>) =>
@@ -13,18 +13,39 @@ const failure = {
 
 describe("resendableFailure", () => {
   it("offers a resend for a FAILED payout on a FUNDED escrow", () => {
-    expect(resendableFailure(escrow({ lastPayoutFailure: failure }))).toEqual(failure);
+    expect(resendableFailure(escrow({ lastPayoutFailure: failure }))).toEqual(
+      failure,
+    );
   });
 
-  it("offers none for a payout refused at initiation", () => {
+  it("offers a resend for a refused release, not a refused refund", () => {
+    const refused = { ...failure, cause: "refused" as const };
+    expect(resendableFailure(escrow({ lastPayoutFailure: refused }))).toEqual(
+      refused,
+    );
     expect(
-      resendableFailure(escrow({ lastPayoutFailure: { ...failure, cause: "refused" } })),
+      resendableFailure(
+        escrow({ lastPayoutFailure: { ...refused, kind: "refund" } }),
+      ),
+    ).toBeNull();
+  });
+
+  it("offers none once the provider reported it delivered after all", () => {
+    expect(
+      resendableFailure(
+        escrow({ lastPayoutFailure: { ...failure, cause: "contradicted" } }),
+      ),
     ).toBeNull();
   });
 
   it("offers none once a new attempt is in flight", () => {
     expect(
-      resendableFailure(escrow({ status: "RELEASE_PENDING" as never, lastPayoutFailure: failure })),
+      resendableFailure(
+        escrow({
+          status: "RELEASE_PENDING" as never,
+          lastPayoutFailure: failure,
+        }),
+      ),
     ).toBeNull();
   });
 
