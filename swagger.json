@@ -10312,6 +10312,53 @@
         ]
       }
     },
+    "/api/v1/admin/transactions/{id}/refund-escrow": {
+      "post": {
+        "description": "Allowed at any unfinished stage, SETTLEMENT included, when the escrow is FUNDED, no dispute is open and no milestone payment has been sent. The transaction moves to REFUNDED and accepts no further stage or dispute; the escrow moves to REFUND_PENDING and then REFUNDED when the provider confirms the transfer. If the provider later fails the transfer, the escrow is FUNDED again with the refund still owed, and calling this again resends it. 409 when not allowed; 400 when the amount is below the payout minimum or the buyer can't receive it; a provider refusal returns its error with nothing changed.",
+        "operationId": "AdminTransactionsController_refundEscrow",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RefundEscrowDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The updated transaction",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TransactionResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Refund a funded escrow in full to the buyer's wallet, outside a dispute",
+        "tags": [
+          "Admin Transactions"
+        ]
+      }
+    },
     "/api/v1/admin/transactions/{id}/release-settlement": {
       "post": {
         "operationId": "AdminTransactionsController_releaseSettlement",
@@ -32784,6 +32831,20 @@
           "confirmAmount",
           "providerReference",
           "note"
+        ]
+      },
+      "RefundEscrowDto": {
+        "type": "object",
+        "properties": {
+          "reason": {
+            "type": "string",
+            "description": "Why the escrow is being refunded. Kept on the transaction's log for admins; never shown to either party or put on the transfer.",
+            "minLength": 5,
+            "maxLength": 500
+          }
+        },
+        "required": [
+          "reason"
         ]
       },
       "RetryMilestonePaymentResponseDto": {

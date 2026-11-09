@@ -8683,6 +8683,13 @@ export type MarkDepositRefundedOfflineDto = {
   note: string;
 };
 
+export type RefundEscrowDto = {
+  /**
+   * Why the escrow is being refunded. Kept on the transaction's log for admins; never shown to either party or put on the transfer.
+   */
+  reason: string;
+};
+
 export type RetryMilestonePaymentResponseDto = {
   milestoneIndex: number;
   outcome: "started" | "awaiting";
@@ -15794,6 +15801,25 @@ export type AdminTransactionsControllerMarkDepositRefundedOfflineData = {
 export type AdminTransactionsControllerMarkDepositRefundedOfflineResponses = {
   201: unknown;
 };
+
+export type AdminTransactionsControllerRefundEscrowData = {
+  body: RefundEscrowDto;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/admin/transactions/{id}/refund-escrow";
+};
+
+export type AdminTransactionsControllerRefundEscrowResponses = {
+  /**
+   * The updated transaction
+   */
+  200: TransactionResponseDto;
+};
+
+export type AdminTransactionsControllerRefundEscrowResponse =
+  AdminTransactionsControllerRefundEscrowResponses[keyof AdminTransactionsControllerRefundEscrowResponses];
 
 export type AdminTransactionsControllerReleaseSettlementData = {
   body?: never;

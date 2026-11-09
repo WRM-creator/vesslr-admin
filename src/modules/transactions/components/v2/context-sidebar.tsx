@@ -1,4 +1,5 @@
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Spinner } from "@/components/ui/spinner";
@@ -15,8 +16,14 @@ import {
   Banknote,
   History,
   MessageSquare,
+  Undo2,
 } from "lucide-react";
 import { useState } from "react";
+import { RefundEscrowDialog } from "../refund-escrow-dialog";
+import {
+  canRefundEscrow,
+  isRefundOwed,
+} from "@/modules/transactions/lib/refund-escrow";
 
 interface ContextSidebarProps {
   transaction: TransactionResponseDto;
@@ -76,6 +83,9 @@ function FinancialSummary({
         ? "Funded"
         : "Pending";
 
+  const [refundOpen, setRefundOpen] = useState(false);
+  const refundable = canRefundEscrow(transaction);
+
   const escrowColor = isReleased
     ? "text-green-600"
     : isRefunded
@@ -131,6 +141,27 @@ function FinancialSummary({
               {escrow.referenceId}
             </code>
           </div>
+        )}
+
+        {refundable && (
+          <>
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-full gap-1.5"
+              onClick={() => setRefundOpen(true)}
+            >
+              <Undo2 className="size-3.5" />
+              {isRefundOwed(transaction)
+                ? "Resend escrow refund"
+                : "Refund escrow to buyer"}
+            </Button>
+            <RefundEscrowDialog
+              open={refundOpen}
+              onOpenChange={setRefundOpen}
+              transaction={transaction}
+            />
+          </>
         )}
       </CardContent>
     </Card>
