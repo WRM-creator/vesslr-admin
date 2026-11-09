@@ -3026,9 +3026,9 @@ export type EscrowPayoutFailureResponseDto = {
    */
   attempt: number;
   /**
-   * `failed`: the provider took the payout, then reported it FAILED. `refused`: refused before anything moved. `contradicted`: reported delivered after it was recorded as failed; it must not be resent. An admin can resend (POST /admin/transactions/{id}/payout/resend) a failed or refused release and a failed refund.
+   * `failed`: the provider took the payout, then reported it FAILED. `refused`: refused before anything moved. `contradicted`: reported delivered after it was recorded as failed; it must not be resent. `not_sent`: an admin looked it up at the provider, which has no record of it. An admin can resend (POST /admin/transactions/{id}/payout/resend) a failed, refused or not_sent release and a failed or not_sent refund.
    */
-  cause: "failed" | "refused" | "contradicted";
+  cause: "failed" | "refused" | "contradicted" | "not_sent";
   failedAt: string;
 };
 
@@ -3088,6 +3088,10 @@ export type EscrowResponseDto = {
    */
   refundAttempt?: number;
   /**
+   * When the current full release or refund was claimed. One still RELEASE_PENDING or REFUND_PENDING 30 minutes after this can be looked up at the provider (POST /admin/provider-payouts/transactions/{id}/resolve).
+   */
+  payoutClaimedAt?: string | null;
+  /**
    * The current release or full refund that failed or was refused; null otherwise.
    */
   lastPayoutFailure?: EscrowPayoutFailureResponseDto | null;
@@ -3121,6 +3125,14 @@ export type TransactionEscrowFundingDto = {
    * Why the attempt failed (FAILED only). Nothing left the wallet.
    */
   failureReason?: string;
+  /**
+   * Admin view only: the wallet payment got no clear answer from the provider, so it may or may not have moved. An admin can look it up (POST /admin/provider-payouts/transactions/{id}/resolve).
+   */
+  unconfirmed?: boolean;
+  /**
+   * Admin view only: when the wallet payment started.
+   */
+  startedAt?: string;
   /**
    * Present when this deal funds by accumulated deposits under admin review
    */
@@ -3665,6 +3677,10 @@ export type EscrowWithTransactionResponseDto = {
    * The current full-refund attempt.
    */
   refundAttempt?: number;
+  /**
+   * When the current full release or refund was claimed. One still RELEASE_PENDING or REFUND_PENDING 30 minutes after this can be looked up at the provider (POST /admin/provider-payouts/transactions/{id}/resolve).
+   */
+  payoutClaimedAt?: string | null;
   /**
    * The current release or full refund that failed or was refused; null otherwise.
    */
@@ -11302,6 +11318,56 @@ export type SubmitInspectionDto = {
   notes?: string;
 };
 
+export type PayoutResolveResultDto = {
+  /**
+   * Our transfer reference that was looked up
+   */
+  reference: string;
+  /**
+   * `successful` / `failed`: Flutterwave reported it and it was applied as its webhook would be. `pending`: Flutterwave holds it unfinished; nothing changed. `not_sent`: Flutterwave has no record, so it never went out; it was reversed or made resendable.
+   */
+  outcome: "successful" | "failed" | "pending" | "not_sent";
+  /**
+   * Flutterwave's status, when it has the transfer
+   */
+  providerStatus?: string;
+  /**
+   * What happened, in words an admin can act on
+   */
+  message: string;
+};
+
+export type ProviderWebhookEventDto = {
+  _id: string;
+  event: string;
+  reference?: string;
+  status: "RECEIVED" | "PROCESSED" | "FAILED" | "UNMATCHED";
+  /**
+   * Why it matched nothing (UNMATCHED)
+   */
+  unmatchedReason?: string;
+  /**
+   * Last processing error (FAILED)
+   */
+  lastError?: string;
+  attempts: number;
+  createdAt: string;
+  /**
+   * The raw payload Flutterwave sent
+   */
+  payload: {
+    [key: string]: unknown;
+  };
+};
+
+export type WebhookReplayResultDto = {
+  /**
+   * The event status after the replay
+   */
+  status: "RECEIVED" | "PROCESSED" | "FAILED" | "UNMATCHED";
+  detail?: string;
+};
+
 export type RelatedResourceDto = {
   /**
    * Resource type: transaction, order, request
@@ -17947,6 +18013,70 @@ export type FlutterwaveWebhooksControllerHandleWebhookData = {
 export type FlutterwaveWebhooksControllerHandleWebhookResponses = {
   200: unknown;
 };
+
+export type AdminProviderPayoutsControllerResolveForTransactionData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/admin/provider-payouts/transactions/{id}/resolve";
+};
+
+export type AdminProviderPayoutsControllerResolveForTransactionResponses = {
+  200: PayoutResolveResultDto;
+};
+
+export type AdminProviderPayoutsControllerResolveForTransactionResponse =
+  AdminProviderPayoutsControllerResolveForTransactionResponses[keyof AdminProviderPayoutsControllerResolveForTransactionResponses];
+
+export type AdminProviderPayoutsControllerResolveTransferData = {
+  body?: never;
+  path: {
+    reference: string;
+  };
+  query?: never;
+  url: "/api/v1/admin/provider-payouts/transfers/{reference}/resolve";
+};
+
+export type AdminProviderPayoutsControllerResolveTransferResponses = {
+  200: PayoutResolveResultDto;
+};
+
+export type AdminProviderPayoutsControllerResolveTransferResponse =
+  AdminProviderPayoutsControllerResolveTransferResponses[keyof AdminProviderPayoutsControllerResolveTransferResponses];
+
+export type AdminProviderPayoutsControllerListWebhookEventsData = {
+  body?: never;
+  path?: never;
+  query: {
+    status: "UNMATCHED" | "FAILED";
+  };
+  url: "/api/v1/admin/provider-payouts/webhook-events";
+};
+
+export type AdminProviderPayoutsControllerListWebhookEventsResponses = {
+  200: Array<ProviderWebhookEventDto>;
+};
+
+export type AdminProviderPayoutsControllerListWebhookEventsResponse =
+  AdminProviderPayoutsControllerListWebhookEventsResponses[keyof AdminProviderPayoutsControllerListWebhookEventsResponses];
+
+export type AdminProviderPayoutsControllerReplayWebhookEventData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/api/v1/admin/provider-payouts/webhook-events/{id}/replay";
+};
+
+export type AdminProviderPayoutsControllerReplayWebhookEventResponses = {
+  200: WebhookReplayResultDto;
+};
+
+export type AdminProviderPayoutsControllerReplayWebhookEventResponse =
+  AdminProviderPayoutsControllerReplayWebhookEventResponses[keyof AdminProviderPayoutsControllerReplayWebhookEventResponses];
 
 export type BushaWebhooksControllerHandleWebhookData = {
   body?: never;

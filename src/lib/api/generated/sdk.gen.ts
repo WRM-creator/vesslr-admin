@@ -229,6 +229,14 @@ import type {
   AdminProviderDrainControllerScanResponses,
   AdminProviderDrainControllerSweepData,
   AdminProviderDrainControllerSweepResponses,
+  AdminProviderPayoutsControllerListWebhookEventsData,
+  AdminProviderPayoutsControllerListWebhookEventsResponses,
+  AdminProviderPayoutsControllerReplayWebhookEventData,
+  AdminProviderPayoutsControllerReplayWebhookEventResponses,
+  AdminProviderPayoutsControllerResolveForTransactionData,
+  AdminProviderPayoutsControllerResolveForTransactionResponses,
+  AdminProviderPayoutsControllerResolveTransferData,
+  AdminProviderPayoutsControllerResolveTransferResponses,
   AdminProvidusControllerGetData,
   AdminProvidusControllerGetErrors,
   AdminProvidusControllerGetResponses,
@@ -7998,6 +8006,98 @@ export const flutterwaveWebhooksControllerHandleWebhook = <
     unknown,
     ThrowOnError
   >({ url: "/api/v1/flutterwave/webhooks", ...options });
+
+/**
+ * Look up a transaction's unconfirmed payout at Flutterwave and settle it
+ *
+ * For a full release or refund still RELEASE_PENDING / REFUND_PENDING (with or without a transfer: an unclear send, or a crash after the claim), else a pay-from-wallet payment unconfirmed or STUCK. Looks the transfer up by our reference. SUCCESSFUL or FAILED is applied as Flutterwave's webhook would be; NEW or PENDING changes nothing. No record, 30 minutes or more after it started, means it never went out: a release or refund goes back to FUNDED with `lastPayoutFailure.cause` = `not_sent` (resend it with POST /admin/transactions/{id}/payout/resend), and a wallet payment is failed. 409 when there is nothing to look up, or it is too recent to call missing; 502 when Flutterwave can't be asked (nothing changes).
+ */
+export const adminProviderPayoutsControllerResolveForTransaction = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    AdminProviderPayoutsControllerResolveForTransactionData,
+    ThrowOnError
+  >,
+) =>
+  (options.client ?? client).post<
+    AdminProviderPayoutsControllerResolveForTransactionResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/provider-payouts/transactions/{id}/resolve",
+    ...options,
+  });
+
+/**
+ * Look up one of our transfers at Flutterwave by reference and settle it
+ *
+ * For a withdrawal (`wallet-…`), a deposit sweep (`esc-sweep-…`, `wsweep-…`), a wallet escrow payment (`wallet-escrow-…`) or a full release or refund (`release-…`, `refund-…`), whose reference is in the admin alert. Same rules as the transaction resolve: no record 30 minutes after it started reverses a withdrawal, fails a wallet payment, and resends a sweep under a new reference.
+ */
+export const adminProviderPayoutsControllerResolveTransfer = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    AdminProviderPayoutsControllerResolveTransferData,
+    ThrowOnError
+  >,
+) =>
+  (options.client ?? client).post<
+    AdminProviderPayoutsControllerResolveTransferResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/provider-payouts/transfers/{reference}/resolve",
+    ...options,
+  });
+
+/**
+ * Flutterwave webhook events that need an admin
+ *
+ * `UNMATCHED`: handled, but matched nothing (a deposit to an unknown account, a reference no path owns). `FAILED`: retries exhausted. Newest first, up to 50.
+ */
+export const adminProviderPayoutsControllerListWebhookEvents = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    AdminProviderPayoutsControllerListWebhookEventsData,
+    ThrowOnError
+  >,
+) =>
+  (options.client ?? client).get<
+    AdminProviderPayoutsControllerListWebhookEventsResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/provider-payouts/webhook-events",
+    ...options,
+  });
+
+/**
+ * Run a Flutterwave webhook event through its handler again
+ *
+ * After fixing what it was missing (an org binding, a reference). Handlers are idempotent, so a replay of something already applied changes nothing. Returns the status the event ends in.
+ */
+export const adminProviderPayoutsControllerReplayWebhookEvent = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    AdminProviderPayoutsControllerReplayWebhookEventData,
+    ThrowOnError
+  >,
+) =>
+  (options.client ?? client).post<
+    AdminProviderPayoutsControllerReplayWebhookEventResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/provider-payouts/webhook-events/{id}/replay",
+    ...options,
+  });
 
 /**
  * Handle Busha webhook events (public)

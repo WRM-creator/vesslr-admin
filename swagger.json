@@ -14998,6 +14998,161 @@
         ]
       }
     },
+    "/api/v1/admin/provider-payouts/transactions/{id}/resolve": {
+      "post": {
+        "description": "For a full release or refund still RELEASE_PENDING / REFUND_PENDING (with or without a transfer: an unclear send, or a crash after the claim), else a pay-from-wallet payment unconfirmed or STUCK. Looks the transfer up by our reference. SUCCESSFUL or FAILED is applied as Flutterwave's webhook would be; NEW or PENDING changes nothing. No record, 30 minutes or more after it started, means it never went out: a release or refund goes back to FUNDED with `lastPayoutFailure.cause` = `not_sent` (resend it with POST /admin/transactions/{id}/payout/resend), and a wallet payment is failed. 409 when there is nothing to look up, or it is too recent to call missing; 502 when Flutterwave can't be asked (nothing changes).",
+        "operationId": "AdminProviderPayoutsController_resolveForTransaction",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PayoutResolveResultDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Look up a transaction's unconfirmed payout at Flutterwave and settle it",
+        "tags": [
+          "Admin Provider Payouts"
+        ]
+      }
+    },
+    "/api/v1/admin/provider-payouts/transfers/{reference}/resolve": {
+      "post": {
+        "description": "For a withdrawal (`wallet-…`), a deposit sweep (`esc-sweep-…`, `wsweep-…`), a wallet escrow payment (`wallet-escrow-…`) or a full release or refund (`release-…`, `refund-…`), whose reference is in the admin alert. Same rules as the transaction resolve: no record 30 minutes after it started reverses a withdrawal, fails a wallet payment, and resends a sweep under a new reference.",
+        "operationId": "AdminProviderPayoutsController_resolveTransfer",
+        "parameters": [
+          {
+            "name": "reference",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PayoutResolveResultDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Look up one of our transfers at Flutterwave by reference and settle it",
+        "tags": [
+          "Admin Provider Payouts"
+        ]
+      }
+    },
+    "/api/v1/admin/provider-payouts/webhook-events": {
+      "get": {
+        "description": "`UNMATCHED`: handled, but matched nothing (a deposit to an unknown account, a reference no path owns). `FAILED`: retries exhausted. Newest first, up to 50.",
+        "operationId": "AdminProviderPayoutsController_listWebhookEvents",
+        "parameters": [
+          {
+            "name": "status",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "enum": [
+                "UNMATCHED",
+                "FAILED"
+              ],
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ProviderWebhookEventDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Flutterwave webhook events that need an admin",
+        "tags": [
+          "Admin Provider Payouts"
+        ]
+      }
+    },
+    "/api/v1/admin/provider-payouts/webhook-events/{id}/replay": {
+      "post": {
+        "description": "After fixing what it was missing (an org binding, a reference). Handlers are idempotent, so a replay of something already applied changes nothing. Returns the status the event ends in.",
+        "operationId": "AdminProviderPayoutsController_replayWebhookEvent",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WebhookReplayResultDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Run a Flutterwave webhook event through its handler again",
+        "tags": [
+          "Admin Provider Payouts"
+        ]
+      }
+    },
     "/api/v1/busha/webhooks": {
       "post": {
         "operationId": "BushaWebhooksController_handleWebhook",
@@ -21647,9 +21802,10 @@
             "enum": [
               "failed",
               "refused",
-              "contradicted"
+              "contradicted",
+              "not_sent"
             ],
-            "description": "`failed`: the provider took the payout, then reported it FAILED. `refused`: refused before anything moved. `contradicted`: reported delivered after it was recorded as failed; it must not be resent. An admin can resend (POST /admin/transactions/{id}/payout/resend) a failed or refused release and a failed refund."
+            "description": "`failed`: the provider took the payout, then reported it FAILED. `refused`: refused before anything moved. `contradicted`: reported delivered after it was recorded as failed; it must not be resent. `not_sent`: an admin looked it up at the provider, which has no record of it. An admin can resend (POST /admin/transactions/{id}/payout/resend) a failed, refused or not_sent release and a failed or not_sent refund."
           },
           "failedAt": {
             "format": "date-time",
@@ -21761,6 +21917,12 @@
             "type": "number",
             "description": "The current full-refund attempt."
           },
+          "payoutClaimedAt": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true,
+            "description": "When the current full release or refund was claimed. One still RELEASE_PENDING or REFUND_PENDING 30 minutes after this can be looked up at the provider (POST /admin/provider-payouts/transactions/{id}/resolve)."
+          },
           "lastPayoutFailure": {
             "nullable": true,
             "description": "The current release or full refund that failed or was refused; null otherwise.",
@@ -21833,6 +21995,15 @@
           "failureReason": {
             "type": "string",
             "description": "Why the attempt failed (FAILED only). Nothing left the wallet."
+          },
+          "unconfirmed": {
+            "type": "boolean",
+            "description": "Admin view only: the wallet payment got no clear answer from the provider, so it may or may not have moved. An admin can look it up (POST /admin/provider-payouts/transactions/{id}/resolve)."
+          },
+          "startedAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "Admin view only: when the wallet payment started."
           },
           "mode": {
             "type": "string",
@@ -22839,6 +23010,12 @@
           "refundAttempt": {
             "type": "number",
             "description": "The current full-refund attempt."
+          },
+          "payoutClaimedAt": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true,
+            "description": "When the current full release or refund was claimed. One still RELEASE_PENDING or REFUND_PENDING 30 minutes after this can be looked up at the provider (POST /admin/provider-payouts/transactions/{id}/resolve)."
           },
           "lastPayoutFailure": {
             "nullable": true,
@@ -38677,6 +38854,109 @@
           "inspectorCompany",
           "inspectedAt",
           "criteriaResults"
+        ]
+      },
+      "PayoutResolveResultDto": {
+        "type": "object",
+        "properties": {
+          "reference": {
+            "type": "string",
+            "description": "Our transfer reference that was looked up"
+          },
+          "outcome": {
+            "type": "string",
+            "enum": [
+              "successful",
+              "failed",
+              "pending",
+              "not_sent"
+            ],
+            "description": "`successful` / `failed`: Flutterwave reported it and it was applied as its webhook would be. `pending`: Flutterwave holds it unfinished; nothing changed. `not_sent`: Flutterwave has no record, so it never went out; it was reversed or made resendable."
+          },
+          "providerStatus": {
+            "type": "string",
+            "description": "Flutterwave's status, when it has the transfer"
+          },
+          "message": {
+            "type": "string",
+            "description": "What happened, in words an admin can act on"
+          }
+        },
+        "required": [
+          "reference",
+          "outcome",
+          "message"
+        ]
+      },
+      "ProviderWebhookEventDto": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string"
+          },
+          "event": {
+            "type": "string"
+          },
+          "reference": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "RECEIVED",
+              "PROCESSED",
+              "FAILED",
+              "UNMATCHED"
+            ]
+          },
+          "unmatchedReason": {
+            "type": "string",
+            "description": "Why it matched nothing (UNMATCHED)"
+          },
+          "lastError": {
+            "type": "string",
+            "description": "Last processing error (FAILED)"
+          },
+          "attempts": {
+            "type": "number"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "payload": {
+            "type": "object",
+            "description": "The raw payload Flutterwave sent"
+          }
+        },
+        "required": [
+          "_id",
+          "event",
+          "status",
+          "attempts",
+          "createdAt",
+          "payload"
+        ]
+      },
+      "WebhookReplayResultDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "RECEIVED",
+              "PROCESSED",
+              "FAILED",
+              "UNMATCHED"
+            ],
+            "description": "The event status after the replay"
+          },
+          "detail": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "status"
         ]
       },
       "RelatedResourceDto": {
