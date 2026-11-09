@@ -3022,9 +3022,9 @@ export type EscrowPayoutFailureResponseDto = {
    */
   attempt: number;
   /**
-   * `failed`: the provider took the payout, then reported it FAILED; an admin can resend it (POST /admin/transactions/{id}/payout/resend). `refused`: refused before anything moved; resend it the way it was started.
+   * `failed`: the provider took the payout, then reported it FAILED. `refused`: refused before anything moved. `contradicted`: reported delivered after it was recorded as failed; it must not be resent. An admin can resend (POST /admin/transactions/{id}/payout/resend) a failed or refused release and a failed refund.
    */
-  cause: "failed" | "refused";
+  cause: "failed" | "refused" | "contradicted";
   failedAt: string;
 };
 
