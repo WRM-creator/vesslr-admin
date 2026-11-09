@@ -25,6 +25,7 @@ const payoutStatusConfig = {
   RELEASED: { label: "Paid", variant: "default" as const },
   FAILED: { label: "Retrying", variant: "secondary" as const },
   FAILED_PERMANENT: { label: "Failed", variant: "destructive" as const },
+  CANCELLED: { label: "Cancelled", variant: "outline" as const },
 };
 
 export function StageMilestoneContent({

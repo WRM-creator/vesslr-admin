@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { api } from "@/lib/api";
 import { AlertCircle, ArrowUpRight, RefreshCw } from "lucide-react";
 import { useParams } from "react-router-dom";
+import { EscrowExcessFlag } from "../components/escrow-excess-flag";
 import { FailedPayoutResend } from "../components/failed-payout-resend";
 import { ActionZone } from "../components/v2/action-zone";
 import { ContextSidebar } from "../components/v2/context-sidebar";
@@ -139,6 +140,7 @@ export default function TransactionDetailsPage() {
       <OverviewStatusCard transaction={transaction} />
       <ActionZone transaction={transaction} />
       <FailedPayoutResend transaction={transaction} />
+      <EscrowExcessFlag transaction={transaction} />
       {transaction.escrowFunding?.mode === "DEPOSIT_LED" && (
         <FundingReviewCard transaction={transaction} />
       )}
