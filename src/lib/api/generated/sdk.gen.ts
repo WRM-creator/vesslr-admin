@@ -299,6 +299,8 @@ import type {
   AdminTransactionsControllerMarkDepositRefundedOfflineResponses,
   AdminTransactionsControllerQueryFundingProofData,
   AdminTransactionsControllerQueryFundingProofResponses,
+  AdminTransactionsControllerRefundEscrowData,
+  AdminTransactionsControllerRefundEscrowResponses,
   AdminTransactionsControllerRefundFundingDepositData,
   AdminTransactionsControllerRefundFundingDepositResponses,
   AdminTransactionsControllerReleaseSettlementData,
@@ -5642,6 +5644,30 @@ export const adminTransactionsControllerMarkDepositRefundedOffline = <
   >({
     security: [{ scheme: "bearer", type: "http" }],
     url: "/api/v1/admin/transactions/{id}/funding-deposits/{depositId}/mark-refunded-offline",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
+/**
+ * Refund a funded escrow in full to the buyer's wallet, outside a dispute
+ *
+ * Allowed at any unfinished stage, SETTLEMENT included, when the escrow is FUNDED, no dispute is open and no milestone payment has been sent. The transaction moves to REFUNDED; the escrow moves to REFUND_PENDING and then REFUNDED when the provider confirms the transfer. 409 when not allowed; 400 when the amount is below the payout minimum or the buyer can't receive it; a provider refusal returns its error with nothing changed.
+ */
+export const adminTransactionsControllerRefundEscrow = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<AdminTransactionsControllerRefundEscrowData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    AdminTransactionsControllerRefundEscrowResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/transactions/{id}/refund-escrow",
     ...options,
     headers: {
       "Content-Type": "application/json",
