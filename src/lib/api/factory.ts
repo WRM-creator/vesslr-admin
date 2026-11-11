@@ -8,6 +8,7 @@ import {
   type QueryKey,
   useQueryClient,
 } from "@tanstack/react-query";
+import { toApiError } from "./api-error";
 
 // Helper to infer the argument type of the SDK function
 type InferArgs<T> = T extends (args: infer A) => any ? A : never;
@@ -52,7 +53,7 @@ export function createQuery<TFn extends (...args: any) => any>(
     // The generated client returns an object with handling for errors.
     // We want to throw if there's an error so React Query handles it.
     if ((result as any).error) {
-      throw (result as any).error;
+      throw toApiError((result as any).error);
     }
     return (result as any).data as TData;
   };
@@ -211,7 +212,7 @@ export function createMutation<TFn extends (...args: any) => any>(
   const mutationFn = async (args: TArgs) => {
     const result = await sdkFn(args);
     if ((result as any).error) {
-      throw (result as any).error;
+      throw toApiError((result as any).error);
     }
     return (result as any).data as TData;
   };
