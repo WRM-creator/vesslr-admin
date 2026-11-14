@@ -239,8 +239,14 @@ export function OverviewStatusCard({
   const productName = order?.product?.title;
   const quantity = order?.quantity;
   const unitOfMeasurement = order?.unitOfMeasurement;
-  // A rental, lease or charter runs for a period. It is recorded, not priced:
-  // the agreed price covers the whole engagement.
+  // A rental, lease or charter runs for a period. A rental priced per day,
+  // week or month (order.ratePeriod) pays for every booked period, so the
+  // amount below already includes them; otherwise the price covers it all.
+  const ratePeriod = order?.ratePeriod;
+  const rateLine =
+    ratePeriod && order?.pricePerUnit != null
+      ? `${formatCurrency(order.pricePerUnit, currency)} per unit per ${ratePeriod}`
+      : undefined;
   const period =
     order?.duration && order?.durationUnit
       ? `${Number(order.duration).toLocaleString()} ${order.durationUnit}${Number(order.duration) === 1 ? "" : "s"}`
@@ -288,6 +294,9 @@ export function OverviewStatusCard({
                         ? (formula ?? "Benchmark differential")
                         : formatCurrency(amount, currency)}
                     </p>
+                  )}
+                  {rateLine && (
+                    <p className="text-muted-foreground text-xs">{rateLine}</p>
                   )}
                   {deliveryLine && (
                     <p className="text-muted-foreground text-xs">{deliveryLine}</p>
