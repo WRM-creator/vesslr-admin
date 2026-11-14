@@ -10,6 +10,10 @@ import type {
   AdminTransactionConversation,
 } from "@/lib/api/transaction-conversations";
 import { formatCurrency } from "@/lib/currency";
+import {
+  ESCROW_CONFIG,
+  getEscrowState,
+} from "@/modules/transactions/lib/escrow-state";
 import { ratePercentLabel } from "@/modules/transactions/lib/settlement-fees";
 import { cn, formatDateTime } from "@/lib/utils";
 import {
@@ -58,41 +62,14 @@ function FinancialSummary({
       ? serviceFeeAmount / goodsAmount
       : undefined;
 
-  const isFunded = [
-    "ESCROW_FUNDED",
-    "LOGISTICS_ASSIGNED",
-    "IN_TRANSIT",
-    "INSPECTION_PENDING",
-    "INSPECTION_UNDER_REVIEW",
-    "DELIVERY_CONFIRMED",
-    "SETTLEMENT_RELEASED",
-    "CLOSED",
-    "MILESTONES_IN_PROGRESS",
-  ].includes(transaction.status);
-
-  const isReleased =
-    transaction.status === "SETTLEMENT_RELEASED" ||
-    transaction.status === "CLOSED";
-  const isRefunded = transaction.status === "REFUNDED";
-
-  const escrowLabel = isReleased
-    ? "Released"
-    : isRefunded
-      ? "Refunded"
-      : isFunded
-        ? "Funded"
-        : "Pending";
+  // Same derivation as the overview, so the two never disagree (rental,
+  // service and charter statuses used to fall through to "Pending").
+  const escrowConfig = ESCROW_CONFIG[getEscrowState(transaction)];
 
   const [refundOpen, setRefundOpen] = useState(false);
   const refundable = canRefundEscrow(transaction);
 
-  const escrowColor = isReleased
-    ? "text-green-600"
-    : isRefunded
-      ? "text-amber-600"
-      : isFunded
-        ? "text-blue-600"
-        : "text-muted-foreground";
+  const escrowColor = escrowConfig.iconClass;
 
   return (
     <Card>
@@ -130,7 +107,7 @@ function FinancialSummary({
         <div className="bg-muted/40 flex items-center justify-between rounded-md px-3 py-2">
           <span className="text-muted-foreground text-xs">Escrow</span>
           <span className={cn("text-xs font-semibold", escrowColor)}>
-            {escrowLabel}
+            {escrowConfig.label}
           </span>
         </div>
 

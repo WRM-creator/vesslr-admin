@@ -337,6 +337,7 @@ export const api = {
         {
           invalidates: (args) => [
             ["admin", "transactions", "detail", args.path.id],
+            ["admin", "transactions", "logs", args.path.id],
           ],
         },
       ),

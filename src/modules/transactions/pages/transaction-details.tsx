@@ -7,10 +7,12 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { api } from "@/lib/api";
+import type { TransactionResponseDto } from "@/lib/api/generated";
 import { AlertCircle, ArrowUpRight, RefreshCw } from "lucide-react";
 import { useParams } from "react-router-dom";
 import { EscrowExcessFlag } from "../components/escrow-excess-flag";
 import { FailedPayoutResend } from "../components/failed-payout-resend";
+import { unconfirmedPayout } from "../components/unconfirmed-payout";
 import { UnconfirmedPayoutLookup } from "../components/unconfirmed-payout-lookup";
 import { ActionZone } from "../components/v2/action-zone";
 import { ContextSidebar } from "../components/v2/context-sidebar";
@@ -18,6 +20,19 @@ import { FundingReviewCard } from "../components/v2/funding-review-card";
 import { OverviewStatusCard } from "../components/v2/overview-status-card";
 import { StageTimeline } from "../components/v2/stage-timeline";
 import { TransactionStatusBadge } from "../components/transaction-status-badge";
+
+/**
+ * A release or refund the provider has not confirmed yet settles by webhook,
+ * usually within seconds. Re-read the transaction while that is expected, so
+ * the page moves on by itself instead of showing "not confirmed" until a
+ * reload. After the lookup window the admin checks with the provider instead.
+ */
+const PAYOUT_POLL_MS = 5_000;
+function payoutPollInterval(transaction?: TransactionResponseDto) {
+  if (!transaction) return false;
+  const payout = unconfirmedPayout(transaction.escrow, transaction.escrowFunding);
+  return payout?.lookupFrom ? PAYOUT_POLL_MS : false;
+}
 
 export default function TransactionDetailsPage() {
   const { id } = useParams();
@@ -34,6 +49,7 @@ export default function TransactionDetailsPage() {
     },
     {
       enabled: !!id,
+      refetchInterval: (query) => payoutPollInterval(query.state.data),
     },
   );
 

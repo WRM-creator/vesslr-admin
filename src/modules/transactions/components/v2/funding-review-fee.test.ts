@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { sellerFeePreview } from "./funding-review-fee";
+import { sellerFeeCaption, sellerFeePreview } from "./funding-review-fee";
 
 // The deal behind the server's own cross-currency cases: 100 bbl at
 // N14,500.00, quoted in USD, settled in NGN at 1,600.
@@ -78,5 +78,60 @@ describe("sellerFeePreview", () => {
       feeFormulaTotal: 0,
       feeSettlementTotal: 0,
     });
+  });
+});
+
+describe("sellerFeeCaption", () => {
+  const base = {
+    quantity: 2,
+    unit: "bbl",
+    formulaCurrency: "USD",
+    settlementCurrency: "NGN",
+    requiresFxRate: true,
+  };
+
+  it("shows the per-unit rate, quantity and agreed rate", () => {
+    expect(
+      sellerFeeCaption({
+        ...base,
+        fee: { method: "per_unit", feePerUnit: 50, currency: "USD", unit: "bbl" },
+        feeFormulaTotal: 100,
+        fxRate: 1600,
+      }),
+    ).toBe("$0.50/bbl x 2 bbl = $1 at 1,600 NGN/USD");
+  });
+
+  it("says the rate is still to come before it is entered", () => {
+    expect(
+      sellerFeeCaption({
+        ...base,
+        fee: { method: "per_unit", feePerUnit: 50 },
+        feeFormulaTotal: 100,
+        fxRate: 0,
+      }),
+    ).toBe("$0.50/bbl x 2 bbl = $1, converted at the agreed rate");
+  });
+
+  it("names a minimum that lifted the fee", () => {
+    expect(
+      sellerFeeCaption({
+        ...base,
+        requiresFxRate: false,
+        fee: { method: "per_unit", feePerUnit: 50, minFee: 500 },
+        feeFormulaTotal: 500,
+        fxRate: 0,
+      }),
+    ).toBe("$0.50/bbl x 2 bbl = $5, minimum fee");
+  });
+
+  it("shows a percentage as its rate", () => {
+    expect(
+      sellerFeeCaption({
+        ...base,
+        fee: { method: "percentage", feePerUnit: 0, percentage: 0.03 },
+        feeFormulaTotal: 0,
+        fxRate: 1600,
+      }),
+    ).toBe("3% of goods");
   });
 });

@@ -7,124 +7,27 @@ import {
   AlertTriangle,
   Ban,
   Banknote,
-  CheckCircle2,
   ClipboardCheck,
-  Clock,
   FileText,
   ListChecks,
   Lock,
   Package,
   PackageCheck,
-  RotateCcw,
   ShieldCheck,
   Truck,
 } from "lucide-react";
 import type { ReactNode } from "react";
 import { format } from "date-fns";
+import {
+  ESCROW_CONFIG,
+  getEscrowState,
+} from "@/modules/transactions/lib/escrow-state";
+import { deriveOrderFees } from "@/modules/transactions/lib/settlement-fees";
 import { useDifferentialFormula } from "../differential-formula";
 
 interface OverviewStatusCardProps {
   transaction: TransactionResponseDto;
 }
-
-type EscrowState =
-  | "awaiting"
-  | "depositReview"
-  | "shortfall"
-  | "secured"
-  | "released"
-  | "refunding"
-  | "refunded"
-  | "cancelled";
-
-function getEscrowState(
-  transaction: Pick<
-    TransactionResponseDto,
-    "status" | "escrow" | "escrowFunding"
-  >,
-): EscrowState {
-  // The escrow document is the source of truth once it exists; deriving from
-  // transaction.status breaks on flow-specific statuses (rental, charter).
-  const escrow = transaction.escrow;
-  if (escrow) {
-    switch (escrow.status) {
-      case "RELEASED":
-        return "released";
-      case "REFUNDED":
-      case "PARTIALLY_REFUNDED":
-        return "refunded";
-      case "REFUND_PENDING":
-        return "refunding";
-      // FUNDED / RELEASE_PENDING — funds still in custody.
-      default:
-        return "secured";
-    }
-  }
-  // No escrow yet: cancelled before funding, or still awaiting it.
-  if (transaction.status === "CANCELLED") return "cancelled";
-  // Deposit-led funding accumulates deposits under admin review before the
-  // escrow exists; surface that review state instead of a bare "awaiting".
-  const funding = transaction.escrowFunding;
-  if (funding?.mode === "DEPOSIT_LED") {
-    if (funding.state === "DEPOSIT_RECEIVED") return "depositReview";
-    if (funding.state === "SHORTFALL_REPORTED") return "shortfall";
-  }
-  return "awaiting";
-}
-
-const ESCROW_CONFIG: Record<
-  EscrowState,
-  { icon: typeof Clock; label: string; iconClass: string; badgeClass: string }
-> = {
-  awaiting: {
-    icon: Clock,
-    label: "Awaiting Funding",
-    iconClass: "text-amber-500",
-    badgeClass: "bg-amber-100 text-amber-700 dark:bg-amber-500/10 dark:text-amber-400",
-  },
-  depositReview: {
-    icon: Banknote,
-    label: "Deposit under review",
-    iconClass: "text-blue-500",
-    badgeClass: "bg-blue-100 text-blue-700 dark:bg-blue-500/10 dark:text-blue-400",
-  },
-  shortfall: {
-    icon: AlertTriangle,
-    label: "Additional deposit required",
-    iconClass: "text-amber-500",
-    badgeClass: "bg-amber-100 text-amber-700 dark:bg-amber-500/10 dark:text-amber-400",
-  },
-  secured: {
-    icon: Lock,
-    label: "Funds Secured",
-    iconClass: "text-green-600",
-    badgeClass: "bg-green-100 text-green-700 dark:bg-green-500/10 dark:text-green-400",
-  },
-  released: {
-    icon: CheckCircle2,
-    label: "Released",
-    iconClass: "text-blue-500",
-    badgeClass: "bg-blue-100 text-blue-700 dark:bg-blue-500/10 dark:text-blue-400",
-  },
-  refunding: {
-    icon: RotateCcw,
-    label: "Refund in progress",
-    iconClass: "text-amber-500",
-    badgeClass: "bg-amber-100 text-amber-700 dark:bg-amber-500/10 dark:text-amber-400",
-  },
-  refunded: {
-    icon: RotateCcw,
-    label: "Refunded",
-    iconClass: "text-amber-500",
-    badgeClass: "bg-amber-100 text-amber-700 dark:bg-amber-500/10 dark:text-amber-400",
-  },
-  cancelled: {
-    icon: Ban,
-    label: "Not Funded",
-    iconClass: "text-muted-foreground",
-    badgeClass: "bg-gray-100 text-gray-600 dark:bg-gray-500/10 dark:text-gray-400",
-  },
-};
 
 function activeStageIcon(type: string): ReactNode {
   switch (type) {
@@ -215,6 +118,8 @@ export function OverviewStatusCard({
   // the formula stands in for the amounts until then.
   const { isDifferential, formula } = useDifferentialFormula(transaction.order);
   const amountPending = isDifferential && transaction.order?.totalAmount == null;
+  const { escrowFeeAmount, serviceChargeAmount, sellerPayout } =
+    deriveOrderFees(transaction, isDifferential);
 
   // A cancelled transaction's stages are frozen; the "active" stage is no
   // longer actionable, so its strip is suppressed.
@@ -376,13 +281,18 @@ export function OverviewStatusCard({
                   <div>
                     Goods: {formatCurrency(amount, currency)}
                   </div>
-                  {serviceFeeAmount > 0 && (
+                  {escrowFeeAmount > 0 && (
                     <div>
-                      Fee: {formatCurrency(serviceFeeAmount, currency)}
+                      Escrow fee: {formatCurrency(escrowFeeAmount, currency)}
+                    </div>
+                  )}
+                  {serviceChargeAmount > 0 && (
+                    <div>
+                      Service charge: −{formatCurrency(serviceChargeAmount, currency)}
                     </div>
                   )}
                   <div className="font-medium text-green-600">
-                    Seller payout: {formatCurrency(amount, currency)}
+                    Seller payout: {formatCurrency(sellerPayout, currency)}
                   </div>
                 </div>
               </div>

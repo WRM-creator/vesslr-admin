@@ -1,4 +1,4 @@
-import { getCurrencyDecimals } from "@/lib/currency";
+import { formatCurrency, getCurrencyDecimals } from "@/lib/currency";
 
 export interface SellerFeePreviewInput {
   /** The disclosed seller charge, as the funding review reports it. */
@@ -7,6 +7,8 @@ export interface SellerFeePreviewInput {
     feePerUnit: number;
     percentage?: number;
     currency?: string;
+    /** Unit a per-unit rate is quoted per. */
+    unit?: string;
     minFee?: number;
     maxFee?: number;
   } | null;
@@ -88,4 +90,58 @@ export const sellerFeePreview = ({
         ? toSettlement(feeFormulaTotal)
         : 0,
   };
+};
+
+export interface SellerFeeCaptionInput {
+  fee: SellerFeePreviewInput["fee"];
+  quantity: number;
+  /** The deal's unit, used when the fee does not name its own. */
+  unit: string;
+  formulaCurrency: string;
+  settlementCurrency: string;
+  /** From `sellerFeePreview`. */
+  feeFormulaTotal: number;
+  requiresFxRate: boolean;
+  /** The agreed rate in major units (settlement per formula), 0 when not entered. */
+  fxRate: number;
+}
+
+/**
+ * How the seller fee is worked out, for the line's label: the per-unit rate
+ * times the quantity, and the agreed rate when it crosses currencies
+ * ("$0.50/bbl x 2 bbl = $1 at 1,600 NGN/USD"). A percentage shows its rate.
+ */
+export const sellerFeeCaption = ({
+  fee,
+  quantity,
+  unit,
+  formulaCurrency,
+  settlementCurrency,
+  feeFormulaTotal,
+  requiresFxRate,
+  fxRate,
+}: SellerFeeCaptionInput): string => {
+  if (!fee) return "";
+  if (fee.method === "percentage") {
+    return `${Number(((fee.percentage ?? 0) * 100).toFixed(4))}% of goods`;
+  }
+
+  const feeUnit = fee.unit ?? unit;
+  const rate = formatCurrency(fee.feePerUnit, formulaCurrency);
+  const qty = quantity.toLocaleString("en-US");
+  const total = formatCurrency(feeFormulaTotal, formulaCurrency);
+  const unclamped = Math.round(fee.feePerUnit * quantity);
+  const clamp =
+    feeFormulaTotal > unclamped
+      ? ", minimum fee"
+      : feeFormulaTotal < unclamped
+        ? ", maximum fee"
+        : "";
+  const conversion = !requiresFxRate
+    ? ""
+    : fxRate > 0
+      ? ` at ${fxRate.toLocaleString("en-US")} ${settlementCurrency}/${formulaCurrency}`
+      : `, converted at the agreed rate`;
+
+  return `${rate}/${feeUnit} x ${qty} ${feeUnit} = ${total}${clamp}${conversion}`;
 };

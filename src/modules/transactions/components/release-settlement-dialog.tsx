@@ -7,11 +7,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
 import { Separator } from "@/components/ui/separator";
 import { Spinner } from "@/components/ui/spinner";
 import { api } from "@/lib/api";
@@ -21,7 +16,7 @@ import {
   deriveSettlementFees,
   ratePercentLabel,
 } from "@/modules/transactions/lib/settlement-fees";
-import { AlertCircle, CheckCircle2, ChevronRight } from "lucide-react";
+import { AlertCircle, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
 
 interface ReleaseSettlementDialogProps {
@@ -87,8 +82,8 @@ export function ReleaseSettlementDialog({
 
           <Separator className="my-3" />
 
-          {/* The split: seller payout dominant, platform fee muted. Together
-              they reconcile to the escrow balance above. */}
+          {/* The split: seller payout dominant, each platform fee muted on
+              its own line. Together they reconcile to the escrow balance. */}
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium">Release to seller</span>
@@ -96,49 +91,35 @@ export function ReleaseSettlementDialog({
                 {formatCurrency(fees.sellerPayout, currency)}
               </span>
             </div>
-            {fees.platformRevenue > 0 && (
+            {fees.escrowFeeAmount > 0 && (
               <div className="flex items-center justify-between">
-                <span className="text-muted-foreground text-sm">Vesslr fee</span>
+                <span className="text-muted-foreground text-sm">
+                  Escrow fee (buyer{ratePercentLabel(fees.escrowFeeRate)})
+                </span>
                 <span className="text-muted-foreground text-sm font-medium">
-                  {formatCurrency(fees.platformRevenue, currency)}
+                  {formatCurrency(fees.escrowFeeAmount, currency)}
+                </span>
+              </div>
+            )}
+            {fees.serviceChargeAmount > 0 && (
+              <div className="flex items-center justify-between">
+                <span className="text-muted-foreground text-sm">
+                  Service charge (seller
+                  {ratePercentLabel(fees.serviceChargeRate)})
+                </span>
+                <span className="text-muted-foreground text-sm font-medium">
+                  {formatCurrency(fees.serviceChargeAmount, currency)}
                 </span>
               </div>
             )}
           </div>
 
-          {/* Progressive disclosure: the goods/fee derivation, collapsed. */}
-          {(fees.escrowFeeAmount > 0 || fees.serviceChargeAmount > 0) && (
-            <Collapsible className="mt-3">
-              <CollapsibleTrigger className="text-muted-foreground hover:text-foreground group flex w-full items-center gap-1 text-xs">
-                <ChevronRight className="size-3 transition-transform group-data-[state=open]:rotate-90" />
-                Breakdown
-              </CollapsibleTrigger>
-              <CollapsibleContent className="mt-2 space-y-1.5">
-                <div className="flex items-center justify-between text-xs">
-                  <span className="text-muted-foreground">Goods subtotal</span>
-                  <span>{formatCurrency(fees.goodsAmount, currency)}</span>
-                </div>
-                {fees.escrowFeeAmount > 0 && (
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="text-muted-foreground">
-                      Escrow fee (buyer{ratePercentLabel(fees.escrowFeeRate)})
-                    </span>
-                    <span>+{formatCurrency(fees.escrowFeeAmount, currency)}</span>
-                  </div>
-                )}
-                {fees.serviceChargeAmount > 0 && (
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="text-muted-foreground">
-                      Service charge (seller
-                      {ratePercentLabel(fees.serviceChargeRate)})
-                    </span>
-                    <span>
-                      −{formatCurrency(fees.serviceChargeAmount, currency)}
-                    </span>
-                  </div>
-                )}
-              </CollapsibleContent>
-            </Collapsible>
+          {fees.platformRevenue > 0 && (
+            <p className="text-muted-foreground mt-3 text-xs">
+              Goods subtotal {formatCurrency(fees.goodsAmount, currency)}. The
+              seller receives goods minus the service charge; Vesslr keeps both
+              fees.
+            </p>
           )}
         </div>
 
