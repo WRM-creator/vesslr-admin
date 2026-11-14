@@ -214,7 +214,9 @@ export default function ProductDetailsPage() {
               <div className="flex flex-wrap gap-x-8 gap-y-3">
                 <div className="space-y-0.5">
                   <p className="text-muted-foreground text-xs">
-                    Price per unit
+                    {product.ratePeriod
+                      ? `Price per unit per ${product.ratePeriod}`
+                      : "Price per unit"}
                   </p>
                   <p className="text-sm font-semibold">
                     {isDifferential
