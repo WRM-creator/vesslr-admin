@@ -17241,6 +17241,15 @@
             "type": "number",
             "description": "Flat price per unit in minor currency units (kobo/cents). Absent on differential listings."
           },
+          "ratePeriod": {
+            "type": "string",
+            "enum": [
+              "day",
+              "week",
+              "month"
+            ],
+            "description": "Rental listings only: the period pricePerUnit is quoted per. Absent on a rental listing that predates rate periods; such a listing cannot be ordered until the seller sets one."
+          },
           "differentialPrice": {
             "$ref": "#/components/schemas/DifferentialPriceResponseDto"
           },
@@ -17914,6 +17923,15 @@
             "description": "Flat price per unit in minor currency units (kobo/cents). Required for flat pricing; omit for differential.",
             "example": 1000000
           },
+          "ratePeriod": {
+            "type": "string",
+            "enum": [
+              "day",
+              "week",
+              "month"
+            ],
+            "description": "Required on a rental listing: the period pricePerUnit is quoted per. Ignored (cleared) on any other listing type."
+          },
           "differentialPrice": {
             "description": "Commodity differential price. Required when pricingBasis is differential.",
             "allOf": [
@@ -18215,6 +18233,15 @@
           "pricePerUnit": {
             "type": "number",
             "description": "Flat price per unit in minor currency units (kobo/cents). Absent on differential listings."
+          },
+          "ratePeriod": {
+            "type": "string",
+            "enum": [
+              "day",
+              "week",
+              "month"
+            ],
+            "description": "Rental listings only: the period pricePerUnit is quoted per. Absent on a rental listing that predates rate periods; such a listing cannot be ordered until the seller sets one."
           },
           "differentialPrice": {
             "$ref": "#/components/schemas/DifferentialPriceResponseDto"
@@ -18540,6 +18567,15 @@
             "type": "number",
             "description": "Flat price per unit in minor currency units (kobo/cents). Required for flat pricing; omit for differential.",
             "example": 1000000
+          },
+          "ratePeriod": {
+            "type": "string",
+            "enum": [
+              "day",
+              "week",
+              "month"
+            ],
+            "description": "Required on a rental listing: the period pricePerUnit is quoted per. Ignored (cleared) on any other listing type."
           },
           "differentialPrice": {
             "description": "Commodity differential price. Required when pricingBasis is differential.",
@@ -21368,7 +21404,7 @@
           },
           "duration": {
             "type": "number",
-            "description": "How long the engagement runs, for a rental, lease or charter. Recorded only: it does not multiply the price, which covers the whole engagement."
+            "description": "How long the engagement runs, for a rental, lease or charter. On an order with a ratePeriod it is the number of whole periods booked and multiplies the price; otherwise it is recorded only."
           },
           "durationUnit": {
             "type": "string",
@@ -21383,6 +21419,15 @@
               "contract"
             ],
             "description": "The unit the duration is counted in"
+          },
+          "ratePeriod": {
+            "type": "string",
+            "enum": [
+              "day",
+              "week",
+              "month"
+            ],
+            "description": "The period pricePerUnit is quoted per, copied from a rental listing at order time. When set, totalAmount = quantity × pricePerUnit × duration, paid into escrow up front. Absent on every other order, whose price covers the whole engagement."
           },
           "pricingBasis": {
             "type": "string",
@@ -23376,7 +23421,7 @@
           },
           "duration": {
             "type": "number",
-            "description": "Duration for lease/charter transactions"
+            "description": "How long a rental, lease or charter runs. On a rental listing: the number of whole rate periods booked (an integer of at least 1), priced as quantity × pricePerUnit × duration."
           },
           "durationUnit": {
             "type": "string",
@@ -23390,7 +23435,7 @@
               "milestone",
               "contract"
             ],
-            "description": "Duration unit for lease/charter (hour, day, month)"
+            "description": "The unit duration is counted in. On a rental listing it must be the listing's ratePeriod."
           },
           "milestones": {
             "description": "Buyer-defined milestones (only when category group milestoneDelivery=true)",
@@ -31152,6 +31197,15 @@
             "description": "Flat price per unit in minor currency units (kobo/cents). Required for flat pricing; omit for differential.",
             "example": 1000000
           },
+          "ratePeriod": {
+            "type": "string",
+            "enum": [
+              "day",
+              "week",
+              "month"
+            ],
+            "description": "Required on a rental listing: the period pricePerUnit is quoted per. Ignored (cleared) on any other listing type."
+          },
           "differentialPrice": {
             "description": "Commodity differential price. Required when pricingBasis is differential.",
             "allOf": [
@@ -31457,6 +31511,15 @@
           "pricePerUnit": {
             "type": "number",
             "description": "Flat price per unit in minor currency units (kobo/cents). Absent on differential listings."
+          },
+          "ratePeriod": {
+            "type": "string",
+            "enum": [
+              "day",
+              "week",
+              "month"
+            ],
+            "description": "Rental listings only: the period pricePerUnit is quoted per. Absent on a rental listing that predates rate periods; such a listing cannot be ordered until the seller sets one."
           },
           "differentialPrice": {
             "$ref": "#/components/schemas/DifferentialPriceResponseDto"
@@ -31782,6 +31845,15 @@
             "type": "number",
             "description": "Flat price per unit in minor currency units (kobo/cents). Required for flat pricing; omit for differential.",
             "example": 1000000
+          },
+          "ratePeriod": {
+            "type": "string",
+            "enum": [
+              "day",
+              "week",
+              "month"
+            ],
+            "description": "Required on a rental listing: the period pricePerUnit is quoted per. Ignored (cleared) on any other listing type."
           },
           "differentialPrice": {
             "description": "Commodity differential price. Required when pricingBasis is differential.",

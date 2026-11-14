@@ -727,6 +727,10 @@ export type PopulatedProductResponseDto = {
    * Flat price per unit in minor currency units (kobo/cents). Absent on differential listings.
    */
   pricePerUnit?: number;
+  /**
+   * Rental listings only: the period pricePerUnit is quoted per. Absent on a rental listing that predates rate periods; such a listing cannot be ordered until the seller sets one.
+   */
+  ratePeriod?: "day" | "week" | "month";
   differentialPrice?: DifferentialPriceResponseDto;
   /**
    * Disclosed platform fee on a differential listing — owning seller only; resolved from the category/group fee config
@@ -1125,6 +1129,10 @@ export type UpsertMyProductDto = {
    */
   pricePerUnit?: number;
   /**
+   * Required on a rental listing: the period pricePerUnit is quoted per. Ignored (cleared) on any other listing type.
+   */
+  ratePeriod?: "day" | "week" | "month";
+  /**
    * Commodity differential price. Required when pricingBasis is differential.
    */
   differentialPrice?: DifferentialPriceDto;
@@ -1259,6 +1267,10 @@ export type ProductResponseDto = {
    * Flat price per unit in minor currency units (kobo/cents). Absent on differential listings.
    */
   pricePerUnit?: number;
+  /**
+   * Rental listings only: the period pricePerUnit is quoted per. Absent on a rental listing that predates rate periods; such a listing cannot be ordered until the seller sets one.
+   */
+  ratePeriod?: "day" | "week" | "month";
   differentialPrice?: DifferentialPriceResponseDto;
   /**
    * Disclosed platform fee on a differential listing — owning seller only; resolved from the category/group fee config
@@ -1406,6 +1418,10 @@ export type UpdateMyProductDto = {
    * Flat price per unit in minor currency units (kobo/cents). Required for flat pricing; omit for differential.
    */
   pricePerUnit?: number;
+  /**
+   * Required on a rental listing: the period pricePerUnit is quoted per. Ignored (cleared) on any other listing type.
+   */
+  ratePeriod?: "day" | "week" | "month";
   /**
    * Commodity differential price. Required when pricingBasis is differential.
    */
@@ -2787,7 +2803,7 @@ export type OrderResponseDto = {
     | "plate"
     | "bar";
   /**
-   * How long the engagement runs, for a rental, lease or charter. Recorded only: it does not multiply the price, which covers the whole engagement.
+   * How long the engagement runs, for a rental, lease or charter. On an order with a ratePeriod it is the number of whole periods booked and multiplies the price; otherwise it is recorded only.
    */
   duration?: number;
   /**
@@ -2802,6 +2818,10 @@ export type OrderResponseDto = {
     | "project"
     | "milestone"
     | "contract";
+  /**
+   * The period pricePerUnit is quoted per, copied from a rental listing at order time. When set, totalAmount = quantity × pricePerUnit × duration, paid into escrow up front. Absent on every other order, whose price covers the whole engagement.
+   */
+  ratePeriod?: "day" | "week" | "month";
   /**
    * How the order is priced. A differential order stays unpriced (pricePerUnit/totals unset) until the benchmark resolves at funding.
    */
@@ -3875,11 +3895,11 @@ export type PurchaseProductDto = {
    */
   qqCompany?: string;
   /**
-   * Duration for lease/charter transactions
+   * How long a rental, lease or charter runs. On a rental listing: the number of whole rate periods booked (an integer of at least 1), priced as quantity × pricePerUnit × duration.
    */
   duration?: number;
   /**
-   * Duration unit for lease/charter (hour, day, month)
+   * The unit duration is counted in. On a rental listing it must be the listing's ratePeriod.
    */
   durationUnit?:
     | "hour"
@@ -7568,6 +7588,10 @@ export type CreateProductDto = {
    */
   pricePerUnit?: number;
   /**
+   * Required on a rental listing: the period pricePerUnit is quoted per. Ignored (cleared) on any other listing type.
+   */
+  ratePeriod?: "day" | "week" | "month";
+  /**
    * Commodity differential price. Required when pricingBasis is differential.
    */
   differentialPrice?: DifferentialPriceDto;
@@ -7700,6 +7724,10 @@ export type AdminProductResponseDto = {
    * Flat price per unit in minor currency units (kobo/cents). Absent on differential listings.
    */
   pricePerUnit?: number;
+  /**
+   * Rental listings only: the period pricePerUnit is quoted per. Absent on a rental listing that predates rate periods; such a listing cannot be ordered until the seller sets one.
+   */
+  ratePeriod?: "day" | "week" | "month";
   differentialPrice?: DifferentialPriceResponseDto;
   /**
    * Disclosed platform fee on a differential listing — owning seller only; resolved from the category/group fee config
@@ -7847,6 +7875,10 @@ export type UpdateProductDto = {
    * Flat price per unit in minor currency units (kobo/cents). Required for flat pricing; omit for differential.
    */
   pricePerUnit?: number;
+  /**
+   * Required on a rental listing: the period pricePerUnit is quoted per. Ignored (cleared) on any other listing type.
+   */
+  ratePeriod?: "day" | "week" | "month";
   /**
    * Commodity differential price. Required when pricingBasis is differential.
    */
