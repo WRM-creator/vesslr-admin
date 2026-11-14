@@ -21991,7 +21991,6 @@
           "serviceFeeAmount",
           "currency",
           "excessAmount",
-          "totalReleased",
           "milestonePayouts",
           "refundHistory"
         ]
@@ -23111,7 +23110,6 @@
           "serviceFeeAmount",
           "currency",
           "excessAmount",
-          "totalReleased",
           "milestonePayouts",
           "refundHistory",
           "transactionId",

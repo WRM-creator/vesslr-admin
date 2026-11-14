@@ -3090,7 +3090,7 @@ export type EscrowResponseDto = {
   /**
    * Running total confirmed paid to the seller (net of the service charge): milestone payouts, a full release, or the seller leg of a split refund. Absent from the buyer's view, which carries releasedFromEscrow.
    */
-  totalReleased: number;
+  totalReleased?: number;
   /**
    * Buyer's view only: what has left the escrow for the deal, in the buyer's terms (the whole funded amount once released; paid milestones with their fees; a split's seller leg). The buyer's still-in-escrow figure is amount minus this.
    */
@@ -3684,7 +3684,7 @@ export type EscrowWithTransactionResponseDto = {
   /**
    * Running total confirmed paid to the seller (net of the service charge): milestone payouts, a full release, or the seller leg of a split refund. Absent from the buyer's view, which carries releasedFromEscrow.
    */
-  totalReleased: number;
+  totalReleased?: number;
   /**
    * Buyer's view only: what has left the escrow for the deal, in the buyer's terms (the whole funded amount once released; paid milestones with their fees; a split's seller leg). The buyer's still-in-escrow figure is amount minus this.
    */
