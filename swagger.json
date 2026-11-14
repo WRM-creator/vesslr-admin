@@ -21939,7 +21939,11 @@
           },
           "totalReleased": {
             "type": "number",
-            "description": "Running total of milestone payouts already released"
+            "description": "Running total confirmed paid to the seller (net of the service charge): milestone payouts, a full release, or the seller leg of a split refund. Absent from the buyer's view, which carries releasedFromEscrow."
+          },
+          "releasedFromEscrow": {
+            "type": "number",
+            "description": "Buyer's view only: what has left the escrow for the deal, in the buyer's terms (the whole funded amount once released; paid milestones with their fees; a split's seller leg). The buyer's still-in-escrow figure is amount minus this."
           },
           "milestonePayouts": {
             "description": "Per-milestone payout tracking",
@@ -23033,7 +23037,11 @@
           },
           "totalReleased": {
             "type": "number",
-            "description": "Running total of milestone payouts already released"
+            "description": "Running total confirmed paid to the seller (net of the service charge): milestone payouts, a full release, or the seller leg of a split refund. Absent from the buyer's view, which carries releasedFromEscrow."
+          },
+          "releasedFromEscrow": {
+            "type": "number",
+            "description": "Buyer's view only: what has left the escrow for the deal, in the buyer's terms (the whole funded amount once released; paid milestones with their fees; a split's seller leg). The buyer's still-in-escrow figure is amount minus this."
           },
           "milestonePayouts": {
             "description": "Per-milestone payout tracking",
@@ -23805,6 +23813,15 @@
           "durationUnit": {
             "type": "string"
           },
+          "ratePeriod": {
+            "type": "string",
+            "enum": [
+              "day",
+              "week",
+              "month"
+            ],
+            "description": "Buy-now (direct) rental only: the period targetPricePerUnit is quoted per, copied from the listing. The goods value is then quantity × targetPricePerUnit × duration (duration counted in this period). Absent on every other request, whose value is quantity × targetPricePerUnit."
+          },
           "currency": {
             "type": "string",
             "enum": [
@@ -24427,6 +24444,15 @@
               "milestone",
               "contract"
             ]
+          },
+          "ratePeriod": {
+            "type": "string",
+            "enum": [
+              "day",
+              "week",
+              "month"
+            ],
+            "description": "Buy-now (direct) rental only: the period targetPricePerUnit is quoted per, copied from the listing. The goods value is then quantity × targetPricePerUnit × duration (duration counted in this period). Absent on every other request, whose value is quantity × targetPricePerUnit."
           },
           "currency": {
             "type": "string",

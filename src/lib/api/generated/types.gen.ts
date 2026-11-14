@@ -3088,9 +3088,13 @@ export type EscrowResponseDto = {
    */
   excessAmount: number;
   /**
-   * Running total of milestone payouts already released
+   * Running total confirmed paid to the seller (net of the service charge): milestone payouts, a full release, or the seller leg of a split refund. Absent from the buyer's view, which carries releasedFromEscrow.
    */
   totalReleased: number;
+  /**
+   * Buyer's view only: what has left the escrow for the deal, in the buyer's terms (the whole funded amount once released; paid milestones with their fees; a split's seller leg). The buyer's still-in-escrow figure is amount minus this.
+   */
+  releasedFromEscrow?: number;
   /**
    * Per-milestone payout tracking
    */
@@ -3678,9 +3682,13 @@ export type EscrowWithTransactionResponseDto = {
    */
   excessAmount: number;
   /**
-   * Running total of milestone payouts already released
+   * Running total confirmed paid to the seller (net of the service charge): milestone payouts, a full release, or the seller leg of a split refund. Absent from the buyer's view, which carries releasedFromEscrow.
    */
   totalReleased: number;
+  /**
+   * Buyer's view only: what has left the escrow for the deal, in the buyer's terms (the whole funded amount once released; paid milestones with their fees; a split's seller leg). The buyer's still-in-escrow figure is amount minus this.
+   */
+  releasedFromEscrow?: number;
   /**
    * Per-milestone payout tracking
    */
@@ -4045,6 +4053,10 @@ export type RecommendationFeedItemDto = {
   sellerFee?: SellerFeeDto;
   duration?: number;
   durationUnit?: string;
+  /**
+   * Buy-now (direct) rental only: the period targetPricePerUnit is quoted per, copied from the listing. The goods value is then quantity × targetPricePerUnit × duration (duration counted in this period). Absent on every other request, whose value is quantity × targetPricePerUnit.
+   */
+  ratePeriod?: "day" | "week" | "month";
   currency: "NGN" | "KES" | "USD" | "EUR" | "USDT" | "USDC";
   transactionType: Array<string>;
   condition?: Array<string>;
@@ -4342,6 +4354,10 @@ export type RequestResponseDto = {
     | "project"
     | "milestone"
     | "contract";
+  /**
+   * Buy-now (direct) rental only: the period targetPricePerUnit is quoted per, copied from the listing. The goods value is then quantity × targetPricePerUnit × duration (duration counted in this period). Absent on every other request, whose value is quantity × targetPricePerUnit.
+   */
+  ratePeriod?: "day" | "week" | "month";
   currency: "NGN" | "KES" | "USD" | "EUR" | "USDT" | "USDC";
   listingType: "product" | "service" | "rental" | "lease" | "charter" | "rfq";
   transactionType?: Array<string>;
