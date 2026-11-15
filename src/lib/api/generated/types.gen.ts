@@ -8557,10 +8557,6 @@ export type AdminTransactionEventDto = {
    * Admin views only: the acting user. Parties get actorRole instead.
    */
   actor?: string;
-  /**
-   * Party views: which side acted, never a person
-   */
-  actorRole?: "buyer" | "seller" | "platform";
   action:
     | "CREATED"
     | "STATUS_CHANGE"
@@ -8591,7 +8587,7 @@ export type AdminTransactionEventDto = {
     [key: string]: unknown;
   };
   /**
-   * Whether the actor is an admin or a platform user. Absent for the system, and for actors that match neither (events recorded before 2026-11-14 by an admin carry an id that matches no one).
+   * Whether the actor is an admin or a platform user. Absent for the system, and for actors that match neither (admin events recorded before the actor fix carry an id that matches no one).
    */
   actorKind?: "admin" | "user";
   /**

@@ -32916,15 +32916,6 @@
             "type": "string",
             "description": "Admin views only: the acting user. Parties get actorRole instead."
           },
-          "actorRole": {
-            "type": "string",
-            "enum": [
-              "buyer",
-              "seller",
-              "platform"
-            ],
-            "description": "Party views: which side acted, never a person"
-          },
           "action": {
             "type": "string",
             "enum": [
@@ -32964,7 +32955,7 @@
               "admin",
               "user"
             ],
-            "description": "Whether the actor is an admin or a platform user. Absent for the system, and for actors that match neither (events recorded before 2026-11-14 by an admin carry an id that matches no one)."
+            "description": "Whether the actor is an admin or a platform user. Absent for the system, and for actors that match neither (admin events recorded before the actor fix carry an id that matches no one)."
           },
           "actorName": {
             "type": "string",
