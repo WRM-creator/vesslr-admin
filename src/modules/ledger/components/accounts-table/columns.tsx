@@ -72,7 +72,7 @@ export const accountsColumns: ColumnDef<LedgerAccount>[] = [
       const { balance, currency } = row.original;
       return (
         <div className="text-right font-mono text-sm font-semibold">
-          {formatCurrency(balance, currency, { maximumFractionDigits: 2 })}
+          {formatCurrency(balance, currency)}
         </div>
       );
     },

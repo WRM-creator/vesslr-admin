@@ -1,7 +1,6 @@
 interface FormatCurrencyOptions {
   locale?: string;
-  minimumFractionDigits?: number;
-  maximumFractionDigits?: number;
+  /** Abbreviate (₦1.5M) for KPI tiles. Never use it where the exact figure matters. */
   compact?: boolean;
 }
 
@@ -41,7 +40,7 @@ const NON_ISO_CURRENCIES = new Set(["USDT", "USDC"]);
  * @example
  * formatCurrency(5000000, 'NGN')                                  // '₦50,000'
  * formatCurrency(33950, 'NGN')                                    // '₦339.50'
- * formatCurrency(123456, 'USD', { maximumFractionDigits: 2 })     // '$1,234.56'
+ * formatCurrency(123456, 'USD')                                   // '$1,234.56'
  * formatCurrency(150000000, 'NGN', { compact: true })             // '₦1.5M'
  * formatCurrency(5728032, 'USDT')                                 // '5.728032 USDT'
  * formatCurrency(null, 'USD')                                     // '-'
@@ -55,16 +54,16 @@ export function formatCurrency(
 
   const majorAmount = fromMinorUnit(amountInMinorUnits, currency);
 
-  // Exact minor units by default: whole amounts stay whole (₦340), anything
+  // Always the exact minor units: whole amounts stay whole (₦340), anything
   // with kobo shows all of it (₦339.50, never ₦340 or ₦339.5). A transfer
-  // must match the figure to the kobo, so admin never rounds money away.
+  // must match the figure to the kobo, so no caller can round money away.
+  // Only compact KPI figures abbreviate, to at most one decimal (₦1.5M).
   const decimals = getCurrencyDecimals(currency);
   const { locale = "en-US", compact = false } = options;
-  const maximumFractionDigits = options.maximumFractionDigits ?? decimals;
-  const hasFraction = amountInMinorUnits % 10 ** decimals !== 0;
+  const maximumFractionDigits = compact ? Math.min(1, decimals) : decimals;
+  const hasFraction = !Number.isInteger(amountInMinorUnits / 10 ** decimals);
   const minimumFractionDigits =
-    options.minimumFractionDigits ??
-    (hasFraction && !compact ? Math.min(2, maximumFractionDigits) : 0);
+    hasFraction && !compact ? Math.min(2, decimals) : 0;
 
   const asPlainNumber = () => {
     const formatted = new Intl.NumberFormat(locale, {

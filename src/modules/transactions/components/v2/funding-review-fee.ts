@@ -122,26 +122,34 @@ export const sellerFeeCaption = ({
   fxRate,
 }: SellerFeeCaptionInput): string => {
   if (!fee) return "";
+  const conversion = !requiresFxRate
+    ? ""
+    : fxRate > 0
+      ? ` at ${fxRate.toLocaleString("en-US", { maximumFractionDigits: 6 })} ${settlementCurrency}/${formulaCurrency}`
+      : ", converted at the agreed rate";
+
   if (fee.method === "percentage") {
-    return `${Number(((fee.percentage ?? 0) * 100).toFixed(4))}% of goods`;
+    const rate = `${Number(((fee.percentage ?? 0) * 100).toFixed(4))}% of goods`;
+    const bounds = [
+      fee.minFee != null && `min ${formatCurrency(fee.minFee, fee.currency ?? settlementCurrency)}`,
+      fee.maxFee != null && `max ${formatCurrency(fee.maxFee, fee.currency ?? settlementCurrency)}`,
+    ].filter(Boolean);
+    return bounds.length ? `${rate}, ${bounds.join(", ")}` : rate;
   }
+
+  const total = formatCurrency(feeFormulaTotal, formulaCurrency);
+  if (fee.method !== "per_unit") return `${total}${conversion}`;
 
   const feeUnit = fee.unit ?? unit;
   const rate = formatCurrency(fee.feePerUnit, formulaCurrency);
   const qty = quantity.toLocaleString("en-US");
-  const total = formatCurrency(feeFormulaTotal, formulaCurrency);
   const unclamped = Math.round(fee.feePerUnit * quantity);
-  const clamp =
+  const base = `${rate}/${feeUnit} x ${qty} ${feeUnit}`;
+  const amount =
     feeFormulaTotal > unclamped
-      ? ", minimum fee"
+      ? `${base}, minimum fee ${total}`
       : feeFormulaTotal < unclamped
-        ? ", maximum fee"
-        : "";
-  const conversion = !requiresFxRate
-    ? ""
-    : fxRate > 0
-      ? ` at ${fxRate.toLocaleString("en-US")} ${settlementCurrency}/${formulaCurrency}`
-      : `, converted at the agreed rate`;
-
-  return `${rate}/${feeUnit} x ${qty} ${feeUnit} = ${total}${clamp}${conversion}`;
+        ? `${base}, maximum fee ${total}`
+        : `${base} = ${total}`;
+  return `${amount}${conversion}`;
 };

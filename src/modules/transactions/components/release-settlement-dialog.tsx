@@ -12,10 +12,8 @@ import { Spinner } from "@/components/ui/spinner";
 import { api } from "@/lib/api";
 import type { TransactionResponseDto } from "@/lib/api/generated";
 import { formatCurrency } from "@/lib/currency";
-import {
-  deriveSettlementFees,
-  ratePercentLabel,
-} from "@/modules/transactions/lib/settlement-fees";
+import { deriveSettlementFees } from "@/modules/transactions/lib/settlement-fees";
+import { SettlementFeeLines } from "./settlement-fee-lines";
 import { AlertCircle, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -91,36 +89,16 @@ export function ReleaseSettlementDialog({
                 {formatCurrency(fees.sellerPayout, currency)}
               </span>
             </div>
-            {fees.escrowFeeAmount > 0 && (
-              <div className="flex items-center justify-between">
-                <span className="text-muted-foreground text-sm">
-                  Escrow fee, buyer{ratePercentLabel(fees.escrowFeeRate)}
-                </span>
-                <span className="text-muted-foreground text-sm font-medium">
-                  {formatCurrency(fees.escrowFeeAmount, currency)}
-                </span>
-              </div>
-            )}
-            {fees.serviceChargeAmount > 0 && (
-              <div className="flex items-center justify-between">
-                <span className="text-muted-foreground text-sm">
-                  Service charge, seller
-                  {ratePercentLabel(fees.serviceChargeRate)}
-                </span>
-                <span className="text-muted-foreground text-sm font-medium">
-                  {formatCurrency(fees.serviceChargeAmount, currency)}
-                </span>
-              </div>
-            )}
+            <SettlementFeeLines
+              fees={fees}
+              rowClassName="text-muted-foreground text-sm"
+            />
           </div>
 
-          {fees.platformRevenue > 0 && (
-            <p className="text-muted-foreground mt-3 text-xs">
-              Goods subtotal {formatCurrency(fees.goodsAmount, currency)}. The
-              seller receives goods minus the service charge; Vesslr keeps both
-              fees.
-            </p>
-          )}
+          <p className="text-muted-foreground mt-3 text-xs">
+            Goods subtotal{" "}
+            {formatCurrency(fees.goodsAmount, transaction.order.currency)}.
+          </p>
         </div>
 
         <div className="flex items-start gap-2 rounded-md bg-amber-50 p-3 text-xs text-amber-800 dark:bg-amber-950/20 dark:text-amber-400">

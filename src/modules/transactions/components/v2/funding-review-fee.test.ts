@@ -121,7 +121,40 @@ describe("sellerFeeCaption", () => {
         feeFormulaTotal: 500,
         fxRate: 0,
       }),
-    ).toBe("$0.50/bbl x 2 bbl = $5, minimum fee");
+    ).toBe("$0.50/bbl x 2 bbl, minimum fee $5");
+  });
+
+  it("keeps the agreed rate's precision", () => {
+    expect(
+      sellerFeeCaption({
+        ...base,
+        fee: { method: "per_unit", feePerUnit: 50 },
+        feeFormulaTotal: 100,
+        fxRate: 1600.12345,
+      }),
+    ).toBe("$0.50/bbl x 2 bbl = $1 at 1,600.12345 NGN/USD");
+  });
+
+  it("shows a fixed fee as its amount", () => {
+    expect(
+      sellerFeeCaption({
+        ...base,
+        fee: { method: "fixed", feePerUnit: 0 },
+        feeFormulaTotal: 2500,
+        fxRate: 1600,
+      }),
+    ).toBe("$25 at 1,600 NGN/USD");
+  });
+
+  it("names a percentage's bounds", () => {
+    expect(
+      sellerFeeCaption({
+        ...base,
+        fee: { method: "percentage", feePerUnit: 0, percentage: 0.03, currency: "NGN", minFee: 10000 },
+        feeFormulaTotal: 0,
+        fxRate: 1600,
+      }),
+    ).toBe("3% of goods, min ₦100");
   });
 
   it("shows a percentage as its rate", () => {

@@ -22,9 +22,7 @@ export function EscrowExcessFlag({
         <p className="text-sm font-medium text-amber-900 dark:text-amber-200">
           Overpaid by{" "}
           <span className="tabular-nums">
-            {formatCurrency(excess, escrow.currency, {
-              maximumFractionDigits: 2,
-            })}
+            {formatCurrency(excess, escrow.currency)}
           </span>
         </p>
         <p className="text-xs text-amber-800 dark:text-amber-400">

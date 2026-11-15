@@ -18,10 +18,8 @@ import {
 } from "lucide-react";
 import type { ReactNode } from "react";
 import { format } from "date-fns";
-import {
-  ESCROW_CONFIG,
-  getEscrowState,
-} from "@/modules/transactions/lib/escrow-state";
+import { getEscrowState } from "@/modules/transactions/lib/escrow-state";
+import { ESCROW_CONFIG } from "../escrow-state-config";
 import { deriveOrderFees } from "@/modules/transactions/lib/settlement-fees";
 import { useDifferentialFormula } from "../differential-formula";
 
@@ -118,8 +116,9 @@ export function OverviewStatusCard({
   // the formula stands in for the amounts until then.
   const { isDifferential, formula } = useDifferentialFormula(transaction.order);
   const amountPending = isDifferential && transaction.order?.totalAmount == null;
-  const { escrowFeeAmount, serviceChargeAmount, sellerPayout } =
-    deriveOrderFees(transaction, isDifferential);
+  const { escrowFeeAmount, serviceChargeAmount, sellerPayout, chargeIsEstimate } =
+    deriveOrderFees(transaction);
+  const est = chargeIsEstimate ? " (est.)" : "";
 
   // A cancelled transaction's stages are frozen; the "active" stage is no
   // longer actionable, so its strip is suppressed.
@@ -286,13 +285,16 @@ export function OverviewStatusCard({
                       Escrow fee: {formatCurrency(escrowFeeAmount, currency)}
                     </div>
                   )}
-                  {serviceChargeAmount > 0 && (
+                  {serviceChargeAmount != null && serviceChargeAmount > 0 && (
                     <div>
-                      Service charge: −{formatCurrency(serviceChargeAmount, currency)}
+                      Service charge{est}: −{formatCurrency(serviceChargeAmount, currency)}
                     </div>
                   )}
                   <div className="font-medium text-green-600">
-                    Seller payout: {formatCurrency(sellerPayout, currency)}
+                    Seller payout{sellerPayout == null ? "" : est}:{" "}
+                    {sellerPayout == null
+                      ? "set at funding"
+                      : formatCurrency(sellerPayout, currency)}
                   </div>
                 </div>
               </div>

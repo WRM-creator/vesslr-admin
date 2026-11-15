@@ -22,12 +22,14 @@ describe("formatCurrency", () => {
     expect(formatCurrency(5500000, "USDT")).toBe("5.50 USDT");
   });
 
-  it("honours an explicit narrowing", () => {
-    expect(formatCurrency(33950, "NGN", { maximumFractionDigits: 0 })).toBe("₦340");
+  it("keeps sub-cent crypto dust", () => {
+    expect(formatCurrency(5000001, "USDT")).toBe("5.000001 USDT");
   });
 
   it("abbreviates compact figures", () => {
     expect(formatCurrency(150000000, "NGN", { compact: true })).toBe("₦1.5M");
+    expect(formatCurrency(123456789, "NGN", { compact: true })).toBe("₦1.2M");
+    expect(formatCurrency(1234567890000, "USDT", { compact: true })).toBe("1.2M USDT");
   });
 
   it("renders a dash for missing amounts", () => {

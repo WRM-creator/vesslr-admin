@@ -94,8 +94,8 @@ export function TransactionFinancialsCard({
   const amountPending = isDifferential && order.totalAmount == null;
 
   const { escrowFeeAmount, serviceChargeAmount, sellerPayout, chargeIsEstimate } =
-    deriveOrderFees(transaction, isDifferential);
-  const platformRevenue = escrowFeeAmount + serviceChargeAmount;
+    deriveOrderFees(transaction);
+  const platformRevenue = escrowFeeAmount + (serviceChargeAmount ?? 0);
 
   return (
     <Card className="h-full">
@@ -230,21 +230,27 @@ export function TransactionFinancialsCard({
                       {formatCurrency(totalWithFee, currency)}
                     </span>
                   </div>
-                  {serviceChargeAmount > 0 && (
+                  {serviceChargeAmount !== 0 && (
                     <div className="flex items-center justify-between text-sm">
                       <span className="text-muted-foreground">
                         Service Charge (seller)
-                        {chargeIsEstimate ? " — est." : ""}
+                        {chargeIsEstimate && serviceChargeAmount != null ? " (est.)" : ""}
                       </span>
                       <span className="font-medium">
-                        − {formatCurrency(serviceChargeAmount, currency)}
+                        {serviceChargeAmount == null
+                          ? "Set at funding"
+                          : `− ${formatCurrency(serviceChargeAmount, currency)}`}
                       </span>
                     </div>
                   )}
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">Seller Payout</span>
+                    <span className="text-muted-foreground">
+                      Seller Payout{chargeIsEstimate && sellerPayout != null ? " (est.)" : ""}
+                    </span>
                     <span className="font-medium text-green-600">
-                      {formatCurrency(sellerPayout, currency)}
+                      {sellerPayout == null
+                        ? "Set at funding"
+                        : formatCurrency(sellerPayout, currency)}
                     </span>
                   </div>
                   {platformRevenue > 0 && (

@@ -147,9 +147,7 @@ export default function FundingWindowsPage() {
                 <TableCell>{row.seller?.name || "-"}</TableCell>
                 <TableCell>
                   {typeof row.totalAmount === "number" && row.currency ? (
-                    formatCurrency(row.totalAmount, row.currency, {
-                      maximumFractionDigits: 2,
-                    })
+                    formatCurrency(row.totalAmount, row.currency)
                   ) : (
                     <Badge variant="outline">Unpriced</Badge>
                   )}

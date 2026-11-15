@@ -398,9 +398,7 @@ function ConfirmFundingDialog({
                   {escrowFeeTotal > 0 ? "Goods" : "Escrow total"} (
                   {review.quantity.toLocaleString()} x{" "}
                   {priceValid
-                    ? formatCurrency(priceMinor, currency, {
-                        maximumFractionDigits: 2,
-                      })
+                    ? formatCurrency(priceMinor, currency)
                     : "price"}
                   )
                 </span>
@@ -1077,9 +1075,7 @@ function MarkRefundedOfflineDialog({
             {confirmMajor.length > 0 && !amountMatches && (
               <p className="text-[11px] text-amber-600 dark:text-amber-400">
                 Must match the deposit amount exactly:{" "}
-                {formatCurrency(deposit.amount, currency, {
-                  maximumFractionDigits: 2,
-                })}
+                {formatCurrency(deposit.amount, currency)}
               </p>
             )}
           </div>
@@ -1196,9 +1192,7 @@ function RefundSection({
                 )}
                 <div>
                   <p className="text-sm font-medium">
-                    {formatCurrency(deposit.amount, currency, {
-                      maximumFractionDigits: 2,
-                    })}{" "}
+                    {formatCurrency(deposit.amount, currency)}{" "}
                     via {sourceLabel(deposit)}
                   </p>
                   <p className="text-muted-foreground text-[11px]">
@@ -1359,9 +1353,7 @@ export function FundingReviewCard({ transaction }: FundingReviewCardProps) {
             </p>
             <p className="text-sm font-medium">
               {review.differentialValue != null
-                ? `${formatCurrency(review.differentialValue, review.formulaCurrency, {
-                    maximumFractionDigits: 2,
-                  })} / ${review.unitOfMeasurement || "unit"}`
+                ? `${formatCurrency(review.differentialValue, review.formulaCurrency)} / ${review.unitOfMeasurement || "unit"}`
                 : "-"}
             </p>
           </div>
@@ -1371,9 +1363,7 @@ export function FundingReviewCard({ transaction }: FundingReviewCardProps) {
             </p>
             <p className="text-sm font-medium">
               {review.sellerFee
-                ? `${formatCurrency(review.sellerFee.feePerUnit, review.sellerFee.currency ?? review.formulaCurrency, {
-                    maximumFractionDigits: 2,
-                  })} / ${review.sellerFee.unit ?? review.unitOfMeasurement ?? "unit"}`
+                ? `${formatCurrency(review.sellerFee.feePerUnit, review.sellerFee.currency ?? review.formulaCurrency)} / ${review.sellerFee.unit ?? review.unitOfMeasurement ?? "unit"}`
                 : "None configured"}
             </p>
           </div>
@@ -1383,15 +1373,11 @@ export function FundingReviewCard({ transaction }: FundingReviewCardProps) {
             </p>
             <p className="text-sm font-medium">
               {review.sellerFee?.netAmount != null
-                ? formatCurrency(review.sellerFee.netAmount, currency, {
-                    maximumFractionDigits: 2,
-                  })
+                ? formatCurrency(review.sellerFee.netAmount, currency)
                 : review.differentialValue != null && review.sellerFee
                   ? `${formatCurrency(
                       review.differentialValue - review.sellerFee.feePerUnit,
-                      review.formulaCurrency,
-                      { maximumFractionDigits: 2 },
-                    )} / ${review.unitOfMeasurement || "unit"}`
+                      review.formulaCurrency)} / ${review.unitOfMeasurement || "unit"}`
                   : "-"}
             </p>
           </div>
@@ -1406,17 +1392,13 @@ export function FundingReviewCard({ transaction }: FundingReviewCardProps) {
               Held deposits
             </p>
             <p className="text-2xl font-semibold tracking-tight">
-              {formatCurrency(review.heldTotal, currency, {
-                maximumFractionDigits: 2,
-              })}
+              {formatCurrency(review.heldTotal, currency)}
             </p>
             {review.outstandingAmount != null &&
               review.outstandingAmount > 0 && (
                 <p className="text-xs text-amber-600 dark:text-amber-400">
                   Outstanding reported to buyer:{" "}
-                  {formatCurrency(review.outstandingAmount, currency, {
-                    maximumFractionDigits: 2,
-                  })}
+                  {formatCurrency(review.outstandingAmount, currency)}
                 </p>
               )}
           </div>
@@ -1508,9 +1490,7 @@ export function FundingReviewCard({ transaction }: FundingReviewCardProps) {
                           {sourceLabel(deposit)}
                         </TableCell>
                         <TableCell className="text-right text-xs font-medium whitespace-nowrap">
-                          {formatCurrency(deposit.amount, deposit.currency, {
-                            maximumFractionDigits: 2,
-                          })}
+                          {formatCurrency(deposit.amount, deposit.currency)}
                         </TableCell>
                         <TableCell className="text-xs">
                           {deposit.provider}

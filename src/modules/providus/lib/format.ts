@@ -67,9 +67,7 @@ export const STATUS: Record<
 /** Providus amounts are naira with kobo. */
 export function formatNaira(amount: number | undefined, currency = "NGN") {
   if (amount == null) return "-";
-  return formatCurrency(toMinorUnit(amount, currency), currency, {
-    maximumFractionDigits: 2,
-  });
+  return formatCurrency(toMinorUnit(amount, currency), currency);
 }
 
 /** Readable names for the fields `mismatches` lists. */

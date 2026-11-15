@@ -7,12 +7,13 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { api } from "@/lib/api";
-import type { TransactionResponseDto } from "@/lib/api/generated";
+import { useQueryClient } from "@tanstack/react-query";
+import { useEffect, useRef, useState } from "react";
 import { AlertCircle, ArrowUpRight, RefreshCw } from "lucide-react";
 import { useParams } from "react-router-dom";
 import { EscrowExcessFlag } from "../components/escrow-excess-flag";
 import { FailedPayoutResend } from "../components/failed-payout-resend";
-import { unconfirmedPayout } from "../components/unconfirmed-payout";
+import { payoutPollInterval } from "../components/unconfirmed-payout";
 import { UnconfirmedPayoutLookup } from "../components/unconfirmed-payout-lookup";
 import { ActionZone } from "../components/v2/action-zone";
 import { ContextSidebar } from "../components/v2/context-sidebar";
@@ -20,19 +21,6 @@ import { FundingReviewCard } from "../components/v2/funding-review-card";
 import { OverviewStatusCard } from "../components/v2/overview-status-card";
 import { StageTimeline } from "../components/v2/stage-timeline";
 import { TransactionStatusBadge } from "../components/transaction-status-badge";
-
-/**
- * A release or refund the provider has not confirmed yet settles by webhook,
- * usually within seconds. Re-read the transaction while that is expected, so
- * the page moves on by itself instead of showing "not confirmed" until a
- * reload. After the lookup window the admin checks with the provider instead.
- */
-const PAYOUT_POLL_MS = 5_000;
-function payoutPollInterval(transaction?: TransactionResponseDto) {
-  if (!transaction) return false;
-  const payout = unconfirmedPayout(transaction.escrow, transaction.escrowFunding);
-  return payout?.lookupFrom ? PAYOUT_POLL_MS : false;
-}
 
 export default function TransactionDetailsPage() {
   const { id } = useParams();
@@ -42,16 +30,35 @@ export default function TransactionDetailsPage() {
     isLoading,
     isError,
     refetch,
-    isRefetching,
   } = api.admin.transactions.detail.useQuery(
     {
       path: { id: id! },
     },
     {
       enabled: !!id,
-      refetchInterval: (query) => payoutPollInterval(query.state.data),
+      refetchInterval: (query) => payoutPollInterval(query.state.data?.escrow),
     },
   );
+
+  // Background polls must not spin the Refresh button; only a click does.
+  const [refreshing, setRefreshing] = useState(false);
+  const refresh = () => {
+    setRefreshing(true);
+    refetch().finally(() => setRefreshing(false));
+  };
+
+  // When a polled payout settles, the activity log has new events too.
+  const queryClient = useQueryClient();
+  const escrowStatus = transaction?.escrow?.status;
+  const lastEscrowStatus = useRef(escrowStatus);
+  useEffect(() => {
+    if (lastEscrowStatus.current && lastEscrowStatus.current !== escrowStatus) {
+      queryClient.invalidateQueries({
+        queryKey: ["admin", "transactions", "logs", id],
+      });
+    }
+    lastEscrowStatus.current = escrowStatus;
+  }, [escrowStatus, id, queryClient]);
 
   const order = transaction?.order;
   const txnLabel = transaction
@@ -142,11 +149,11 @@ export default function TransactionDetailsPage() {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => refetch()}
-            disabled={isRefetching}
+            onClick={refresh}
+            disabled={refreshing}
           >
             <RefreshCw
-              className={`h-3.5 w-3.5 ${isRefetching ? "animate-spin" : ""}`}
+              className={`h-3.5 w-3.5 ${refreshing ? "animate-spin" : ""}`}
             />
             Refresh
           </Button>
