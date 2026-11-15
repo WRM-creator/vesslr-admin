@@ -1206,6 +1206,9 @@ export type UpsertMyProductDto = {
   specifications?: SpecificationsDto;
   specDeclarations?: Array<SpecDeclarationDto>;
   commercialTerms?: CommercialTermsDto;
+  /**
+   * The payment schedule every order of this listing follows; percentages sum to 100. Service offers in a milestone-delivery group only. Refused (400) when the smallest milestone's payout on the smallest order, after the service charge, falls below the payout minimum (NGN 100). Send [] to remove it.
+   */
   milestones?: Array<RequestMilestoneDto>;
   contractStyle?: "spot" | "term";
   /**
@@ -1496,6 +1499,9 @@ export type UpdateMyProductDto = {
   specifications?: SpecificationsDto;
   specDeclarations?: Array<SpecDeclarationDto>;
   commercialTerms?: CommercialTermsDto;
+  /**
+   * The payment schedule every order of this listing follows; percentages sum to 100. Service offers in a milestone-delivery group only. Refused (400) when the smallest milestone's payout on the smallest order, after the service charge, falls below the payout minimum (NGN 100). Send [] to remove it.
+   */
   milestones?: Array<RequestMilestoneDto>;
   contractStyle?: "spot" | "term";
   /**
@@ -3935,7 +3941,7 @@ export type PurchaseProductDto = {
     | "milestone"
     | "contract";
   /**
-   * Buyer-defined milestones (only when category group milestoneDelivery=true)
+   * Buyer-proposed milestones (only when category group milestoneDelivery=true). Ignored when the listing sets its own schedule: the listing's schedule is used.
    */
   milestones?: Array<MilestoneInputDto>;
 };
@@ -7697,6 +7703,9 @@ export type CreateProductDto = {
   specifications?: SpecificationsDto;
   specDeclarations?: Array<SpecDeclarationDto>;
   commercialTerms?: CommercialTermsDto;
+  /**
+   * The payment schedule every order of this listing follows; percentages sum to 100. Service offers in a milestone-delivery group only. Refused (400) when the smallest milestone's payout on the smallest order, after the service charge, falls below the payout minimum (NGN 100). Send [] to remove it.
+   */
   milestones?: Array<RequestMilestoneDto>;
   contractStyle?: "spot" | "term";
   /**
@@ -7985,6 +7994,9 @@ export type UpdateProductDto = {
   specifications?: SpecificationsDto;
   specDeclarations?: Array<SpecDeclarationDto>;
   commercialTerms?: CommercialTermsDto;
+  /**
+   * The payment schedule every order of this listing follows; percentages sum to 100. Service offers in a milestone-delivery group only. Refused (400) when the smallest milestone's payout on the smallest order, after the service charge, falls below the payout minimum (NGN 100). Send [] to remove it.
+   */
   milestones?: Array<RequestMilestoneDto>;
   contractStyle?: "spot" | "term";
   /**
