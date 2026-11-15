@@ -3330,6 +3330,14 @@ export type TransactionResponseDto = {
    */
   fundingDueAt?: string;
   /**
+   * Rentals only: when the Rental Period stage started (delivery confirmed).
+   */
+  rentalStartedAt?: string | null;
+  /**
+   * Rentals only: when the booked period elapses and the rental ends automatically, opening the off-hire report. Null when the booking is not counted in time; an admin then ends it.
+   */
+  rentalEndsAt?: string | null;
+  /**
    * Why the platform cancelled this transaction, when it did.
    */
   cancellationReason?:
@@ -3620,6 +3628,14 @@ export type ApproveMilestoneResponseDto = {
    * Deadline for the buyer to fund escrow (7 days after compliance approval).
    */
   fundingDueAt?: string;
+  /**
+   * Rentals only: when the Rental Period stage started (delivery confirmed).
+   */
+  rentalStartedAt?: string | null;
+  /**
+   * Rentals only: when the booked period elapses and the rental ends automatically, opening the off-hire report. Null when the booking is not counted in time; an admin then ends it.
+   */
+  rentalEndsAt?: string | null;
   /**
    * Why the platform cancelled this transaction, when it did.
    */
@@ -8444,6 +8460,23 @@ export type UpdateCategorySpecialtyDto = {
    * URL of the specialty image
    */
   image?: string;
+};
+
+export type RentalAutoEndFailureDto = {
+  transactionId: string;
+  error: string;
+};
+
+export type RentalAutoEndResultDto = {
+  /**
+   * Running rentals that had no end date and were given one, counted from their delivery confirmation.
+   */
+  backfilled: Array<string>;
+  /**
+   * Transactions whose Rental Period stage this run ended.
+   */
+  ended: Array<string>;
+  failed: Array<RentalAutoEndFailureDto>;
 };
 
 export type PaginatedDataDto = {
@@ -15754,6 +15787,20 @@ export type AdminCategorySpecialtiesControllerUpdateResponses = {
 
 export type AdminCategorySpecialtiesControllerUpdateResponse =
   AdminCategorySpecialtiesControllerUpdateResponses[keyof AdminCategorySpecialtiesControllerUpdateResponses];
+
+export type AdminTransactionsControllerEndDueRentalsData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: "/api/v1/admin/transactions/rental-periods/end-due";
+};
+
+export type AdminTransactionsControllerEndDueRentalsResponses = {
+  200: RentalAutoEndResultDto;
+};
+
+export type AdminTransactionsControllerEndDueRentalsResponse =
+  AdminTransactionsControllerEndDueRentalsResponses[keyof AdminTransactionsControllerEndDueRentalsResponses];
 
 export type AdminTransactionsControllerFindAllData = {
   body?: never;

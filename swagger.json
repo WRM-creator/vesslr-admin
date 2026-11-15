@@ -9556,6 +9556,34 @@
         ]
       }
     },
+    "/api/v1/admin/transactions/rental-periods/end-due": {
+      "post": {
+        "description": "Ends every rental whose booked period has elapsed, as the 10-minute sweep does: completes its RENTAL_ACTIVE stage and opens OFF_HIRE_REPORT. A running rental with no end date first gets one, counted from its delivery confirmation. Rentals not yet due are untouched.",
+        "operationId": "AdminTransactionsController_endDueRentals",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RentalAutoEndResultDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Run the rental auto-end sweep now",
+        "tags": [
+          "Admin Transactions"
+        ]
+      }
+    },
     "/api/v1/admin/transactions": {
       "get": {
         "operationId": "AdminTransactionsController_findAll",
@@ -22407,6 +22435,18 @@
             "type": "string",
             "description": "Deadline for the buyer to fund escrow (7 days after compliance approval)."
           },
+          "rentalStartedAt": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true,
+            "description": "Rentals only: when the Rental Period stage started (delivery confirmed)."
+          },
+          "rentalEndsAt": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true,
+            "description": "Rentals only: when the booked period elapses and the rental ends automatically, opening the off-hire report. Null when the booking is not counted in time; an admin then ends it."
+          },
           "cancellationReason": {
             "type": "string",
             "enum": [
@@ -22891,6 +22931,18 @@
             "format": "date-time",
             "type": "string",
             "description": "Deadline for the buyer to fund escrow (7 days after compliance approval)."
+          },
+          "rentalStartedAt": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true,
+            "description": "Rentals only: when the Rental Period stage started (delivery confirmed)."
+          },
+          "rentalEndsAt": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true,
+            "description": "Rentals only: when the booked period elapses and the rental ends automatically, opening the off-hire report. Null when the booking is not counted in time; an admin then ends it."
           },
           "cancellationReason": {
             "type": "string",
@@ -32740,6 +32792,51 @@
             "description": "URL of the specialty image"
           }
         }
+      },
+      "RentalAutoEndFailureDto": {
+        "type": "object",
+        "properties": {
+          "transactionId": {
+            "type": "string"
+          },
+          "error": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "transactionId",
+          "error"
+        ]
+      },
+      "RentalAutoEndResultDto": {
+        "type": "object",
+        "properties": {
+          "backfilled": {
+            "description": "Running rentals that had no end date and were given one, counted from their delivery confirmation.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "ended": {
+            "description": "Transactions whose Rental Period stage this run ended.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "failed": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RentalAutoEndFailureDto"
+            }
+          }
+        },
+        "required": [
+          "backfilled",
+          "ended",
+          "failed"
+        ]
       },
       "PaginatedDataDto": {
         "type": "object",
