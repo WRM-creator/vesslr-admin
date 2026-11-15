@@ -138,6 +138,7 @@ import {
   adminTransactionsControllerSubmitInspection,
   adminTransactionsControllerUpdateRequirement,
   adminTransactionsControllerEndRentalPeriod,
+  adminTransactionsControllerEndDueRentals,
   adminTransactionsControllerEndCharterPeriod,
   adminTransactionsControllerCompleteReturnInspection,
   categoryGroupsControllerFindAll,
@@ -354,6 +355,9 @@ export const api = {
           ],
         },
       ),
+      endDueRentals: createMutation(adminTransactionsControllerEndDueRentals, {
+        invalidates: () => [["admin", "transactions"]],
+      }),
       endCharterPeriod: createMutation(
         adminTransactionsControllerEndCharterPeriod,
         {
