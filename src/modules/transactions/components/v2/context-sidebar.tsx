@@ -15,10 +15,8 @@ import type {
 import { formatCurrency } from "@/lib/currency";
 import { ratePercentLabel } from "@/modules/transactions/lib/settlement-fees";
 import { cn, formatDateTime } from "@/lib/utils";
-import {
-  actorLabel,
-  stageCompletedLabel,
-} from "@/modules/transactions/lib/activity-log";
+import { stageCompletedLabel } from "@/modules/transactions/lib/activity-log";
+import { ActorLine } from "../activity-actor-line";
 import {
   Banknote,
   History,
@@ -335,11 +333,7 @@ function AuditLog({ transactionId }: { transactionId: string }) {
                       <span className="text-foreground/80">
                         {getLogMessage(log)}
                       </span>
-                      {actorLabel(log) && (
-                        <span className="text-muted-foreground block truncate text-[10px]">
-                          by {actorLabel(log)}
-                        </span>
-                      )}
+                      <ActorLine log={log} className="text-muted-foreground block truncate text-[10px]" />
                     </div>
                   </div>
                 ))}

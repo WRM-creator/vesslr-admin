@@ -3,10 +3,8 @@ import { Spinner } from "@/components/ui/spinner";
 import { api } from "@/lib/api";
 import { formatDateTime } from "@/lib/utils";
 import type { AdminTransactionEventDto } from "@/lib/api/generated";
-import {
-  actorLabel,
-  stageCompletedLabel,
-} from "@/modules/transactions/lib/activity-log";
+import { stageCompletedLabel } from "@/modules/transactions/lib/activity-log";
+import { ActorLine } from "./activity-actor-line";
 
 const TransactionAction = {
   CREATED: "CREATED",
@@ -122,11 +120,7 @@ export function TransactionRecentActivity({
                     <span className="text-muted-foreground text-[11px] leading-snug">
                       {getLogDetails(log.action, log.metadata)}
                     </span>
-                    {actorLabel(log) && (
-                      <span className="text-muted-foreground truncate text-[11px] leading-snug">
-                        by {actorLabel(log)}
-                      </span>
-                    )}
+                    <ActorLine log={log} className="text-muted-foreground truncate text-[11px] leading-snug" />
                   </div>
                 </div>
               </div>
