@@ -22682,6 +22682,10 @@
             "type": "string",
             "description": "Name of the bank holding the virtual account (bank_account)"
           },
+          "accountName": {
+            "type": "string",
+            "description": "Name the payer's bank shows for the account (bank_account), when the provider gives one"
+          },
           "address": {
             "type": "string",
             "description": "On-chain deposit address (deposit_address)"

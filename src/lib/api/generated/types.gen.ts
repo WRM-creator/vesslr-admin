@@ -3479,6 +3479,10 @@ export type VirtualAccountResponseDto = {
    */
   bankName?: string;
   /**
+   * Name the payer's bank shows for the account (bank_account), when the provider gives one
+   */
+  accountName?: string;
+  /**
    * On-chain deposit address (deposit_address)
    */
   address?: string;
