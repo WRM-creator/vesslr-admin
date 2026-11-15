@@ -1206,6 +1206,9 @@ export type UpsertMyProductDto = {
   specifications?: SpecificationsDto;
   specDeclarations?: Array<SpecDeclarationDto>;
   commercialTerms?: CommercialTermsDto;
+  /**
+   * The payment schedule every order of this listing follows; percentages sum to 100. Service offers in a milestone-delivery group only. Refused (400) when the smallest milestone's payout on the smallest order, after the service charge, falls below the payout minimum (NGN 100). Send [] to remove it.
+   */
   milestones?: Array<RequestMilestoneDto>;
   contractStyle?: "spot" | "term";
   /**
@@ -1496,6 +1499,9 @@ export type UpdateMyProductDto = {
   specifications?: SpecificationsDto;
   specDeclarations?: Array<SpecDeclarationDto>;
   commercialTerms?: CommercialTermsDto;
+  /**
+   * The payment schedule every order of this listing follows; percentages sum to 100. Service offers in a milestone-delivery group only. Refused (400) when the smallest milestone's payout on the smallest order, after the service charge, falls below the payout minimum (NGN 100). Send [] to remove it.
+   */
   milestones?: Array<RequestMilestoneDto>;
   contractStyle?: "spot" | "term";
   /**
@@ -3330,6 +3336,14 @@ export type TransactionResponseDto = {
    */
   fundingDueAt?: string;
   /**
+   * Rentals only: when the Rental Period stage started (delivery confirmed).
+   */
+  rentalStartedAt?: string | null;
+  /**
+   * Rentals only: when the booked period elapses and the rental ends automatically, opening the off-hire report. Null when the booking is not counted in time; an admin then ends it.
+   */
+  rentalEndsAt?: string | null;
+  /**
    * Why the platform cancelled this transaction, when it did.
    */
   cancellationReason?:
@@ -3464,6 +3478,10 @@ export type VirtualAccountResponseDto = {
    * Name of the bank holding the virtual account (bank_account)
    */
   bankName?: string;
+  /**
+   * Name the payer's bank shows for the account (bank_account), when the provider gives one
+   */
+  accountName?: string;
   /**
    * On-chain deposit address (deposit_address)
    */
@@ -3620,6 +3638,14 @@ export type ApproveMilestoneResponseDto = {
    * Deadline for the buyer to fund escrow (7 days after compliance approval).
    */
   fundingDueAt?: string;
+  /**
+   * Rentals only: when the Rental Period stage started (delivery confirmed).
+   */
+  rentalStartedAt?: string | null;
+  /**
+   * Rentals only: when the booked period elapses and the rental ends automatically, opening the off-hire report. Null when the booking is not counted in time; an admin then ends it.
+   */
+  rentalEndsAt?: string | null;
   /**
    * Why the platform cancelled this transaction, when it did.
    */
@@ -3919,7 +3945,7 @@ export type PurchaseProductDto = {
     | "milestone"
     | "contract";
   /**
-   * Buyer-defined milestones (only when category group milestoneDelivery=true)
+   * Buyer-proposed milestones (only when category group milestoneDelivery=true). Ignored when the listing sets its own schedule: the listing's schedule is used.
    */
   milestones?: Array<MilestoneInputDto>;
 };
@@ -7681,6 +7707,9 @@ export type CreateProductDto = {
   specifications?: SpecificationsDto;
   specDeclarations?: Array<SpecDeclarationDto>;
   commercialTerms?: CommercialTermsDto;
+  /**
+   * The payment schedule every order of this listing follows; percentages sum to 100. Service offers in a milestone-delivery group only. Refused (400) when the smallest milestone's payout on the smallest order, after the service charge, falls below the payout minimum (NGN 100). Send [] to remove it.
+   */
   milestones?: Array<RequestMilestoneDto>;
   contractStyle?: "spot" | "term";
   /**
@@ -7969,6 +7998,9 @@ export type UpdateProductDto = {
   specifications?: SpecificationsDto;
   specDeclarations?: Array<SpecDeclarationDto>;
   commercialTerms?: CommercialTermsDto;
+  /**
+   * The payment schedule every order of this listing follows; percentages sum to 100. Service offers in a milestone-delivery group only. Refused (400) when the smallest milestone's payout on the smallest order, after the service charge, falls below the payout minimum (NGN 100). Send [] to remove it.
+   */
   milestones?: Array<RequestMilestoneDto>;
   contractStyle?: "spot" | "term";
   /**
@@ -8446,6 +8478,27 @@ export type UpdateCategorySpecialtyDto = {
   image?: string;
 };
 
+export type RentalAutoEndFailureDto = {
+  transactionId: string;
+  error: string;
+};
+
+export type RentalAutoEndResultDto = {
+  /**
+   * Running rentals that had no end date and were given one, counted from their delivery confirmation.
+   */
+  backfilled: Array<string>;
+  /**
+   * Running rentals with no end date and no completed delivery confirmation to count one from; an admin ends these with End Rental.
+   */
+  skipped: Array<string>;
+  /**
+   * Transactions whose Rental Period stage this run ended.
+   */
+  ended: Array<string>;
+  failed: Array<RentalAutoEndFailureDto>;
+};
+
 export type PaginatedDataDto = {
   docs: Array<TransactionResponseDto>;
   totalDocs: number;
@@ -8549,6 +8602,59 @@ export type AddTransactionRequirementDto = {
     | "REFUNDED"
     | "PARTIALLY_REFUNDED"
     | "DISPUTED";
+};
+
+export type AdminTransactionEventDto = {
+  timestamp: string;
+  /**
+   * Admin views only: the acting user. Parties get actorRole instead.
+   */
+  actor?: string;
+  action:
+    | "CREATED"
+    | "STATUS_CHANGE"
+    | "FUNDING_WINDOW_EXTENDED"
+    | "FUNDING_WINDOW_REOPENED"
+    | "FUNDING_WINDOW_CLOSED"
+    | "DOCUMENT_UPLOADED"
+    | "DOCUMENT_REVIEWED"
+    | "LOGISTICS_UPDATE"
+    | "NOTE_ADDED"
+    | "REQUIREMENT_ADDED"
+    | "REQUIREMENT_UPDATED"
+    | "REQUIREMENT_DELETED"
+    | "STAGE_COMPLETED"
+    | "MILESTONE_SUBMITTED"
+    | "MILESTONE_APPROVED"
+    | "INSPECTION_SUBMITTED"
+    | "INSPECTION_REVIEWED"
+    | "DISPUTE_RAISED"
+    | "DISPUTE_RESOLVED"
+    | "DISPUTE_WITHDRAWN"
+    | "ESCROW_REFUND_INITIATED"
+    | "ESCROW_DISCOUNT_INITIATED"
+    | "RENTAL_ENDED"
+    | "CHARTER_ENDED"
+    | "RETURN_INSPECTION_COMPLETED";
+  metadata?: {
+    [key: string]: unknown;
+  };
+  /**
+   * Whether the actor is an admin or a platform user. Absent for the system, and for actors that match neither (admin events recorded before the actor fix carry an id that matches no one).
+   */
+  actorKind?: "admin" | "user";
+  /**
+   * The actor's name
+   */
+  actorName?: string;
+  /**
+   * The actor's email
+   */
+  actorEmail?: string;
+  /**
+   * STAGE_COMPLETED only: the party whose stage it was. Each party has its own document stage, and both can share a name ("Sign Contract").
+   */
+  stageParty?: "buyer" | "seller";
 };
 
 export type UpdateTransactionRequirementDto = {
@@ -11406,6 +11512,13 @@ export type ProviderWebhookEventDto = {
   payload: {
     [key: string]: unknown;
   };
+};
+
+export type WebhookReplayRequestDto = {
+  /**
+   * Credit a held wallet credit (one naming Vesslr as its sender, or matching a payment Vesslr sent from someone else) without matching it to any payment. Only after checking the org should have the money. Ignored for other events.
+   */
+  creditOwnSender?: boolean;
 };
 
 export type WebhookReplayResultDto = {
@@ -15755,6 +15868,20 @@ export type AdminCategorySpecialtiesControllerUpdateResponses = {
 export type AdminCategorySpecialtiesControllerUpdateResponse =
   AdminCategorySpecialtiesControllerUpdateResponses[keyof AdminCategorySpecialtiesControllerUpdateResponses];
 
+export type AdminTransactionsControllerEndDueRentalsData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: "/api/v1/admin/transactions/rental-periods/end-due";
+};
+
+export type AdminTransactionsControllerEndDueRentalsResponses = {
+  200: RentalAutoEndResultDto;
+};
+
+export type AdminTransactionsControllerEndDueRentalsResponse =
+  AdminTransactionsControllerEndDueRentalsResponses[keyof AdminTransactionsControllerEndDueRentalsResponses];
+
 export type AdminTransactionsControllerFindAllData = {
   body?: never;
   path?: never;
@@ -15885,9 +16012,9 @@ export type AdminTransactionsControllerGetLogsData = {
 
 export type AdminTransactionsControllerGetLogsResponses = {
   /**
-   * List of transaction events
+   * List of transaction events, each with the acting admin or user named, and the party of a completed stage
    */
-  200: Array<TransactionEventDto>;
+  200: Array<AdminTransactionEventDto>;
 };
 
 export type AdminTransactionsControllerGetLogsResponse =
@@ -18111,7 +18238,7 @@ export type AdminProviderPayoutsControllerListWebhookEventsResponse =
   AdminProviderPayoutsControllerListWebhookEventsResponses[keyof AdminProviderPayoutsControllerListWebhookEventsResponses];
 
 export type AdminProviderPayoutsControllerReplayWebhookEventData = {
-  body?: never;
+  body: WebhookReplayRequestDto;
   path: {
     id: string;
   };

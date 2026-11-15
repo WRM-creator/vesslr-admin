@@ -5,10 +5,8 @@ import type {
 } from "@/lib/api/generated";
 import { formatCurrency } from "@/lib/currency";
 import { formatDateTime } from "@/lib/utils";
-import {
-  deriveSettlementFees,
-  ratePercentLabel,
-} from "@/modules/transactions/lib/settlement-fees";
+import { deriveSettlementFees } from "@/modules/transactions/lib/settlement-fees";
+import { SettlementFeeLines } from "../../settlement-fee-lines";
 
 interface StageSettlementContentProps {
   transaction: TransactionResponseDto;
@@ -35,26 +33,7 @@ export function StageSettlementContent({
             {formatCurrency(fees.sellerPayout, currency)}
           </span>
         </div>
-        {fees.escrowFeeAmount > 0 && (
-          <div className="flex items-center justify-between text-sm">
-            <span className="text-muted-foreground">
-              Escrow fee (buyer{ratePercentLabel(fees.escrowFeeRate)})
-            </span>
-            <span className="font-medium">
-              {formatCurrency(fees.escrowFeeAmount, currency)}
-            </span>
-          </div>
-        )}
-        {fees.serviceChargeAmount > 0 && (
-          <div className="flex items-center justify-between text-sm">
-            <span className="text-muted-foreground">
-              Service charge (seller{ratePercentLabel(fees.serviceChargeRate)})
-            </span>
-            <span className="font-medium">
-              {formatCurrency(fees.serviceChargeAmount, currency)}
-            </span>
-          </div>
-        )}
+        <SettlementFeeLines fees={fees} rowClassName="text-muted-foreground text-sm" />
         {fees.platformRevenue > 0 && (
           <div className="flex items-center justify-between text-sm">
             <span className="text-muted-foreground">Vesslr total take</span>

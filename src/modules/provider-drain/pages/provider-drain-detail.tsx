@@ -205,7 +205,7 @@ function DrainActions({ drain }: { drain: ProviderDrainDto }) {
   const estimate = drain.totals
     .map(
       (t) =>
-        `${formatCurrency(t.estimatedFeeMinor, t.currency, { maximumFractionDigits: 2 })}${t.unquotableCount > 0 ? ` (+${t.unquotableCount} unquotable)` : ""}`,
+        `${formatCurrency(t.estimatedFeeMinor, t.currency)}${t.unquotableCount > 0 ? ` (+${t.unquotableCount} unquotable)` : ""}`,
     )
     .join(", ");
 
@@ -339,7 +339,7 @@ function CostPanel({ drain }: { drain: ProviderDrainDto }) {
   if (currencies.length === 0) return null;
 
   const money = (v: number | null | undefined, currency: string) =>
-    formatCurrency(v, currency, { maximumFractionDigits: 2 });
+    formatCurrency(v, currency);
 
   return (
     <div className="overflow-hidden rounded-md border">
@@ -463,7 +463,7 @@ function VaultRow({
       ? "No surviving custodian is routed for this currency."
       : vault.lastError;
   const money = (v: number | null | undefined) =>
-    formatCurrency(v, vault.currency, { maximumFractionDigits: 2 });
+    formatCurrency(v, vault.currency);
 
   return (
     <TableRow>
@@ -709,7 +709,7 @@ function ItemRow({
       ? GAP_REASON[item.gapReason]
       : item.lastError;
   const money = (v: number | null | undefined) =>
-    formatCurrency(v, item.currency, { maximumFractionDigits: 2 });
+    formatCurrency(v, item.currency);
 
   return (
     <TableRow>

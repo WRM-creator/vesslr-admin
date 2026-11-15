@@ -79,7 +79,7 @@ export const merchantLedgerColumns: ColumnDef<LedgerEntry>[] = [
       if (credit == null || credit === 0) return <div className="text-right">—</div>;
       return (
         <div className="text-right font-medium text-green-600 dark:text-green-400">
-          +{formatCurrency(credit, row.original.currency, { maximumFractionDigits: 2 })}
+          +{formatCurrency(credit, row.original.currency)}
         </div>
       );
     },
@@ -92,7 +92,7 @@ export const merchantLedgerColumns: ColumnDef<LedgerEntry>[] = [
       if (debit == null || debit === 0) return <div className="text-right">—</div>;
       return (
         <div className="text-right font-medium">
-          {formatCurrency(debit, row.original.currency, { maximumFractionDigits: 2 })}
+          {formatCurrency(debit, row.original.currency)}
         </div>
       );
     },

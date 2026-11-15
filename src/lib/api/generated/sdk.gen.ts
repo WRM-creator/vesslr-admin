@@ -291,6 +291,8 @@ import type {
   AdminTransactionsControllerDeleteRequirementResponses,
   AdminTransactionsControllerEndCharterPeriodData,
   AdminTransactionsControllerEndCharterPeriodResponses,
+  AdminTransactionsControllerEndDueRentalsData,
+  AdminTransactionsControllerEndDueRentalsResponses,
   AdminTransactionsControllerEndRentalPeriodData,
   AdminTransactionsControllerEndRentalPeriodResponses,
   AdminTransactionsControllerFindAllData,
@@ -5307,6 +5309,26 @@ export const adminCategorySpecialtiesControllerUpdate = <
   });
 
 /**
+ * Run the rental auto-end sweep now
+ *
+ * Ends every rental whose booked period has elapsed, as the 10-minute sweep does: completes its RENTAL_ACTIVE stage and opens OFF_HIRE_REPORT. Only transactions still RENTAL_IN_PROGRESS count. A running rental with no end date first gets one, counted from its delivery confirmation (or is listed in skipped when it has none). Rentals not yet due are untouched.
+ */
+export const adminTransactionsControllerEndDueRentals = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<AdminTransactionsControllerEndDueRentalsData, ThrowOnError>,
+) =>
+  (options?.client ?? client).post<
+    AdminTransactionsControllerEndDueRentalsResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/transactions/rental-periods/end-due",
+    ...options,
+  });
+
+/**
  * List all transactions (Admin)
  */
 export const adminTransactionsControllerFindAll = <
@@ -8097,6 +8119,10 @@ export const adminProviderPayoutsControllerReplayWebhookEvent = <
     security: [{ scheme: "bearer", type: "http" }],
     url: "/api/v1/admin/provider-payouts/webhook-events/{id}/replay",
     ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
   });
 
 /**

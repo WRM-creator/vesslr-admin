@@ -1,4 +1,4 @@
-import { getCurrencyDecimals } from "@/lib/currency";
+import { formatCurrency, getCurrencyDecimals } from "@/lib/currency";
 
 export interface SellerFeePreviewInput {
   /** The disclosed seller charge, as the funding review reports it. */
@@ -7,6 +7,8 @@ export interface SellerFeePreviewInput {
     feePerUnit: number;
     percentage?: number;
     currency?: string;
+    /** Unit a per-unit rate is quoted per. */
+    unit?: string;
     minFee?: number;
     maxFee?: number;
   } | null;
@@ -88,4 +90,66 @@ export const sellerFeePreview = ({
         ? toSettlement(feeFormulaTotal)
         : 0,
   };
+};
+
+export interface SellerFeeCaptionInput {
+  fee: SellerFeePreviewInput["fee"];
+  quantity: number;
+  /** The deal's unit, used when the fee does not name its own. */
+  unit: string;
+  formulaCurrency: string;
+  settlementCurrency: string;
+  /** From `sellerFeePreview`. */
+  feeFormulaTotal: number;
+  requiresFxRate: boolean;
+  /** The agreed rate in major units (settlement per formula), 0 when not entered. */
+  fxRate: number;
+}
+
+/**
+ * How the seller fee is worked out, for the line's label: the per-unit rate
+ * times the quantity, and the agreed rate when it crosses currencies
+ * ("$0.50/bbl x 2 bbl = $1 at 1,600 NGN/USD"). A percentage shows its rate.
+ */
+export const sellerFeeCaption = ({
+  fee,
+  quantity,
+  unit,
+  formulaCurrency,
+  settlementCurrency,
+  feeFormulaTotal,
+  requiresFxRate,
+  fxRate,
+}: SellerFeeCaptionInput): string => {
+  if (!fee) return "";
+  const conversion = !requiresFxRate
+    ? ""
+    : fxRate > 0
+      ? ` at ${fxRate.toLocaleString("en-US", { maximumFractionDigits: 6 })} ${settlementCurrency}/${formulaCurrency}`
+      : ", converted at the agreed rate";
+
+  if (fee.method === "percentage") {
+    const rate = `${Number(((fee.percentage ?? 0) * 100).toFixed(4))}% of goods`;
+    const bounds = [
+      fee.minFee != null && `min ${formatCurrency(fee.minFee, fee.currency ?? settlementCurrency)}`,
+      fee.maxFee != null && `max ${formatCurrency(fee.maxFee, fee.currency ?? settlementCurrency)}`,
+    ].filter(Boolean);
+    return bounds.length ? `${rate}, ${bounds.join(", ")}` : rate;
+  }
+
+  const total = formatCurrency(feeFormulaTotal, formulaCurrency);
+  if (fee.method !== "per_unit") return `${total}${conversion}`;
+
+  const feeUnit = fee.unit ?? unit;
+  const rate = formatCurrency(fee.feePerUnit, formulaCurrency);
+  const qty = quantity.toLocaleString("en-US");
+  const unclamped = Math.round(fee.feePerUnit * quantity);
+  const base = `${rate}/${feeUnit} x ${qty} ${feeUnit}`;
+  const amount =
+    feeFormulaTotal > unclamped
+      ? `${base}, minimum fee ${total}`
+      : feeFormulaTotal < unclamped
+        ? `${base}, maximum fee ${total}`
+        : `${base} = ${total}`;
+  return `${amount}${conversion}`;
 };

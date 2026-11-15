@@ -4,14 +4,24 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Spinner } from "@/components/ui/spinner";
 import { api } from "@/lib/api";
-import type { TransactionResponseDto } from "@/lib/api/generated";
+import type {
+  AdminTransactionEventDto,
+  TransactionResponseDto,
+} from "@/lib/api/generated";
 import type {
   AdminConversationMessage,
   AdminTransactionConversation,
 } from "@/lib/api/transaction-conversations";
 import { formatCurrency } from "@/lib/currency";
-import { ratePercentLabel } from "@/modules/transactions/lib/settlement-fees";
+import { getEscrowState } from "@/modules/transactions/lib/escrow-state";
+import { ESCROW_CONFIG } from "../escrow-state-config";
+import {
+  deriveOrderFees,
+  ratePercentLabel,
+} from "@/modules/transactions/lib/settlement-fees";
 import { cn, formatDateTime } from "@/lib/utils";
+import { stageCompletedLabel } from "@/modules/transactions/lib/activity-log";
+import { ActorLine } from "../activity-actor-line";
 import {
   Banknote,
   History,
@@ -49,50 +59,22 @@ function FinancialSummary({
   const escrow = transaction.escrow;
   const currency = order?.currency || "USD";
   const goodsAmount = order?.totalAmount || 0;
-  const serviceFeeAmount = order?.serviceFeeAmount ?? 0;
-  const totalWithFee = order?.totalWithFee ?? goodsAmount + serviceFeeAmount;
-  // Buyer-funding view: the buyer's only fee is the escrow fee added on top.
-  // Rate derived from the amount so it always matches what was charged.
+  // The buyer's side: goods plus the escrow fee. On a differential order the
+  // order's serviceFeeAmount is the SELLER's charge, so it is never shown here.
+  const { escrowFeeAmount } = deriveOrderFees(transaction);
+  const totalWithFee = goodsAmount + escrowFeeAmount;
   const escrowFeeRate =
-    goodsAmount > 0 && serviceFeeAmount > 0
-      ? serviceFeeAmount / goodsAmount
+    goodsAmount > 0 && escrowFeeAmount > 0
+      ? escrowFeeAmount / goodsAmount
       : undefined;
 
-  const isFunded = [
-    "ESCROW_FUNDED",
-    "LOGISTICS_ASSIGNED",
-    "IN_TRANSIT",
-    "INSPECTION_PENDING",
-    "INSPECTION_UNDER_REVIEW",
-    "DELIVERY_CONFIRMED",
-    "SETTLEMENT_RELEASED",
-    "CLOSED",
-    "MILESTONES_IN_PROGRESS",
-  ].includes(transaction.status);
-
-  const isReleased =
-    transaction.status === "SETTLEMENT_RELEASED" ||
-    transaction.status === "CLOSED";
-  const isRefunded = transaction.status === "REFUNDED";
-
-  const escrowLabel = isReleased
-    ? "Released"
-    : isRefunded
-      ? "Refunded"
-      : isFunded
-        ? "Funded"
-        : "Pending";
+  // Same derivation as the overview, so the two never disagree (rental,
+  // service and charter statuses used to fall through to "Pending").
+  const escrowConfig = ESCROW_CONFIG[getEscrowState(transaction)];
 
   const [refundOpen, setRefundOpen] = useState(false);
   const refundable = canRefundEscrow(transaction);
 
-  const escrowColor = isReleased
-    ? "text-green-600"
-    : isRefunded
-      ? "text-amber-600"
-      : isFunded
-        ? "text-blue-600"
-        : "text-muted-foreground";
 
   return (
     <Card>
@@ -108,13 +90,13 @@ function FinancialSummary({
               {formatCurrency(goodsAmount, currency)}
             </span>
           </div>
-          {serviceFeeAmount > 0 && (
+          {escrowFeeAmount > 0 && (
             <div className="flex items-center justify-between text-sm">
               <span className="text-muted-foreground">
                 Escrow Fee{ratePercentLabel(escrowFeeRate)}
               </span>
               <span className="font-medium">
-                {formatCurrency(serviceFeeAmount, currency)}
+                {formatCurrency(escrowFeeAmount, currency)}
               </span>
             </div>
           )}
@@ -129,8 +111,8 @@ function FinancialSummary({
 
         <div className="bg-muted/40 flex items-center justify-between rounded-md px-3 py-2">
           <span className="text-muted-foreground text-xs">Escrow</span>
-          <span className={cn("text-xs font-semibold", escrowColor)}>
-            {escrowLabel}
+          <span className={cn("text-xs font-semibold", escrowConfig.iconClass)}>
+            {escrowConfig.label}
           </span>
         </div>
 
@@ -245,10 +227,8 @@ function ChatBubble({ message }: { message: AdminConversationMessage }) {
 }
 
 // ─── Audit Log ─────────────────────────────────────────────────────
-const getLogMessage = (
-  action: string,
-  metadata: Record<string, unknown> | undefined,
-) => {
+const getLogMessage = (log: AdminTransactionEventDto) => {
+  const { action, metadata } = log;
   switch (action) {
     case "STATUS_CHANGE":
       return `Status → ${((metadata?.newStatus as string) ?? "unknown").replace(/_/g, " ")}`;
@@ -265,7 +245,7 @@ const getLogMessage = (
     case "CREATED":
       return "Transaction created";
     case "STAGE_COMPLETED":
-      return `Stage completed: ${(metadata?.stageName as string) ?? ""}`;
+      return `Stage completed: ${stageCompletedLabel(log)}`;
     case "MILESTONE_SUBMITTED":
       return "Milestone submitted";
     case "MILESTONE_APPROVED":
@@ -318,7 +298,7 @@ function AuditLog({ transactionId }: { transactionId: string }) {
           <div className="space-y-0">
             <div className="relative">
               <div className="space-y-0">
-                {visibleLogs.map((log: any, i: number) => (
+                {visibleLogs.map((log, i) => (
                   <div key={i} className="group flex gap-2.5 text-xs">
                     <div className="flex min-w-[32px] flex-col items-end">
                       <span className="text-muted-foreground text-[10px]">
@@ -328,8 +308,9 @@ function AuditLog({ transactionId }: { transactionId: string }) {
                     <div className="border-border/50 relative flex-1 border-l pb-3 pl-3 group-last:border-transparent">
                       <div className="border-background bg-muted-foreground/30 group-first:bg-primary absolute top-1 -left-[4px] size-2 rounded-full border" />
                       <span className="text-foreground/80">
-                        {getLogMessage(log.action, log.metadata)}
+                        {getLogMessage(log)}
                       </span>
+                      <ActorLine log={log} className="text-muted-foreground block truncate text-[10px]" />
                     </div>
                   </div>
                 ))}

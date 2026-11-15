@@ -9556,6 +9556,34 @@
         ]
       }
     },
+    "/api/v1/admin/transactions/rental-periods/end-due": {
+      "post": {
+        "description": "Ends every rental whose booked period has elapsed, as the 10-minute sweep does: completes its RENTAL_ACTIVE stage and opens OFF_HIRE_REPORT. Only transactions still RENTAL_IN_PROGRESS count. A running rental with no end date first gets one, counted from its delivery confirmation (or is listed in skipped when it has none). Rentals not yet due are untouched.",
+        "operationId": "AdminTransactionsController_endDueRentals",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RentalAutoEndResultDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Run the rental auto-end sweep now",
+        "tags": [
+          "Admin Transactions"
+        ]
+      }
+    },
     "/api/v1/admin/transactions": {
       "get": {
         "operationId": "AdminTransactionsController_findAll",
@@ -9838,13 +9866,13 @@
         ],
         "responses": {
           "200": {
-            "description": "List of transaction events",
+            "description": "List of transaction events, each with the acting admin or user named, and the party of a completed stage",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/TransactionEventDto"
+                    "$ref": "#/components/schemas/AdminTransactionEventDto"
                   }
                 }
               }
@@ -15131,6 +15159,16 @@
             }
           }
         ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WebhookReplayRequestDto"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "",
@@ -18082,6 +18120,7 @@
             "$ref": "#/components/schemas/CommercialTermsDto"
           },
           "milestones": {
+            "description": "The payment schedule every order of this listing follows; percentages sum to 100. Service offers in a milestone-delivery group only. Refused (400) when the smallest milestone's payout on the smallest order, after the service charge, falls below the payout minimum (NGN 100). Send [] to remove it.",
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/RequestMilestoneDto"
@@ -18727,6 +18766,7 @@
             "$ref": "#/components/schemas/CommercialTermsDto"
           },
           "milestones": {
+            "description": "The payment schedule every order of this listing follows; percentages sum to 100. Service offers in a milestone-delivery group only. Refused (400) when the smallest milestone's payout on the smallest order, after the service charge, falls below the payout minimum (NGN 100). Send [] to remove it.",
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/RequestMilestoneDto"
@@ -22407,6 +22447,18 @@
             "type": "string",
             "description": "Deadline for the buyer to fund escrow (7 days after compliance approval)."
           },
+          "rentalStartedAt": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true,
+            "description": "Rentals only: when the Rental Period stage started (delivery confirmed)."
+          },
+          "rentalEndsAt": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true,
+            "description": "Rentals only: when the booked period elapses and the rental ends automatically, opening the off-hire report. Null when the booking is not counted in time; an admin then ends it."
+          },
           "cancellationReason": {
             "type": "string",
             "enum": [
@@ -22629,6 +22681,10 @@
           "bankName": {
             "type": "string",
             "description": "Name of the bank holding the virtual account (bank_account)"
+          },
+          "accountName": {
+            "type": "string",
+            "description": "Name the payer's bank shows for the account (bank_account), when the provider gives one"
           },
           "address": {
             "type": "string",
@@ -22891,6 +22947,18 @@
             "format": "date-time",
             "type": "string",
             "description": "Deadline for the buyer to fund escrow (7 days after compliance approval)."
+          },
+          "rentalStartedAt": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true,
+            "description": "Rentals only: when the Rental Period stage started (delivery confirmed)."
+          },
+          "rentalEndsAt": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true,
+            "description": "Rentals only: when the booked period elapses and the rental ends automatically, opening the off-hire report. Null when the booking is not counted in time; an admin then ends it."
           },
           "cancellationReason": {
             "type": "string",
@@ -23444,7 +23512,7 @@
             "description": "The unit duration is counted in. On a rental listing it must be the listing's ratePeriod."
           },
           "milestones": {
-            "description": "Buyer-defined milestones (only when category group milestoneDelivery=true)",
+            "description": "Buyer-proposed milestones (only when category group milestoneDelivery=true). Ignored when the listing sets its own schedule: the listing's schedule is used.",
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/MilestoneInputDto"
@@ -31380,6 +31448,7 @@
             "$ref": "#/components/schemas/CommercialTermsDto"
           },
           "milestones": {
+            "description": "The payment schedule every order of this listing follows; percentages sum to 100. Service offers in a milestone-delivery group only. Refused (400) when the smallest milestone's payout on the smallest order, after the service charge, falls below the payout minimum (NGN 100). Send [] to remove it.",
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/RequestMilestoneDto"
@@ -32029,6 +32098,7 @@
             "$ref": "#/components/schemas/CommercialTermsDto"
           },
           "milestones": {
+            "description": "The payment schedule every order of this listing follows; percentages sum to 100. Service offers in a milestone-delivery group only. Refused (400) when the smallest milestone's payout on the smallest order, after the service charge, falls below the payout minimum (NGN 100). Send [] to remove it.",
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/RequestMilestoneDto"
@@ -32741,6 +32811,59 @@
           }
         }
       },
+      "RentalAutoEndFailureDto": {
+        "type": "object",
+        "properties": {
+          "transactionId": {
+            "type": "string"
+          },
+          "error": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "transactionId",
+          "error"
+        ]
+      },
+      "RentalAutoEndResultDto": {
+        "type": "object",
+        "properties": {
+          "backfilled": {
+            "description": "Running rentals that had no end date and were given one, counted from their delivery confirmation.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "skipped": {
+            "description": "Running rentals with no end date and no completed delivery confirmation to count one from; an admin ends these with End Rental.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "ended": {
+            "description": "Transactions whose Rental Period stage this run ended.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "failed": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RentalAutoEndFailureDto"
+            }
+          }
+        },
+        "required": [
+          "backfilled",
+          "skipped",
+          "ended",
+          "failed"
+        ]
+      },
       "PaginatedDataDto": {
         "type": "object",
         "properties": {
@@ -32903,6 +33026,80 @@
           "name",
           "requiredFrom",
           "isMandatory"
+        ]
+      },
+      "AdminTransactionEventDto": {
+        "type": "object",
+        "properties": {
+          "timestamp": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "actor": {
+            "type": "string",
+            "description": "Admin views only: the acting user. Parties get actorRole instead."
+          },
+          "action": {
+            "type": "string",
+            "enum": [
+              "CREATED",
+              "STATUS_CHANGE",
+              "FUNDING_WINDOW_EXTENDED",
+              "FUNDING_WINDOW_REOPENED",
+              "FUNDING_WINDOW_CLOSED",
+              "DOCUMENT_UPLOADED",
+              "DOCUMENT_REVIEWED",
+              "LOGISTICS_UPDATE",
+              "NOTE_ADDED",
+              "REQUIREMENT_ADDED",
+              "REQUIREMENT_UPDATED",
+              "REQUIREMENT_DELETED",
+              "STAGE_COMPLETED",
+              "MILESTONE_SUBMITTED",
+              "MILESTONE_APPROVED",
+              "INSPECTION_SUBMITTED",
+              "INSPECTION_REVIEWED",
+              "DISPUTE_RAISED",
+              "DISPUTE_RESOLVED",
+              "DISPUTE_WITHDRAWN",
+              "ESCROW_REFUND_INITIATED",
+              "ESCROW_DISCOUNT_INITIATED",
+              "RENTAL_ENDED",
+              "CHARTER_ENDED",
+              "RETURN_INSPECTION_COMPLETED"
+            ]
+          },
+          "metadata": {
+            "type": "object"
+          },
+          "actorKind": {
+            "type": "string",
+            "enum": [
+              "admin",
+              "user"
+            ],
+            "description": "Whether the actor is an admin or a platform user. Absent for the system, and for actors that match neither (admin events recorded before the actor fix carry an id that matches no one)."
+          },
+          "actorName": {
+            "type": "string",
+            "description": "The actor's name"
+          },
+          "actorEmail": {
+            "type": "string",
+            "description": "The actor's email"
+          },
+          "stageParty": {
+            "type": "string",
+            "enum": [
+              "buyer",
+              "seller"
+            ],
+            "description": "STAGE_COMPLETED only: the party whose stage it was. Each party has its own document stage, and both can share a name (\"Sign Contract\")."
+          }
+        },
+        "required": [
+          "timestamp",
+          "action"
         ]
       },
       "UpdateTransactionRequirementDto": {
@@ -39034,6 +39231,15 @@
           "createdAt",
           "payload"
         ]
+      },
+      "WebhookReplayRequestDto": {
+        "type": "object",
+        "properties": {
+          "creditOwnSender": {
+            "type": "boolean",
+            "description": "Credit a held wallet credit (one naming Vesslr as its sender, or matching a payment Vesslr sent from someone else) without matching it to any payment. Only after checking the org should have the money. Ignored for other events."
+          }
+        }
       },
       "WebhookReplayResultDto": {
         "type": "object",

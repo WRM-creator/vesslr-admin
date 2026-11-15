@@ -8,7 +8,7 @@ import type {
   TransactionStageResponseDto,
 } from "@/lib/api/generated";
 import { formatCurrency } from "@/lib/currency";
-import { cn } from "@/lib/utils";
+import { cn, formatDateTime } from "@/lib/utils";
 import {
   AlertTriangle,
   CheckCircle,
@@ -192,7 +192,9 @@ function deriveActionContext(tx: TransactionResponseDto): ActionContext {
     return {
       type: "waiting",
       label: "Rental period active",
-      description: "The rental period is running. End it from the stage timeline when the period expires.",
+      description: tx.rentalEndsAt
+        ? `The rental period is running and ends automatically on ${formatDateTime(tx.rentalEndsAt)}. End it from the stage timeline only for an early return.`
+        : "The rental period is running. End it from the stage timeline when the equipment is off hire.",
     };
   }
   if (status === "OFF_HIRE_PENDING") {
