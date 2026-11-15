@@ -1,10 +1,10 @@
-import { Button } from "@/components/ui/button";
-import { api } from "@/lib/api";
 import type {
   TransactionResponseDto,
   TransactionStageResponseDto,
 } from "@/lib/api/generated";
+import { api } from "@/lib/api";
 import { formatDateTime } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 import { Clock } from "lucide-react";
 import { toast } from "sonner";
 
@@ -87,8 +87,8 @@ export function StageRentalActiveContent({
               {transaction.rentalEndsAt
                 ? `Ends automatically on ${formatDateTime(transaction.rentalEndsAt)}, at the end of the booked period. End it now only for an early return.`
                 : transaction.rentalStartedAt
-                  ? "This booking is not counted in time, so it has no automatic end. End it when the equipment is off hire."
-                  : "Its end date is worked out from the delivery date at the next automatic check, within 10 minutes."}
+                  ? "This booking has no automatic end (it is not counted in whole days, weeks, months or years). End it when the equipment is off hire."
+                  : "No end date yet. The automatic check counts one from the delivery date; if it cannot, end it when the equipment is off hire."}
             </p>
           </div>
         </div>

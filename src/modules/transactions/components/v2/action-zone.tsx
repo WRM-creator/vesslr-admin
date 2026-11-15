@@ -1,3 +1,4 @@
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { api } from "@/lib/api";
 import type {
@@ -23,11 +24,11 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
-import { CompleteReturnInspectionDialog } from "../complete-return-inspection-dialog";
 import { DocumentReviewDialog } from "../document-review-dialog";
-import { RejectInspectionDialog } from "../reject-inspection-dialog";
 import { ReleaseSettlementDialog } from "../release-settlement-dialog";
+import { RejectInspectionDialog } from "../reject-inspection-dialog";
 import { UploadInspectionDialog } from "../upload-inspection-dialog";
+import { CompleteReturnInspectionDialog } from "../complete-return-inspection-dialog";
 
 interface ActionZoneProps {
   transaction: TransactionResponseDto;
@@ -39,11 +40,7 @@ type ActionContext =
   | { type: "awaiting_funding"; amount: number; currency: string }
   | { type: "inspection_awaiting_docs"; stage: TransactionStageResponseDto }
   | { type: "inspection_review"; stage: TransactionStageResponseDto }
-  | {
-      type: "inspection_rejected";
-      stage: TransactionStageResponseDto;
-      reason: string;
-    }
+  | { type: "inspection_rejected"; stage: TransactionStageResponseDto; reason: string }
   | { type: "return_inspection"; stage: TransactionStageResponseDto }
   | { type: "settlement_ready" }
   | { type: "disputed" }
@@ -58,8 +55,7 @@ function deriveActionContext(tx: TransactionResponseDto): ActionContext {
   if (status === "CLOSED") return { type: "terminal", label: "Closed" };
   if (status === "CANCELLED") return { type: "terminal", label: "Cancelled" };
   if (status === "REFUNDED") return { type: "terminal", label: "Refunded" };
-  if (status === "PARTIALLY_REFUNDED")
-    return { type: "terminal", label: "Partially Refunded" };
+  if (status === "PARTIALLY_REFUNDED") return { type: "terminal", label: "Partially Refunded" };
 
   // Disputed
   if (status === "DISPUTED") return { type: "disputed" };
@@ -68,10 +64,7 @@ function deriveActionContext(tx: TransactionResponseDto): ActionContext {
   const docsAwaitingReview = (tx.requiredDocuments ?? []).filter(
     (d) => d.status === "SUBMITTED",
   );
-  if (
-    docsAwaitingReview.length > 0 &&
-    ["DOCUMENTS_SUBMITTED", "INITIATED"].includes(status)
-  ) {
+  if (docsAwaitingReview.length > 0 && ["DOCUMENTS_SUBMITTED", "INITIATED"].includes(status)) {
     return { type: "documents_review", docs: docsAwaitingReview };
   }
 
@@ -101,9 +94,7 @@ function deriveActionContext(tx: TransactionResponseDto): ActionContext {
   // Inspection stages
   const inspectionStage = stages.find((s) => s.type === "INSPECTION");
   if (inspectionStage?.status === "ACTIVE") {
-    const meta = inspectionStage.metadata as
-      | Record<string, unknown>
-      | undefined;
+    const meta = inspectionStage.metadata as Record<string, unknown> | undefined;
     const reviewStatus = (meta?.inspectionReview as any)?.status;
 
     if (reviewStatus === "AWAITING_REVIEW") {
@@ -163,10 +154,8 @@ function deriveActionContext(tx: TransactionResponseDto): ActionContext {
   if (status === "LOGISTICS_ASSIGNED" || status === "IN_TRANSIT") {
     return {
       type: "waiting",
-      label:
-        status === "IN_TRANSIT" ? "Shipment in transit" : "Logistics assigned",
-      description:
-        "Waiting for delivery confirmation. No admin action required.",
+      label: status === "IN_TRANSIT" ? "Shipment in transit" : "Logistics assigned",
+      description: "Waiting for delivery confirmation. No admin action required.",
     };
   }
 
@@ -179,9 +168,7 @@ function deriveActionContext(tx: TransactionResponseDto): ActionContext {
   }
 
   if (status === "INSPECTION_UNDER_REVIEW") {
-    const stage = stages.find(
-      (s) => s.type === "INSPECTION" && s.status === "ACTIVE",
-    );
+    const stage = stages.find((s) => s.type === "INSPECTION" && s.status === "ACTIVE");
     if (stage) return { type: "inspection_review", stage };
   }
 
@@ -189,8 +176,7 @@ function deriveActionContext(tx: TransactionResponseDto): ActionContext {
     return {
       type: "waiting",
       label: "Milestones in progress",
-      description:
-        "Seller is delivering milestones. Payments release as milestones are approved.",
+      description: "Seller is delivering milestones. Payments release as milestones are approved.",
     };
   }
 
@@ -199,8 +185,7 @@ function deriveActionContext(tx: TransactionResponseDto): ActionContext {
     return {
       type: "waiting",
       label: "Seller preparing asset",
-      description:
-        "The seller is preparing the equipment for handover. No admin action required.",
+      description: "The seller is preparing the equipment for handover. No admin action required.",
     };
   }
   if (status === "RENTAL_IN_PROGRESS") {
@@ -216,8 +201,7 @@ function deriveActionContext(tx: TransactionResponseDto): ActionContext {
     return {
       type: "waiting",
       label: "Awaiting off-hire report",
-      description:
-        "The buyer needs to submit an off-hire condition report for the returned asset.",
+      description: "The buyer needs to submit an off-hire condition report for the returned asset.",
     };
   }
   if (status === "RETURN_INSPECTION_PENDING") {
@@ -230,8 +214,7 @@ function deriveActionContext(tx: TransactionResponseDto): ActionContext {
     return {
       type: "waiting",
       label: "Return inspection required",
-      description:
-        "Inspect the returned asset and complete the return inspection stage.",
+      description: "Inspect the returned asset and complete the return inspection stage.",
     };
   }
 
@@ -240,16 +223,14 @@ function deriveActionContext(tx: TransactionResponseDto): ActionContext {
     return {
       type: "waiting",
       label: "Vessel mobilizing",
-      description:
-        "The seller is mobilizing the vessel to the charter location. No admin action required.",
+      description: "The seller is mobilizing the vessel to the charter location. No admin action required.",
     };
   }
   if (status === "CHARTER_IN_PROGRESS") {
     return {
       type: "waiting",
       label: "Charter period active",
-      description:
-        "The charter is in progress. End it from the stage timeline when the period expires.",
+      description: "The charter is in progress. End it from the stage timeline when the period expires.",
     };
   }
   if (status === "VOYAGE_COMPLETING") {
@@ -362,9 +343,7 @@ function ActionContent({
   transaction: TransactionResponseDto;
   styles: (typeof ZONE_STYLES)[keyof typeof ZONE_STYLES];
 }) {
-  const [reviewDoc, setReviewDoc] = useState<TransactionDocumentSlotDto | null>(
-    null,
-  );
+  const [reviewDoc, setReviewDoc] = useState<TransactionDocumentSlotDto | null>(null);
   const [isSettlementOpen, setIsSettlementOpen] = useState(false);
   const [isUploadOpen, setIsUploadOpen] = useState(false);
   const [isRejectOpen, setIsRejectOpen] = useState(false);
@@ -397,23 +376,17 @@ function ActionContent({
         <>
           <div className="flex items-start justify-between gap-4">
             <div className="flex items-start gap-3">
-              <div
-                className={cn(
-                  "mt-0.5 rounded-full p-1.5",
-                  styles.icon,
-                  "bg-amber-100 dark:bg-amber-900/40",
-                )}
-              >
+              <div className={cn("mt-0.5 rounded-full p-1.5", styles.icon, "bg-amber-100 dark:bg-amber-900/40")}>
                 <Eye className="size-4" />
               </div>
               <div>
                 <p className="text-sm font-semibold">
-                  {ctx.docs.length} document{ctx.docs.length > 1 ? "s" : ""}{" "}
-                  awaiting your review
+                  {ctx.docs.length} document{ctx.docs.length > 1 ? "s" : ""} awaiting
+                  your review
                 </p>
                 <p className="text-muted-foreground mt-0.5 text-xs">
-                  Review and approve or reject each submitted document to
-                  advance compliance.
+                  Review and approve or reject each submitted document to advance
+                  compliance.
                 </p>
               </div>
             </div>
@@ -437,17 +410,8 @@ function ActionContent({
                 </div>
                 <div className="flex items-center gap-2">
                   {doc.submission?.url && (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="h-7 gap-1 text-xs"
-                      asChild
-                    >
-                      <a
-                        href={doc.submission.url}
-                        target="_blank"
-                        rel="noreferrer"
-                      >
+                    <Button variant="ghost" size="sm" className="h-7 gap-1 text-xs" asChild>
+                      <a href={doc.submission.url} target="_blank" rel="noreferrer">
                         <ExternalLink className="size-3" />
                         View
                       </a>
@@ -484,13 +448,7 @@ function ActionContent({
       return (
         <div className="flex items-start justify-between gap-4">
           <div className="flex items-start gap-3">
-            <div
-              className={cn(
-                "mt-0.5 rounded-full p-1.5",
-                styles.icon,
-                "bg-indigo-100 dark:bg-indigo-900/40",
-              )}
-            >
+            <div className={cn("mt-0.5 rounded-full p-1.5", styles.icon, "bg-indigo-100 dark:bg-indigo-900/40")}>
               <Eye className="size-4" />
             </div>
             <div>
@@ -501,8 +459,7 @@ function ActionContent({
                 {ctx.funding.depositedTotal != null && (
                   <>
                     {" "}
-                    ({formatCurrency(ctx.funding.depositedTotal, currency)}{" "}
-                    held)
+                    ({formatCurrency(ctx.funding.depositedTotal, currency)} held)
                   </>
                 )}
               </p>
@@ -537,13 +494,7 @@ function ActionContent({
 
       return (
         <div className="flex items-start gap-3">
-          <div
-            className={cn(
-              "mt-0.5 rounded-full p-1.5",
-              styles.icon,
-              "bg-blue-100 dark:bg-blue-900/40",
-            )}
-          >
+          <div className={cn("mt-0.5 rounded-full p-1.5", styles.icon, "bg-blue-100 dark:bg-blue-900/40")}>
             <Clock className="size-4" />
           </div>
           <div className="flex-1">
@@ -577,13 +528,7 @@ function ActionContent({
         <>
           <div className="flex items-start justify-between gap-4">
             <div className="flex items-start gap-3">
-              <div
-                className={cn(
-                  "mt-0.5 rounded-full p-1.5",
-                  styles.icon,
-                  "bg-amber-100 dark:bg-amber-900/40",
-                )}
-              >
+              <div className={cn("mt-0.5 rounded-full p-1.5", styles.icon, "bg-amber-100 dark:bg-amber-900/40")}>
                 <Upload className="size-4" />
               </div>
               <div>
@@ -628,13 +573,7 @@ function ActionContent({
         <>
           <div className="flex items-start justify-between gap-4">
             <div className="flex items-start gap-3">
-              <div
-                className={cn(
-                  "mt-0.5 rounded-full p-1.5",
-                  styles.icon,
-                  "bg-orange-100 dark:bg-orange-900/40",
-                )}
-              >
+              <div className={cn("mt-0.5 rounded-full p-1.5", styles.icon, "bg-orange-100 dark:bg-orange-900/40")}>
                 <Eye className="size-4" />
               </div>
               <div>
@@ -642,9 +581,8 @@ function ActionContent({
                   Inspection documents submitted — review required
                 </p>
                 <p className="text-muted-foreground mt-0.5 text-xs">
-                  {submittedDocs.length} file
-                  {submittedDocs.length !== 1 ? "s" : ""} attached. Review
-                  against the Q&Q criteria and approve or reject.
+                  {submittedDocs.length} file{submittedDocs.length !== 1 ? "s" : ""}{" "}
+                  attached. Review against the Q&Q criteria and approve or reject.
                 </p>
               </div>
             </div>
@@ -710,13 +648,7 @@ function ActionContent({
         <>
           <div className="flex items-start justify-between gap-4">
             <div className="flex items-start gap-3">
-              <div
-                className={cn(
-                  "mt-0.5 rounded-full p-1.5",
-                  styles.icon,
-                  "bg-red-100 dark:bg-red-900/40",
-                )}
-              >
+              <div className={cn("mt-0.5 rounded-full p-1.5", styles.icon, "bg-red-100 dark:bg-red-900/40")}>
                 <XCircle className="size-4" />
               </div>
               <div>
@@ -727,8 +659,8 @@ function ActionContent({
                   Reason: {ctx.reason}
                 </p>
                 <p className="text-muted-foreground mt-1 text-xs">
-                  The buyer has been notified to re-upload corrected documents.
-                  You can also upload on their behalf.
+                  The buyer has been notified to re-upload corrected documents. You
+                  can also upload on their behalf.
                 </p>
               </div>
             </div>
@@ -760,13 +692,7 @@ function ActionContent({
         <>
           <div className="flex items-start justify-between gap-4">
             <div className="flex items-start gap-3">
-              <div
-                className={cn(
-                  "mt-0.5 rounded-full p-1.5",
-                  styles.icon,
-                  "bg-amber-100 dark:bg-amber-900/40",
-                )}
-              >
+              <div className={cn("mt-0.5 rounded-full p-1.5", styles.icon, "bg-amber-100 dark:bg-amber-900/40")}>
                 <Search className="size-4" />
               </div>
               <div>
@@ -803,24 +729,16 @@ function ActionContent({
 
     // ── Settlement ready ───────────────────────────────────────────
     case "settlement_ready": {
-      const currency =
-        transaction.escrow?.currency || transaction.order?.currency || "USD";
+      const currency = transaction.escrow?.currency || transaction.order?.currency || "USD";
       const sellerAmount =
         transaction.escrow?.sellerAmount ?? transaction.order?.totalAmount ?? 0;
-      const sellerName =
-        transaction.order?.sellerOrganization?.name || "Seller";
+      const sellerName = transaction.order?.sellerOrganization?.name || "Seller";
 
       return (
         <>
           <div className="flex items-start justify-between gap-4">
             <div className="flex items-start gap-3">
-              <div
-                className={cn(
-                  "mt-0.5 rounded-full p-1.5",
-                  styles.icon,
-                  "bg-green-100 dark:bg-green-900/40",
-                )}
-              >
+              <div className={cn("mt-0.5 rounded-full p-1.5", styles.icon, "bg-green-100 dark:bg-green-900/40")}>
                 <Send className="size-4" />
               </div>
               <div>
@@ -856,13 +774,7 @@ function ActionContent({
     case "disputed":
       return (
         <div className="flex items-start gap-3">
-          <div
-            className={cn(
-              "mt-0.5 rounded-full p-1.5",
-              styles.icon,
-              "bg-red-100 dark:bg-red-900/40",
-            )}
-          >
+          <div className={cn("mt-0.5 rounded-full p-1.5", styles.icon, "bg-red-100 dark:bg-red-900/40")}>
             <AlertTriangle className="size-4" />
           </div>
           <div>
@@ -893,9 +805,7 @@ function ActionContent({
     case "waiting":
       return (
         <div className="flex items-start gap-3">
-          <div
-            className={cn("mt-0.5 rounded-full p-1.5", styles.icon, "bg-muted")}
-          >
+          <div className={cn("mt-0.5 rounded-full p-1.5", styles.icon, "bg-muted")}>
             <Clock className="size-4" />
           </div>
           <div>
