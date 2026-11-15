@@ -9838,13 +9838,13 @@
         ],
         "responses": {
           "200": {
-            "description": "List of transaction events",
+            "description": "List of transaction events, each with the acting admin or user named, and the party of a completed stage",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/TransactionEventDto"
+                    "$ref": "#/components/schemas/AdminTransactionEventDto"
                   }
                 }
               }
@@ -32903,6 +32903,80 @@
           "name",
           "requiredFrom",
           "isMandatory"
+        ]
+      },
+      "AdminTransactionEventDto": {
+        "type": "object",
+        "properties": {
+          "timestamp": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "actor": {
+            "type": "string",
+            "description": "Admin views only: the acting user. Parties get actorRole instead."
+          },
+          "action": {
+            "type": "string",
+            "enum": [
+              "CREATED",
+              "STATUS_CHANGE",
+              "FUNDING_WINDOW_EXTENDED",
+              "FUNDING_WINDOW_REOPENED",
+              "FUNDING_WINDOW_CLOSED",
+              "DOCUMENT_UPLOADED",
+              "DOCUMENT_REVIEWED",
+              "LOGISTICS_UPDATE",
+              "NOTE_ADDED",
+              "REQUIREMENT_ADDED",
+              "REQUIREMENT_UPDATED",
+              "REQUIREMENT_DELETED",
+              "STAGE_COMPLETED",
+              "MILESTONE_SUBMITTED",
+              "MILESTONE_APPROVED",
+              "INSPECTION_SUBMITTED",
+              "INSPECTION_REVIEWED",
+              "DISPUTE_RAISED",
+              "DISPUTE_RESOLVED",
+              "DISPUTE_WITHDRAWN",
+              "ESCROW_REFUND_INITIATED",
+              "ESCROW_DISCOUNT_INITIATED",
+              "RENTAL_ENDED",
+              "CHARTER_ENDED",
+              "RETURN_INSPECTION_COMPLETED"
+            ]
+          },
+          "metadata": {
+            "type": "object"
+          },
+          "actorKind": {
+            "type": "string",
+            "enum": [
+              "admin",
+              "user"
+            ],
+            "description": "Whether the actor is an admin or a platform user. Absent for the system, and for actors that match neither (admin events recorded before the actor fix carry an id that matches no one)."
+          },
+          "actorName": {
+            "type": "string",
+            "description": "The actor's name"
+          },
+          "actorEmail": {
+            "type": "string",
+            "description": "The actor's email"
+          },
+          "stageParty": {
+            "type": "string",
+            "enum": [
+              "buyer",
+              "seller"
+            ],
+            "description": "STAGE_COMPLETED only: the party whose stage it was. Each party has its own document stage, and both can share a name (\"Sign Contract\")."
+          }
+        },
+        "required": [
+          "timestamp",
+          "action"
         ]
       },
       "UpdateTransactionRequirementDto": {

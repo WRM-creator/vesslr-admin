@@ -8551,6 +8551,59 @@ export type AddTransactionRequirementDto = {
     | "DISPUTED";
 };
 
+export type AdminTransactionEventDto = {
+  timestamp: string;
+  /**
+   * Admin views only: the acting user. Parties get actorRole instead.
+   */
+  actor?: string;
+  action:
+    | "CREATED"
+    | "STATUS_CHANGE"
+    | "FUNDING_WINDOW_EXTENDED"
+    | "FUNDING_WINDOW_REOPENED"
+    | "FUNDING_WINDOW_CLOSED"
+    | "DOCUMENT_UPLOADED"
+    | "DOCUMENT_REVIEWED"
+    | "LOGISTICS_UPDATE"
+    | "NOTE_ADDED"
+    | "REQUIREMENT_ADDED"
+    | "REQUIREMENT_UPDATED"
+    | "REQUIREMENT_DELETED"
+    | "STAGE_COMPLETED"
+    | "MILESTONE_SUBMITTED"
+    | "MILESTONE_APPROVED"
+    | "INSPECTION_SUBMITTED"
+    | "INSPECTION_REVIEWED"
+    | "DISPUTE_RAISED"
+    | "DISPUTE_RESOLVED"
+    | "DISPUTE_WITHDRAWN"
+    | "ESCROW_REFUND_INITIATED"
+    | "ESCROW_DISCOUNT_INITIATED"
+    | "RENTAL_ENDED"
+    | "CHARTER_ENDED"
+    | "RETURN_INSPECTION_COMPLETED";
+  metadata?: {
+    [key: string]: unknown;
+  };
+  /**
+   * Whether the actor is an admin or a platform user. Absent for the system, and for actors that match neither (admin events recorded before the actor fix carry an id that matches no one).
+   */
+  actorKind?: "admin" | "user";
+  /**
+   * The actor's name
+   */
+  actorName?: string;
+  /**
+   * The actor's email
+   */
+  actorEmail?: string;
+  /**
+   * STAGE_COMPLETED only: the party whose stage it was. Each party has its own document stage, and both can share a name ("Sign Contract").
+   */
+  stageParty?: "buyer" | "seller";
+};
+
 export type UpdateTransactionRequirementDto = {
   /**
    * The type of document required
@@ -15885,9 +15938,9 @@ export type AdminTransactionsControllerGetLogsData = {
 
 export type AdminTransactionsControllerGetLogsResponses = {
   /**
-   * List of transaction events
+   * List of transaction events, each with the acting admin or user named, and the party of a completed stage
    */
-  200: Array<TransactionEventDto>;
+  200: Array<AdminTransactionEventDto>;
 };
 
 export type AdminTransactionsControllerGetLogsResponse =

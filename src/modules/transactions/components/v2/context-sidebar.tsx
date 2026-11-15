@@ -4,7 +4,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Spinner } from "@/components/ui/spinner";
 import { api } from "@/lib/api";
-import type { TransactionResponseDto } from "@/lib/api/generated";
+import type {
+  AdminTransactionEventDto,
+  TransactionResponseDto,
+} from "@/lib/api/generated";
 import type {
   AdminConversationMessage,
   AdminTransactionConversation,
@@ -17,6 +20,8 @@ import {
   ratePercentLabel,
 } from "@/modules/transactions/lib/settlement-fees";
 import { cn, formatDateTime } from "@/lib/utils";
+import { stageCompletedLabel } from "@/modules/transactions/lib/activity-log";
+import { ActorLine } from "../activity-actor-line";
 import {
   Banknote,
   History,
@@ -222,10 +227,8 @@ function ChatBubble({ message }: { message: AdminConversationMessage }) {
 }
 
 // ─── Audit Log ─────────────────────────────────────────────────────
-const getLogMessage = (
-  action: string,
-  metadata: Record<string, unknown> | undefined,
-) => {
+const getLogMessage = (log: AdminTransactionEventDto) => {
+  const { action, metadata } = log;
   switch (action) {
     case "STATUS_CHANGE":
       return `Status → ${((metadata?.newStatus as string) ?? "unknown").replace(/_/g, " ")}`;
@@ -242,7 +245,7 @@ const getLogMessage = (
     case "CREATED":
       return "Transaction created";
     case "STAGE_COMPLETED":
-      return `Stage completed: ${(metadata?.stageName as string) ?? ""}`;
+      return `Stage completed: ${stageCompletedLabel(log)}`;
     case "MILESTONE_SUBMITTED":
       return "Milestone submitted";
     case "MILESTONE_APPROVED":
@@ -295,7 +298,7 @@ function AuditLog({ transactionId }: { transactionId: string }) {
           <div className="space-y-0">
             <div className="relative">
               <div className="space-y-0">
-                {visibleLogs.map((log: any, i: number) => (
+                {visibleLogs.map((log, i) => (
                   <div key={i} className="group flex gap-2.5 text-xs">
                     <div className="flex min-w-[32px] flex-col items-end">
                       <span className="text-muted-foreground text-[10px]">
@@ -305,8 +308,9 @@ function AuditLog({ transactionId }: { transactionId: string }) {
                     <div className="border-border/50 relative flex-1 border-l pb-3 pl-3 group-last:border-transparent">
                       <div className="border-background bg-muted-foreground/30 group-first:bg-primary absolute top-1 -left-[4px] size-2 rounded-full border" />
                       <span className="text-foreground/80">
-                        {getLogMessage(log.action, log.metadata)}
+                        {getLogMessage(log)}
                       </span>
+                      <ActorLine log={log} className="text-muted-foreground block truncate text-[10px]" />
                     </div>
                   </div>
                 ))}
