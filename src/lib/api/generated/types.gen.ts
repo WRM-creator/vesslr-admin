@@ -11510,6 +11510,13 @@ export type ProviderWebhookEventDto = {
   };
 };
 
+export type WebhookReplayRequestDto = {
+  /**
+   * Credit a held wallet credit (one naming Vesslr as its sender, or matching a payment Vesslr sent from someone else) without matching it to any payment. Only after checking the org should have the money. Ignored for other events.
+   */
+  creditOwnSender?: boolean;
+};
+
 export type WebhookReplayResultDto = {
   /**
    * The event status after the replay
@@ -18227,7 +18234,7 @@ export type AdminProviderPayoutsControllerListWebhookEventsResponse =
   AdminProviderPayoutsControllerListWebhookEventsResponses[keyof AdminProviderPayoutsControllerListWebhookEventsResponses];
 
 export type AdminProviderPayoutsControllerReplayWebhookEventData = {
-  body?: never;
+  body: WebhookReplayRequestDto;
   path: {
     id: string;
   };

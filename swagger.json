@@ -15159,6 +15159,16 @@
             }
           }
         ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WebhookReplayRequestDto"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "",
@@ -39217,6 +39227,15 @@
           "createdAt",
           "payload"
         ]
+      },
+      "WebhookReplayRequestDto": {
+        "type": "object",
+        "properties": {
+          "creditOwnSender": {
+            "type": "boolean",
+            "description": "Credit a held wallet credit (one naming Vesslr as its sender, or matching a payment Vesslr sent from someone else) without matching it to any payment. Only after checking the org should have the money. Ignored for other events."
+          }
+        }
       },
       "WebhookReplayResultDto": {
         "type": "object",

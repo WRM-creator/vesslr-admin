@@ -8119,6 +8119,10 @@ export const adminProviderPayoutsControllerReplayWebhookEvent = <
     security: [{ scheme: "bearer", type: "http" }],
     url: "/api/v1/admin/provider-payouts/webhook-events/{id}/replay",
     ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
   });
 
 /**

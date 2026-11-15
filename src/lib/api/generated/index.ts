@@ -1975,6 +1975,7 @@ export type {
   WalletTransferResponseDto,
   WalletValuationComponentDto,
   WalletValuationResponseDto,
+  WebhookReplayRequestDto,
   WebhookReplayResultDto,
   WithdrawDisputeAttachmentDto,
   WithdrawDisputeDto,
