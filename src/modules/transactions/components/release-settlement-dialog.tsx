@@ -94,7 +94,7 @@ export function ReleaseSettlementDialog({
             {fees.escrowFeeAmount > 0 && (
               <div className="flex items-center justify-between">
                 <span className="text-muted-foreground text-sm">
-                  Escrow fee (buyer{ratePercentLabel(fees.escrowFeeRate)})
+                  Escrow fee, buyer{ratePercentLabel(fees.escrowFeeRate)}
                 </span>
                 <span className="text-muted-foreground text-sm font-medium">
                   {formatCurrency(fees.escrowFeeAmount, currency)}
@@ -104,8 +104,8 @@ export function ReleaseSettlementDialog({
             {fees.serviceChargeAmount > 0 && (
               <div className="flex items-center justify-between">
                 <span className="text-muted-foreground text-sm">
-                  Service charge (seller
-                  {ratePercentLabel(fees.serviceChargeRate)})
+                  Service charge, seller
+                  {ratePercentLabel(fees.serviceChargeRate)}
                 </span>
                 <span className="text-muted-foreground text-sm font-medium">
                   {formatCurrency(fees.serviceChargeAmount, currency)}

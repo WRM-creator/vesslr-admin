@@ -2,7 +2,7 @@ import { getTradeTermLabel } from "@/types/trade-term";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { TransactionResponseDto } from "@/lib/api/generated";
 import { formatCurrency } from "@/lib/currency";
-import { cn, formatDateTime } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import {
   AlertTriangle,
   Ban,
