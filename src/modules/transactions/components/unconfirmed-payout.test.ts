@@ -3,7 +3,11 @@ import type {
   TransactionEscrowFundingDto,
 } from "@/lib/api/generated";
 import { describe, expect, it } from "vitest";
-import { unconfirmedPayout } from "./unconfirmed-payout";
+import {
+  PAYOUT_POLL_MS,
+  payoutPollInterval,
+  unconfirmedPayout,
+} from "./unconfirmed-payout";
 
 const now = new Date("2026-11-09T12:00:00Z");
 const escrow = (status: string, payoutClaimedAt?: string) =>
@@ -56,5 +60,24 @@ describe("unconfirmedPayout", () => {
   it("has nothing for a funded or settled escrow", () => {
     expect(unconfirmedPayout(escrow("FUNDED"), null, now)).toBeNull();
     expect(unconfirmedPayout(escrow("RELEASED"), null, now)).toBeNull();
+  });
+});
+
+describe("payoutPollInterval", () => {
+  it("polls a release claimed minutes ago", () => {
+    expect(
+      payoutPollInterval(escrow("RELEASE_PENDING", "2026-11-09T11:58:00Z"), now),
+    ).toBe(PAYOUT_POLL_MS);
+  });
+
+  it("stops once the lookup window has passed", () => {
+    expect(
+      payoutPollInterval(escrow("REFUND_PENDING", "2026-11-09T11:00:00Z"), now),
+    ).toBe(false);
+  });
+
+  it("does not poll a settled escrow", () => {
+    expect(payoutPollInterval(escrow("RELEASED", "2026-11-09T11:58:00Z"), now)).toBe(false);
+    expect(payoutPollInterval(null, now)).toBe(false);
   });
 });

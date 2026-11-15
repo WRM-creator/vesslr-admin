@@ -10,7 +10,12 @@ import type {
   AdminTransactionConversation,
 } from "@/lib/api/transaction-conversations";
 import { formatCurrency } from "@/lib/currency";
-import { ratePercentLabel } from "@/modules/transactions/lib/settlement-fees";
+import { getEscrowState } from "@/modules/transactions/lib/escrow-state";
+import { ESCROW_CONFIG } from "../escrow-state-config";
+import {
+  deriveOrderFees,
+  ratePercentLabel,
+} from "@/modules/transactions/lib/settlement-fees";
 import { cn, formatDateTime } from "@/lib/utils";
 import {
   Banknote,
@@ -49,50 +54,22 @@ function FinancialSummary({
   const escrow = transaction.escrow;
   const currency = order?.currency || "USD";
   const goodsAmount = order?.totalAmount || 0;
-  const serviceFeeAmount = order?.serviceFeeAmount ?? 0;
-  const totalWithFee = order?.totalWithFee ?? goodsAmount + serviceFeeAmount;
-  // Buyer-funding view: the buyer's only fee is the escrow fee added on top.
-  // Rate derived from the amount so it always matches what was charged.
+  // The buyer's side: goods plus the escrow fee. On a differential order the
+  // order's serviceFeeAmount is the SELLER's charge, so it is never shown here.
+  const { escrowFeeAmount } = deriveOrderFees(transaction);
+  const totalWithFee = goodsAmount + escrowFeeAmount;
   const escrowFeeRate =
-    goodsAmount > 0 && serviceFeeAmount > 0
-      ? serviceFeeAmount / goodsAmount
+    goodsAmount > 0 && escrowFeeAmount > 0
+      ? escrowFeeAmount / goodsAmount
       : undefined;
 
-  const isFunded = [
-    "ESCROW_FUNDED",
-    "LOGISTICS_ASSIGNED",
-    "IN_TRANSIT",
-    "INSPECTION_PENDING",
-    "INSPECTION_UNDER_REVIEW",
-    "DELIVERY_CONFIRMED",
-    "SETTLEMENT_RELEASED",
-    "CLOSED",
-    "MILESTONES_IN_PROGRESS",
-  ].includes(transaction.status);
-
-  const isReleased =
-    transaction.status === "SETTLEMENT_RELEASED" ||
-    transaction.status === "CLOSED";
-  const isRefunded = transaction.status === "REFUNDED";
-
-  const escrowLabel = isReleased
-    ? "Released"
-    : isRefunded
-      ? "Refunded"
-      : isFunded
-        ? "Funded"
-        : "Pending";
+  // Same derivation as the overview, so the two never disagree (rental,
+  // service and charter statuses used to fall through to "Pending").
+  const escrowConfig = ESCROW_CONFIG[getEscrowState(transaction)];
 
   const [refundOpen, setRefundOpen] = useState(false);
   const refundable = canRefundEscrow(transaction);
 
-  const escrowColor = isReleased
-    ? "text-green-600"
-    : isRefunded
-      ? "text-amber-600"
-      : isFunded
-        ? "text-blue-600"
-        : "text-muted-foreground";
 
   return (
     <Card>
@@ -108,13 +85,13 @@ function FinancialSummary({
               {formatCurrency(goodsAmount, currency)}
             </span>
           </div>
-          {serviceFeeAmount > 0 && (
+          {escrowFeeAmount > 0 && (
             <div className="flex items-center justify-between text-sm">
               <span className="text-muted-foreground">
                 Escrow Fee{ratePercentLabel(escrowFeeRate)}
               </span>
               <span className="font-medium">
-                {formatCurrency(serviceFeeAmount, currency)}
+                {formatCurrency(escrowFeeAmount, currency)}
               </span>
             </div>
           )}
@@ -129,8 +106,8 @@ function FinancialSummary({
 
         <div className="bg-muted/40 flex items-center justify-between rounded-md px-3 py-2">
           <span className="text-muted-foreground text-xs">Escrow</span>
-          <span className={cn("text-xs font-semibold", escrowColor)}>
-            {escrowLabel}
+          <span className={cn("text-xs font-semibold", escrowConfig.iconClass)}>
+            {escrowConfig.label}
           </span>
         </div>
 

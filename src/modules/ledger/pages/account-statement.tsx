@@ -97,9 +97,7 @@ export default function AccountStatementPage() {
               {account.accountType}
             </Badge>
             <span className="text-2xl font-bold">
-              {formatCurrency(account.balance, account.currency, {
-                maximumFractionDigits: 2,
-              })}
+              {formatCurrency(account.balance, account.currency)}
             </span>
           </div>
         }

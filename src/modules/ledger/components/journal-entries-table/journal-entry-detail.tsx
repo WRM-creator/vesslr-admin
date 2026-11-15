@@ -62,16 +62,12 @@ export function JournalEntryDetail({
                 </TableCell>
                 <TableCell className="px-3 py-2 text-right font-mono text-sm">
                   {line.debit > 0
-                    ? formatCurrency(line.debit, line.currency, {
-                        maximumFractionDigits: 2,
-                      })
+                    ? formatCurrency(line.debit, line.currency)
                     : "—"}
                 </TableCell>
                 <TableCell className="px-3 py-2 text-right font-mono text-sm text-green-600 dark:text-green-400">
                   {line.credit > 0
-                    ? formatCurrency(line.credit, line.currency, {
-                        maximumFractionDigits: 2,
-                      })
+                    ? formatCurrency(line.credit, line.currency)
                     : "—"}
                 </TableCell>
                 <TableCell className="text-muted-foreground px-3 py-2 text-right text-sm">

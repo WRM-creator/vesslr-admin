@@ -112,7 +112,7 @@ export const journalColumns: ColumnDef<JournalEntry>[] = [
       const currency = row.original.lines[0]?.currency ?? "NGN";
       return (
         <div className="text-right font-mono text-sm font-semibold">
-          {formatCurrency(total, currency, { maximumFractionDigits: 2 })}
+          {formatCurrency(total, currency)}
         </div>
       );
     },

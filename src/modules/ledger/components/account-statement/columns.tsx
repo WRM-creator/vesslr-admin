@@ -72,9 +72,7 @@ export const statementColumns: ColumnDef<StatementEntry>[] = [
       return (
         <div className="text-right font-medium text-green-600 dark:text-green-400">
           +
-          {formatCurrency(credit, row.original.currency, {
-            maximumFractionDigits: 2,
-          })}
+          {formatCurrency(credit, row.original.currency)}
         </div>
       );
     },
@@ -88,9 +86,7 @@ export const statementColumns: ColumnDef<StatementEntry>[] = [
         return <div className="text-right">—</div>;
       return (
         <div className="text-right font-medium">
-          {formatCurrency(debit, row.original.currency, {
-            maximumFractionDigits: 2,
-          })}
+          {formatCurrency(debit, row.original.currency)}
         </div>
       );
     },

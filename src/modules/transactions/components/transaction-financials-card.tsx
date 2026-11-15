@@ -9,6 +9,7 @@ import { formatDateTime } from "@/lib/utils";
 import { format } from "date-fns";
 import { AlertCircle, FileText, Loader2, RefreshCw, RotateCw } from "lucide-react";
 import { toast } from "sonner";
+import { deriveOrderFees } from "@/modules/transactions/lib/settlement-fees";
 import { useDifferentialFormula } from "./differential-formula";
 import {
   TransactionPaymentStatus,
@@ -92,34 +93,9 @@ export function TransactionFinancialsCard({
   );
   const amountPending = isDifferential && order.totalAmount == null;
 
-  // Two-fee model. The buyer pays goods + escrow fee; the seller receives
-  // goods − service charge; the platform earns both. On a differential order
-  // the buyer-side fee is zero (the buyer pays exactly the listed price) and
-  // the order's serviceFeeAmount IS the seller's charge, so the same
-  // arithmetic covers both bases.
-  const orderFees = order as unknown as {
-    frozenSellerFee?: { feeSettlementAmount?: number };
-    frozenEscrowFee?: { feeAmount?: number };
-    serviceChargeConfig?: { feeType?: string; percentage?: number };
-  };
-  const frozenCharge = orderFees.frozenSellerFee?.feeSettlementAmount;
-  const chargeConfig = orderFees.serviceChargeConfig;
-  const serviceChargeAmount =
-    frozenCharge ??
-    (chargeConfig?.feeType === "percentage" && chargeConfig.percentage
-      ? Math.round(goodsAmount * chargeConfig.percentage)
-      : isDifferential
-        ? serviceFeeAmount
-        : 0);
-  // On a differential order frozen before the two-fee model, serviceFeeAmount
-  // was the SELLER's charge, so it must not be read as a buyer fee — the
-  // absence of frozenEscrowFee is what identifies that shape.
-  const escrowFeeAmount =
-    orderFees.frozenEscrowFee?.feeAmount ??
-    (isDifferential ? 0 : serviceFeeAmount);
-  const sellerPayout = goodsAmount - serviceChargeAmount;
-  const platformRevenue = escrowFeeAmount + serviceChargeAmount;
-  const chargeIsEstimate = !isDifferential && frozenCharge == null;
+  const { escrowFeeAmount, serviceChargeAmount, sellerPayout, chargeIsEstimate } =
+    deriveOrderFees(transaction);
+  const platformRevenue = escrowFeeAmount + (serviceChargeAmount ?? 0);
 
   return (
     <Card className="h-full">
@@ -254,21 +230,27 @@ export function TransactionFinancialsCard({
                       {formatCurrency(totalWithFee, currency)}
                     </span>
                   </div>
-                  {serviceChargeAmount > 0 && (
+                  {serviceChargeAmount !== 0 && (
                     <div className="flex items-center justify-between text-sm">
                       <span className="text-muted-foreground">
                         Service Charge (seller)
-                        {chargeIsEstimate ? " — est." : ""}
+                        {chargeIsEstimate && serviceChargeAmount != null ? " (est.)" : ""}
                       </span>
                       <span className="font-medium">
-                        − {formatCurrency(serviceChargeAmount, currency)}
+                        {serviceChargeAmount == null
+                          ? "Set at funding"
+                          : `− ${formatCurrency(serviceChargeAmount, currency)}`}
                       </span>
                     </div>
                   )}
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">Seller Payout</span>
+                    <span className="text-muted-foreground">
+                      Seller Payout{chargeIsEstimate && sellerPayout != null ? " (est.)" : ""}
+                    </span>
                     <span className="font-medium text-green-600">
-                      {formatCurrency(sellerPayout, currency)}
+                      {sellerPayout == null
+                        ? "Set at funding"
+                        : formatCurrency(sellerPayout, currency)}
                     </span>
                   </div>
                   {platformRevenue > 0 && (

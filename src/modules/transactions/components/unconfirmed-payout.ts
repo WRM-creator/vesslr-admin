@@ -52,3 +52,26 @@ export function unconfirmedPayout(
   }
   return null;
 }
+
+/** How often the transaction is re-read while a payout awaits its webhook. */
+export const PAYOUT_POLL_MS = 5_000;
+
+/**
+ * A release or refund the provider has not confirmed yet usually settles by
+ * webhook within seconds. Poll while that is expected, so the page moves on
+ * by itself instead of showing "not confirmed" until a reload. After the
+ * lookup window the admin checks with the provider instead. Wallet funding
+ * is left out: a stuck payment into escrow does not resolve by webhook.
+ */
+export function payoutPollInterval(
+  escrow: EscrowResponseDto | null | undefined,
+  now: Date = new Date(),
+): number | false {
+  if (
+    !escrow ||
+    (escrow.status !== "RELEASE_PENDING" && escrow.status !== "REFUND_PENDING")
+  ) {
+    return false;
+  }
+  return unconfirmedPayout(escrow, null, now)?.lookupFrom ? PAYOUT_POLL_MS : false;
+}

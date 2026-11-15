@@ -74,9 +74,7 @@ export function MerchantFinancialsTab({
                 <Skeleton className="h-10 w-48 bg-white/10" />
               ) : (
                 <div className="text-4xl font-semibold tracking-tight">
-                  {formatCurrency(wallet.balance, currency, {
-                    maximumFractionDigits: 2,
-                  })}
+                  {formatCurrency(wallet.balance, currency)}
                 </div>
               )}
             </div>
@@ -93,9 +91,7 @@ export function MerchantFinancialsTab({
                     <Skeleton className="h-7 w-28 bg-white/10" />
                   ) : (
                     <p className="text-lg font-semibold">
-                      {formatCurrency(inbound.balance, currency, {
-                        maximumFractionDigits: 2,
-                      })}
+                      {formatCurrency(inbound.balance, currency)}
                     </p>
                   )}
                 </div>
@@ -113,9 +109,7 @@ export function MerchantFinancialsTab({
                     <Skeleton className="h-7 w-28 bg-white/10" />
                   ) : (
                     <p className="text-lg font-semibold">
-                      {formatCurrency(outbound.balance, currency, {
-                        maximumFractionDigits: 2,
-                      })}
+                      {formatCurrency(outbound.balance, currency)}
                     </p>
                   )}
                 </div>
