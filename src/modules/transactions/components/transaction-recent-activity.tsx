@@ -2,6 +2,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Spinner } from "@/components/ui/spinner";
 import { api } from "@/lib/api";
 import { formatDateTime } from "@/lib/utils";
+import type { AdminTransactionEventDto } from "@/lib/api/generated";
+import {
+  actorLabel,
+  stageCompletedLabel,
+} from "@/modules/transactions/lib/activity-log";
 
 const TransactionAction = {
   CREATED: "CREATED",
@@ -25,7 +30,8 @@ const TransactionAction = {
 
 type TransactionActionType = string;
 
-const getLogMessage = (action: TransactionActionType, metadata: Record<string, unknown> | undefined) => {
+const getLogMessage = (log: AdminTransactionEventDto) => {
+  const { action, metadata } = log;
   switch (action) {
     case TransactionAction.STATUS_CHANGE:
       return `Status changed to ${((metadata?.newStatus as string) ?? "unknown").replace(/_/g, " ")}`;
@@ -45,6 +51,8 @@ const getLogMessage = (action: TransactionActionType, metadata: Record<string, u
       return "Note added";
     case TransactionAction.CREATED:
       return "Transaction Created";
+    case TransactionAction.STAGE_COMPLETED:
+      return `Stage completed: ${stageCompletedLabel(log)}`;
     default:
       return action.replace(/_/g, " ");
   }
@@ -109,11 +117,16 @@ export function TransactionRecentActivity({
 
                   <div className="flex flex-col gap-0.5">
                     <span className="text-foreground/90 text-xs font-medium">
-                      {getLogMessage(log.action, log.metadata)}
+                      {getLogMessage(log)}
                     </span>
                     <span className="text-muted-foreground text-[11px] leading-snug">
                       {getLogDetails(log.action, log.metadata)}
                     </span>
+                    {actorLabel(log) && (
+                      <span className="text-muted-foreground truncate text-[11px] leading-snug">
+                        by {actorLabel(log)}
+                      </span>
+                    )}
                   </div>
                 </div>
               </div>
