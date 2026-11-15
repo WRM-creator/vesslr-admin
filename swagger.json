@@ -9558,7 +9558,7 @@
     },
     "/api/v1/admin/transactions/rental-periods/end-due": {
       "post": {
-        "description": "Ends every rental whose booked period has elapsed, as the 10-minute sweep does: completes its RENTAL_ACTIVE stage and opens OFF_HIRE_REPORT. A running rental with no end date first gets one, counted from its delivery confirmation. Rentals not yet due are untouched.",
+        "description": "Ends every rental whose booked period has elapsed, as the 10-minute sweep does: completes its RENTAL_ACTIVE stage and opens OFF_HIRE_REPORT. Only transactions still RENTAL_IN_PROGRESS count. A running rental with no end date first gets one, counted from its delivery confirmation (or is listed in skipped when it has none). Rentals not yet due are untouched.",
         "operationId": "AdminTransactionsController_endDueRentals",
         "parameters": [],
         "responses": {
@@ -32818,6 +32818,13 @@
               "type": "string"
             }
           },
+          "skipped": {
+            "description": "Running rentals with no end date and no completed delivery confirmation to count one from; an admin ends these with End Rental.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
           "ended": {
             "description": "Transactions whose Rental Period stage this run ended.",
             "type": "array",
@@ -32834,6 +32841,7 @@
         },
         "required": [
           "backfilled",
+          "skipped",
           "ended",
           "failed"
         ]

@@ -8473,6 +8473,10 @@ export type RentalAutoEndResultDto = {
    */
   backfilled: Array<string>;
   /**
+   * Running rentals with no end date and no completed delivery confirmation to count one from; an admin ends these with End Rental.
+   */
+  skipped: Array<string>;
+  /**
    * Transactions whose Rental Period stage this run ended.
    */
   ended: Array<string>;
