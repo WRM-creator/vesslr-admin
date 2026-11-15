@@ -800,6 +800,7 @@ export type {
   AdminSupportControllerUpdateData,
   AdminSupportControllerUpdateResponses,
   AdminTransactionConversationResponseDto,
+  AdminTransactionEventDto,
   AdminTransactionsControllerAddDocumentData,
   AdminTransactionsControllerAddDocumentResponse,
   AdminTransactionsControllerAddDocumentResponses,
