@@ -18110,6 +18110,7 @@
             "$ref": "#/components/schemas/CommercialTermsDto"
           },
           "milestones": {
+            "description": "The payment schedule every order of this listing follows; percentages sum to 100. Service offers in a milestone-delivery group only. Refused (400) when the smallest milestone's payout on the smallest order, after the service charge, falls below the payout minimum (NGN 100). Send [] to remove it.",
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/RequestMilestoneDto"
@@ -18755,6 +18756,7 @@
             "$ref": "#/components/schemas/CommercialTermsDto"
           },
           "milestones": {
+            "description": "The payment schedule every order of this listing follows; percentages sum to 100. Service offers in a milestone-delivery group only. Refused (400) when the smallest milestone's payout on the smallest order, after the service charge, falls below the payout minimum (NGN 100). Send [] to remove it.",
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/RequestMilestoneDto"
@@ -23496,7 +23498,7 @@
             "description": "The unit duration is counted in. On a rental listing it must be the listing's ratePeriod."
           },
           "milestones": {
-            "description": "Buyer-defined milestones (only when category group milestoneDelivery=true)",
+            "description": "Buyer-proposed milestones (only when category group milestoneDelivery=true). Ignored when the listing sets its own schedule: the listing's schedule is used.",
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/MilestoneInputDto"
@@ -31432,6 +31434,7 @@
             "$ref": "#/components/schemas/CommercialTermsDto"
           },
           "milestones": {
+            "description": "The payment schedule every order of this listing follows; percentages sum to 100. Service offers in a milestone-delivery group only. Refused (400) when the smallest milestone's payout on the smallest order, after the service charge, falls below the payout minimum (NGN 100). Send [] to remove it.",
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/RequestMilestoneDto"
@@ -32081,6 +32084,7 @@
             "$ref": "#/components/schemas/CommercialTermsDto"
           },
           "milestones": {
+            "description": "The payment schedule every order of this listing follows; percentages sum to 100. Service offers in a milestone-delivery group only. Refused (400) when the smallest milestone's payout on the smallest order, after the service charge, falls below the payout minimum (NGN 100). Send [] to remove it.",
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/RequestMilestoneDto"
