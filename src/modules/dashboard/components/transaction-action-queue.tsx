@@ -110,7 +110,12 @@ function QueueRow({ item }: { item: AdminActionQueueItemDto }) {
  */
 export function TransactionActionQueue() {
   const { data, isLoading, isError, refetch, isRefetching } =
-    api.admin.transactions.actionQueue.useQuery({});
+    // Refetch on every visit: the admin usually comes back here after acting
+    // on a row, and the transaction pages do not invalidate this query.
+    api.admin.transactions.actionQueue.useQuery(
+      {},
+      { refetchOnMount: "always", refetchOnWindowFocus: true },
+    );
   const items = data?.data ?? [];
   const blocking = items.filter((i) => i.group !== "ONGOING").length;
 
@@ -125,10 +130,12 @@ export function TransactionActionQueue() {
         </div>
         {!isLoading && !isError && items.length > 0 && (
           <span className="text-muted-foreground shrink-0 text-xs tabular-nums">
-            {blocking} to do
-            {items.length > blocking
-              ? ` · ${items.length - blocking} ongoing`
-              : ""}
+            {[
+              blocking > 0 && `${blocking} to do`,
+              items.length > blocking && `${items.length - blocking} ongoing`,
+            ]
+              .filter(Boolean)
+              .join(" · ")}
           </span>
         )}
       </CardHeader>
@@ -175,7 +182,7 @@ export function TransactionActionQueue() {
           <div className="divide-y">
             {items.map((item) => (
               <QueueRow
-                key={`${item.transactionId}-${item.kind}`}
+                key={`${item.transactionId}-${item.kind}-${item.disputeId ?? ""}`}
                 item={item}
               />
             ))}
