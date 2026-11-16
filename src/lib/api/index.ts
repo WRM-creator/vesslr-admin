@@ -117,6 +117,7 @@ import {
   adminTransactionsControllerConfirmDepositFunding,
   adminTransactionsControllerConfirmDepositFundingWithWaiver,
   adminTransactionsControllerDeleteRequirement,
+  adminTransactionsControllerActionQueue,
   adminTransactionsControllerFindAll,
   adminTransactionsControllerFindById,
   adminTransactionsControllerGetFundingReview,
@@ -257,6 +258,12 @@ export const api = {
       }),
     },
     transactions: {
+      /** Every transaction waiting on an admin, one row per action. */
+      actionQueue: createQuery(adminTransactionsControllerActionQueue, [
+        "admin",
+        "transactions",
+        "actionQueue",
+      ]),
       list: createQuery(adminTransactionsControllerFindAll, (args) => [
         "admin",
         "transactions",

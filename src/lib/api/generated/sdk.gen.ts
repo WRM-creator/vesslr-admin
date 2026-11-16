@@ -277,6 +277,8 @@ import type {
   AdminSupportControllerResolveResponses,
   AdminSupportControllerUpdateData,
   AdminSupportControllerUpdateResponses,
+  AdminTransactionsControllerActionQueueData,
+  AdminTransactionsControllerActionQueueResponses,
   AdminTransactionsControllerAddDocumentData,
   AdminTransactionsControllerAddDocumentResponses,
   AdminTransactionsControllerAddRequirementData,
@@ -5325,6 +5327,26 @@ export const adminTransactionsControllerEndDueRentals = <
   >({
     security: [{ scheme: "bearer", type: "http" }],
     url: "/api/v1/admin/transactions/rental-periods/end-due",
+    ...options,
+  });
+
+/**
+ * Transactions waiting on an admin (Admin)
+ *
+ * One row per admin action across every transaction: documents to review, deposits to confirm, inspections, settlements to release, disputes, failed or unconfirmed payouts, milestone retries, refunds to resend, held deposits to return, and rentals or charters only an admin can end. Money first, then workflow, then ongoing; oldest first within each.
+ */
+export const adminTransactionsControllerActionQueue = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<AdminTransactionsControllerActionQueueData, ThrowOnError>,
+) =>
+  (options?.client ?? client).get<
+    AdminTransactionsControllerActionQueueResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [{ scheme: "bearer", type: "http" }],
+    url: "/api/v1/admin/transactions/action-queue",
     ...options,
   });
 
