@@ -9584,6 +9584,34 @@
         ]
       }
     },
+    "/api/v1/admin/transactions/action-queue": {
+      "get": {
+        "description": "One row per admin action across every transaction: documents to review, deposits to confirm, inspections, settlements to release, disputes, failed or unconfirmed payouts, milestone retries, refunds to resend, held deposits to return, and rentals or charters only an admin can end. Money first, then workflow, then ongoing; oldest first within each.",
+        "operationId": "AdminTransactionsController_actionQueue",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminActionQueueResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Transactions waiting on an admin (Admin)",
+        "tags": [
+          "Admin Transactions"
+        ]
+      }
+    },
     "/api/v1/admin/transactions": {
       "get": {
         "operationId": "AdminTransactionsController_findAll",
@@ -22628,6 +22656,10 @@
           "bankName": {
             "type": "string"
           },
+          "accountName": {
+            "type": "string",
+            "description": "Name the bank shows for the account (from a name enquiry at mint). Absent when unknown, e.g. destinations minted before this was stored."
+          },
           "address": {
             "type": "string",
             "description": "Crypto deposit address (crypto rails)"
@@ -32862,6 +32894,126 @@
           "skipped",
           "ended",
           "failed"
+        ]
+      },
+      "AdminActionKind": {
+        "type": "string",
+        "enum": [
+          "DOCUMENT_REVIEW",
+          "FUNDING_REVIEW",
+          "INSPECTION_REVIEW",
+          "RETURN_INSPECTION",
+          "SETTLEMENT_RELEASE",
+          "DISPUTE",
+          "PAYOUT_RESEND",
+          "PAYOUT_LOOKUP",
+          "MILESTONE_RETRY",
+          "REFUND_RESEND",
+          "HELD_DEPOSITS",
+          "RENTAL_END",
+          "CHARTER_END"
+        ]
+      },
+      "AdminActionGroup": {
+        "type": "string",
+        "enum": [
+          "MONEY",
+          "WORKFLOW",
+          "ONGOING"
+        ],
+        "description": "MONEY: a payout or refund gone wrong. WORKFLOW: a step that waits on Vesslr. ONGOING: running until an admin ends it."
+      },
+      "AdminActionQueueItemDto": {
+        "type": "object",
+        "properties": {
+          "transactionId": {
+            "type": "string",
+            "description": "Transaction id; the row opens /transactions/:id"
+          },
+          "transactionDisplayId": {
+            "type": "number",
+            "description": "Transaction number (TXN-n)"
+          },
+          "orderDisplayId": {
+            "type": "number",
+            "description": "Order number (ORD-n), unique per buyer"
+          },
+          "title": {
+            "type": "string",
+            "description": "Listing title, falling back to the request name"
+          },
+          "buyerName": {
+            "type": "string"
+          },
+          "sellerName": {
+            "type": "string"
+          },
+          "kind": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/AdminActionKind"
+              }
+            ]
+          },
+          "group": {
+            "description": "MONEY: a payout or refund gone wrong. WORKFLOW: a step that waits on Vesslr. ONGOING: running until an admin ends it.",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/AdminActionGroup"
+              }
+            ]
+          },
+          "label": {
+            "type": "string",
+            "description": "What the admin does, as a short instruction"
+          },
+          "detail": {
+            "type": "string"
+          },
+          "since": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "description": "When the transaction started waiting on this, when known"
+          },
+          "amount": {
+            "type": "number",
+            "description": "The money the action is about, in minor units. Unset for an unpriced order."
+          },
+          "currency": {
+            "type": "string"
+          },
+          "disputeId": {
+            "type": "string",
+            "description": "DISPUTE only: the row opens /disputes/:id"
+          }
+        },
+        "required": [
+          "transactionId",
+          "transactionDisplayId",
+          "title",
+          "kind",
+          "group",
+          "label"
+        ]
+      },
+      "AdminActionQueueResponseDto": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "description": "Money first, then workflow, then ongoing; oldest first within each",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdminActionQueueItemDto"
+            }
+          }
+        },
+        "required": [
+          "message",
+          "data"
         ]
       },
       "PaginatedDataDto": {

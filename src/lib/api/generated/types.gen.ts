@@ -3447,6 +3447,10 @@ export type DepositFundingInstructionsDto = {
   accountNumber?: string;
   bankName?: string;
   /**
+   * Name the bank shows for the account (from a name enquiry at mint). Absent when unknown, e.g. destinations minted before this was stored.
+   */
+  accountName?: string;
+  /**
    * Crypto deposit address (crypto rails)
    */
   address?: string;
@@ -8497,6 +8501,78 @@ export type RentalAutoEndResultDto = {
    */
   ended: Array<string>;
   failed: Array<RentalAutoEndFailureDto>;
+};
+
+export type AdminActionKind =
+  | "DOCUMENT_REVIEW"
+  | "FUNDING_REVIEW"
+  | "INSPECTION_REVIEW"
+  | "RETURN_INSPECTION"
+  | "SETTLEMENT_RELEASE"
+  | "DISPUTE"
+  | "PAYOUT_RESEND"
+  | "PAYOUT_LOOKUP"
+  | "MILESTONE_RETRY"
+  | "REFUND_RESEND"
+  | "HELD_DEPOSITS"
+  | "RENTAL_END"
+  | "CHARTER_END";
+
+/**
+ * MONEY: a payout or refund gone wrong. WORKFLOW: a step that waits on Vesslr. ONGOING: running until an admin ends it.
+ */
+export type AdminActionGroup = "MONEY" | "WORKFLOW" | "ONGOING";
+
+export type AdminActionQueueItemDto = {
+  /**
+   * Transaction id; the row opens /transactions/:id
+   */
+  transactionId: string;
+  /**
+   * Transaction number (TXN-n)
+   */
+  transactionDisplayId: number;
+  /**
+   * Order number (ORD-n), unique per buyer
+   */
+  orderDisplayId?: number;
+  /**
+   * Listing title, falling back to the request name
+   */
+  title: string;
+  buyerName?: string;
+  sellerName?: string;
+  kind: AdminActionKind;
+  /**
+   * MONEY: a payout or refund gone wrong. WORKFLOW: a step that waits on Vesslr. ONGOING: running until an admin ends it.
+   */
+  group: AdminActionGroup;
+  /**
+   * What the admin does, as a short instruction
+   */
+  label: string;
+  detail?: string;
+  /**
+   * When the transaction started waiting on this, when known
+   */
+  since?: string | null;
+  /**
+   * The money the action is about, in minor units. Unset for an unpriced order.
+   */
+  amount?: number;
+  currency?: string;
+  /**
+   * DISPUTE only: the row opens /disputes/:id
+   */
+  disputeId?: string;
+};
+
+export type AdminActionQueueResponseDto = {
+  message: string;
+  /**
+   * Money first, then workflow, then ongoing; oldest first within each
+   */
+  data: Array<AdminActionQueueItemDto>;
 };
 
 export type PaginatedDataDto = {
@@ -15881,6 +15957,20 @@ export type AdminTransactionsControllerEndDueRentalsResponses = {
 
 export type AdminTransactionsControllerEndDueRentalsResponse =
   AdminTransactionsControllerEndDueRentalsResponses[keyof AdminTransactionsControllerEndDueRentalsResponses];
+
+export type AdminTransactionsControllerActionQueueData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: "/api/v1/admin/transactions/action-queue";
+};
+
+export type AdminTransactionsControllerActionQueueResponses = {
+  200: AdminActionQueueResponseDto;
+};
+
+export type AdminTransactionsControllerActionQueueResponse =
+  AdminTransactionsControllerActionQueueResponses[keyof AdminTransactionsControllerActionQueueResponses];
 
 export type AdminTransactionsControllerFindAllData = {
   body?: never;
