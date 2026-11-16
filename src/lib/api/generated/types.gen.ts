@@ -3447,6 +3447,10 @@ export type DepositFundingInstructionsDto = {
   accountNumber?: string;
   bankName?: string;
   /**
+   * Name the bank shows for the account (from a name enquiry at mint). Absent when unknown, e.g. destinations minted before this was stored.
+   */
+  accountName?: string;
+  /**
    * Crypto deposit address (crypto rails)
    */
   address?: string;

@@ -22628,6 +22628,10 @@
           "bankName": {
             "type": "string"
           },
+          "accountName": {
+            "type": "string",
+            "description": "Name the bank shows for the account (from a name enquiry at mint). Absent when unknown, e.g. destinations minted before this was stored."
+          },
           "address": {
             "type": "string",
             "description": "Crypto deposit address (crypto rails)"
